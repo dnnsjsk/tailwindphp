@@ -241,8 +241,8 @@ Port in dependency order:
    - [x] `css-parser.php` + test
    - [x] `ast.php` + test
    - [x] `walk.php` + test
-   - [ ] `value-parser.php` + test
-   - [ ] `selector-parser.php` + test
+   - [x] `value-parser.php` + test
+   - [x] `selector-parser.php` + test
 
 ### Phase 3: Design System
 - [ ] `theme.php`

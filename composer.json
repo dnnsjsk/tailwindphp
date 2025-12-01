@@ -35,7 +35,9 @@
             "src/utils/infer-data-type.php",
             "src/ast.php",
             "src/css-parser.php",
-            "src/walk.php"
+            "src/walk.php",
+            "src/value-parser.php",
+            "src/selector-parser.php"
         ]
     },
     "autoload-dev": {
