@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TailwindPHP\Utils;
+
+/**
+ * Variables
+ *
+ * Port of: packages/tailwindcss/src/utils/variables.ts
+ *
+ * Extracts CSS custom property (variable) names from values.
+ */
+
+/**
+ * Extract used CSS variables from a raw value string.
+ *
+ * @param string $raw The raw CSS value
+ * @return array List of variable names (e.g., ['--color-red-500', '--spacing'])
+ */
+function extractUsedVariables(string $raw): array
+{
+    $variables = [];
+    $ast = \TailwindPHP\ValueParser\parse($raw);
+
+    \TailwindPHP\ValueParser\walk($ast, function ($node) use (&$variables) {
+        if ($node['kind'] !== 'function' || $node['value'] !== 'var') {
+            return;
+        }
+
+        \TailwindPHP\ValueParser\walk($node['nodes'], function ($child) use (&$variables) {
+            if (
+                $child['kind'] !== 'word' ||
+                !isset($child['value'][0]) ||
+                !isset($child['value'][1]) ||
+                $child['value'][0] !== '-' ||
+                $child['value'][1] !== '-'
+            ) {
+                return;
+            }
+
+            $variables[] = $child['value'];
+        });
+
+        return \TailwindPHP\ValueParser\WalkAction::Skip();
+    });
+
+    return $variables;
+}
