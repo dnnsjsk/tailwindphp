@@ -37,7 +37,10 @@
             "src/css-parser.php",
             "src/walk.php",
             "src/value-parser.php",
-            "src/selector-parser.php"
+            "src/selector-parser.php",
+            "src/property-order.php",
+            "src/theme.php",
+            "src/utils/decode-arbitrary-value.php"
         ]
     },
     "autoload-dev": {

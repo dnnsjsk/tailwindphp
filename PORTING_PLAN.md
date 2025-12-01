@@ -224,7 +224,7 @@ Port in dependency order:
    - [x] `utils/segment.php` + test
    - [x] `utils/escape.php` + test
    - [x] `utils/default-map.php`
-   - [ ] `utils/decode-arbitrary-value.php` + test (depends on value-parser)
+   - [x] `utils/decode-arbitrary-value.php` + test
    - [x] `utils/to-key-path.php` + test
    - [x] `utils/brace-expansion.php` + test
    - [x] `utils/compare.php` + test
@@ -245,9 +245,9 @@ Port in dependency order:
    - [x] `selector-parser.php` + test
 
 ### Phase 3: Design System
-- [ ] `theme.php`
+- [x] `theme.php`
 - [ ] `design-system.php`
-- [ ] `property-order.php`
+- [x] `property-order.php`
 - [ ] `sort.php` + test
 
 ### Phase 4: Candidates & Compilation
