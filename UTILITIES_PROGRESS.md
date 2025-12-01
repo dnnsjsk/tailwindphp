@@ -4,8 +4,8 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 
 ## Summary
 - **Total Tests in Original**: 267
-- **Tests Ported**: 116 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing)
-- **Tests Remaining**: 151
+- **Tests Ported**: 147 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing + 31 typography)
+- **Tests Remaining**: 120
 
 ## Utility Categories
 
@@ -38,6 +38,23 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 | Width (w, min-w, max-w) | 12 | `src/utilities/sizing.php` | `tests/utilities/SizingTest.php` |
 | Height (h, min-h, max-h) | 12 | `src/utilities/sizing.php` | `tests/utilities/SizingTest.php` |
 | Size | 5 | `src/utilities/sizing.php` | `tests/utilities/SizingTest.php` |
+| Font Style (italic) | 2 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Font Weight | 3 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Text Decoration | 3 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Text Transform | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Text Align | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Text Wrap | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Whitespace | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Word Break | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Hyphens | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| List Style | 4 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Vertical Align | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Leading (line-height) | 3 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Tracking (letter-spacing) | 3 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Text Indent | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Truncate/Text Overflow | 2 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Font Variant Numeric | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Font Smoothing | 2 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
 
 ### 🔄 In Progress
 

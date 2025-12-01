@@ -599,10 +599,10 @@ require_once __DIR__ . '/utilities/accessibility.php';
 require_once __DIR__ . '/utilities/layout.php';
 require_once __DIR__ . '/utilities/spacing.php';
 require_once __DIR__ . '/utilities/sizing.php';
+require_once __DIR__ . '/utilities/typography.php';
 
 // Stub functions - will be implemented in individual files
 function registerFlexboxGridUtilities(UtilityBuilder $builder): void {}
-function registerTypographyUtilities(UtilityBuilder $builder): void {}
 function registerBackgroundUtilities(UtilityBuilder $builder): void {}
 function registerBorderUtilities(UtilityBuilder $builder): void {}
 function registerEffectsUtilities(UtilityBuilder $builder): void {}
