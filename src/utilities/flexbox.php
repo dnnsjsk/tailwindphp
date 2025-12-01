@@ -342,7 +342,9 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('justify-normal', [['justify-content', 'normal']]);
     $builder->staticUtility('justify-start', [['justify-content', 'flex-start']]);
     $builder->staticUtility('justify-end', [['justify-content', 'flex-end']]);
+    $builder->staticUtility('justify-end-safe', [['justify-content', 'safe flex-end']]);
     $builder->staticUtility('justify-center', [['justify-content', 'center']]);
+    $builder->staticUtility('justify-center-safe', [['justify-content', 'safe center']]);
     $builder->staticUtility('justify-between', [['justify-content', 'space-between']]);
     $builder->staticUtility('justify-around', [['justify-content', 'space-around']]);
     $builder->staticUtility('justify-evenly', [['justify-content', 'space-evenly']]);
@@ -351,22 +353,28 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     // Justify Items
     $builder->staticUtility('justify-items-start', [['justify-items', 'start']]);
     $builder->staticUtility('justify-items-end', [['justify-items', 'end']]);
+    $builder->staticUtility('justify-items-end-safe', [['justify-items', 'safe end']]);
     $builder->staticUtility('justify-items-center', [['justify-items', 'center']]);
+    $builder->staticUtility('justify-items-center-safe', [['justify-items', 'safe center']]);
     $builder->staticUtility('justify-items-stretch', [['justify-items', 'stretch']]);
     $builder->staticUtility('justify-items-normal', [['justify-items', 'normal']]);
 
     // Justify Self
     $builder->staticUtility('justify-self-auto', [['justify-self', 'auto']]);
-    $builder->staticUtility('justify-self-start', [['justify-self', 'start']]);
-    $builder->staticUtility('justify-self-end', [['justify-self', 'end']]);
+    $builder->staticUtility('justify-self-start', [['justify-self', 'flex-start']]);
+    $builder->staticUtility('justify-self-end', [['justify-self', 'flex-end']]);
+    $builder->staticUtility('justify-self-end-safe', [['justify-self', 'safe flex-end']]);
     $builder->staticUtility('justify-self-center', [['justify-self', 'center']]);
+    $builder->staticUtility('justify-self-center-safe', [['justify-self', 'safe center']]);
     $builder->staticUtility('justify-self-stretch', [['justify-self', 'stretch']]);
 
     // Align Content
     $builder->staticUtility('content-normal', [['align-content', 'normal']]);
     $builder->staticUtility('content-start', [['align-content', 'flex-start']]);
     $builder->staticUtility('content-end', [['align-content', 'flex-end']]);
+    $builder->staticUtility('content-end-safe', [['align-content', 'safe flex-end']]);
     $builder->staticUtility('content-center', [['align-content', 'center']]);
+    $builder->staticUtility('content-center-safe', [['align-content', 'safe center']]);
     $builder->staticUtility('content-between', [['align-content', 'space-between']]);
     $builder->staticUtility('content-around', [['align-content', 'space-around']]);
     $builder->staticUtility('content-evenly', [['align-content', 'space-evenly']]);
@@ -376,39 +384,51 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     // Align Items
     $builder->staticUtility('items-start', [['align-items', 'flex-start']]);
     $builder->staticUtility('items-end', [['align-items', 'flex-end']]);
+    $builder->staticUtility('items-end-safe', [['align-items', 'safe flex-end']]);
     $builder->staticUtility('items-center', [['align-items', 'center']]);
+    $builder->staticUtility('items-center-safe', [['align-items', 'safe center']]);
     $builder->staticUtility('items-baseline', [['align-items', 'baseline']]);
+    $builder->staticUtility('items-baseline-last', [['align-items', 'last baseline']]);
     $builder->staticUtility('items-stretch', [['align-items', 'stretch']]);
 
     // Align Self
     $builder->staticUtility('self-auto', [['align-self', 'auto']]);
     $builder->staticUtility('self-start', [['align-self', 'flex-start']]);
     $builder->staticUtility('self-end', [['align-self', 'flex-end']]);
+    $builder->staticUtility('self-end-safe', [['align-self', 'safe flex-end']]);
     $builder->staticUtility('self-center', [['align-self', 'center']]);
+    $builder->staticUtility('self-center-safe', [['align-self', 'safe center']]);
     $builder->staticUtility('self-stretch', [['align-self', 'stretch']]);
     $builder->staticUtility('self-baseline', [['align-self', 'baseline']]);
+    $builder->staticUtility('self-baseline-last', [['align-self', 'last baseline']]);
 
     // Place Content
     $builder->staticUtility('place-content-center', [['place-content', 'center']]);
+    $builder->staticUtility('place-content-center-safe', [['place-content', 'safe center']]);
     $builder->staticUtility('place-content-start', [['place-content', 'start']]);
     $builder->staticUtility('place-content-end', [['place-content', 'end']]);
+    $builder->staticUtility('place-content-end-safe', [['place-content', 'safe end']]);
     $builder->staticUtility('place-content-between', [['place-content', 'space-between']]);
     $builder->staticUtility('place-content-around', [['place-content', 'space-around']]);
     $builder->staticUtility('place-content-evenly', [['place-content', 'space-evenly']]);
-    $builder->staticUtility('place-content-baseline', [['place-content', 'baseline']]);
+    $builder->staticUtility('place-content-baseline', [['place-content', 'baseline start']]);
     $builder->staticUtility('place-content-stretch', [['place-content', 'stretch']]);
 
     // Place Items
     $builder->staticUtility('place-items-start', [['place-items', 'start']]);
     $builder->staticUtility('place-items-end', [['place-items', 'end']]);
+    $builder->staticUtility('place-items-end-safe', [['place-items', 'safe end']]);
     $builder->staticUtility('place-items-center', [['place-items', 'center']]);
+    $builder->staticUtility('place-items-center-safe', [['place-items', 'safe center']]);
     $builder->staticUtility('place-items-baseline', [['place-items', 'baseline']]);
-    $builder->staticUtility('place-items-stretch', [['place-items', 'stretch']]);
+    $builder->staticUtility('place-items-stretch', [['place-items', 'stretch stretch']]);
 
     // Place Self
     $builder->staticUtility('place-self-auto', [['place-self', 'auto']]);
     $builder->staticUtility('place-self-start', [['place-self', 'start']]);
     $builder->staticUtility('place-self-end', [['place-self', 'end']]);
+    $builder->staticUtility('place-self-end-safe', [['place-self', 'safe end']]);
     $builder->staticUtility('place-self-center', [['place-self', 'center']]);
-    $builder->staticUtility('place-self-stretch', [['place-self', 'stretch']]);
+    $builder->staticUtility('place-self-center-safe', [['place-self', 'safe center']]);
+    $builder->staticUtility('place-self-stretch', [['place-self', 'stretch stretch']]);
 }

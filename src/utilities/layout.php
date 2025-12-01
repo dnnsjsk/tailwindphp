@@ -217,6 +217,14 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('field-sizing-content', [['field-sizing', 'content']]);
     $builder->staticUtility('field-sizing-fixed', [['field-sizing', 'fixed']]);
 
+    // Color Scheme
+    $builder->staticUtility('scheme-normal', [['color-scheme', 'normal']]);
+    $builder->staticUtility('scheme-dark', [['color-scheme', 'dark']]);
+    $builder->staticUtility('scheme-light', [['color-scheme', 'light']]);
+    $builder->staticUtility('scheme-light-dark', [['color-scheme', 'light dark']]);
+    $builder->staticUtility('scheme-only-dark', [['color-scheme', 'dark only']]);
+    $builder->staticUtility('scheme-only-light', [['color-scheme', 'light only']]);
+
     // Aspect Ratio
     $builder->functionalUtility('aspect', [
         'themeKeys' => ['--aspect-ratio'],
@@ -336,6 +344,8 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     // Object Position
     $objectPositions = [
         'bottom' => 'bottom',
+        'bottom-left' => 'left bottom',
+        'bottom-right' => 'right bottom',
         'center' => 'center',
         'left' => 'left',
         'left-bottom' => 'left bottom',
@@ -344,6 +354,8 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         'right-bottom' => 'right bottom',
         'right-top' => 'right top',
         'top' => 'top',
+        'top-left' => 'left top',
+        'top-right' => 'right top',
     ];
     foreach ($objectPositions as $name => $value) {
         $builder->staticUtility("object-{$name}", [['object-position', $value]]);

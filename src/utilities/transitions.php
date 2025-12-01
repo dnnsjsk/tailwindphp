@@ -23,6 +23,22 @@ use function TailwindPHP\Utils\isPositiveInteger;
  */
 
 /**
+ * Convert ms to seconds in Tailwind 4 format.
+ * 123 -> ".123s", 200 -> ".2s", 1000 -> "1s", 1500 -> "1.5s"
+ */
+function msToSeconds(int $ms): string
+{
+    $seconds = $ms / 1000;
+    // Format without trailing zeros
+    $formatted = rtrim(rtrim(number_format($seconds, 3, '.', ''), '0'), '.');
+    // Add leading dot if < 1 (e.g., 0.123 -> .123)
+    if (str_starts_with($formatted, '0.')) {
+        $formatted = substr($formatted, 1);
+    }
+    return $formatted . 's';
+}
+
+/**
  * Register transitions utilities.
  *
  * @param UtilityBuilder $builder
@@ -101,9 +117,13 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
-            return "{$value['value']}ms";
+            return msToSeconds((int)$value['value']);
         },
         'handle' => function ($value) {
+            // Convert [300ms] arbitrary values to .3s format
+            if (preg_match('/^(\d+)ms$/', $value, $m)) {
+                $value = msToSeconds((int)$m[1]);
+            }
             return [decl('transition-delay', $value)];
         },
     ]);
@@ -121,9 +141,13 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
-            return "{$value['value']}ms";
+            return msToSeconds((int)$value['value']);
         },
         'handle' => function ($value) {
+            // Convert [300ms] arbitrary values to .3s format
+            if (preg_match('/^(\d+)ms$/', $value, $m)) {
+                $value = msToSeconds((int)$m[1]);
+            }
             return [
                 decl('--tw-duration', $value),
                 decl('transition-duration', $value),

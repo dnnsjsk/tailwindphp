@@ -33,32 +33,34 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('opacity', [
         'themeKeys' => ['--opacity'],
         'defaultValue' => null,
+        'handleBareValue' => function ($value) {
+            // Handle both integers and decimals: opacity-15 (=0.15), opacity-2.5 (=0.025)
+            // Valid decimal increments: .5, .25, .75 only
+            if (preg_match('/^(\d+)(\.(?:5|25|75))?$/', $value['value'], $m)) {
+                $numericVal = (float)$value['value'];
+
+                // Reject invalid values (> 100%)
+                if ($numericVal > 100) {
+                    return null;
+                }
+
+                // Divide by 100 to get decimal (15 -> 0.15, 2.5 -> 0.025)
+                $val = $numericVal / 100;
+
+                // Format the value properly (e.g., 0.15 -> .15, 0.025 -> .025)
+                $formatted = rtrim(number_format($val, 4, '.', ''), '0');
+                $formatted = rtrim($formatted, '.');
+                // Remove leading zero
+                if (str_starts_with($formatted, '0.')) {
+                    $formatted = substr($formatted, 1);
+                }
+                return $formatted ?: '0';
+            }
+            return null;
+        },
         'handle' => function ($value) {
             return [decl('opacity', $value)];
         },
-        'staticValues' => [
-            '0' => [decl('opacity', '0')],
-            '5' => [decl('opacity', '0.05')],
-            '10' => [decl('opacity', '0.1')],
-            '15' => [decl('opacity', '0.15')],
-            '20' => [decl('opacity', '0.2')],
-            '25' => [decl('opacity', '0.25')],
-            '30' => [decl('opacity', '0.3')],
-            '35' => [decl('opacity', '0.35')],
-            '40' => [decl('opacity', '0.4')],
-            '45' => [decl('opacity', '0.45')],
-            '50' => [decl('opacity', '0.5')],
-            '55' => [decl('opacity', '0.55')],
-            '60' => [decl('opacity', '0.6')],
-            '65' => [decl('opacity', '0.65')],
-            '70' => [decl('opacity', '0.7')],
-            '75' => [decl('opacity', '0.75')],
-            '80' => [decl('opacity', '0.8')],
-            '85' => [decl('opacity', '0.85')],
-            '90' => [decl('opacity', '0.9')],
-            '95' => [decl('opacity', '0.95')],
-            '100' => [decl('opacity', '1')],
-        ],
     ]);
 
     // =========================================================================
@@ -134,5 +136,50 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     foreach ($blendModes as $mode) {
         $builder->staticUtility("bg-blend-$mode", [['background-blend-mode', $mode]]);
+    }
+
+    // =========================================================================
+    // Mask Clip
+    // =========================================================================
+
+    $maskClipValues = [
+        'border' => 'border-box',
+        'padding' => 'padding-box',
+        'content' => 'content-box',
+        'fill' => 'fill-box',
+        'stroke' => 'stroke-box',
+        'view' => 'view-box',
+    ];
+
+    foreach ($maskClipValues as $name => $value) {
+        $builder->staticUtility("mask-clip-$name", [
+            ['-webkit-mask-clip', $value],
+            ['mask-clip', $value],
+        ]);
+    }
+
+    $builder->staticUtility('mask-no-clip', [
+        ['-webkit-mask-clip', 'no-clip'],
+        ['mask-clip', 'no-clip'],
+    ]);
+
+    // =========================================================================
+    // Mask Origin
+    // =========================================================================
+
+    $maskOriginValues = [
+        'border' => 'border-box',
+        'padding' => 'padding-box',
+        'content' => 'content-box',
+        'fill' => 'fill-box',
+        'stroke' => 'stroke-box',
+        'view' => 'view-box',
+    ];
+
+    foreach ($maskOriginValues as $name => $value) {
+        $builder->staticUtility("mask-origin-$name", [
+            ['-webkit-mask-origin', $value],
+            ['mask-origin', $value],
+        ]);
     }
 }

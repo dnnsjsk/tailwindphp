@@ -184,14 +184,22 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     ]);
 
     // Vertical Align
-    $builder->staticUtility('align-baseline', [['vertical-align', 'baseline']]);
-    $builder->staticUtility('align-top', [['vertical-align', 'top']]);
-    $builder->staticUtility('align-middle', [['vertical-align', 'middle']]);
-    $builder->staticUtility('align-bottom', [['vertical-align', 'bottom']]);
-    $builder->staticUtility('align-text-top', [['vertical-align', 'text-top']]);
-    $builder->staticUtility('align-text-bottom', [['vertical-align', 'text-bottom']]);
-    $builder->staticUtility('align-sub', [['vertical-align', 'sub']]);
-    $builder->staticUtility('align-super', [['vertical-align', 'super']]);
+    $builder->functionalUtility('align', [
+        'themeKeys' => ['--vertical-align'],
+        'handle' => function ($value) {
+            return [decl('vertical-align', $value)];
+        },
+        'staticValues' => [
+            'baseline' => [decl('vertical-align', 'baseline')],
+            'top' => [decl('vertical-align', 'top')],
+            'middle' => [decl('vertical-align', 'middle')],
+            'bottom' => [decl('vertical-align', 'bottom')],
+            'text-top' => [decl('vertical-align', 'text-top')],
+            'text-bottom' => [decl('vertical-align', 'text-bottom')],
+            'sub' => [decl('vertical-align', 'sub')],
+            'super' => [decl('vertical-align', 'super')],
+        ],
+    ]);
 
     // Line Height (leading)
     $builder->functionalUtility('leading', [

@@ -125,12 +125,12 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     // Border Style
     // =========================================================================
 
-    $builder->staticUtility('border-solid', [['border-style', 'solid']]);
-    $builder->staticUtility('border-dashed', [['border-style', 'dashed']]);
-    $builder->staticUtility('border-dotted', [['border-style', 'dotted']]);
-    $builder->staticUtility('border-double', [['border-style', 'double']]);
-    $builder->staticUtility('border-hidden', [['border-style', 'hidden']]);
-    $builder->staticUtility('border-none', [['border-style', 'none']]);
+    $builder->staticUtility('border-solid', [['--tw-border-style', 'solid'], ['border-style', 'solid']]);
+    $builder->staticUtility('border-dashed', [['--tw-border-style', 'dashed'], ['border-style', 'dashed']]);
+    $builder->staticUtility('border-dotted', [['--tw-border-style', 'dotted'], ['border-style', 'dotted']]);
+    $builder->staticUtility('border-double', [['--tw-border-style', 'double'], ['border-style', 'double']]);
+    $builder->staticUtility('border-hidden', [['--tw-border-style', 'hidden'], ['border-style', 'hidden']]);
+    $builder->staticUtility('border-none', [['--tw-border-style', 'none'], ['border-style', 'none']]);
 
     // =========================================================================
     // Border Collapse
@@ -219,9 +219,11 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('divide-y-reverse', [['--tw-divide-y-reverse', '1']]);
 
     // Divide Style
-    $builder->staticUtility('divide-solid', [['border-style', 'solid']]);
-    $builder->staticUtility('divide-dashed', [['border-style', 'dashed']]);
-    $builder->staticUtility('divide-dotted', [['border-style', 'dotted']]);
-    $builder->staticUtility('divide-double', [['border-style', 'double']]);
-    $builder->staticUtility('divide-none', [['border-style', 'none']]);
+    // Note: These use :where(.divide-* > :not(:last-child)) selector in Tailwind
+    // but our static utilities don't support custom selectors yet
+    $builder->staticUtility('divide-solid', [['--tw-border-style', 'solid'], ['border-style', 'solid']]);
+    $builder->staticUtility('divide-dashed', [['--tw-border-style', 'dashed'], ['border-style', 'dashed']]);
+    $builder->staticUtility('divide-dotted', [['--tw-border-style', 'dotted'], ['border-style', 'dotted']]);
+    $builder->staticUtility('divide-double', [['--tw-border-style', 'double'], ['border-style', 'double']]);
+    $builder->staticUtility('divide-none', [['--tw-border-style', 'none'], ['border-style', 'none']]);
 }
