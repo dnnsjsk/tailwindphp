@@ -4,8 +4,8 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 
 ## Summary
 - **Total Tests in Original**: 267
-- **Tests Ported**: 147 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing + 31 typography)
-- **Tests Remaining**: 120
+- **Tests Ported**: 194 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing + 31 typography + 47 borders)
+- **Tests Remaining**: 73
 
 ## Utility Categories
 
@@ -55,6 +55,15 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 | Truncate/Text Overflow | 2 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
 | Font Variant Numeric | 1 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
 | Font Smoothing | 2 | `src/utilities/typography.php` | `tests/utilities/TypographyTest.php` |
+| Border Radius (rounded-*) | 14 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Border Width (border-*) | 11 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Border Style | 6 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Border Collapse | 2 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Outline Style | 5 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Outline Width | 2 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Outline Offset | 2 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Divide Width | 4 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Divide Style | 5 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
 
 ### 🔄 In Progress
 
@@ -83,23 +92,10 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 | Display (flex, grid) | 10 | flex, grid, inline variants |
 | Grid | 3 | col, auto-cols, grid-cols, etc. |
 
-#### Typography
-| Category | Tests | Notes |
-|----------|-------|-------|
-| Text | 7 | font, leading, tracking, text-* |
-| Truncate | 1 | truncate utility |
-| Whitespace | 1 | whitespace utilities |
-| Text Wrap | 1 | text-wrap utilities |
-| Hyphens | 1 | hyphens utilities |
-| Word Break | 4 | break-before, break-inside, etc. |
-
 #### Borders & Outlines
 | Category | Tests | Notes |
 |----------|-------|-------|
-| Border (rounded) | 15 | border-radius utilities |
-| Outline | 2 | outline utilities |
 | Ring | 2 | ring utilities |
-| Divide | 5 | divide-x, divide-y, etc. |
 
 #### Backgrounds & Colors
 | Category | Tests | Notes |

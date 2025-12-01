@@ -16,6 +16,7 @@ require_once __DIR__ . '/utilities/flexbox.php';
 require_once __DIR__ . '/utilities/spacing.php';
 require_once __DIR__ . '/utilities/sizing.php';
 require_once __DIR__ . '/utilities/typography.php';
+require_once __DIR__ . '/utilities/borders.php';
 
 /**
  * Design System - Combines theme, utilities, and variants.
@@ -336,9 +337,11 @@ function createUtilities(Theme $theme): Utilities
     // Register typography utilities
     \TailwindPHP\Utilities\registerTypographyUtilities($builder);
 
+    // Register border utilities
+    \TailwindPHP\Utilities\registerBorderUtilities($builder);
+
     // TODO: Register all other utility categories
     // - Backgrounds
-    // - Borders
     // - Effects
     // - Filters
     // - Tables

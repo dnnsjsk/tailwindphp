@@ -577,7 +577,7 @@ function createUtilities(Theme $theme): Utilities
     // Register all utilities by loading individual utility files
     registerAccessibilityUtilities($builder);
     registerLayoutUtilities($builder);
-    registerFlexboxGridUtilities($builder);
+    registerFlexboxUtilities($builder);
     registerSpacingUtilities($builder);
     registerSizingUtilities($builder);
     registerTypographyUtilities($builder);
@@ -597,14 +597,14 @@ function createUtilities(Theme $theme): Utilities
 // Include individual utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
 require_once __DIR__ . '/utilities/layout.php';
+require_once __DIR__ . '/utilities/flexbox.php';
 require_once __DIR__ . '/utilities/spacing.php';
 require_once __DIR__ . '/utilities/sizing.php';
 require_once __DIR__ . '/utilities/typography.php';
+require_once __DIR__ . '/utilities/borders.php';
 
 // Stub functions - will be implemented in individual files
-function registerFlexboxGridUtilities(UtilityBuilder $builder): void {}
 function registerBackgroundUtilities(UtilityBuilder $builder): void {}
-function registerBorderUtilities(UtilityBuilder $builder): void {}
 function registerEffectsUtilities(UtilityBuilder $builder): void {}
 function registerFiltersUtilities(UtilityBuilder $builder): void {}
 function registerTablesUtilities(UtilityBuilder $builder): void {}

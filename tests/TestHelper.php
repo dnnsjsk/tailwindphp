@@ -200,6 +200,11 @@ class TestHelper
      */
     private function parseFunctionalCandidate(string $candidate): ?array
     {
+        // First check for exact match (utility with default value like rounded-t, border-x)
+        if ($this->utilities->has($candidate, 'functional')) {
+            return [$candidate, null];
+        }
+
         // Try to find the root by testing progressively shorter prefixes
         $idx = strrpos($candidate, '-');
 
@@ -237,11 +242,6 @@ class TestHelper
             }
 
             $idx = strrpos(substr($candidate, 0, $idx), '-');
-        }
-
-        // Check for exact match (utility with default value)
-        if ($this->utilities->has($candidate, 'functional')) {
-            return [$candidate, null];
         }
 
         return null;
