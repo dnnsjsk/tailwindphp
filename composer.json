@@ -52,6 +52,7 @@
             "src/utilities.php",
             "src/variants.php",
             "src/design-system.php",
+            "src/sort.php",
             "src/index.php"
         ]
     },

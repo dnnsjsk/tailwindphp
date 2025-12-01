@@ -10,6 +10,7 @@ use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\cloneAstNode;
 use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Walk\walk;
+use TailwindPHP\Candidate\VariantsInterface;
 
 /**
  * Variants - Variant registry and core variant functions.
@@ -27,7 +28,7 @@ const COMPOUNDS_STYLE_RULES = 1 << 1;   // 2
 /**
  * Variants class to manage variant registrations.
  */
-class Variants
+class Variants implements VariantsInterface
 {
     /**
      * @var array<int, callable>
@@ -703,6 +704,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         }
 
         if (!$didApply) return null;
+        return true;  // Explicit success (PHP doesn't have void vs null distinction)
     });
 
     $variants->suggest('not', fn() => array_filter(
@@ -749,6 +751,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         });
 
         if (!$didApply) return null;
+        return true;  // Explicit success
     });
 
     $variants->suggest('group', fn() => array_filter(
@@ -793,6 +796,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         });
 
         if (!$didApply) return null;
+        return true;  // Explicit success
     });
 
     $variants->suggest('peer', fn() => array_filter(
@@ -929,6 +933,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         });
 
         if (!$didApply) return null;
+        return true;  // Explicit success
     });
 
     $variants->suggest('in', fn() => array_filter(
@@ -957,6 +962,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         });
 
         if (!$didApply) return null;
+        return true;  // Explicit success
     });
 
     $variants->suggest('has', fn() => array_filter(

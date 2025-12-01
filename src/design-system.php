@@ -11,7 +11,12 @@ use TailwindPHP\Variants\Variants;
 use TailwindPHP\Utils\DefaultMap;
 
 use function TailwindPHP\Compile\compileCandidates;
+use function TailwindPHP\Compile\compileAstNodes;
 use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Candidate\parseCandidate;
+use function TailwindPHP\Candidate\parseVariant;
+use function TailwindPHP\Candidate\printCandidate;
+use TailwindPHP\Candidate\DesignSystemInterface as CandidateDesignSystemInterface;
 
 // Load utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
@@ -55,7 +60,7 @@ interface DesignSystemInterface
 /**
  * Design System implementation.
  */
-class DesignSystem implements DesignSystemInterface
+class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterface
 {
     private Theme $theme;
     private Utilities $utilities;
@@ -162,6 +167,35 @@ class DesignSystem implements DesignSystemInterface
     public function printVariant(array $variant): string
     {
         return \TailwindPHP\printVariant($variant);
+    }
+
+    public function getVariantOrder(): array
+    {
+        $parsedVariantEntries = $this->parsedVariants->entries();
+        $variants = array_values($parsedVariantEntries);
+
+        usort($variants, fn($a, $z) => $this->variants->compare($a, $z));
+
+        $order = [];
+        $prevVariant = null;
+        $index = 0;
+
+        foreach ($variants as $variant) {
+            if ($variant === null) {
+                continue;
+            }
+            // This variant is not the same order as the previous one
+            // so it goes into a new group
+            if ($prevVariant !== null && $this->variants->compare($prevVariant, $variant) !== 0) {
+                $index++;
+            }
+
+            // Use spl_object_hash for array identity (in PHP we use serialize for array keys)
+            $order[serialize($variant)] = $index;
+            $prevVariant = $variant;
+        }
+
+        return $order;
     }
 
     public function resolveThemeValue(string $path, bool $forceInline = true): ?string

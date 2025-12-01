@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TailwindPHP;
 
 use TailwindPHP\DesignSystem\DesignSystem;
+use function TailwindPHP\Compile\compileCandidates;
 
 /**
  * Sort
@@ -39,7 +40,11 @@ function getClassOrder(DesignSystem $designSystem, array $classes): array
     $idx = 0;
 
     foreach ($astNodes as $node) {
-        $candidate = $nodeSorting[$node]['candidate'] ?? null;
+        $nodeIndex = $node['__nodeIndex'] ?? null;
+        if ($nodeIndex === null) {
+            continue;
+        }
+        $candidate = $nodeSorting[$nodeIndex]['candidate'] ?? null;
         if (!$candidate) {
             continue;
         }
