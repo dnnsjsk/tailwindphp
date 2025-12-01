@@ -15,7 +15,7 @@ use function TailwindPHP\Utilities\registerTypographyUtilities;
  *
  * Port of typography tests from: packages/tailwindcss/src/utilities.test.ts
  */
-class TypographyTest extends TestCase
+class typography extends TestCase
 {
     private TestHelper $helper;
 

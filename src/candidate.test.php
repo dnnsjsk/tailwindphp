@@ -184,7 +184,7 @@ function run(
     return iterator_to_array(parseCandidate($candidate, $designSystem));
 }
 
-class CandidateTest extends TestCase
+class candidate extends TestCase
 {
     #[Test]
     public function should_skip_unknown_utilities(): void

@@ -20,7 +20,7 @@ use function TailwindPHP\Utilities\registerSpacingUtilities;
  * - padding (p, px, py, pt, pr, pb, pl, ps, pe)
  * - space-x, space-y
  */
-class SpacingTest extends TestCase
+class spacing extends TestCase
 {
     private TestHelper $helper;
 

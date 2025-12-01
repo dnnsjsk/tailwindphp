@@ -12,7 +12,7 @@ use function TailwindPHP\ValueParser\parse;
 use function TailwindPHP\ValueParser\toCss;
 use function TailwindPHP\walk;
 
-class ValueParserTest extends TestCase
+class value_parser extends TestCase
 {
     // parse tests
 

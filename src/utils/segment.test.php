@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 use function TailwindPHP\Utils\segment;
 
-class SegmentTest extends TestCase
+class segment extends TestCase
 {
     #[Test]
     public function should_result_in_a_single_segment_when_the_separator_is_not_present(): void

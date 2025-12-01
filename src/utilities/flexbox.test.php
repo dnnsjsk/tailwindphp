@@ -15,7 +15,7 @@ use function TailwindPHP\Utilities\registerFlexboxUtilities;
  *
  * Port of flexbox/grid tests from: packages/tailwindcss/src/utilities.test.ts
  */
-class FlexboxTest extends TestCase
+class flexbox extends TestCase
 {
     private TestHelper $helper;
 

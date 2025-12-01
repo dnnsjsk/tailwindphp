@@ -9,7 +9,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 use function TailwindPHP\Utils\toKeyPath;
 
-class ToKeyPathTest extends TestCase
+class to_key_path extends TestCase
 {
     #[Test]
     public function can_convert_key_paths_to_arrays(): void

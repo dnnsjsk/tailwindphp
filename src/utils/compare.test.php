@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use function TailwindPHP\Utils\compare;
 
-class CompareTest extends TestCase
+class compare extends TestCase
 {
     private const LESS = -1;
     private const EQUAL = 0;

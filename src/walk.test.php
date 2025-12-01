@@ -13,7 +13,7 @@ use function TailwindPHP\styleRule;
 use function TailwindPHP\decl;
 use function TailwindPHP\toCss;
 
-class WalkTest extends TestCase
+class walk extends TestCase
 {
     private function createAst(): array
     {

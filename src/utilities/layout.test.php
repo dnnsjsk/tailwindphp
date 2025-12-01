@@ -16,7 +16,7 @@ use function TailwindPHP\Utilities\registerLayoutUtilities;
  * Port of layout tests from: packages/tailwindcss/src/utilities.test.ts
  * Lines: 40-122 (pointer-events, visibility, position)
  */
-class LayoutTest extends TestCase
+class layout extends TestCase
 {
     private TestHelper $helper;
 

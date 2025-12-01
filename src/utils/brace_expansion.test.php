@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use function TailwindPHP\Utils\expand;
 
-class BraceExpansionTest extends TestCase
+class brace_expansion extends TestCase
 {
     public static function expansionProvider(): array
     {

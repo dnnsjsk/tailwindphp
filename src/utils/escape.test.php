@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use function TailwindPHP\Utils\escape;
 use function TailwindPHP\Utils\unescape;
 
-class EscapeTest extends TestCase
+class escape extends TestCase
 {
     #[Test]
     public function escape_adds_backslashes(): void

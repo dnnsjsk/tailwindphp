@@ -24,7 +24,7 @@ use function TailwindPHP\Utilities\registerBorderUtilities;
  * - outline
  * - divide
  */
-class BordersTest extends TestCase
+class borders extends TestCase
 {
     private TestHelper $helper;
 

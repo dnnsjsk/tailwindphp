@@ -21,7 +21,7 @@ use function TailwindPHP\Utilities\registerEffectsUtilities;
  * - mix-blend-mode
  * - background-blend-mode
  */
-class EffectsTest extends TestCase
+class effects extends TestCase
 {
     private TestHelper $helper;
 

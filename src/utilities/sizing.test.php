@@ -20,7 +20,7 @@ use function TailwindPHP\Utilities\registerSizingUtilities;
  * - height (h, min-h, max-h)
  * - size
  */
-class SizingTest extends TestCase
+class sizing extends TestCase
 {
     private TestHelper $helper;
 

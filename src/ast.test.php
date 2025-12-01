@@ -17,7 +17,7 @@ use function TailwindPHP\context;
 use function TailwindPHP\atRoot;
 use function TailwindPHP\cloneAstNode;
 
-class AstTest extends TestCase
+class ast extends TestCase
 {
     #[Test]
     public function creates_style_rule_node(): void

@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use function TailwindPHP\DecodeArbitraryValue\decodeArbitraryValue;
 
-class DecodeArbitraryValueTest extends TestCase
+class decode_arbitrary_value extends TestCase
 {
     // Decoding arbitrary values tests
 

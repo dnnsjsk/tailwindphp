@@ -16,7 +16,7 @@ use function TailwindPHP\Utilities\registerAccessibilityUtilities;
  * Port of accessibility tests from: packages/tailwindcss/src/utilities.test.ts
  * Lines: 7-38
  */
-class AccessibilityTest extends TestCase
+class accessibility extends TestCase
 {
     private TestHelper $helper;
 

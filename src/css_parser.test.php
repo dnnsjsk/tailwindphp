@@ -14,7 +14,7 @@ use function TailwindPHP\rule;
 use function TailwindPHP\decl;
 use function TailwindPHP\comment;
 
-class CssParserTest extends TestCase
+class css_parser extends TestCase
 {
     // COMMENTS
 

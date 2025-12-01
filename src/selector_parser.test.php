@@ -12,7 +12,7 @@ use function TailwindPHP\SelectorParser\parse;
 use function TailwindPHP\SelectorParser\toCss;
 use function TailwindPHP\walk;
 
-class SelectorParserTest extends TestCase
+class selector_parser extends TestCase
 {
     // parse tests
 
