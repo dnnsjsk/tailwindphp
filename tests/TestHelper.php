@@ -212,16 +212,7 @@ class TestHelper
         $theme->add('--blur-2xl', '40px');
         $theme->add('--blur-3xl', '64px');
 
-        // Width
-        $theme->add('--width-auto', 'auto');
-        $theme->add('--width-full', '100%');
-        $theme->add('--width-screen', '100vw');
-        $theme->add('--width-svw', '100svw');
-        $theme->add('--width-lvw', '100lvw');
-        $theme->add('--width-dvw', '100dvw');
-        $theme->add('--width-min', 'min-content');
-        $theme->add('--width-max', 'max-content');
-        $theme->add('--width-fit', 'fit-content');
+        // Width (only named sizes, not static values like auto/full/screen which are static utilities)
         $theme->add('--width-xs', '20rem');
         $theme->add('--width-sm', '24rem');
         $theme->add('--width-md', '28rem');
@@ -233,17 +224,6 @@ class TestHelper
         $theme->add('--width-5xl', '64rem');
         $theme->add('--width-6xl', '72rem');
         $theme->add('--width-7xl', '80rem');
-
-        // Height
-        $theme->add('--height-auto', 'auto');
-        $theme->add('--height-full', '100%');
-        $theme->add('--height-screen', '100vh');
-        $theme->add('--height-svh', '100svh');
-        $theme->add('--height-lvh', '100lvh');
-        $theme->add('--height-dvh', '100dvh');
-        $theme->add('--height-min', 'min-content');
-        $theme->add('--height-max', 'max-content');
-        $theme->add('--height-fit', 'fit-content');
 
         // Z-index
         $theme->add('--z-index-auto', 'auto');

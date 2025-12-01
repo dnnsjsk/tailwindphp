@@ -25,139 +25,101 @@ use function TailwindPHP\decl;
  */
 function registerSizingUtilities(UtilityBuilder $builder): void
 {
-    // Width utilities
-    $builder->functionalUtility('w', [
-        'themeKeys' => ['--width', '--spacing'],
-        'supportsFractions' => true,
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('width', $value)];
-        },
-        'staticValues' => [
-            'full' => [decl('width', '100%')],
-            'auto' => [decl('width', 'auto')],
-            'screen' => [decl('width', '100vw')],
-            'svw' => [decl('width', '100svw')],
-            'lvw' => [decl('width', '100lvw')],
-            'dvw' => [decl('width', '100dvw')],
-            'min' => [decl('width', 'min-content')],
-            'max' => [decl('width', 'max-content')],
-            'fit' => [decl('width', 'fit-content')],
-        ],
-    ]);
+    // Static size/width/height utilities for common values
+    // These are registered as static utilities, not as part of functional utilities
+    foreach ([
+        ['full', '100%'],
+        ['min', 'min-content'],
+        ['max', 'max-content'],
+        ['fit', 'fit-content'],
+    ] as [$key, $value]) {
+        $builder->staticUtility("size-{$key}", [
+            ['--tw-sort', 'size'],
+            ['width', $value],
+            ['height', $value],
+        ]);
+        $builder->staticUtility("w-{$key}", [['width', $value]]);
+        $builder->staticUtility("h-{$key}", [['height', $value]]);
+        $builder->staticUtility("min-w-{$key}", [['min-width', $value]]);
+        $builder->staticUtility("min-h-{$key}", [['min-height', $value]]);
+        $builder->staticUtility("max-w-{$key}", [['max-width', $value]]);
+        $builder->staticUtility("max-h-{$key}", [['max-height', $value]]);
+    }
 
-    // Min-width utilities
-    $builder->functionalUtility('min-w', [
-        'themeKeys' => ['--min-width', '--container', '--spacing'],
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('min-width', $value)];
-        },
-        'staticValues' => [
-            'full' => [decl('min-width', '100%')],
-            'auto' => [decl('min-width', 'auto')],
-            'min' => [decl('min-width', 'min-content')],
-            'max' => [decl('min-width', 'max-content')],
-            'fit' => [decl('min-width', 'fit-content')],
-        ],
+    // Auto utilities
+    $builder->staticUtility('size-auto', [
+        ['--tw-sort', 'size'],
+        ['width', 'auto'],
+        ['height', 'auto'],
     ]);
+    $builder->staticUtility('w-auto', [['width', 'auto']]);
+    $builder->staticUtility('h-auto', [['height', 'auto']]);
+    $builder->staticUtility('min-w-auto', [['min-width', 'auto']]);
+    $builder->staticUtility('min-h-auto', [['min-height', 'auto']]);
 
-    // Max-width utilities
-    $builder->functionalUtility('max-w', [
-        'themeKeys' => ['--max-width', '--container', '--spacing'],
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('max-width', $value)];
-        },
-        'staticValues' => [
-            'none' => [decl('max-width', 'none')],
-            'full' => [decl('max-width', '100%')],
-            'max' => [decl('max-width', 'max-content')],
-            'fit' => [decl('max-width', 'fit-content')],
-        ],
-    ]);
+    // Line height utilities
+    $builder->staticUtility('h-lh', [['height', '1lh']]);
+    $builder->staticUtility('min-h-lh', [['min-height', '1lh']]);
+    $builder->staticUtility('max-h-lh', [['max-height', '1lh']]);
 
-    // Height utilities
-    $builder->functionalUtility('h', [
-        'themeKeys' => ['--height', '--spacing'],
-        'supportsFractions' => true,
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('height', $value)];
-        },
-        'staticValues' => [
-            'full' => [decl('height', '100%')],
-            'auto' => [decl('height', 'auto')],
-            'screen' => [decl('height', '100vh')],
-            'svh' => [decl('height', '100svh')],
-            'lvh' => [decl('height', '100lvh')],
-            'dvh' => [decl('height', '100dvh')],
-            'min' => [decl('height', 'min-content')],
-            'max' => [decl('height', 'max-content')],
-            'fit' => [decl('height', 'fit-content')],
-            'lh' => [decl('height', '1lh')],
-        ],
-    ]);
+    // Screen utilities (viewport units)
+    $builder->staticUtility('w-screen', [['width', '100vw']]);
+    $builder->staticUtility('min-w-screen', [['min-width', '100vw']]);
+    $builder->staticUtility('max-w-screen', [['max-width', '100vw']]);
+    $builder->staticUtility('h-screen', [['height', '100vh']]);
+    $builder->staticUtility('min-h-screen', [['min-height', '100vh']]);
+    $builder->staticUtility('max-h-screen', [['max-height', '100vh']]);
 
-    // Min-height utilities
-    $builder->functionalUtility('min-h', [
-        'themeKeys' => ['--min-height', '--spacing'],
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('min-height', $value)];
-        },
-        'staticValues' => [
-            'full' => [decl('min-height', '100%')],
-            'auto' => [decl('min-height', 'auto')],
-            'screen' => [decl('min-height', '100vh')],
-            'svh' => [decl('min-height', '100svh')],
-            'lvh' => [decl('min-height', '100lvh')],
-            'dvh' => [decl('min-height', '100dvh')],
-            'min' => [decl('min-height', 'min-content')],
-            'max' => [decl('min-height', 'max-content')],
-            'fit' => [decl('min-height', 'fit-content')],
-            'lh' => [decl('min-height', '1lh')],
-        ],
-    ]);
+    // Viewport-relative units (svw, lvw, dvw, svh, lvh, dvh)
+    $builder->staticUtility('w-svw', [['width', '100svw']]);
+    $builder->staticUtility('w-lvw', [['width', '100lvw']]);
+    $builder->staticUtility('w-dvw', [['width', '100dvw']]);
+    $builder->staticUtility('h-svh', [['height', '100svh']]);
+    $builder->staticUtility('h-lvh', [['height', '100lvh']]);
+    $builder->staticUtility('h-dvh', [['height', '100dvh']]);
+    $builder->staticUtility('min-h-svh', [['min-height', '100svh']]);
+    $builder->staticUtility('min-h-lvh', [['min-height', '100lvh']]);
+    $builder->staticUtility('min-h-dvh', [['min-height', '100dvh']]);
+    $builder->staticUtility('max-h-svh', [['max-height', '100svh']]);
+    $builder->staticUtility('max-h-lvh', [['max-height', '100lvh']]);
+    $builder->staticUtility('max-h-dvh', [['max-height', '100dvh']]);
 
-    // Max-height utilities
-    $builder->functionalUtility('max-h', [
-        'themeKeys' => ['--max-height', '--spacing'],
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [decl('max-height', $value)];
-        },
-        'staticValues' => [
-            'none' => [decl('max-height', 'none')],
-            'full' => [decl('max-height', '100%')],
-            'screen' => [decl('max-height', '100vh')],
-            'svh' => [decl('max-height', '100svh')],
-            'lvh' => [decl('max-height', '100lvh')],
-            'dvh' => [decl('max-height', '100dvh')],
-            'min' => [decl('max-height', 'min-content')],
-            'max' => [decl('max-height', 'max-content')],
-            'fit' => [decl('max-height', 'fit-content')],
-            'lh' => [decl('max-height', '1lh')],
-        ],
-    ]);
+    // None utilities
+    $builder->staticUtility('max-w-none', [['max-width', 'none']]);
+    $builder->staticUtility('max-h-none', [['max-height', 'none']]);
 
-    // Size utility (sets both width and height)
-    $builder->functionalUtility('size', [
-        'themeKeys' => ['--size', '--spacing'],
-        'supportsFractions' => true,
-        'defaultValue' => null, // No default - requires a value
-        'handle' => function ($value) {
-            return [
-                decl('width', $value),
-                decl('height', $value),
-            ];
-        },
-        'staticValues' => [
-            'full' => [decl('width', '100%'), decl('height', '100%')],
-            'auto' => [decl('width', 'auto'), decl('height', 'auto')],
-            'min' => [decl('width', 'min-content'), decl('height', 'min-content')],
-            'max' => [decl('width', 'max-content'), decl('height', 'max-content')],
-            'fit' => [decl('width', 'fit-content'), decl('height', 'fit-content')],
-        ],
-    ]);
+    // Spacing-based utilities (functional)
+    $builder->spacingUtility('size', ['--size', '--spacing'], function ($value) {
+        return [
+            decl('--tw-sort', 'size'),
+            decl('width', $value),
+            decl('height', $value),
+        ];
+    }, ['supportsFractions' => true]);
+
+    // Width functional utilities
+    $builder->spacingUtility('w', ['--width', '--spacing', '--container'], function ($value) {
+        return [decl('width', $value)];
+    }, ['supportsFractions' => true]);
+
+    $builder->spacingUtility('min-w', ['--min-width', '--spacing', '--container'], function ($value) {
+        return [decl('min-width', $value)];
+    });
+
+    $builder->spacingUtility('max-w', ['--max-width', '--spacing', '--container'], function ($value) {
+        return [decl('max-width', $value)];
+    });
+
+    // Height functional utilities
+    $builder->spacingUtility('h', ['--height', '--spacing'], function ($value) {
+        return [decl('height', $value)];
+    }, ['supportsFractions' => true]);
+
+    $builder->spacingUtility('min-h', ['--min-height', '--height', '--spacing'], function ($value) {
+        return [decl('min-height', $value)];
+    });
+
+    $builder->spacingUtility('max-h', ['--max-height', '--height', '--spacing'], function ($value) {
+        return [decl('max-height', $value)];
+    });
 }

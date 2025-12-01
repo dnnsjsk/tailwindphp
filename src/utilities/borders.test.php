@@ -38,14 +38,16 @@ class borders extends TestCase
     public function rounded_none(): void
     {
         $css = TestHelper::run(['rounded-none']);
-        $this->assertStringContainsString('border-radius: 0', $css);
+        // TailwindCSS 4.0 uses CSS variables for theme values
+        $this->assertStringContainsString('border-radius: var(--radius-none)', $css);
     }
 
     #[Test]
     public function rounded_full(): void
     {
         $css = TestHelper::run(['rounded-full']);
-        $this->assertStringContainsString('border-radius: 3.40282e38px', $css);
+        // TailwindCSS 4.0 uses CSS variables for theme values
+        $this->assertStringContainsString('border-radius: var(--radius-full)', $css);
     }
 
     #[Test]

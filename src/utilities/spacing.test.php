@@ -29,12 +29,15 @@ class spacing extends TestCase
     {
         $css = TestHelper::run(['m-4', 'm-1', 'm-99']);
 
+        // When --spacing-1 exists in theme, use var(--spacing-1)
         $this->assertStringContainsString('.m-1 {', $css);
-        $this->assertStringContainsString('margin: calc(var(--spacing) * 1);', $css);
+        $this->assertStringContainsString('margin: var(--spacing-1);', $css);
 
+        // When --spacing-4 exists in theme, use var(--spacing-4)
         $this->assertStringContainsString('.m-4 {', $css);
-        $this->assertStringContainsString('margin: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin: var(--spacing-4);', $css);
 
+        // When --spacing-99 doesn't exist, fall back to calc()
         $this->assertStringContainsString('.m-99 {', $css);
         $this->assertStringContainsString('margin: calc(var(--spacing) * 99);', $css);
     }
@@ -63,7 +66,8 @@ class spacing extends TestCase
         $css = TestHelper::run(['-m-4']);
 
         $this->assertStringContainsString('.-m-4 {', $css);
-        $this->assertStringContainsString('margin: calc(calc(var(--spacing) * 4) * -1);', $css);
+        // When --spacing-4 exists, negative is calc(var(--spacing-4) * -1)
+        $this->assertStringContainsString('margin: calc(var(--spacing-4) * -1);', $css);
     }
 
     #[Test]
@@ -80,7 +84,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['mx-4', 'mx-[4px]', 'mx-auto']);
 
         $this->assertStringContainsString('.mx-4 {', $css);
-        $this->assertStringContainsString('margin-inline: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-inline: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.mx-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-inline: 4px;', $css);
@@ -95,7 +99,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['my-4', 'my-[4px]', 'my-auto']);
 
         $this->assertStringContainsString('.my-4 {', $css);
-        $this->assertStringContainsString('margin-block: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-block: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.my-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-block: 4px;', $css);
@@ -110,7 +114,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['mt-4', 'mt-[4px]', 'mt-auto']);
 
         $this->assertStringContainsString('.mt-4 {', $css);
-        $this->assertStringContainsString('margin-top: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-top: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.mt-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-top: 4px;', $css);
@@ -125,7 +129,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['mr-4', 'mr-[4px]', 'mr-auto']);
 
         $this->assertStringContainsString('.mr-4 {', $css);
-        $this->assertStringContainsString('margin-right: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-right: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.mr-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-right: 4px;', $css);
@@ -140,7 +144,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['mb-4', 'mb-[4px]', 'mb-auto']);
 
         $this->assertStringContainsString('.mb-4 {', $css);
-        $this->assertStringContainsString('margin-bottom: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-bottom: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.mb-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-bottom: 4px;', $css);
@@ -155,7 +159,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['ml-4', 'ml-[4px]', 'ml-auto']);
 
         $this->assertStringContainsString('.ml-4 {', $css);
-        $this->assertStringContainsString('margin-left: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-left: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.ml-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-left: 4px;', $css);
@@ -170,7 +174,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['ms-4', 'ms-[4px]', 'ms-auto']);
 
         $this->assertStringContainsString('.ms-4 {', $css);
-        $this->assertStringContainsString('margin-inline-start: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-inline-start: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.ms-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-inline-start: 4px;', $css);
@@ -185,7 +189,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['me-4', 'me-[4px]', 'me-auto']);
 
         $this->assertStringContainsString('.me-4 {', $css);
-        $this->assertStringContainsString('margin-inline-end: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('margin-inline-end: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.me-\\[4px\\] {', $css);
         $this->assertStringContainsString('margin-inline-end: 4px;', $css);
@@ -204,10 +208,10 @@ class spacing extends TestCase
         $css = TestHelper::run(['p-4', 'p-1', 'p-99']);
 
         $this->assertStringContainsString('.p-1 {', $css);
-        $this->assertStringContainsString('padding: calc(var(--spacing) * 1);', $css);
+        $this->assertStringContainsString('padding: var(--spacing-1);', $css);
 
         $this->assertStringContainsString('.p-4 {', $css);
-        $this->assertStringContainsString('padding: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.p-99 {', $css);
         $this->assertStringContainsString('padding: calc(var(--spacing) * 99);', $css);
@@ -238,7 +242,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['px-4', 'px-[4px]']);
 
         $this->assertStringContainsString('.px-4 {', $css);
-        $this->assertStringContainsString('padding-inline: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-inline: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.px-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-inline: 4px;', $css);
@@ -250,7 +254,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['py-4', 'py-[4px]']);
 
         $this->assertStringContainsString('.py-4 {', $css);
-        $this->assertStringContainsString('padding-block: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-block: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.py-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-block: 4px;', $css);
@@ -262,7 +266,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['pt-4', 'pt-[4px]']);
 
         $this->assertStringContainsString('.pt-4 {', $css);
-        $this->assertStringContainsString('padding-top: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-top: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.pt-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-top: 4px;', $css);
@@ -274,7 +278,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['pr-4', 'pr-[4px]']);
 
         $this->assertStringContainsString('.pr-4 {', $css);
-        $this->assertStringContainsString('padding-right: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-right: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.pr-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-right: 4px;', $css);
@@ -286,7 +290,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['pb-4', 'pb-[4px]']);
 
         $this->assertStringContainsString('.pb-4 {', $css);
-        $this->assertStringContainsString('padding-bottom: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-bottom: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.pb-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-bottom: 4px;', $css);
@@ -298,7 +302,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['pl-4', 'pl-[4px]']);
 
         $this->assertStringContainsString('.pl-4 {', $css);
-        $this->assertStringContainsString('padding-left: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-left: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.pl-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-left: 4px;', $css);
@@ -310,7 +314,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['ps-4', 'ps-[4px]']);
 
         $this->assertStringContainsString('.ps-4 {', $css);
-        $this->assertStringContainsString('padding-inline-start: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-inline-start: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.ps-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-inline-start: 4px;', $css);
@@ -322,7 +326,7 @@ class spacing extends TestCase
         $css = TestHelper::run(['pe-4', 'pe-[4px]']);
 
         $this->assertStringContainsString('.pe-4 {', $css);
-        $this->assertStringContainsString('padding-inline-end: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('padding-inline-end: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.pe-\\[4px\\] {', $css);
         $this->assertStringContainsString('padding-inline-end: 4px;', $css);

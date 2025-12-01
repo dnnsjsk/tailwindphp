@@ -66,6 +66,7 @@ class sizing extends TestCase
         $css = TestHelper::run(['w-4']);
 
         $this->assertStringContainsString('.w-4 {', $css);
+        // When --spacing-4 is defined in theme, TailwindCSS uses var(--spacing-4)
         $this->assertStringContainsString('width: var(--spacing-4);', $css);
     }
 

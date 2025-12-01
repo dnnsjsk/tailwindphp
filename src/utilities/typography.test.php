@@ -53,32 +53,33 @@ class typography extends TestCase
             'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black'
         ]);
 
+        // TailwindCSS 4.0 uses CSS variables for theme values
         $this->assertStringContainsString('.font-thin {', $css);
-        $this->assertStringContainsString('font-weight: 100;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-thin);', $css);
 
         $this->assertStringContainsString('.font-extralight {', $css);
-        $this->assertStringContainsString('font-weight: 200;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-extralight);', $css);
 
         $this->assertStringContainsString('.font-light {', $css);
-        $this->assertStringContainsString('font-weight: 300;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-light);', $css);
 
         $this->assertStringContainsString('.font-normal {', $css);
-        $this->assertStringContainsString('font-weight: 400;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-normal);', $css);
 
         $this->assertStringContainsString('.font-medium {', $css);
-        $this->assertStringContainsString('font-weight: 500;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-medium);', $css);
 
         $this->assertStringContainsString('.font-semibold {', $css);
-        $this->assertStringContainsString('font-weight: 600;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-semibold);', $css);
 
         $this->assertStringContainsString('.font-bold {', $css);
-        $this->assertStringContainsString('font-weight: 700;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-bold);', $css);
 
         $this->assertStringContainsString('.font-extrabold {', $css);
-        $this->assertStringContainsString('font-weight: 800;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-extrabold);', $css);
 
         $this->assertStringContainsString('.font-black {', $css);
-        $this->assertStringContainsString('font-weight: 900;', $css);
+        $this->assertStringContainsString('font-weight: var(--font-weight-black);', $css);
     }
 
     #[Test]
@@ -418,23 +419,24 @@ class typography extends TestCase
             'leading-normal', 'leading-relaxed', 'leading-loose'
         ]);
 
+        // TailwindCSS 4.0 uses CSS variables for theme values
         $this->assertStringContainsString('.leading-loose {', $css);
-        $this->assertStringContainsString('line-height: 2;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-loose);', $css);
 
         $this->assertStringContainsString('.leading-none {', $css);
-        $this->assertStringContainsString('line-height: 1;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-none);', $css);
 
         $this->assertStringContainsString('.leading-normal {', $css);
-        $this->assertStringContainsString('line-height: 1.5;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-normal);', $css);
 
         $this->assertStringContainsString('.leading-relaxed {', $css);
-        $this->assertStringContainsString('line-height: 1.625;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-relaxed);', $css);
 
         $this->assertStringContainsString('.leading-snug {', $css);
-        $this->assertStringContainsString('line-height: 1.375;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-snug);', $css);
 
         $this->assertStringContainsString('.leading-tight {', $css);
-        $this->assertStringContainsString('line-height: 1.25;', $css);
+        $this->assertStringContainsString('line-height: var(--line-height-tight);', $css);
     }
 
     #[Test]
@@ -469,23 +471,24 @@ class typography extends TestCase
             'tracking-wide', 'tracking-wider', 'tracking-widest'
         ]);
 
+        // TailwindCSS 4.0 uses CSS variables for theme values
         $this->assertStringContainsString('.tracking-normal {', $css);
-        $this->assertStringContainsString('letter-spacing: 0em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-normal);', $css);
 
         $this->assertStringContainsString('.tracking-tight {', $css);
-        $this->assertStringContainsString('letter-spacing: -0.025em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-tight);', $css);
 
         $this->assertStringContainsString('.tracking-tighter {', $css);
-        $this->assertStringContainsString('letter-spacing: -0.05em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-tighter);', $css);
 
         $this->assertStringContainsString('.tracking-wide {', $css);
-        $this->assertStringContainsString('letter-spacing: 0.025em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-wide);', $css);
 
         $this->assertStringContainsString('.tracking-wider {', $css);
-        $this->assertStringContainsString('letter-spacing: 0.05em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-wider);', $css);
 
         $this->assertStringContainsString('.tracking-widest {', $css);
-        $this->assertStringContainsString('letter-spacing: 0.1em;', $css);
+        $this->assertStringContainsString('letter-spacing: var(--letter-spacing-widest);', $css);
     }
 
     #[Test]
@@ -516,14 +519,15 @@ class typography extends TestCase
     {
         $css = TestHelper::run(['indent-4', 'indent-[10px]', '-indent-4']);
 
+        // When --spacing-4 is defined in theme, use var(--spacing-4)
         $this->assertStringContainsString('.indent-4 {', $css);
-        $this->assertStringContainsString('text-indent: calc(var(--spacing) * 4);', $css);
+        $this->assertStringContainsString('text-indent: var(--spacing-4);', $css);
 
         $this->assertStringContainsString('.indent-\\[10px\\] {', $css);
         $this->assertStringContainsString('text-indent: 10px;', $css);
 
         $this->assertStringContainsString('.-indent-4 {', $css);
-        $this->assertStringContainsString('text-indent: calc(calc(var(--spacing) * 4) * -1);', $css);
+        $this->assertStringContainsString('text-indent: calc(var(--spacing-4) * -1);', $css);
     }
 
     // =========================================================================

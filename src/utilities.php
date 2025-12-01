@@ -389,19 +389,8 @@ class UtilityBuilder
                 } else {
                     $lookupValue = $candidate['value']['fraction'] ?? $candidate['value']['value'];
 
-                    // For spacing utilities (handleBareValueFirst), try bare value handler before theme resolution
-                    // This ensures p-4 uses calc(var(--spacing) * 4) instead of var(--spacing-4)
-                    if (($desc['handleBareValueFirst'] ?? false) && isset($desc['handleBareValue'])) {
-                        $value = $desc['handleBareValue']($candidate['value']);
-                        if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier'])) {
-                            return null;
-                        }
-                    }
-
-                    // Theme resolution
-                    if ($value === null) {
-                        $value = $theme->resolve($lookupValue, $desc['themeKeys'] ?? []);
-                    }
+                    // Theme resolution first (matches original TailwindCSS order)
+                    $value = $theme->resolve($lookupValue, $desc['themeKeys'] ?? []);
 
                     // Handle fractions like w-1/2
                     if ($value === null && ($desc['supportsFractions'] ?? false) && isset($candidate['value']['fraction'])) {
@@ -422,8 +411,8 @@ class UtilityBuilder
                         }
                     }
 
-                    // Handle bare values (fallback for non-spacing utilities)
-                    if ($value === null && isset($desc['handleBareValue']) && !($desc['handleBareValueFirst'] ?? false)) {
+                    // Handle bare values (fallback after theme resolution)
+                    if ($value === null && isset($desc['handleBareValue'])) {
                         $value = $desc['handleBareValue']($candidate['value']);
                         if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier'])) {
                             return null;
@@ -539,12 +528,18 @@ class UtilityBuilder
             'supportsFractions' => $supportsFractions,
             'supportsNegative' => $supportsNegative,
             'defaultValue' => null,
-            'handleBareValueFirst' => true, // TailwindCSS 4.0: prefer calc(var(--spacing) * N) over var(--spacing-N)
             'handleBareValue' => function ($value) use ($theme) {
+                // Fallback: if no theme value found, use calc(var(--spacing) * N)
                 $multiplier = $theme->resolve(null, ['--spacing']);
                 if ($multiplier === null) return null;
                 if (!isValidSpacingMultiplier($value['value'])) return null;
-                return "calc(var(--spacing) * {$value['value']})";
+                return "calc({$multiplier} * {$value['value']})";
+            },
+            'handleNegativeBareValue' => function ($value) use ($theme) {
+                $multiplier = $theme->resolve(null, ['--spacing']);
+                if ($multiplier === null) return null;
+                if (!isValidSpacingMultiplier($value['value'])) return null;
+                return "calc({$multiplier} * -{$value['value']})";
             },
             'staticValues' => $staticValues,
             'handle' => $handle,
