@@ -319,12 +319,7 @@ class TestHelper
             $base = substr($base, 1);
         }
 
-        // Check for negative prefix on static utilities - invalid
-        if (str_starts_with($base, '-') && $utilities->has(substr($base, 1), 'static')) {
-            return null;
-        }
-
-        // Check for static utility
+        // Check for static utility (including those starting with -, like -translate-full)
         if ($utilities->has($base, 'static')) {
             $utils = $utilities->get($base);
             foreach ($utils as $util) {

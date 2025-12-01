@@ -600,10 +600,8 @@ require_once __DIR__ . '/utilities/borders.php';
 require_once __DIR__ . '/utilities/effects.php';
 require_once __DIR__ . '/utilities/tables.php';
 require_once __DIR__ . '/utilities/transitions.php';
-
-// Stub functions - will be implemented in individual files
-function registerBackgroundUtilities(UtilityBuilder $builder): void {}
-function registerFiltersUtilities(UtilityBuilder $builder): void {}
-function registerTransformsUtilities(UtilityBuilder $builder): void {}
-function registerInteractivityUtilities(UtilityBuilder $builder): void {}
-function registerSvgUtilities(UtilityBuilder $builder): void {}
+require_once __DIR__ . '/utilities/transforms.php';
+require_once __DIR__ . '/utilities/filters.php';
+require_once __DIR__ . '/utilities/interactivity.php';
+require_once __DIR__ . '/utilities/svg.php';
+require_once __DIR__ . '/utilities/backgrounds.php';

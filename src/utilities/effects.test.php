@@ -159,8 +159,11 @@ class effects extends TestCase
     #[Test]
     public function drop_shadow_none(): void
     {
+        // drop-shadow-none is now handled by filters utilities with CSS variable approach
         $css = TestHelper::run(['drop-shadow-none']);
-        $this->assertStringContainsString('filter: drop-shadow(0 0 #0000);', $css);
+        $this->assertStringContainsString('.drop-shadow-none {', $css);
+        $this->assertStringContainsString('--tw-drop-shadow:', $css);
+        $this->assertStringContainsString('filter:', $css);
     }
 
     #[Test]

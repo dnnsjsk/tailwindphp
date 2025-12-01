@@ -354,12 +354,20 @@ function createUtilities(Theme $theme): Utilities
     // Register transitions utilities
     \TailwindPHP\Utilities\registerTransitionsUtilities($builder);
 
-    // TODO: Register all other utility categories
-    // - Backgrounds
-    // - Filters
-    // - Transforms
-    // - Interactivity
-    // - SVG
+    // Register transforms utilities
+    \TailwindPHP\Utilities\registerTransformsUtilities($builder);
+
+    // Register filters utilities
+    \TailwindPHP\Utilities\registerFiltersUtilities($builder);
+
+    // Register interactivity utilities
+    \TailwindPHP\Utilities\registerInteractivityUtilities($builder);
+
+    // Register SVG utilities
+    \TailwindPHP\Utilities\registerSvgUtilities($builder);
+
+    // Register background utilities
+    \TailwindPHP\Utilities\registerBackgroundUtilities($builder);
 
     return $utilities;
 }
