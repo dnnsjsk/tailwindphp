@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\decl;
+use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
  * Typography Utilities
@@ -105,6 +106,25 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('decoration-dotted', [['text-decoration-style', 'dotted']]);
     $builder->staticUtility('decoration-dashed', [['text-decoration-style', 'dashed']]);
     $builder->staticUtility('decoration-wavy', [['text-decoration-style', 'wavy']]);
+
+    // Text Underline Offset
+    $builder->functionalUtility('underline-offset', [
+        'themeKeys' => ['--text-underline-offset'],
+        'defaultValue' => null,
+        'supportsNegative' => true,
+        'handleBareValue' => function ($value) {
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+            return "{$value['value']}px";
+        },
+        'handle' => function ($value) {
+            return [decl('text-underline-offset', $value)];
+        },
+        'staticValues' => [
+            'auto' => [decl('text-underline-offset', 'auto')],
+        ],
+    ]);
 
     // Text Transform
     $builder->staticUtility('uppercase', [['text-transform', 'uppercase']]);

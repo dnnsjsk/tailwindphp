@@ -225,6 +225,24 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('scheme-only-dark', [['color-scheme', 'dark only']]);
     $builder->staticUtility('scheme-only-light', [['color-scheme', 'light only']]);
 
+    // Contain
+    $containVar = 'var(--tw-contain-size, ) var(--tw-contain-layout, ) var(--tw-contain-paint, ) var(--tw-contain-style, )';
+    $builder->staticUtility('contain-none', [['contain', 'none']]);
+    $builder->staticUtility('contain-content', [['contain', 'content']]);
+    $builder->staticUtility('contain-strict', [['contain', 'strict']]);
+    $builder->staticUtility('contain-size', [['--tw-contain-size', 'size'], ['contain', $containVar]]);
+    $builder->staticUtility('contain-inline-size', [['--tw-contain-size', 'inline-size'], ['contain', $containVar]]);
+    $builder->staticUtility('contain-layout', [['--tw-contain-layout', 'layout'], ['contain', $containVar]]);
+    $builder->staticUtility('contain-paint', [['--tw-contain-paint', 'paint'], ['contain', $containVar]]);
+    $builder->staticUtility('contain-style', [['--tw-contain-style', 'style'], ['contain', $containVar]]);
+
+    $builder->functionalUtility('contain', [
+        'themeKeys' => [],
+        'handle' => function ($value) {
+            return [decl('contain', $value)];
+        },
+    ]);
+
     // Aspect Ratio
     $builder->functionalUtility('aspect', [
         'themeKeys' => ['--aspect-ratio'],

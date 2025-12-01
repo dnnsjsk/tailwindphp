@@ -69,7 +69,7 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         $builder->staticUtility("touch-{$value}", [['touch-action', $value]]);
     }
 
-    $touchActionValue = 'var(--tw-pan-x,) var(--tw-pan-y,) var(--tw-pinch-zoom,)';
+    $touchActionValue = 'var(--tw-pan-x, ) var(--tw-pan-y, ) var(--tw-pinch-zoom, )';
 
     foreach (['x', 'left', 'right'] as $value) {
         $builder->staticUtility("touch-pan-{$value}", [

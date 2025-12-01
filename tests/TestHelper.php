@@ -223,8 +223,7 @@ class TestHelper
         $theme->add('--width-6xl', '72rem');
         $theme->add('--width-7xl', '80rem');
 
-        // Z-index
-        $theme->add('--z-index-auto', 'auto');
+        // Z-index (no 'auto' - that comes from staticValues)
         $theme->add('--z-index-0', '0');
         $theme->add('--z-index-10', '10');
         $theme->add('--z-index-20', '20');
@@ -380,6 +379,26 @@ class TestHelper
             return [$candidate, null];
         }
 
+        // Check for parenthesized CSS variable syntax like rotate-(--var)
+        if (str_ends_with($candidate, ')')) {
+            $idx = strpos($candidate, '-(');
+            if ($idx !== false) {
+                $maybeRoot = substr($candidate, 0, $idx);
+                if ($utilities->has($maybeRoot, 'functional')) {
+                    $value = substr($candidate, $idx + 2, -1);
+                    // Parenthesized values must start with -- (CSS variable)
+                    if (strlen($value) >= 2 && $value[0] === '-' && $value[1] === '-') {
+                        $valueObj = [
+                            'kind' => 'arbitrary',
+                            'value' => "var({$value})",
+                            'dataType' => null,
+                        ];
+                        return [$maybeRoot, $valueObj];
+                    }
+                }
+            }
+        }
+
         // Try to find the root by testing progressively shorter prefixes
         $idx = strrpos($candidate, '-');
 
@@ -426,6 +445,31 @@ class TestHelper
     }
 
     /**
+     * Simplify CSS calc expressions that can be reduced.
+     * E.g., calc(123deg * -1) -> -123deg
+     */
+    private static function simplifyCssValue(string $value): string
+    {
+        // Simplify calc(NUMBER_UNIT * -1) -> -NUMBER_UNIT
+        // Matches patterns like: calc(45deg * -1), calc(123deg * -1), calc(.5s * -1)
+        if (preg_match('/^calc\(([+-]?\d*\.?\d+)(deg|rad|grad|turn|px|rem|em|s|ms|%)\s*\*\s*-1\)$/', $value, $m)) {
+            $num = $m[1];
+            $unit = $m[2];
+            // If number is already negative, make it positive
+            if (str_starts_with($num, '-')) {
+                return substr($num, 1) . $unit;
+            }
+            return '-' . $num . $unit;
+        }
+
+        // Simplify leading zeros in decimal numbers: 0.3 -> .3
+        // This matches what lightningcss does
+        $value = preg_replace('/\b0+(\.\d+)/', '$1', $value);
+
+        return $value;
+    }
+
+    /**
      * Format CSS rules into a string.
      */
     private static function formatCss(array $rules): string
@@ -442,7 +486,7 @@ class TestHelper
 
             foreach ($rule['nodes'] as $node) {
                 if ($node['kind'] === 'declaration') {
-                    $value = $node['value'];
+                    $value = self::simplifyCssValue($node['value']);
                     if ($rule['important'] || ($node['important'] ?? false)) {
                         $value .= ' !important';
                     }

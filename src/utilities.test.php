@@ -114,8 +114,28 @@ class utilities extends TestCase
             // Look for the assertion after the run() call
             $afterArray = substr($testBody, $arrayEnd, 500);
 
+            // Find positions of both assertion types (if they exist)
+            $toEqualMatch = preg_match('/\)\s*,?\s*\)\s*\.toEqual\s*\(\s*[\'"][\'"]/', $afterArray, $matchEqual, PREG_OFFSET_CAPTURE);
+            $toSnapshotMatch = preg_match('/\)\s*,?\s*\)\s*\.toMatchInlineSnapshot\s*\(\s*`/s', $afterArray, $matchSnapshot, PREG_OFFSET_CAPTURE);
+
+            $toEqualPos = $toEqualMatch ? $matchEqual[0][1] : PHP_INT_MAX;
+            $toSnapshotPos = $toSnapshotMatch ? $matchSnapshot[0][1] : PHP_INT_MAX;
+
+            // Check for toEqual('') FIRST - must appear BEFORE toMatchInlineSnapshot
+            if ($toEqualMatch && $toEqualPos < $toSnapshotPos) {
+                $tests[] = [
+                    'name' => $testName,
+                    'index' => $testIndex++,
+                    'classes' => $classes,
+                    'expected' => '',
+                    'type' => 'empty',
+                ];
+                $offset = $arrayEnd;
+                continue;
+            }
+
             // Check for toMatchInlineSnapshot
-            if (preg_match('/\)\s*,?\s*\)\s*\.toMatchInlineSnapshot\s*\(\s*`/s', $afterArray) ||
+            if ($toSnapshotMatch ||
                 preg_match('/\)\s*\)\s*\n\s*\.toMatchInlineSnapshot\s*\(\s*`/s', $afterArray)) {
 
                 $snapshotPos = strpos($testBody, '.toMatchInlineSnapshot(`', $arrayEnd);
@@ -136,17 +156,6 @@ class utilities extends TestCase
                         continue;
                     }
                 }
-            }
-
-            // Check for toEqual('')
-            if (preg_match('/\)\s*,?\s*\)\s*\.toEqual\s*\(\s*[\'"][\'"]/', $afterArray)) {
-                $tests[] = [
-                    'name' => $testName,
-                    'index' => $testIndex++,
-                    'classes' => $classes,
-                    'expected' => '',
-                    'type' => 'empty',
-                ];
             }
 
             $offset = $arrayEnd;

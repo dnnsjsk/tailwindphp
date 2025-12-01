@@ -232,6 +232,12 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
             }
             return "{$value['value']}deg";
         },
+        'handleNegativeBareValue' => function ($value) {
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+            return "-{$value['value']}deg";
+        },
         'handle' => function ($value) {
             return [decl('rotate', $value)];
         },
@@ -327,6 +333,21 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('transform-none', [
         ['transform', 'none'],
     ]);
+
+    // Transform Style (3D)
+    $builder->staticUtility('transform-flat', [['transform-style', 'flat']]);
+    $builder->staticUtility('transform-3d', [['transform-style', 'preserve-3d']]);
+
+    // Transform Box
+    $builder->staticUtility('transform-content', [['transform-box', 'content-box']]);
+    $builder->staticUtility('transform-border', [['transform-box', 'border-box']]);
+    $builder->staticUtility('transform-fill', [['transform-box', 'fill-box']]);
+    $builder->staticUtility('transform-stroke', [['transform-box', 'stroke-box']]);
+    $builder->staticUtility('transform-view', [['transform-box', 'view-box']]);
+
+    // Backface Visibility
+    $builder->staticUtility('backface-visible', [['backface-visibility', 'visible']]);
+    $builder->staticUtility('backface-hidden', [['backface-visibility', 'hidden']]);
 
     // transform-[arbitrary]
     $builder->functionalUtility('transform', [
