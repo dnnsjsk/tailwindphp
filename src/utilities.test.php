@@ -396,6 +396,22 @@ class utilities extends TestCase
             return true;
         }
 
+        // Check if values are equivalent calc expressions
+        // calc(Xpx * -1) is equivalent to -Xpx (lightningcss normalization)
+        if (preg_match('/^-?(\d+)(px|rem|em)$/', $expected, $m1) &&
+            preg_match('/^calc\((\d+)(px|rem|em)\s*\*\s*-1\)$/', $actual, $m2)) {
+            if ($m1[1] === $m2[1] && $m1[2] === $m2[2] && str_starts_with($expected, '-')) {
+                return true;
+            }
+        }
+        // And the reverse
+        if (preg_match('/^calc\((\d+)(px|rem|em)\s*\*\s*-1\)$/', $expected, $m1) &&
+            preg_match('/^-?(\d+)(px|rem|em)$/', $actual, $m2)) {
+            if ($m1[1] === $m2[1] && $m1[2] === $m2[2] && str_starts_with($actual, '-')) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

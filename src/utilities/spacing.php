@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\decl;
+use function TailwindPHP\styleRule;
 
 /**
  * Spacing Utilities
@@ -94,7 +95,11 @@ function registerSpacingUtilities(UtilityBuilder $builder): void
         'selector' => ':where(& > :not(:last-child))',
     ]);
 
-    // Space reverse utilities
-    $builder->staticUtility('space-x-reverse', [['--tw-space-x-reverse', '1']]);
-    $builder->staticUtility('space-y-reverse', [['--tw-space-y-reverse', '1']]);
+    // Space reverse utilities - use :where(& > :not(:last-child)) selector
+    $builder->staticUtility('space-x-reverse', [
+        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-space-x-reverse', '1')]),
+    ]);
+    $builder->staticUtility('space-y-reverse', [
+        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-space-y-reverse', '1')]),
+    ]);
 }

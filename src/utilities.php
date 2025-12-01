@@ -387,6 +387,12 @@ class UtilityBuilder
                     $value = $candidate['value']['value'];
                     $dataType = $candidate['value']['dataType'] ?? null;
                 } else {
+                    // Reject modifiers for named values (unless explicitly supported)
+                    // Most utilities don't support modifiers except colors and special cases like @container
+                    if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+                        return null;
+                    }
+
                     $lookupValue = $candidate['value']['fraction'] ?? $candidate['value']['value'];
 
                     // Theme resolution first (matches original TailwindCSS order)
@@ -396,7 +402,8 @@ class UtilityBuilder
                     if ($value === null && ($desc['supportsFractions'] ?? false) && isset($candidate['value']['fraction'])) {
                         $parts = segment($candidate['value']['fraction'], '/');
                         if (count($parts) === 2 && isPositiveInteger($parts[0]) && isPositiveInteger($parts[1])) {
-                            $value = "calc({$candidate['value']['fraction']} * 100%)";
+                            // Format as "calc(1 / 2 * 100%)" with spaces around /
+                            $value = "calc({$parts[0]} / {$parts[1]} * 100%)";
                         }
                     }
 

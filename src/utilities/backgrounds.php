@@ -141,13 +141,15 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
     }
 
     // Register bg-linear-{angle} utilities (e.g., bg-linear-45)
+    // Note: supportsNegative is false here because arbitrary non-angle values like [to_bottom]
+    // should not support negative. The handleBareValue already handles numeric angles.
     $builder->functionalUtility('bg-linear', [
         'themeKeys' => ['--gradient'],
-        'supportsNegative' => true,
+        'supportsNegative' => false,
         'handleBareValue' => function ($value) {
             // Check if it's a number (angle in degrees)
-            if (is_numeric($value)) {
-                return "{$value}deg";
+            if (is_numeric($value['value'])) {
+                return "{$value['value']}deg";
             }
             return null;
         },
@@ -260,12 +262,13 @@ function registerConicGradientUtilities(UtilityBuilder $builder): void
     }
 
     // bg-conic-{angle} utilities (e.g., bg-conic-45)
+    // Note: supportsNegative is false - same as Tailwind's handleBgConic({ negative: false })
     $builder->functionalUtility('bg-conic', [
         'themeKeys' => ['--gradient'],
-        'supportsNegative' => true,
+        'supportsNegative' => false,
         'handleBareValue' => function ($value) {
-            if (is_numeric($value)) {
-                return "from {$value}deg";
+            if (is_numeric($value['value'])) {
+                return "from {$value['value']}deg";
             }
             return null;
         },

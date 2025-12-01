@@ -385,4 +385,44 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
             return [decl('object-position', $value)];
         },
     ]);
+
+    // Container Queries (@container)
+    // @container -> container-type: inline-size
+    // @container-normal -> container-type: normal
+    // @container-size -> container-type: size
+    // @container/name -> container: name / inline-size
+    // @container-normal/name -> container: name
+    // @container-size/name -> container: name / size
+    // Register directly with utilities to bypass functionalUtility's modifier rejection
+    $builder->getUtilities()->functional('@container', function ($candidate) {
+        $containerType = 'inline-size'; // default
+
+        if ($candidate['value'] === null) {
+            $containerType = 'inline-size';
+        } elseif ($candidate['value']['kind'] === 'named') {
+            if ($candidate['value']['value'] === 'normal') {
+                $containerType = 'normal';
+            } elseif ($candidate['value']['value'] === 'size') {
+                $containerType = 'size';
+            } else {
+                return null; // Invalid value
+            }
+        } elseif ($candidate['value']['kind'] === 'arbitrary') {
+            $containerType = $candidate['value']['value'];
+        }
+
+        // Check for modifier (container name)
+        if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+            $containerName = $candidate['modifier']['value'];
+            // Use container shorthand property
+            if ($containerType === 'normal') {
+                // For normal, just the name without type
+                return [decl('container', $containerName)];
+            } else {
+                return [decl('container', "{$containerName} / {$containerType}")];
+            }
+        }
+
+        return [decl('container-type', $containerType)];
+    });
 }

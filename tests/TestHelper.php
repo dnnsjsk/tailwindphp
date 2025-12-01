@@ -338,17 +338,18 @@ class TestHelper
         // Check for functional utility
         $parts = self::parseFunctionalCandidate($base, $utilities);
         if ($parts !== null) {
-            [$root, $value] = $parts;
+            [$root, $value, $modifier] = $parts;
 
             if ($utilities->has($root, 'functional')) {
                 $utils = $utilities->get($root);
                 foreach ($utils as $util) {
                     if ($util['kind'] === 'functional') {
+                        $modifierObj = $modifier !== null ? ['kind' => 'named', 'value' => $modifier] : null;
                         $candidateObj = [
                             'kind' => 'functional',
                             'root' => $root,
                             'value' => $value,
-                            'modifier' => null,
+                            'modifier' => $modifierObj,
                             'important' => $important,
                             'raw' => $candidate,
                         ];
@@ -370,9 +371,46 @@ class TestHelper
     }
 
     /**
-     * Parse a functional candidate into root and value.
+     * Parse a functional candidate into root, value, and modifier.
+     * Returns [$root, $value, $modifier] or null.
      */
     private static function parseFunctionalCandidate(string $candidate, Utilities $utilities): ?array
+    {
+        // Check if this might have a modifier (/ not inside arbitrary values)
+        $hasSlash = !str_contains($candidate, '[') && str_contains($candidate, '/');
+
+        // If there's a / that could be a modifier, try modifier approach first
+        // This handles cases like @container-normal/sidebar where we want:
+        // - root: @container, value: normal, modifier: sidebar
+        // NOT: root: @container, value: normal/sidebar (which would be an invalid fraction)
+        if ($hasSlash) {
+            $slashPos = strrpos($candidate, '/');
+            $potentialModifier = substr($candidate, $slashPos + 1);
+            $candidateWithoutModifier = substr($candidate, 0, $slashPos);
+
+            // Only treat as modifier if the part after / is NOT numeric (not a fraction)
+            // Fractions look like: 1/2, 3/4. Modifiers look like: sidebar, foo
+            if (!is_numeric($potentialModifier) && !preg_match('/^\d+$/', $potentialModifier)) {
+                $result = self::parseFunctionalCandidateInternal($candidateWithoutModifier, $utilities);
+                if ($result !== null) {
+                    return [$result[0], $result[1], $potentialModifier];
+                }
+            }
+        }
+
+        // Try to parse without modifier extraction
+        $result = self::parseFunctionalCandidateInternal($candidate, $utilities);
+        if ($result !== null) {
+            return [$result[0], $result[1], null];
+        }
+
+        return null;
+    }
+
+    /**
+     * Internal helper to parse candidate without modifier handling.
+     */
+    private static function parseFunctionalCandidateInternal(string $candidate, Utilities $utilities): ?array
     {
         // First check for exact match (utility with default value like rounded-t, border-x)
         if ($utilities->has($candidate, 'functional')) {
@@ -445,14 +483,16 @@ class TestHelper
     }
 
     /**
-     * Simplify CSS calc expressions that can be reduced.
-     * E.g., calc(123deg * -1) -> -123deg
+     * Apply CSS value normalizations that match lightningcss output.
      */
-    private static function simplifyCssValue(string $value): string
+    private static function simplifyCssValue(string $value, string $property = ''): string
     {
-        // Simplify calc(NUMBER_UNIT * -1) -> -NUMBER_UNIT
-        // Matches patterns like: calc(45deg * -1), calc(123deg * -1), calc(.5s * -1)
-        if (preg_match('/^calc\(([+-]?\d*\.?\d+)(deg|rad|grad|turn|px|rem|em|s|ms|%)\s*\*\s*-1\)$/', $value, $m)) {
+        // Simplify calc(NUMBER_UNIT * -1) -> -NUMBER_UNIT for ANGLE units ONLY
+        // lightningcss simplifies these calc expressions.
+        // Matches patterns like: calc(45deg * -1), calc(123deg * -1)
+        // But NOT calc(var(...) * -1) - those must stay as calc()
+        // And NOT length units (px, rem, em) - they stay as calc() for outline-offset etc.
+        if (preg_match('/^calc\(([+-]?\d*\.?\d+)(deg|rad|grad|turn)\s*\*\s*-1\)$/', $value, $m)) {
             $num = $m[1];
             $unit = $m[2];
             // If number is already negative, make it positive
@@ -465,6 +505,29 @@ class TestHelper
         // Simplify leading zeros in decimal numbers: 0.3 -> .3
         // This matches what lightningcss does
         $value = preg_replace('/\b0+(\.\d+)/', '$1', $value);
+
+        // Normalize spaces around / in grid values (lightningcss normalization)
+        // Match patterns like "span 123/span 123" -> "span 123 / span 123"
+        // Only for values that look like grid span values (contain "span")
+        if (str_contains($value, 'span') && str_contains($value, '/')) {
+            $value = preg_replace('/(\S)\/(\S)/', '$1 / $2', $value);
+        }
+
+        // Convert bare integers to px for grid-template-columns/rows
+        // lightningcss does this normalization: 123 -> 123px
+        // Only for grid-template-* properties, NOT for grid-column/grid-row (which use line numbers)
+        if (preg_match('/^\d+$/', $value) &&
+            ($property === 'grid-template-columns' || $property === 'grid-template-rows')) {
+            $value = $value . 'px';
+        }
+
+        // For transform property: remove spaces between consecutive transform functions
+        // lightningcss normalizes "scaleZ(2) rotateY(45deg)" to "scaleZ(2)rotateY(45deg)"
+        // BUT only for arbitrary values (those without var() calls)
+        // Values with var() like "var(--tw-rotate-x, ) var(--tw-rotate-y, )" must keep spaces
+        if ($property === 'transform' && !str_contains($value, 'var(')) {
+            $value = preg_replace('/\)\s+([a-zA-Z]+\()/', ')$1', $value);
+        }
 
         return $value;
     }
@@ -482,21 +545,50 @@ class TestHelper
 
         foreach ($rules as $rule) {
             $selector = $rule['selector'];
-            $declarations = [];
+            $formatted = self::formatRule($selector, $rule['nodes'], $rule['important'] ?? false);
+            if ($formatted !== '') {
+                $output[] = $formatted;
+            }
+        }
 
-            foreach ($rule['nodes'] as $node) {
-                if ($node['kind'] === 'declaration') {
-                    $value = self::simplifyCssValue($node['value']);
-                    if ($rule['important'] || ($node['important'] ?? false)) {
-                        $value .= ' !important';
-                    }
-                    $declarations[] = "  {$node['property']}: {$value};";
+        return implode("\n\n", $output);
+    }
+
+    /**
+     * Format a rule and its nodes, handling nested rules.
+     */
+    private static function formatRule(string $parentSelector, array $nodes, bool $important): string
+    {
+        $declarations = [];
+        $nestedRules = [];
+
+        foreach ($nodes as $node) {
+            if ($node['kind'] === 'declaration') {
+                $value = self::simplifyCssValue($node['value'], $node['property']);
+                if ($important || ($node['important'] ?? false)) {
+                    $value .= ' !important';
+                }
+                $declarations[] = "  {$node['property']}: {$value};";
+            } elseif ($node['kind'] === 'rule') {
+                // Handle nested rule - replace & with parent selector
+                $nestedSelector = str_replace('&', $parentSelector, $node['selector']);
+                $nestedFormatted = self::formatRule($nestedSelector, $node['nodes'], $important);
+                if ($nestedFormatted !== '') {
+                    $nestedRules[] = $nestedFormatted;
                 }
             }
+        }
 
-            if (!empty($declarations)) {
-                $output[] = "{$selector} {\n" . implode("\n", $declarations) . "\n}";
-            }
+        $output = [];
+
+        // Add declarations for this rule
+        if (!empty($declarations)) {
+            $output[] = "{$parentSelector} {\n" . implode("\n", $declarations) . "\n}";
+        }
+
+        // Add nested rules
+        foreach ($nestedRules as $nested) {
+            $output[] = $nested;
         }
 
         return implode("\n\n", $output);

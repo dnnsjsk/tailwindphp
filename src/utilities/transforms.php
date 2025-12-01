@@ -164,25 +164,89 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('scale-none', [['scale', 'none']]);
 
     // scale-* (custom handler for bare integer -> percentage)
-    $builder->functionalUtility('scale', [
-        'themeKeys' => ['--scale'],
-        'defaultValue' => null,
-        'supportsNegative' => true,
-        'handleBareValue' => function ($value) {
-            if (!isPositiveInteger($value['value'])) {
-                return null;
-            }
-            return "{$value['value']}%";
-        },
-        'handle' => function ($value) {
-            return [
-                decl('--tw-scale-x', $value),
-                decl('--tw-scale-y', $value),
-                decl('--tw-scale-z', $value),
-                decl('scale', 'var(--tw-scale-x) var(--tw-scale-y)'),
-            ];
-        },
-    ]);
+    // For arbitrary values, directly set the scale property
+    // For named values (theme/bare), use CSS variables for composability
+    $builder->getUtilities()->functional('scale', function ($candidate) use ($builder) {
+        $theme = $builder->getTheme();
+
+        if ($candidate['value'] === null) {
+            return null;
+        }
+
+        // Reject modifiers (scale-50/foo should not work)
+        if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+            return null;
+        }
+
+        // Arbitrary values: directly set scale property (no CSS variables)
+        if ($candidate['value']['kind'] === 'arbitrary') {
+            return [decl('scale', $candidate['value']['value'])];
+        }
+
+        // Named values: use CSS variable pattern for composability
+        $value = null;
+
+        // Try theme resolution
+        $value = $theme->resolve($candidate['value']['value'], ['--scale']);
+
+        // Handle bare values (integer -> percentage)
+        if ($value === null && isPositiveInteger($candidate['value']['value'])) {
+            $value = "{$candidate['value']['value']}%";
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        return [
+            decl('--tw-scale-x', $value),
+            decl('--tw-scale-y', $value),
+            decl('--tw-scale-z', $value),
+            decl('scale', 'var(--tw-scale-x) var(--tw-scale-y)'),
+        ];
+    });
+
+    // Negative scale
+    $builder->getUtilities()->functional('-scale', function ($candidate) use ($builder) {
+        $theme = $builder->getTheme();
+
+        if ($candidate['value'] === null) {
+            return null;
+        }
+
+        // Reject modifiers
+        if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+            return null;
+        }
+
+        // Arbitrary values: directly set scale property with negation
+        if ($candidate['value']['kind'] === 'arbitrary') {
+            return [decl('scale', "calc({$candidate['value']['value']} * -1)")];
+        }
+
+        // Named values: use CSS variable pattern with negation
+        $value = null;
+
+        // Try theme resolution
+        $value = $theme->resolve($candidate['value']['value'], ['--scale']);
+
+        // Handle bare values (integer -> percentage)
+        if ($value === null && isPositiveInteger($candidate['value']['value'])) {
+            $value = "{$candidate['value']['value']}%";
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        $negValue = "calc({$value} * -1)";
+        return [
+            decl('--tw-scale-x', $negValue),
+            decl('--tw-scale-y', $negValue),
+            decl('--tw-scale-z', $negValue),
+            decl('scale', 'var(--tw-scale-x) var(--tw-scale-y)'),
+        ];
+    });
 
     // scale-x-*, scale-y-*, scale-z-*
     foreach (['x', 'y', 'z'] as $axis) {

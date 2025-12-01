@@ -281,15 +281,49 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('text-clip', [['text-overflow', 'clip']]);
 
     // Font Variant Numeric
-    $builder->staticUtility('normal-nums', [['font-variant-numeric', 'normal']]);
-    $builder->staticUtility('ordinal', [['font-variant-numeric', 'ordinal']]);
-    $builder->staticUtility('slashed-zero', [['font-variant-numeric', 'slashed-zero']]);
-    $builder->staticUtility('lining-nums', [['font-variant-numeric', 'lining-nums']]);
-    $builder->staticUtility('oldstyle-nums', [['font-variant-numeric', 'oldstyle-nums']]);
-    $builder->staticUtility('proportional-nums', [['font-variant-numeric', 'proportional-nums']]);
-    $builder->staticUtility('tabular-nums', [['font-variant-numeric', 'tabular-nums']]);
-    $builder->staticUtility('diagonal-fractions', [['font-variant-numeric', 'diagonal-fractions']]);
-    $builder->staticUtility('stacked-fractions', [['font-variant-numeric', 'stacked-fractions']]);
+    // Uses CSS variables to compose multiple numeric features
+    $numericVar = 'var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, )';
+
+    $builder->staticUtility('normal-nums', [
+        ['--tw-ordinal', 'initial'],
+        ['--tw-slashed-zero', 'initial'],
+        ['--tw-numeric-figure', 'initial'],
+        ['--tw-numeric-spacing', 'initial'],
+        ['--tw-numeric-fraction', 'initial'],
+        ['font-variant-numeric', 'normal'],
+    ]);
+    $builder->staticUtility('ordinal', [
+        ['--tw-ordinal', 'ordinal'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('slashed-zero', [
+        ['--tw-slashed-zero', 'slashed-zero'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('lining-nums', [
+        ['--tw-numeric-figure', 'lining-nums'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('oldstyle-nums', [
+        ['--tw-numeric-figure', 'oldstyle-nums'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('proportional-nums', [
+        ['--tw-numeric-spacing', 'proportional-nums'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('tabular-nums', [
+        ['--tw-numeric-spacing', 'tabular-nums'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('diagonal-fractions', [
+        ['--tw-numeric-fraction', 'diagonal-fractions'],
+        ['font-variant-numeric', $numericVar],
+    ]);
+    $builder->staticUtility('stacked-fractions', [
+        ['--tw-numeric-fraction', 'stacked-fractions'],
+        ['font-variant-numeric', $numericVar],
+    ]);
 
     // Font Smoothing
     $builder->staticUtility('antialiased', [

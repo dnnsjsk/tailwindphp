@@ -105,17 +105,13 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // Flex Basis
-    $builder->functionalUtility('basis', [
+    // Flex Basis - use spacingUtility like Tailwind does
+    $builder->staticUtility('basis-auto', [['flex-basis', 'auto']]);
+    $builder->staticUtility('basis-full', [['flex-basis', '100%']]);
+    $builder->spacingUtility('basis', ['--flex-basis', '--spacing', '--container'], function ($value) {
+        return [decl('flex-basis', $value)];
+    }, [
         'supportsFractions' => true,
-        'themeKeys' => ['--flex-basis', '--spacing', '--container'],
-        'handle' => function ($value, $dataType) {
-            return [decl('flex-basis', $value)];
-        },
-        'staticValues' => [
-            'auto' => [decl('flex-basis', 'auto')],
-            'full' => [decl('flex-basis', '100%')],
-        ],
     ]);
 
     // Grid Auto Flow
@@ -183,7 +179,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('col-span', [
         'handleBareValue' => function ($value) {
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
-                return "span {$value['value']} / span {$value['value']}";
+                return $value['value'];
             }
             return null;
         },
@@ -218,7 +214,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('row-span', [
         'handleBareValue' => function ($value) {
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
-                return "span {$value['value']} / span {$value['value']}";
+                return $value['value'];
             }
             return null;
         },

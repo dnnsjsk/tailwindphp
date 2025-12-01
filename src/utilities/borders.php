@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\decl;
+use function TailwindPHP\styleRule;
+use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
  * Border Utilities
@@ -169,9 +171,19 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     ]);
 
     // Outline Offset
+    // Note: For bare values like -outline-offset-4, Tailwind outputs calc(4px * -1)
+    // not -4px. This is because the handleBareValue returns "4px" which then gets
+    // wrapped in calc() by the negation logic.
     $builder->functionalUtility('outline-offset', [
         'themeKeys' => ['--outline-offset'],
         'defaultValue' => null,
+        'supportsNegative' => true,
+        'handleBareValue' => function ($value) {
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+            return "{$value['value']}px";
+        },
         'handle' => function ($value) {
             return [decl('outline-offset', $value)];
         },
@@ -215,15 +227,43 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     ]);
 
     // divide-x-reverse, divide-y-reverse
-    $builder->staticUtility('divide-x-reverse', [['--tw-divide-x-reverse', '1']]);
-    $builder->staticUtility('divide-y-reverse', [['--tw-divide-y-reverse', '1']]);
+    // These use :where(& > :not(:last-child)) selector
+    $builder->staticUtility('divide-x-reverse', [
+        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-x-reverse', '1')]),
+    ]);
+    $builder->staticUtility('divide-y-reverse', [
+        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-y-reverse', '1')]),
+    ]);
 
-    // Divide Style
-    // Note: These use :where(.divide-* > :not(:last-child)) selector in Tailwind
-    // but our static utilities don't support custom selectors yet
-    $builder->staticUtility('divide-solid', [['--tw-border-style', 'solid'], ['border-style', 'solid']]);
-    $builder->staticUtility('divide-dashed', [['--tw-border-style', 'dashed'], ['border-style', 'dashed']]);
-    $builder->staticUtility('divide-dotted', [['--tw-border-style', 'dotted'], ['border-style', 'dotted']]);
-    $builder->staticUtility('divide-double', [['--tw-border-style', 'double'], ['border-style', 'double']]);
-    $builder->staticUtility('divide-none', [['--tw-border-style', 'none'], ['border-style', 'none']]);
+    // Divide Style - also uses :where(& > :not(:last-child)) selector
+    $builder->staticUtility('divide-solid', [
+        fn() => styleRule(':where(& > :not(:last-child))', [
+            decl('--tw-border-style', 'solid'),
+            decl('border-style', 'solid'),
+        ]),
+    ]);
+    $builder->staticUtility('divide-dashed', [
+        fn() => styleRule(':where(& > :not(:last-child))', [
+            decl('--tw-border-style', 'dashed'),
+            decl('border-style', 'dashed'),
+        ]),
+    ]);
+    $builder->staticUtility('divide-dotted', [
+        fn() => styleRule(':where(& > :not(:last-child))', [
+            decl('--tw-border-style', 'dotted'),
+            decl('border-style', 'dotted'),
+        ]),
+    ]);
+    $builder->staticUtility('divide-double', [
+        fn() => styleRule(':where(& > :not(:last-child))', [
+            decl('--tw-border-style', 'double'),
+            decl('border-style', 'double'),
+        ]),
+    ]);
+    $builder->staticUtility('divide-none', [
+        fn() => styleRule(':where(& > :not(:last-child))', [
+            decl('--tw-border-style', 'none'),
+            decl('border-style', 'none'),
+        ]),
+    ]);
 }
