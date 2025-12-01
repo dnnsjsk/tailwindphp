@@ -31,7 +31,7 @@ This is a 1:1 port of TailwindCSS 4.x's core functionality to PHP. The goal is f
 
 ### Architecture
 
-The codebase mirrors TailwindCSS's structure:
+The codebase mirrors TailwindCSS's structure exactly — same file names, same organization. Files that don't apply to PHP (like TypeScript-specific modules) are kept as empty placeholder files to maintain the 1:1 mapping and make it easy to reference the original source.
 
 ```
 src/
@@ -45,6 +45,8 @@ src/
 ├── design-system.php    # Central registry
 └── variants.php         # Variant handling (hover, focus, etc.)
 ```
+
+**Note on utilities.php:** TailwindCSS's `utilities.ts` is 6,000+ lines. For maintainability, we split it into separate files under `src/utilities/` (one per category), while keeping the same logic and structure.
 
 ### Utility Categories
 
@@ -68,9 +70,15 @@ All TailwindCSS utility categories are implemented:
 
 ## Testing
 
+We test against TailwindCSS's actual test suite to ensure compatibility. The approach varies by file size:
+
 ### TailwindCSS Compliance Tests
 
-The test suite includes 364 tests extracted directly from [TailwindCSS's utilities.test.ts](https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/src/utilities.test.ts) (28,000+ lines of code).
+**For utilities.test.ts (28,000+ lines):** We extract and split the tests into smaller files under `extracted-tests/`, then parse them at runtime. This makes the massive test file manageable while still testing every single case.
+
+The test suite includes 364 tests extracted directly from [TailwindCSS's utilities.test.ts](https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/src/utilities.test.ts).
+
+**For other test files:** We port them directly as PHPUnit tests, following the same 1:1 structure.
 
 These tests ensure our PHP output matches TailwindCSS exactly:
 
