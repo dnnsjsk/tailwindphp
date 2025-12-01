@@ -1,0 +1,3 @@
+[submodule "tailwindcss"]
+	path = tailwindcss
+	url = https://github.com/tailwindlabs/tailwindcss.git
