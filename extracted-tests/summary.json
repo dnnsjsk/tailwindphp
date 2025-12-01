@@ -1,42 +1,54 @@
 {
+    "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/utilities.test.ts",
+    "sourceLines": 28711,
     "totalTests": 267,
-    "totalLines": 28711,
     "categories": {
         "accessibility": {
-            "count": 2,
-            "tests": [
+            "tests": 2,
+            "lines": 31,
+            "files": 1,
+            "testNames": [
                 "sr-only",
                 "not-sr-only"
             ]
         },
         "pointer-events": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 19,
+            "files": 1,
+            "testNames": [
                 "pointer-events"
             ]
         },
         "other": {
-            "count": 5,
-            "tests": [
+            "tests": 9,
+            "lines": 715,
+            "files": 1,
+            "testNames": [
                 "visibility",
+                "field-sizing",
+                "--tw-scroll-snap-strictness",
                 "indent",
                 "decoration",
                 "contain",
-                "underline-offset"
+                "content",
+                "underline-offset",
+                "@container"
             ]
         },
         "position": {
-            "count": 4,
-            "tests": [
-                "position",
-                "list-style-position",
-                "bg-position",
-                "mask-position"
+            "tests": 1,
+            "lines": 37,
+            "files": 1,
+            "testNames": [
+                "position"
             ]
         },
         "inset": {
-            "count": 18,
-            "tests": [
+            "tests": 11,
+            "lines": 1746,
+            "files": 2,
+            "testNames": [
                 "inset",
                 "inset-x",
                 "inset-y",
@@ -46,102 +58,74 @@
                 "right",
                 "bottom",
                 "left",
-                "col-start",
-                "col-end",
-                "row-start",
-                "row-end",
-                "scroll-snap-stop",
-                "bg-blend",
-                "mix-blend",
                 "inset-shadow",
                 "inset-ring"
             ]
         },
         "isolation": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 14,
+            "files": 1,
+            "testNames": [
                 "isolation"
             ]
         },
         "z-index": {
-            "count": 11,
-            "tests": [
-                "z-index",
-                "box-sizing",
-                "field-sizing",
-                "size",
-                "translate-z",
-                "rotate-z",
-                "scale-z",
-                "touch-pinch-zoom",
-                "resize",
-                "bg-size",
-                "mask-size"
+            "tests": 1,
+            "lines": 58,
+            "files": 1,
+            "testNames": [
+                "z-index"
             ]
         },
         "order": {
-            "count": 9,
-            "tests": [
-                "order",
-                "margin sort order",
-                "border-spacing",
-                "border-spacing-x",
-                "border-spacing-y",
-                "divide-x with custom default border width",
-                "divide-y with custom default border width",
-                "border-style",
-                "border with custom default border width"
+            "tests": 1,
+            "lines": 99,
+            "files": 1,
+            "testNames": [
+                "order"
             ]
         },
         "grid": {
-            "count": 3,
-            "tests": [
+            "tests": 12,
+            "lines": 822,
+            "files": 1,
+            "testNames": [
                 "col",
-                "auto-cols",
-                "divide-color"
-            ]
-        },
-        "sizing": {
-            "count": 21,
-            "tests": [
+                "col-start",
+                "col-end",
                 "row",
-                "width",
-                "min-width",
-                "max-width",
-                "height",
-                "min-height",
-                "max-height",
-                "skew",
-                "skew-x",
-                "skew-y",
-                "touch-action",
-                "touch-pan",
+                "row-start",
+                "row-end",
                 "color-scheme",
+                "auto-cols",
+                "grid-flow",
                 "auto-rows",
-                "font-stretch",
-                "placeholder",
-                "transition-behavior",
-                "will-change",
-                "font-smoothing",
-                "text-shadow",
-                "shadow"
+                "grid-cols",
+                "grid-rows"
             ]
         },
         "float": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 39,
+            "files": 1,
+            "testNames": [
                 "float"
             ]
         },
         "clear": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 53,
+            "files": 1,
+            "testNames": [
                 "clear"
             ]
         },
         "margin": {
-            "count": 39,
-            "tests": [
+            "tests": 42,
+            "lines": 7115,
+            "files": 9,
+            "testNames": [
                 "margin",
                 "mx",
                 "my",
@@ -151,10 +135,14 @@
                 "mr",
                 "mb",
                 "ml",
-                "transform",
-                "list-image",
-                "from",
+                "margin sort order",
+                "min-width",
+                "max-width",
+                "min-height",
+                "max-height",
                 "mask",
+                "mask-position",
+                "mask-size",
                 "mask-t-from",
                 "mask-t-to",
                 "mask-r-from",
@@ -177,22 +165,153 @@
                 "mask-conic",
                 "mask-conic-from",
                 "mask-conic-to",
+                "mask-clip",
                 "mask-origin",
+                "mix-blend"
+            ]
+        },
+        "box-sizing": {
+            "tests": 1,
+            "lines": 14,
+            "files": 1,
+            "testNames": [
+                "box-sizing"
+            ]
+        },
+        "text": {
+            "tests": 17,
+            "lines": 1483,
+            "files": 2,
+            "testNames": [
+                "line-clamp",
+                "list-style-position",
+                "list",
+                "list-image",
+                "text-overflow",
+                "text-align",
+                "font",
                 "text-transform",
-                "animate",
-                "font-variant-numeric"
+                "font-style",
+                "font-stretch",
+                "text-decoration-line",
+                "leading",
+                "tracking",
+                "font-smoothing",
+                "font-variant-numeric",
+                "text",
+                "text-shadow"
+            ]
+        },
+        "display": {
+            "tests": 1,
+            "lines": 157,
+            "files": 1,
+            "testNames": [
+                "display"
+            ]
+        },
+        "aspect-ratio": {
+            "tests": 1,
+            "lines": 44,
+            "files": 1,
+            "testNames": [
+                "aspect-ratio"
+            ]
+        },
+        "sizing": {
+            "tests": 4,
+            "lines": 350,
+            "files": 1,
+            "testNames": [
+                "size",
+                "width",
+                "height",
+                "will-change"
+            ]
+        },
+        "flex": {
+            "tests": 6,
+            "lines": 228,
+            "files": 1,
+            "testNames": [
+                "flex",
+                "flex-shrink",
+                "flex-grow",
+                "flex-basis",
+                "flex-direction",
+                "flex-wrap"
+            ]
+        },
+        "table": {
+            "tests": 2,
+            "lines": 28,
+            "files": 1,
+            "testNames": [
+                "table-layout",
+                "caption-side"
+            ]
+        },
+        "border": {
+            "tests": 21,
+            "lines": 1183,
+            "files": 2,
+            "testNames": [
+                "border-collapse",
+                "border-spacing",
+                "border-spacing-x",
+                "border-spacing-y",
+                "rounded",
+                "rounded-s",
+                "rounded-e",
+                "rounded-t",
+                "rounded-r",
+                "rounded-b",
+                "rounded-l",
+                "rounded-ss",
+                "rounded-se",
+                "rounded-ee",
+                "rounded-es",
+                "rounded-tl",
+                "rounded-tr",
+                "rounded-br",
+                "rounded-bl",
+                "border-style",
+                "border with custom default border width"
+            ]
+        },
+        "transform": {
+            "tests": 19,
+            "lines": 1533,
+            "files": 2,
+            "testNames": [
+                "origin",
+                "translate",
+                "translate-x",
+                "translate-y",
+                "translate-z",
+                "translate-3d",
+                "rotate",
+                "rotate-x",
+                "rotate-y",
+                "rotate-z",
+                "skew",
+                "skew-x",
+                "skew-y",
+                "scale",
+                "scale-3d",
+                "scale-x",
+                "scale-y",
+                "scale-z",
+                "transform"
             ]
         },
         "padding": {
-            "count": 18,
-            "tests": [
-                "line-clamp",
-                "caption-side",
+            "tests": 12,
+            "lines": 690,
+            "files": 1,
+            "testNames": [
                 "perspective-origin",
                 "perspective",
-                "appearance",
-                "bg-clip",
-                "mask-clip",
                 "p",
                 "px",
                 "py",
@@ -202,79 +321,51 @@
                 "pr",
                 "pb",
                 "pl",
-                "backdrop-filter",
-                "opacity"
-            ]
-        },
-        "display": {
-            "count": 10,
-            "tests": [
-                "display",
-                "flex",
-                "flex-shrink",
-                "flex-grow",
-                "flex-basis",
-                "grid-flow",
-                "grid-cols",
-                "grid-rows",
-                "flex-direction",
-                "flex-wrap"
-            ]
-        },
-        "aspect-ratio": {
-            "count": 1,
-            "tests": [
-                "aspect-ratio"
-            ]
-        },
-        "table": {
-            "count": 1,
-            "tests": [
-                "table-layout"
-            ]
-        },
-        "visibility": {
-            "count": 1,
-            "tests": [
-                "border-collapse"
-            ]
-        },
-        "transform": {
-            "count": 13,
-            "tests": [
-                "origin",
-                "translate",
-                "translate-x",
-                "translate-y",
-                "translate-3d",
-                "rotate",
-                "rotate-x",
-                "rotate-y",
-                "scale",
-                "scale-3d",
-                "scale-x",
-                "scale-y",
-                "bg-origin"
+                "placeholder"
             ]
         },
         "cursor": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 289,
+            "files": 1,
+            "testNames": [
                 "cursor"
             ]
         },
+        "touch": {
+            "tests": 3,
+            "lines": 142,
+            "files": 1,
+            "testNames": [
+                "touch-action",
+                "touch-pan",
+                "touch-pinch-zoom"
+            ]
+        },
         "select": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 36,
+            "files": 1,
+            "testNames": [
                 "select"
             ]
         },
+        "resize": {
+            "tests": 1,
+            "lines": 31,
+            "files": 1,
+            "testNames": [
+                "resize"
+            ]
+        },
         "scroll": {
-            "count": 22,
-            "tests": [
+            "tests": 22,
+            "lines": 789,
+            "files": 1,
+            "testNames": [
                 "scroll-snap-type",
-                "--tw-scroll-snap-strictness",
                 "scroll-snap-align",
+                "scroll-snap-stop",
                 "scroll-m",
                 "scroll-mx",
                 "scroll-my",
@@ -296,71 +387,71 @@
                 "scroll-behavior"
             ]
         },
-        "text": {
-            "count": 7,
-            "tests": [
-                "list",
-                "font",
-                "font-style",
-                "text-decoration-line",
-                "leading",
-                "tracking",
-                "text"
+        "appearance": {
+            "tests": 1,
+            "lines": 20,
+            "files": 1,
+            "testNames": [
+                "appearance"
             ]
         },
         "columns": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 92,
+            "files": 1,
+            "testNames": [
                 "columns"
             ]
         },
-        "word-break": {
-            "count": 4,
-            "tests": [
+        "break": {
+            "tests": 3,
+            "lines": 173,
+            "files": 1,
+            "testNames": [
                 "break-before",
                 "break-inside",
-                "break-after",
-                "word-break"
-            ]
-        },
-        "content": {
-            "count": 3,
-            "tests": [
-                "place-content",
-                "align-content",
-                "content"
+                "break-after"
             ]
         },
         "place": {
-            "count": 2,
-            "tests": [
+            "tests": 3,
+            "lines": 189,
+            "files": 1,
+            "testNames": [
+                "place-content",
                 "place-items",
                 "place-self"
             ]
         },
         "align": {
-            "count": 7,
-            "tests": [
+            "tests": 7,
+            "lines": 477,
+            "files": 1,
+            "testNames": [
+                "align-content",
                 "items",
                 "justify",
                 "justify-items",
                 "self",
                 "justify-self",
-                "text-align",
                 "align"
             ]
         },
         "gap": {
-            "count": 3,
-            "tests": [
+            "tests": 3,
+            "lines": 82,
+            "files": 1,
+            "testNames": [
                 "gap",
                 "gap-x",
                 "gap-y"
             ]
         },
         "space": {
-            "count": 4,
-            "tests": [
+            "tests": 4,
+            "lines": 144,
+            "files": 1,
+            "testNames": [
                 "space-x",
                 "space-y",
                 "space-x-reverse",
@@ -368,165 +459,235 @@
             ]
         },
         "divide": {
-            "count": 5,
-            "tests": [
+            "tests": 8,
+            "lines": 507,
+            "files": 1,
+            "testNames": [
                 "divide-x",
+                "divide-x with custom default border width",
                 "divide-y",
+                "divide-y with custom default border width",
                 "divide-x-reverse",
                 "divide-y-reverse",
-                "divide-style"
+                "divide-style",
+                "divide-color"
             ]
         },
         "accent": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 187,
+            "files": 1,
+            "testNames": [
                 "accent"
             ]
         },
         "caret": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 185,
+            "files": 1,
+            "testNames": [
                 "caret"
             ]
         },
         "overflow": {
-            "count": 5,
-            "tests": [
+            "tests": 4,
+            "lines": 163,
+            "files": 1,
+            "testNames": [
                 "overflow",
                 "overflow-x",
                 "overflow-y",
-                "text-overflow",
                 "overflow-wrap"
             ]
         },
         "overscroll": {
-            "count": 3,
-            "tests": [
+            "tests": 3,
+            "lines": 81,
+            "files": 1,
+            "testNames": [
                 "overscroll",
                 "overscroll-x",
                 "overscroll-y"
             ]
         },
         "truncate": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 10,
+            "files": 1,
+            "testNames": [
                 "truncate"
             ]
         },
         "hyphens": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 29,
+            "files": 1,
+            "testNames": [
                 "hyphens"
             ]
         },
         "whitespace": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 53,
+            "files": 1,
+            "testNames": [
                 "whitespace"
             ]
         },
         "text-wrap": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 32,
+            "files": 1,
+            "testNames": [
                 "text-wrap"
             ]
         },
-        "border": {
-            "count": 15,
-            "tests": [
-                "rounded",
-                "rounded-s",
-                "rounded-e",
-                "rounded-t",
-                "rounded-r",
-                "rounded-b",
-                "rounded-l",
-                "rounded-ss",
-                "rounded-se",
-                "rounded-ee",
-                "rounded-es",
-                "rounded-tl",
-                "rounded-tr",
-                "rounded-br",
-                "rounded-bl"
+        "word-break": {
+            "tests": 1,
+            "lines": 33,
+            "files": 1,
+            "testNames": [
+                "word-break"
             ]
         },
-        "color": {
-            "count": 1,
-            "tests": [
-                "bg"
+        "bg": {
+            "tests": 5,
+            "lines": 1245,
+            "files": 2,
+            "testNames": [
+                "bg",
+                "bg-position",
+                "bg-size",
+                "bg-clip",
+                "bg-origin"
             ]
         },
         "gradient": {
-            "count": 2,
-            "tests": [
+            "tests": 3,
+            "lines": 1162,
+            "files": 2,
+            "testNames": [
+                "from",
                 "via",
                 "to"
             ]
         },
         "box-decoration": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 23,
+            "files": 1,
+            "testNames": [
                 "box-decoration"
             ]
         },
+        "blend": {
+            "tests": 1,
+            "lines": 123,
+            "files": 1,
+            "testNames": [
+                "bg-blend"
+            ]
+        },
         "fill": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 172,
+            "files": 1,
+            "testNames": [
                 "fill"
             ]
         },
         "stroke": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 291,
+            "files": 1,
+            "testNames": [
                 "stroke"
             ]
         },
         "object": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 157,
+            "files": 1,
+            "testNames": [
                 "object"
             ]
         },
+        "animation": {
+            "tests": 1,
+            "lines": 62,
+            "files": 1,
+            "testNames": [
+                "animate"
+            ]
+        },
         "filter": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 535,
+            "files": 1,
+            "testNames": [
                 "filter"
             ]
         },
+        "backdrop": {
+            "tests": 1,
+            "lines": 462,
+            "files": 1,
+            "testNames": [
+                "backdrop-filter"
+            ]
+        },
         "transition": {
-            "count": 4,
-            "tests": [
+            "tests": 5,
+            "lines": 338,
+            "files": 1,
+            "testNames": [
                 "transition",
+                "transition-behavior",
                 "delay",
                 "duration",
                 "ease"
             ]
         },
         "forced-color": {
-            "count": 1,
-            "tests": [
+            "tests": 1,
+            "lines": 23,
+            "files": 1,
+            "testNames": [
                 "forced-color-adjust"
             ]
         },
         "outline": {
-            "count": 2,
-            "tests": [
+            "tests": 2,
+            "lines": 414,
+            "files": 1,
+            "testNames": [
                 "outline",
                 "outline-offset"
             ]
         },
-        "ring": {
-            "count": 2,
-            "tests": [
-                "ring",
-                "ring-offset"
+        "opacity": {
+            "tests": 1,
+            "lines": 43,
+            "files": 1,
+            "testNames": [
+                "opacity"
             ]
         },
-        "container": {
-            "count": 1,
-            "tests": [
-                "@container"
+        "shadow": {
+            "tests": 1,
+            "lines": 472,
+            "files": 1,
+            "testNames": [
+                "shadow"
+            ]
+        },
+        "ring": {
+            "tests": 2,
+            "lines": 785,
+            "files": 1,
+            "testNames": [
+                "ring",
+                "ring-offset"
             ]
         }
     }
