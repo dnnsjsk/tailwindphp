@@ -9,6 +9,9 @@ use TailwindPHP\Utilities\UtilityBuilder;
 use TailwindPHP\Variants\Variants;
 use TailwindPHP\Utils\DefaultMap;
 
+use function TailwindPHP\Compile\compileCandidates;
+use function TailwindPHP\Ast\toCss;
+
 // Load utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
 require_once __DIR__ . '/utilities/layout.php';
@@ -198,9 +201,11 @@ class DesignSystem implements DesignSystemInterface
         foreach ($classes as $className) {
             $wasInvalid = false;
 
-            $compiled = compileCandidates([$className], $this, function () use (&$wasInvalid) {
-                $wasInvalid = true;
-            });
+            $compiled = compileCandidates([$className], $this, [
+                'onInvalidCandidate' => function () use (&$wasInvalid) {
+                    $wasInvalid = true;
+                }
+            ]);
 
             $astNodes = $compiled['astNodes'];
 

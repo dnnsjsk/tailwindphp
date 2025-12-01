@@ -1075,7 +1075,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $staticVariant('contrast-less', ['@media (prefers-contrast: less)']);
 
     // Breakpoints
-    $breakpoints = $theme->getNamespace('--breakpoint');
+    $breakpoints = $theme->namespace('--breakpoint');
     if (empty($breakpoints)) {
         $breakpoints = [
             'sm' => '40rem',
@@ -1155,7 +1155,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $variants->suggest('min', fn() => array_keys($breakpoints));
 
     // Container query variants
-    $containerWidths = $theme->getNamespace('--container');
+    $containerWidths = $theme->namespace('--container');
 
     // @max-* container variant
     $variants->group(function () use ($variants, $theme, $containerWidths) {

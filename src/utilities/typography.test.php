@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use TailwindPHP\TestHelper;
 
-use function TailwindPHP\Utilities\registerTypographyUtilities;
 
 /**
  * Typography Utilities Tests
@@ -17,16 +16,6 @@ use function TailwindPHP\Utilities\registerTypographyUtilities;
  */
 class typography extends TestCase
 {
-    private TestHelper $helper;
-
-    protected function setUp(): void
-    {
-        $this->helper = new TestHelper();
-        $this->helper->registerUtilities(function ($builder) {
-            registerTypographyUtilities($builder);
-        });
-    }
-
     // =========================================================================
     // Font Style
     // =========================================================================
@@ -34,7 +23,7 @@ class typography extends TestCase
     #[Test]
     public function font_style(): void
     {
-        $css = $this->helper->run(['italic', 'not-italic']);
+        $css = TestHelper::run(['italic', 'not-italic']);
 
         $this->assertStringContainsString('.italic {', $css);
         $this->assertStringContainsString('font-style: italic;', $css);
@@ -46,10 +35,10 @@ class typography extends TestCase
     #[Test]
     public function font_style_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-italic']));
-        $this->assertEquals('', $this->helper->run(['-not-italic']));
-        $this->assertEquals('', $this->helper->run(['italic/foo']));
-        $this->assertEquals('', $this->helper->run(['not-italic/foo']));
+        $this->assertEquals('', TestHelper::run(['-italic']));
+        $this->assertEquals('', TestHelper::run(['-not-italic']));
+        $this->assertEquals('', TestHelper::run(['italic/foo']));
+        $this->assertEquals('', TestHelper::run(['not-italic/foo']));
     }
 
     // =========================================================================
@@ -59,7 +48,7 @@ class typography extends TestCase
     #[Test]
     public function font_weight_static_values(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'font-thin', 'font-extralight', 'font-light', 'font-normal',
             'font-medium', 'font-semibold', 'font-bold', 'font-extrabold', 'font-black'
         ]);
@@ -95,7 +84,7 @@ class typography extends TestCase
     #[Test]
     public function font_weight_with_arbitrary_value(): void
     {
-        $css = $this->helper->run(['font-[100]', 'font-[550]']);
+        $css = TestHelper::run(['font-[100]', 'font-[550]']);
 
         $this->assertStringContainsString('.font-\\[100\\] {', $css);
         $this->assertStringContainsString('font-weight: 100;', $css);
@@ -107,9 +96,9 @@ class typography extends TestCase
     #[Test]
     public function font_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['font']));
-        $this->assertEquals('', $this->helper->run(['-font-bold']));
-        $this->assertEquals('', $this->helper->run(['font-bold/foo']));
+        $this->assertEquals('', TestHelper::run(['font']));
+        $this->assertEquals('', TestHelper::run(['-font-bold']));
+        $this->assertEquals('', TestHelper::run(['font-bold/foo']));
     }
 
     // =========================================================================
@@ -119,7 +108,7 @@ class typography extends TestCase
     #[Test]
     public function text_decoration_line(): void
     {
-        $css = $this->helper->run(['underline', 'overline', 'line-through', 'no-underline']);
+        $css = TestHelper::run(['underline', 'overline', 'line-through', 'no-underline']);
 
         $this->assertStringContainsString('.line-through {', $css);
         $this->assertStringContainsString('text-decoration-line: line-through;', $css);
@@ -137,14 +126,14 @@ class typography extends TestCase
     #[Test]
     public function text_decoration_line_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-underline']));
-        $this->assertEquals('', $this->helper->run(['-overline']));
-        $this->assertEquals('', $this->helper->run(['-line-through']));
-        $this->assertEquals('', $this->helper->run(['-no-underline']));
-        $this->assertEquals('', $this->helper->run(['underline/foo']));
-        $this->assertEquals('', $this->helper->run(['overline/foo']));
-        $this->assertEquals('', $this->helper->run(['line-through/foo']));
-        $this->assertEquals('', $this->helper->run(['no-underline/foo']));
+        $this->assertEquals('', TestHelper::run(['-underline']));
+        $this->assertEquals('', TestHelper::run(['-overline']));
+        $this->assertEquals('', TestHelper::run(['-line-through']));
+        $this->assertEquals('', TestHelper::run(['-no-underline']));
+        $this->assertEquals('', TestHelper::run(['underline/foo']));
+        $this->assertEquals('', TestHelper::run(['overline/foo']));
+        $this->assertEquals('', TestHelper::run(['line-through/foo']));
+        $this->assertEquals('', TestHelper::run(['no-underline/foo']));
     }
 
     // =========================================================================
@@ -154,7 +143,7 @@ class typography extends TestCase
     #[Test]
     public function text_decoration_style(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'decoration-solid', 'decoration-double', 'decoration-dotted',
             'decoration-dashed', 'decoration-wavy'
         ]);
@@ -182,7 +171,7 @@ class typography extends TestCase
     #[Test]
     public function text_transform(): void
     {
-        $css = $this->helper->run(['uppercase', 'lowercase', 'capitalize', 'normal-case']);
+        $css = TestHelper::run(['uppercase', 'lowercase', 'capitalize', 'normal-case']);
 
         $this->assertStringContainsString('.capitalize {', $css);
         $this->assertStringContainsString('text-transform: capitalize;', $css);
@@ -204,7 +193,7 @@ class typography extends TestCase
     #[Test]
     public function text_align(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'text-left', 'text-center', 'text-right', 'text-justify',
             'text-start', 'text-end'
         ]);
@@ -235,7 +224,7 @@ class typography extends TestCase
     #[Test]
     public function text_wrap(): void
     {
-        $css = $this->helper->run(['text-wrap', 'text-nowrap', 'text-balance', 'text-pretty']);
+        $css = TestHelper::run(['text-wrap', 'text-nowrap', 'text-balance', 'text-pretty']);
 
         $this->assertStringContainsString('.text-balance {', $css);
         $this->assertStringContainsString('text-wrap: balance;', $css);
@@ -257,7 +246,7 @@ class typography extends TestCase
     #[Test]
     public function whitespace(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'whitespace-normal', 'whitespace-nowrap', 'whitespace-pre',
             'whitespace-pre-line', 'whitespace-pre-wrap', 'whitespace-break-spaces'
         ]);
@@ -288,7 +277,7 @@ class typography extends TestCase
     #[Test]
     public function word_break(): void
     {
-        $css = $this->helper->run(['break-normal', 'break-words', 'break-all', 'break-keep']);
+        $css = TestHelper::run(['break-normal', 'break-words', 'break-all', 'break-keep']);
 
         $this->assertStringContainsString('.break-all {', $css);
         $this->assertStringContainsString('word-break: break-all;', $css);
@@ -311,7 +300,7 @@ class typography extends TestCase
     #[Test]
     public function hyphens(): void
     {
-        $css = $this->helper->run(['hyphens-none', 'hyphens-manual', 'hyphens-auto']);
+        $css = TestHelper::run(['hyphens-none', 'hyphens-manual', 'hyphens-auto']);
 
         $this->assertStringContainsString('.hyphens-auto {', $css);
         $this->assertStringContainsString('hyphens: auto;', $css);
@@ -330,7 +319,7 @@ class typography extends TestCase
     #[Test]
     public function list_style_type(): void
     {
-        $css = $this->helper->run(['list-none', 'list-disc', 'list-decimal']);
+        $css = TestHelper::run(['list-none', 'list-disc', 'list-decimal']);
 
         $this->assertStringContainsString('.list-decimal {', $css);
         $this->assertStringContainsString('list-style-type: decimal;', $css);
@@ -345,7 +334,7 @@ class typography extends TestCase
     #[Test]
     public function list_style_type_with_arbitrary_value(): void
     {
-        $css = $this->helper->run(['list-[var(--value)]']);
+        $css = TestHelper::run(['list-[var(--value)]']);
 
         $this->assertStringContainsString('.list-\\[var\\(--value\\)\\] {', $css);
         $this->assertStringContainsString('list-style-type: var(--value);', $css);
@@ -354,14 +343,14 @@ class typography extends TestCase
     #[Test]
     public function list_style_type_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-list-none']));
-        $this->assertEquals('', $this->helper->run(['-list-disc']));
-        $this->assertEquals('', $this->helper->run(['-list-decimal']));
-        $this->assertEquals('', $this->helper->run(['-list-[var(--value)]']));
-        $this->assertEquals('', $this->helper->run(['list-none/foo']));
-        $this->assertEquals('', $this->helper->run(['list-disc/foo']));
-        $this->assertEquals('', $this->helper->run(['list-decimal/foo']));
-        $this->assertEquals('', $this->helper->run(['list-[var(--value)]/foo']));
+        $this->assertEquals('', TestHelper::run(['-list-none']));
+        $this->assertEquals('', TestHelper::run(['-list-disc']));
+        $this->assertEquals('', TestHelper::run(['-list-decimal']));
+        $this->assertEquals('', TestHelper::run(['-list-[var(--value)]']));
+        $this->assertEquals('', TestHelper::run(['list-none/foo']));
+        $this->assertEquals('', TestHelper::run(['list-disc/foo']));
+        $this->assertEquals('', TestHelper::run(['list-decimal/foo']));
+        $this->assertEquals('', TestHelper::run(['list-[var(--value)]/foo']));
     }
 
     // =========================================================================
@@ -371,7 +360,7 @@ class typography extends TestCase
     #[Test]
     public function list_style_position(): void
     {
-        $css = $this->helper->run(['list-inside', 'list-outside']);
+        $css = TestHelper::run(['list-inside', 'list-outside']);
 
         $this->assertStringContainsString('.list-inside {', $css);
         $this->assertStringContainsString('list-style-position: inside;', $css);
@@ -387,7 +376,7 @@ class typography extends TestCase
     #[Test]
     public function vertical_align(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'align-baseline', 'align-top', 'align-middle', 'align-bottom',
             'align-text-top', 'align-text-bottom', 'align-sub', 'align-super'
         ]);
@@ -424,7 +413,7 @@ class typography extends TestCase
     #[Test]
     public function leading_static_values(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'leading-none', 'leading-tight', 'leading-snug',
             'leading-normal', 'leading-relaxed', 'leading-loose'
         ]);
@@ -451,7 +440,7 @@ class typography extends TestCase
     #[Test]
     public function leading_with_arbitrary_value(): void
     {
-        $css = $this->helper->run(['leading-[var(--value)]']);
+        $css = TestHelper::run(['leading-[var(--value)]']);
 
         $this->assertStringContainsString('.leading-\\[var\\(--value\\)\\] {', $css);
         $this->assertStringContainsString('--tw-leading: var(--value);', $css);
@@ -461,11 +450,11 @@ class typography extends TestCase
     #[Test]
     public function leading_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['leading']));
-        $this->assertEquals('', $this->helper->run(['-leading-tight']));
-        $this->assertEquals('', $this->helper->run(['-leading-[var(--value)]']));
-        $this->assertEquals('', $this->helper->run(['leading-tight/foo']));
-        $this->assertEquals('', $this->helper->run(['leading-[var(--value)]/foo']));
+        $this->assertEquals('', TestHelper::run(['leading']));
+        $this->assertEquals('', TestHelper::run(['-leading-tight']));
+        $this->assertEquals('', TestHelper::run(['-leading-[var(--value)]']));
+        $this->assertEquals('', TestHelper::run(['leading-tight/foo']));
+        $this->assertEquals('', TestHelper::run(['leading-[var(--value)]/foo']));
     }
 
     // =========================================================================
@@ -475,7 +464,7 @@ class typography extends TestCase
     #[Test]
     public function tracking_static_values(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'tracking-tighter', 'tracking-tight', 'tracking-normal',
             'tracking-wide', 'tracking-wider', 'tracking-widest'
         ]);
@@ -502,7 +491,7 @@ class typography extends TestCase
     #[Test]
     public function tracking_with_arbitrary_value(): void
     {
-        $css = $this->helper->run(['tracking-[var(--value)]']);
+        $css = TestHelper::run(['tracking-[var(--value)]']);
 
         $this->assertStringContainsString('.tracking-\\[var\\(--value\\)\\] {', $css);
         $this->assertStringContainsString('--tw-tracking: var(--value);', $css);
@@ -512,10 +501,10 @@ class typography extends TestCase
     #[Test]
     public function tracking_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['tracking']));
-        $this->assertEquals('', $this->helper->run(['tracking-normal/foo']));
-        $this->assertEquals('', $this->helper->run(['tracking-wide/foo']));
-        $this->assertEquals('', $this->helper->run(['tracking-[var(--value)]/foo']));
+        $this->assertEquals('', TestHelper::run(['tracking']));
+        $this->assertEquals('', TestHelper::run(['tracking-normal/foo']));
+        $this->assertEquals('', TestHelper::run(['tracking-wide/foo']));
+        $this->assertEquals('', TestHelper::run(['tracking-[var(--value)]/foo']));
     }
 
     // =========================================================================
@@ -525,7 +514,7 @@ class typography extends TestCase
     #[Test]
     public function text_indent(): void
     {
-        $css = $this->helper->run(['indent-4', 'indent-[10px]', '-indent-4']);
+        $css = TestHelper::run(['indent-4', 'indent-[10px]', '-indent-4']);
 
         $this->assertStringContainsString('.indent-4 {', $css);
         $this->assertStringContainsString('text-indent: calc(var(--spacing) * 4);', $css);
@@ -544,7 +533,7 @@ class typography extends TestCase
     #[Test]
     public function truncate(): void
     {
-        $css = $this->helper->run(['truncate']);
+        $css = TestHelper::run(['truncate']);
 
         $this->assertStringContainsString('.truncate {', $css);
         $this->assertStringContainsString('overflow: hidden;', $css);
@@ -559,7 +548,7 @@ class typography extends TestCase
     #[Test]
     public function text_overflow(): void
     {
-        $css = $this->helper->run(['text-ellipsis', 'text-clip']);
+        $css = TestHelper::run(['text-ellipsis', 'text-clip']);
 
         $this->assertStringContainsString('.text-clip {', $css);
         $this->assertStringContainsString('text-overflow: clip;', $css);
@@ -575,7 +564,7 @@ class typography extends TestCase
     #[Test]
     public function font_variant_numeric(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'normal-nums', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums',
             'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions'
         ]);
@@ -615,7 +604,7 @@ class typography extends TestCase
     #[Test]
     public function font_smoothing(): void
     {
-        $css = $this->helper->run(['antialiased', 'subpixel-antialiased']);
+        $css = TestHelper::run(['antialiased', 'subpixel-antialiased']);
 
         $this->assertStringContainsString('.antialiased {', $css);
         $this->assertStringContainsString('-webkit-font-smoothing: antialiased;', $css);
@@ -629,9 +618,9 @@ class typography extends TestCase
     #[Test]
     public function font_smoothing_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-antialiased']));
-        $this->assertEquals('', $this->helper->run(['-subpixel-antialiased']));
-        $this->assertEquals('', $this->helper->run(['antialiased/foo']));
-        $this->assertEquals('', $this->helper->run(['subpixel-antialiased/foo']));
+        $this->assertEquals('', TestHelper::run(['-antialiased']));
+        $this->assertEquals('', TestHelper::run(['-subpixel-antialiased']));
+        $this->assertEquals('', TestHelper::run(['antialiased/foo']));
+        $this->assertEquals('', TestHelper::run(['subpixel-antialiased/foo']));
     }
 }

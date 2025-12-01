@@ -8,8 +8,6 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use TailwindPHP\TestHelper;
 
-use function TailwindPHP\Utilities\registerAccessibilityUtilities;
-
 /**
  * Accessibility Utilities Tests
  *
@@ -18,20 +16,10 @@ use function TailwindPHP\Utilities\registerAccessibilityUtilities;
  */
 class accessibility extends TestCase
 {
-    private TestHelper $helper;
-
-    protected function setUp(): void
-    {
-        $this->helper = new TestHelper();
-        $this->helper->registerUtilities(function ($builder) {
-            registerAccessibilityUtilities($builder);
-        });
-    }
-
     #[Test]
     public function sr_only(): void
     {
-        $css = $this->helper->run(['sr-only']);
+        $css = TestHelper::run(['sr-only']);
 
         $this->assertStringContainsString('.sr-only {', $css);
         $this->assertStringContainsString('clip-path: inset(50%);', $css);
@@ -49,15 +37,15 @@ class accessibility extends TestCase
     public function sr_only_invalid_variants_return_empty(): void
     {
         // These should all return empty - sr-only doesn't support these forms
-        $this->assertEquals('', $this->helper->run(['-sr-only']));
-        $this->assertEquals('', $this->helper->run(['sr-only-[var(--value)]']));
-        $this->assertEquals('', $this->helper->run(['sr-only/foo']));
+        $this->assertEquals('', TestHelper::run(['-sr-only']));
+        $this->assertEquals('', TestHelper::run(['sr-only-[var(--value)]']));
+        $this->assertEquals('', TestHelper::run(['sr-only/foo']));
     }
 
     #[Test]
     public function not_sr_only(): void
     {
-        $css = $this->helper->run(['not-sr-only']);
+        $css = TestHelper::run(['not-sr-only']);
 
         $this->assertStringContainsString('.not-sr-only {', $css);
         $this->assertStringContainsString('clip-path: none;', $css);
@@ -73,8 +61,8 @@ class accessibility extends TestCase
     #[Test]
     public function not_sr_only_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-not-sr-only']));
-        $this->assertEquals('', $this->helper->run(['not-sr-only-[var(--value)]']));
-        $this->assertEquals('', $this->helper->run(['not-sr-only/foo']));
+        $this->assertEquals('', TestHelper::run(['-not-sr-only']));
+        $this->assertEquals('', TestHelper::run(['not-sr-only-[var(--value)]']));
+        $this->assertEquals('', TestHelper::run(['not-sr-only/foo']));
     }
 }
