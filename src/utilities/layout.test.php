@@ -6,9 +6,7 @@ namespace TailwindPHP\Utilities;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\TestHelper;
-
-use function TailwindPHP\Utilities\registerLayoutUtilities;
+use TailwindPHP\Tests\TestHelper;
 
 /**
  * Layout Utilities Tests
@@ -18,20 +16,10 @@ use function TailwindPHP\Utilities\registerLayoutUtilities;
  */
 class layout extends TestCase
 {
-    private TestHelper $helper;
-
-    protected function setUp(): void
-    {
-        $this->helper = new TestHelper();
-        $this->helper->registerUtilities(function ($builder) {
-            registerLayoutUtilities($builder);
-        });
-    }
-
     #[Test]
     public function pointer_events(): void
     {
-        $css = $this->helper->run(['pointer-events-none', 'pointer-events-auto']);
+        $css = TestHelper::run(['pointer-events-none', 'pointer-events-auto']);
 
         // Check both utilities are generated
         $this->assertStringContainsString('.pointer-events-auto {', $css);
@@ -44,16 +32,16 @@ class layout extends TestCase
     public function pointer_events_invalid_variants_return_empty(): void
     {
         // These should all return empty - pointer-events doesn't support these forms
-        $this->assertEquals('', $this->helper->run(['-pointer-events-none']));
-        $this->assertEquals('', $this->helper->run(['-pointer-events-auto']));
-        $this->assertEquals('', $this->helper->run(['pointer-events-[var(--value)]']));
-        $this->assertEquals('', $this->helper->run(['pointer-events-none/foo']));
+        $this->assertEquals('', TestHelper::run(['-pointer-events-none']));
+        $this->assertEquals('', TestHelper::run(['-pointer-events-auto']));
+        $this->assertEquals('', TestHelper::run(['pointer-events-[var(--value)]']));
+        $this->assertEquals('', TestHelper::run(['pointer-events-none/foo']));
     }
 
     #[Test]
     public function visibility(): void
     {
-        $css = $this->helper->run(['visible', 'invisible', 'collapse']);
+        $css = TestHelper::run(['visible', 'invisible', 'collapse']);
 
         $this->assertStringContainsString('.collapse {', $css);
         $this->assertStringContainsString('visibility: collapse;', $css);
@@ -68,18 +56,18 @@ class layout extends TestCase
     #[Test]
     public function visibility_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-visible']));
-        $this->assertEquals('', $this->helper->run(['-invisible']));
-        $this->assertEquals('', $this->helper->run(['-collapse']));
-        $this->assertEquals('', $this->helper->run(['visible/foo']));
-        $this->assertEquals('', $this->helper->run(['invisible/foo']));
-        $this->assertEquals('', $this->helper->run(['collapse/foo']));
+        $this->assertEquals('', TestHelper::run(['-visible']));
+        $this->assertEquals('', TestHelper::run(['-invisible']));
+        $this->assertEquals('', TestHelper::run(['-collapse']));
+        $this->assertEquals('', TestHelper::run(['visible/foo']));
+        $this->assertEquals('', TestHelper::run(['invisible/foo']));
+        $this->assertEquals('', TestHelper::run(['collapse/foo']));
     }
 
     #[Test]
     public function position(): void
     {
-        $css = $this->helper->run(['static', 'fixed', 'absolute', 'relative', 'sticky']);
+        $css = TestHelper::run(['static', 'fixed', 'absolute', 'relative', 'sticky']);
 
         $this->assertStringContainsString('.absolute {', $css);
         $this->assertStringContainsString('position: absolute;', $css);
@@ -100,22 +88,22 @@ class layout extends TestCase
     #[Test]
     public function position_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-static']));
-        $this->assertEquals('', $this->helper->run(['-fixed']));
-        $this->assertEquals('', $this->helper->run(['-absolute']));
-        $this->assertEquals('', $this->helper->run(['-relative']));
-        $this->assertEquals('', $this->helper->run(['-sticky']));
-        $this->assertEquals('', $this->helper->run(['static/foo']));
-        $this->assertEquals('', $this->helper->run(['fixed/foo']));
-        $this->assertEquals('', $this->helper->run(['absolute/foo']));
-        $this->assertEquals('', $this->helper->run(['relative/foo']));
-        $this->assertEquals('', $this->helper->run(['sticky/foo']));
+        $this->assertEquals('', TestHelper::run(['-static']));
+        $this->assertEquals('', TestHelper::run(['-fixed']));
+        $this->assertEquals('', TestHelper::run(['-absolute']));
+        $this->assertEquals('', TestHelper::run(['-relative']));
+        $this->assertEquals('', TestHelper::run(['-sticky']));
+        $this->assertEquals('', TestHelper::run(['static/foo']));
+        $this->assertEquals('', TestHelper::run(['fixed/foo']));
+        $this->assertEquals('', TestHelper::run(['absolute/foo']));
+        $this->assertEquals('', TestHelper::run(['relative/foo']));
+        $this->assertEquals('', TestHelper::run(['sticky/foo']));
     }
 
     #[Test]
     public function isolation(): void
     {
-        $css = $this->helper->run(['isolate', 'isolation-auto']);
+        $css = TestHelper::run(['isolate', 'isolation-auto']);
 
         $this->assertStringContainsString('.isolate {', $css);
         $this->assertStringContainsString('isolation: isolate;', $css);
@@ -127,7 +115,7 @@ class layout extends TestCase
     #[Test]
     public function float(): void
     {
-        $css = $this->helper->run(['float-start', 'float-end', 'float-right', 'float-left', 'float-none']);
+        $css = TestHelper::run(['float-start', 'float-end', 'float-right', 'float-left', 'float-none']);
 
         $this->assertStringContainsString('.float-start {', $css);
         $this->assertStringContainsString('float: inline-start;', $css);
@@ -148,7 +136,7 @@ class layout extends TestCase
     #[Test]
     public function clear(): void
     {
-        $css = $this->helper->run(['clear-start', 'clear-end', 'clear-right', 'clear-left', 'clear-both', 'clear-none']);
+        $css = TestHelper::run(['clear-start', 'clear-end', 'clear-right', 'clear-left', 'clear-both', 'clear-none']);
 
         $this->assertStringContainsString('.clear-start {', $css);
         $this->assertStringContainsString('clear: inline-start;', $css);
@@ -172,7 +160,7 @@ class layout extends TestCase
     #[Test]
     public function box_sizing(): void
     {
-        $css = $this->helper->run(['box-border', 'box-content']);
+        $css = TestHelper::run(['box-border', 'box-content']);
 
         $this->assertStringContainsString('.box-border {', $css);
         $this->assertStringContainsString('box-sizing: border-box;', $css);
@@ -184,7 +172,7 @@ class layout extends TestCase
     #[Test]
     public function display(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'block', 'inline-block', 'inline', 'flex', 'inline-flex',
             'table', 'inline-table', 'table-caption', 'table-cell',
             'table-column', 'table-column-group', 'table-footer-group',
@@ -214,7 +202,7 @@ class layout extends TestCase
     #[Test]
     public function overflow(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'overflow-auto', 'overflow-hidden', 'overflow-clip',
             'overflow-visible', 'overflow-scroll',
             'overflow-x-auto', 'overflow-y-auto'
@@ -236,7 +224,7 @@ class layout extends TestCase
     #[Test]
     public function overscroll(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'overscroll-auto', 'overscroll-contain', 'overscroll-none',
             'overscroll-x-auto', 'overscroll-y-auto'
         ]);
@@ -254,7 +242,7 @@ class layout extends TestCase
     #[Test]
     public function scroll_behavior(): void
     {
-        $css = $this->helper->run(['scroll-auto', 'scroll-smooth']);
+        $css = TestHelper::run(['scroll-auto', 'scroll-smooth']);
 
         $this->assertStringContainsString('.scroll-auto {', $css);
         $this->assertStringContainsString('scroll-behavior: auto;', $css);
@@ -266,7 +254,7 @@ class layout extends TestCase
     #[Test]
     public function object_fit(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'object-contain', 'object-cover', 'object-fill',
             'object-none', 'object-scale-down'
         ]);
@@ -290,7 +278,7 @@ class layout extends TestCase
     #[Test]
     public function object_position(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'object-bottom', 'object-center', 'object-left',
             'object-left-bottom', 'object-left-top', 'object-right',
             'object-right-bottom', 'object-right-top', 'object-top'
@@ -309,7 +297,7 @@ class layout extends TestCase
     #[Test]
     public function break_before(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'break-before-auto', 'break-before-avoid', 'break-before-all',
             'break-before-avoid-page', 'break-before-page', 'break-before-left',
             'break-before-right', 'break-before-column'
@@ -325,7 +313,7 @@ class layout extends TestCase
     #[Test]
     public function break_inside(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'break-inside-auto', 'break-inside-avoid',
             'break-inside-avoid-page', 'break-inside-avoid-column'
         ]);
@@ -340,7 +328,7 @@ class layout extends TestCase
     #[Test]
     public function break_after(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'break-after-auto', 'break-after-avoid', 'break-after-all',
             'break-after-avoid-page', 'break-after-page', 'break-after-left',
             'break-after-right', 'break-after-column'
@@ -356,7 +344,7 @@ class layout extends TestCase
     #[Test]
     public function box_decoration_break(): void
     {
-        $css = $this->helper->run(['box-decoration-clone', 'box-decoration-slice']);
+        $css = TestHelper::run(['box-decoration-clone', 'box-decoration-slice']);
 
         $this->assertStringContainsString('.box-decoration-clone {', $css);
         $this->assertStringContainsString('box-decoration-break: clone;', $css);

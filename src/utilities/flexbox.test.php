@@ -6,9 +6,7 @@ namespace TailwindPHP\Utilities;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\TestHelper;
-
-use function TailwindPHP\Utilities\registerFlexboxUtilities;
+use TailwindPHP\Tests\TestHelper;
 
 /**
  * Flexbox & Grid Utilities Tests
@@ -17,20 +15,10 @@ use function TailwindPHP\Utilities\registerFlexboxUtilities;
  */
 class flexbox extends TestCase
 {
-    private TestHelper $helper;
-
-    protected function setUp(): void
-    {
-        $this->helper = new TestHelper();
-        $this->helper->registerUtilities(function ($builder) {
-            registerFlexboxUtilities($builder);
-        });
-    }
-
     #[Test]
     public function flex_direction(): void
     {
-        $css = $this->helper->run(['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']);
+        $css = TestHelper::run(['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']);
 
         $this->assertStringContainsString('.flex-col {', $css);
         $this->assertStringContainsString('flex-direction: column;', $css);
@@ -48,18 +36,18 @@ class flexbox extends TestCase
     #[Test]
     public function flex_direction_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-flex-row']));
-        $this->assertEquals('', $this->helper->run(['-flex-row-reverse']));
-        $this->assertEquals('', $this->helper->run(['-flex-col']));
-        $this->assertEquals('', $this->helper->run(['-flex-col-reverse']));
-        $this->assertEquals('', $this->helper->run(['flex-row/foo']));
-        $this->assertEquals('', $this->helper->run(['flex-col/foo']));
+        $this->assertEquals('', TestHelper::run(['-flex-row']));
+        $this->assertEquals('', TestHelper::run(['-flex-row-reverse']));
+        $this->assertEquals('', TestHelper::run(['-flex-col']));
+        $this->assertEquals('', TestHelper::run(['-flex-col-reverse']));
+        $this->assertEquals('', TestHelper::run(['flex-row/foo']));
+        $this->assertEquals('', TestHelper::run(['flex-col/foo']));
     }
 
     #[Test]
     public function flex_wrap(): void
     {
-        $css = $this->helper->run(['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap']);
+        $css = TestHelper::run(['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap']);
 
         $this->assertStringContainsString('.flex-nowrap {', $css);
         $this->assertStringContainsString('flex-wrap: nowrap;', $css);
@@ -74,16 +62,16 @@ class flexbox extends TestCase
     #[Test]
     public function flex_wrap_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-flex-wrap']));
-        $this->assertEquals('', $this->helper->run(['-flex-wrap-reverse']));
-        $this->assertEquals('', $this->helper->run(['-flex-nowrap']));
-        $this->assertEquals('', $this->helper->run(['flex-wrap/foo']));
+        $this->assertEquals('', TestHelper::run(['-flex-wrap']));
+        $this->assertEquals('', TestHelper::run(['-flex-wrap-reverse']));
+        $this->assertEquals('', TestHelper::run(['-flex-nowrap']));
+        $this->assertEquals('', TestHelper::run(['flex-wrap/foo']));
     }
 
     #[Test]
     public function flex_shorthand(): void
     {
-        $css = $this->helper->run(['flex-1', 'flex-auto', 'flex-initial', 'flex-none']);
+        $css = TestHelper::run(['flex-1', 'flex-auto', 'flex-initial', 'flex-none']);
 
         $this->assertStringContainsString('.flex-1 {', $css);
         $this->assertStringContainsString('flex: 1;', $css);
@@ -101,7 +89,7 @@ class flexbox extends TestCase
     #[Test]
     public function flex_with_arbitrary_values(): void
     {
-        $css = $this->helper->run(['flex-[123]']);
+        $css = TestHelper::run(['flex-[123]']);
 
         $this->assertStringContainsString('.flex-\\[123\\] {', $css);
         $this->assertStringContainsString('flex: 123;', $css);
@@ -110,7 +98,7 @@ class flexbox extends TestCase
     #[Test]
     public function flex_grow(): void
     {
-        $css = $this->helper->run(['grow', 'grow-0']);
+        $css = TestHelper::run(['grow', 'grow-0']);
 
         $this->assertStringContainsString('.grow {', $css);
         $this->assertStringContainsString('flex-grow: 1;', $css);
@@ -122,7 +110,7 @@ class flexbox extends TestCase
     #[Test]
     public function flex_grow_with_arbitrary_values(): void
     {
-        $css = $this->helper->run(['grow-[123]']);
+        $css = TestHelper::run(['grow-[123]']);
 
         $this->assertStringContainsString('.grow-\\[123\\] {', $css);
         $this->assertStringContainsString('flex-grow: 123;', $css);
@@ -131,18 +119,18 @@ class flexbox extends TestCase
     #[Test]
     public function flex_grow_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-grow']));
-        $this->assertEquals('', $this->helper->run(['grow--1']));
-        $this->assertEquals('', $this->helper->run(['grow-1.5']));
-        $this->assertEquals('', $this->helper->run(['-grow-0']));
-        $this->assertEquals('', $this->helper->run(['grow/foo']));
-        $this->assertEquals('', $this->helper->run(['grow-0/foo']));
+        $this->assertEquals('', TestHelper::run(['-grow']));
+        $this->assertEquals('', TestHelper::run(['grow--1']));
+        $this->assertEquals('', TestHelper::run(['grow-1.5']));
+        $this->assertEquals('', TestHelper::run(['-grow-0']));
+        $this->assertEquals('', TestHelper::run(['grow/foo']));
+        $this->assertEquals('', TestHelper::run(['grow-0/foo']));
     }
 
     #[Test]
     public function flex_shrink(): void
     {
-        $css = $this->helper->run(['shrink', 'shrink-0']);
+        $css = TestHelper::run(['shrink', 'shrink-0']);
 
         $this->assertStringContainsString('.shrink {', $css);
         $this->assertStringContainsString('flex-shrink: 1;', $css);
@@ -154,7 +142,7 @@ class flexbox extends TestCase
     #[Test]
     public function flex_shrink_with_arbitrary_values(): void
     {
-        $css = $this->helper->run(['shrink-[123]']);
+        $css = TestHelper::run(['shrink-[123]']);
 
         $this->assertStringContainsString('.shrink-\\[123\\] {', $css);
         $this->assertStringContainsString('flex-shrink: 123;', $css);
@@ -163,17 +151,17 @@ class flexbox extends TestCase
     #[Test]
     public function flex_shrink_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['-shrink']));
-        $this->assertEquals('', $this->helper->run(['shrink--1']));
-        $this->assertEquals('', $this->helper->run(['shrink-1.5']));
-        $this->assertEquals('', $this->helper->run(['-shrink-0']));
-        $this->assertEquals('', $this->helper->run(['shrink/foo']));
+        $this->assertEquals('', TestHelper::run(['-shrink']));
+        $this->assertEquals('', TestHelper::run(['shrink--1']));
+        $this->assertEquals('', TestHelper::run(['shrink-1.5']));
+        $this->assertEquals('', TestHelper::run(['-shrink-0']));
+        $this->assertEquals('', TestHelper::run(['shrink/foo']));
     }
 
     #[Test]
     public function flex_basis(): void
     {
-        $css = $this->helper->run(['basis-auto', 'basis-full']);
+        $css = TestHelper::run(['basis-auto', 'basis-full']);
 
         $this->assertStringContainsString('.basis-auto {', $css);
         $this->assertStringContainsString('flex-basis: auto;', $css);
@@ -185,7 +173,7 @@ class flexbox extends TestCase
     #[Test]
     public function flex_basis_with_arbitrary_values(): void
     {
-        $css = $this->helper->run(['basis-[123px]']);
+        $css = TestHelper::run(['basis-[123px]']);
 
         $this->assertStringContainsString('.basis-\\[123px\\] {', $css);
         $this->assertStringContainsString('flex-basis: 123px;', $css);
@@ -194,7 +182,7 @@ class flexbox extends TestCase
     #[Test]
     public function grid_flow(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'grid-flow-row',
             'grid-flow-col',
             'grid-flow-dense',
@@ -221,15 +209,15 @@ class flexbox extends TestCase
     #[Test]
     public function grid_flow_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['grid-flow']));
-        $this->assertEquals('', $this->helper->run(['-grid-flow-row']));
-        $this->assertEquals('', $this->helper->run(['grid-flow-row/foo']));
+        $this->assertEquals('', TestHelper::run(['grid-flow']));
+        $this->assertEquals('', TestHelper::run(['-grid-flow-row']));
+        $this->assertEquals('', TestHelper::run(['grid-flow-row/foo']));
     }
 
     #[Test]
     public function grid_cols(): void
     {
-        $css = $this->helper->run(['grid-cols-none', 'grid-cols-subgrid', 'grid-cols-12', 'grid-cols-99']);
+        $css = TestHelper::run(['grid-cols-none', 'grid-cols-subgrid', 'grid-cols-12', 'grid-cols-99']);
 
         $this->assertStringContainsString('.grid-cols-12 {', $css);
         $this->assertStringContainsString('grid-template-columns: repeat(12, minmax(0, 1fr));', $css);
@@ -247,16 +235,16 @@ class flexbox extends TestCase
     #[Test]
     public function grid_cols_invalid_variants_return_empty(): void
     {
-        $this->assertEquals('', $this->helper->run(['grid-cols']));
-        $this->assertEquals('', $this->helper->run(['grid-cols-0']));
-        $this->assertEquals('', $this->helper->run(['-grid-cols-none']));
-        $this->assertEquals('', $this->helper->run(['grid-cols-none/foo']));
+        $this->assertEquals('', TestHelper::run(['grid-cols']));
+        $this->assertEquals('', TestHelper::run(['grid-cols-0']));
+        $this->assertEquals('', TestHelper::run(['-grid-cols-none']));
+        $this->assertEquals('', TestHelper::run(['grid-cols-none/foo']));
     }
 
     #[Test]
     public function grid_rows(): void
     {
-        $css = $this->helper->run(['grid-rows-none', 'grid-rows-subgrid', 'grid-rows-12', 'grid-rows-99']);
+        $css = TestHelper::run(['grid-rows-none', 'grid-rows-subgrid', 'grid-rows-12', 'grid-rows-99']);
 
         $this->assertStringContainsString('.grid-rows-12 {', $css);
         $this->assertStringContainsString('grid-template-rows: repeat(12, minmax(0, 1fr));', $css);
@@ -274,7 +262,7 @@ class flexbox extends TestCase
     #[Test]
     public function justify_content(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'justify-normal', 'justify-start', 'justify-end', 'justify-center',
             'justify-between', 'justify-around', 'justify-evenly', 'justify-stretch'
         ]);
@@ -292,7 +280,7 @@ class flexbox extends TestCase
     #[Test]
     public function justify_items(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'justify-items-start', 'justify-items-end', 'justify-items-center',
             'justify-items-stretch', 'justify-items-normal'
         ]);
@@ -307,7 +295,7 @@ class flexbox extends TestCase
     #[Test]
     public function justify_self(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'justify-self-auto', 'justify-self-start', 'justify-self-end',
             'justify-self-center', 'justify-self-stretch'
         ]);
@@ -322,7 +310,7 @@ class flexbox extends TestCase
     #[Test]
     public function align_content(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'content-normal', 'content-start', 'content-end', 'content-center',
             'content-between', 'content-around', 'content-evenly', 'content-baseline', 'content-stretch'
         ]);
@@ -337,7 +325,7 @@ class flexbox extends TestCase
     #[Test]
     public function align_items(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'items-start', 'items-end', 'items-center', 'items-baseline', 'items-stretch'
         ]);
 
@@ -354,7 +342,7 @@ class flexbox extends TestCase
     #[Test]
     public function align_self(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'self-auto', 'self-start', 'self-end', 'self-center', 'self-stretch', 'self-baseline'
         ]);
 
@@ -368,7 +356,7 @@ class flexbox extends TestCase
     #[Test]
     public function place_content(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'place-content-center', 'place-content-start', 'place-content-end',
             'place-content-between', 'place-content-around', 'place-content-evenly',
             'place-content-baseline', 'place-content-stretch'
@@ -384,7 +372,7 @@ class flexbox extends TestCase
     #[Test]
     public function place_items(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'place-items-start', 'place-items-end', 'place-items-center',
             'place-items-baseline', 'place-items-stretch'
         ]);
@@ -399,7 +387,7 @@ class flexbox extends TestCase
     #[Test]
     public function place_self(): void
     {
-        $css = $this->helper->run([
+        $css = TestHelper::run([
             'place-self-auto', 'place-self-start', 'place-self-end',
             'place-self-center', 'place-self-stretch'
         ]);
@@ -414,7 +402,7 @@ class flexbox extends TestCase
     #[Test]
     public function auto_cols(): void
     {
-        $css = $this->helper->run(['auto-cols-auto', 'auto-cols-min', 'auto-cols-max', 'auto-cols-fr']);
+        $css = TestHelper::run(['auto-cols-auto', 'auto-cols-min', 'auto-cols-max', 'auto-cols-fr']);
 
         $this->assertStringContainsString('.auto-cols-auto {', $css);
         $this->assertStringContainsString('grid-auto-columns: auto;', $css);
@@ -432,7 +420,7 @@ class flexbox extends TestCase
     #[Test]
     public function auto_rows(): void
     {
-        $css = $this->helper->run(['auto-rows-auto', 'auto-rows-min', 'auto-rows-max', 'auto-rows-fr']);
+        $css = TestHelper::run(['auto-rows-auto', 'auto-rows-min', 'auto-rows-max', 'auto-rows-fr']);
 
         $this->assertStringContainsString('.auto-rows-auto {', $css);
         $this->assertStringContainsString('grid-auto-rows: auto;', $css);

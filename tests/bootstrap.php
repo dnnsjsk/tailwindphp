@@ -6,4 +6,4 @@ declare(strict_types=1);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load TestHelper
-require_once __DIR__ . '/../src/TestHelper.php';
+require_once __DIR__ . '/TestHelper.php';

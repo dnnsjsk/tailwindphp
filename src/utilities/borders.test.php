@@ -6,7 +6,7 @@ namespace TailwindPHP\Utilities;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\TestHelper;
+use TailwindPHP\Tests\TestHelper;
 
 /**
  * Border Utilities Tests

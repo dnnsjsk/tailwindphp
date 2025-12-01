@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\Tests;
 
+use TailwindPHP\Theme;
 use TailwindPHP\Utilities\Utilities;
-use TailwindPHP\Utilities\UtilityBuilder;
-use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\createUtilities;
 use function TailwindPHP\Utils\escape;
 
 /**
@@ -52,19 +52,6 @@ class TestHelper
     {
         self::$theme = null;
         self::$utilities = null;
-    }
-
-    // =========================================================================
-    // Legacy instance-based API (for backwards compatibility)
-    // =========================================================================
-
-    /**
-     * No-op for backwards compatibility - utilities are registered globally.
-     */
-    public function registerUtilities(callable $fn): self
-    {
-        // No-op - all utilities are already registered via createUtilities()
-        return $this;
     }
 
     /**
@@ -314,20 +301,11 @@ class TestHelper
      * Run utilities and generate CSS for the given candidates.
      *
      * This is the main test function that mirrors test-utils/run.ts
-     * Works both as static method and instance method for backwards compatibility.
      *
      * @param array<string> $candidates Array of class names
      * @return string Generated CSS
      */
     public static function run(array $candidates): string
-    {
-        return self::doRun($candidates);
-    }
-
-    /**
-     * Internal run implementation.
-     */
-    private static function doRun(array $candidates): string
     {
         $utilities = self::getUtilities();
         $theme = self::getTheme();
