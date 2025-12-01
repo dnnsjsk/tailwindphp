@@ -348,11 +348,15 @@ function createUtilities(Theme $theme): Utilities
     // Register effects utilities
     \TailwindPHP\Utilities\registerEffectsUtilities($builder);
 
+    // Register tables utilities
+    \TailwindPHP\Utilities\registerTablesUtilities($builder);
+
+    // Register transitions utilities
+    \TailwindPHP\Utilities\registerTransitionsUtilities($builder);
+
     // TODO: Register all other utility categories
     // - Backgrounds
     // - Filters
-    // - Tables
-    // - Transitions & Animation
     // - Transforms
     // - Interactivity
     // - SVG

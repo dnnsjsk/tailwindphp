@@ -598,12 +598,12 @@ require_once __DIR__ . '/utilities/sizing.php';
 require_once __DIR__ . '/utilities/typography.php';
 require_once __DIR__ . '/utilities/borders.php';
 require_once __DIR__ . '/utilities/effects.php';
+require_once __DIR__ . '/utilities/tables.php';
+require_once __DIR__ . '/utilities/transitions.php';
 
 // Stub functions - will be implemented in individual files
 function registerBackgroundUtilities(UtilityBuilder $builder): void {}
 function registerFiltersUtilities(UtilityBuilder $builder): void {}
-function registerTablesUtilities(UtilityBuilder $builder): void {}
-function registerTransitionsUtilities(UtilityBuilder $builder): void {}
 function registerTransformsUtilities(UtilityBuilder $builder): void {}
 function registerInteractivityUtilities(UtilityBuilder $builder): void {}
 function registerSvgUtilities(UtilityBuilder $builder): void {}
