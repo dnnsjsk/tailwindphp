@@ -19,6 +19,7 @@
             "TailwindPHP\\": "src/"
         },
         "files": [
+            "src/_tailwindphp/LightningCss.php",
             "src/utils/segment.php",
             "src/utils/escape.php",
             "src/utils/default-map.php",

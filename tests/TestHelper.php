@@ -483,56 +483,6 @@ class TestHelper
     }
 
     /**
-     * Apply CSS value normalizations that match lightningcss output.
-     */
-    private static function simplifyCssValue(string $value, string $property = ''): string
-    {
-        // Simplify calc(NUMBER_UNIT * -1) -> -NUMBER_UNIT for ANGLE units ONLY
-        // lightningcss simplifies these calc expressions.
-        // Matches patterns like: calc(45deg * -1), calc(123deg * -1)
-        // But NOT calc(var(...) * -1) - those must stay as calc()
-        // And NOT length units (px, rem, em) - they stay as calc() for outline-offset etc.
-        if (preg_match('/^calc\(([+-]?\d*\.?\d+)(deg|rad|grad|turn)\s*\*\s*-1\)$/', $value, $m)) {
-            $num = $m[1];
-            $unit = $m[2];
-            // If number is already negative, make it positive
-            if (str_starts_with($num, '-')) {
-                return substr($num, 1) . $unit;
-            }
-            return '-' . $num . $unit;
-        }
-
-        // Simplify leading zeros in decimal numbers: 0.3 -> .3
-        // This matches what lightningcss does
-        $value = preg_replace('/\b0+(\.\d+)/', '$1', $value);
-
-        // Normalize spaces around / in grid values (lightningcss normalization)
-        // Match patterns like "span 123/span 123" -> "span 123 / span 123"
-        // Only for values that look like grid span values (contain "span")
-        if (str_contains($value, 'span') && str_contains($value, '/')) {
-            $value = preg_replace('/(\S)\/(\S)/', '$1 / $2', $value);
-        }
-
-        // Convert bare integers to px for grid-template-columns/rows
-        // lightningcss does this normalization: 123 -> 123px
-        // Only for grid-template-* properties, NOT for grid-column/grid-row (which use line numbers)
-        if (preg_match('/^\d+$/', $value) &&
-            ($property === 'grid-template-columns' || $property === 'grid-template-rows')) {
-            $value = $value . 'px';
-        }
-
-        // For transform property: remove spaces between consecutive transform functions
-        // lightningcss normalizes "scaleZ(2) rotateY(45deg)" to "scaleZ(2)rotateY(45deg)"
-        // BUT only for arbitrary values (those without var() calls)
-        // Values with var() like "var(--tw-rotate-x, ) var(--tw-rotate-y, )" must keep spaces
-        if ($property === 'transform' && !str_contains($value, 'var(')) {
-            $value = preg_replace('/\)\s+([a-zA-Z]+\()/', ')$1', $value);
-        }
-
-        return $value;
-    }
-
-    /**
      * Format CSS rules into a string.
      */
     private static function formatCss(array $rules): string
@@ -564,7 +514,7 @@ class TestHelper
 
         foreach ($nodes as $node) {
             if ($node['kind'] === 'declaration') {
-                $value = self::simplifyCssValue($node['value'], $node['property']);
+                $value = $node['value'];
                 if ($important || ($node['important'] ?? false)) {
                     $value .= ' !important';
                 }
