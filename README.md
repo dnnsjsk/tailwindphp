@@ -4,11 +4,13 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 
 ## Status
 
-**Work in Progress** — Utilities are complete, variants and directives are in development.
+**Work in Progress** — Core functionality complete, expanding test coverage.
 
-- 698 tests passing
+- 784 tests passing
 - 364/364 TailwindCSS compliance tests passing
 - All utility categories implemented
+- Variants (hover, focus, responsive, dark mode, etc.)
+- Directives (@apply, @theme, @tailwind)
 
 ## Installation
 
@@ -112,10 +114,10 @@ TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting manually,
 ## Roadmap
 
 - [x] All utility classes (364/364 tests passing)
-- [ ] Variants (hover, focus, responsive, dark mode)
-- [ ] `@apply` directive
-- [ ] `@theme` customization
-- [ ] `theme()` function
+- [x] Variants (hover, focus, responsive, dark mode, etc.)
+- [x] `@apply` directive
+- [x] `@theme` customization
+- [x] `theme()` function
 
 ## Development
 
