@@ -32,28 +32,16 @@ class DefaultMap
     }
 
     /**
-     * Normalize key to a valid array key (arrays need serialization).
-     */
-    private function normalizeKey(mixed $key): string|int
-    {
-        if (is_array($key)) {
-            return serialize($key);
-        }
-        return $key;
-    }
-
-    /**
      * @param TKey $key
      * @return TValue
      */
     public function get(mixed $key): mixed
     {
-        $normalizedKey = $this->normalizeKey($key);
-        if (!array_key_exists($normalizedKey, $this->map)) {
-            $this->map[$normalizedKey] = ($this->factory)($key, $this);
+        if (!array_key_exists($key, $this->map)) {
+            $this->map[$key] = ($this->factory)($key, $this);
         }
 
-        return $this->map[$normalizedKey];
+        return $this->map[$key];
     }
 
     /**
@@ -62,8 +50,7 @@ class DefaultMap
      */
     public function set(mixed $key, mixed $value): void
     {
-        $normalizedKey = $this->normalizeKey($key);
-        $this->map[$normalizedKey] = $value;
+        $this->map[$key] = $value;
     }
 
     /**
@@ -72,8 +59,7 @@ class DefaultMap
      */
     public function has(mixed $key): bool
     {
-        $normalizedKey = $this->normalizeKey($key);
-        return array_key_exists($normalizedKey, $this->map);
+        return array_key_exists($key, $this->map);
     }
 
     /**
@@ -81,8 +67,7 @@ class DefaultMap
      */
     public function delete(mixed $key): void
     {
-        $normalizedKey = $this->normalizeKey($key);
-        unset($this->map[$normalizedKey]);
+        unset($this->map[$key]);
     }
 
     public function clear(): void

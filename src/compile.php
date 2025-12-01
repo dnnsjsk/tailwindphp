@@ -70,8 +70,7 @@ function compileCandidates(
 
     $variantOrderMap = $designSystem->getVariantOrder();
 
-    // Create the AST with node indices for sorting
-    $nodeIndex = 0;
+    // Create the AST
     foreach ($matches as $rawCandidate => $candidates) {
         $found = false;
 
@@ -88,18 +87,15 @@ function compileCandidates(
                 // Track the variant order
                 $variantOrder = 0;
                 foreach ($candidate['variants'] as $variant) {
-                    $variantOrder |= 1 << ($variantOrderMap[serialize($variant)] ?? 0);
+                    $variantOrder |= 1 << ($variantOrderMap[$variant] ?? 0);
                 }
 
-                // Store node with its index for later lookup
-                $node['__nodeIndex'] = $nodeIndex;
-                $nodeSorting[$nodeIndex] = [
+                $nodeSorting[spl_object_hash((object)$node)] = [
                     'properties' => $propertySort,
                     'variants' => $variantOrder,
                     'candidate' => $rawCandidate,
                 ];
                 $astNodes[] = $node;
-                $nodeIndex++;
             }
         }
 
@@ -110,45 +106,39 @@ function compileCandidates(
 
     // Sort AST nodes
     usort($astNodes, function ($a, $z) use (&$nodeSorting) {
-        $aSorting = $nodeSorting[$a['__nodeIndex']] ?? [];
-        $zSorting = $nodeSorting[$z['__nodeIndex']] ?? [];
+        $aSorting = $nodeSorting[spl_object_hash((object)$a)];
+        $zSorting = $nodeSorting[spl_object_hash((object)$z)];
 
         // Sort by variant order first
-        $aVariants = $aSorting['variants'] ?? 0;
-        $zVariants = $zSorting['variants'] ?? 0;
-        if ($aVariants !== $zVariants) {
-            return $aVariants - $zVariants;
+        if ($aSorting['variants'] !== $zSorting['variants']) {
+            return $aSorting['variants'] - $zSorting['variants'];
         }
 
         // Find the first property that is different between the two rules
-        $aPropertiesOrder = $aSorting['properties']['order'] ?? [];
-        $zPropertiesOrder = $zSorting['properties']['order'] ?? [];
         $offset = 0;
         while (
-            $offset < count($aPropertiesOrder) &&
-            $offset < count($zPropertiesOrder) &&
-            $aPropertiesOrder[$offset] === $zPropertiesOrder[$offset]
+            $offset < count($aSorting['properties']['order']) &&
+            $offset < count($zSorting['properties']['order']) &&
+            $aSorting['properties']['order'][$offset] === $zSorting['properties']['order'][$offset]
         ) {
             $offset++;
         }
 
         // Sort by lowest property index first
-        $aOrder = $aPropertiesOrder[$offset] ?? PHP_INT_MAX;
-        $zOrder = $zPropertiesOrder[$offset] ?? PHP_INT_MAX;
+        $aOrder = $aSorting['properties']['order'][$offset] ?? PHP_INT_MAX;
+        $zOrder = $zSorting['properties']['order'][$offset] ?? PHP_INT_MAX;
 
         if ($aOrder !== $zOrder) {
             return $aOrder - $zOrder;
         }
 
         // Sort by most properties first, then by least properties
-        $aPropertiesCount = $aSorting['properties']['count'] ?? 0;
-        $zPropertiesCount = $zSorting['properties']['count'] ?? 0;
-        if ($zPropertiesCount !== $aPropertiesCount) {
-            return $zPropertiesCount - $aPropertiesCount;
+        if ($zSorting['properties']['count'] !== $aSorting['properties']['count']) {
+            return $zSorting['properties']['count'] - $aSorting['properties']['count'];
         }
 
         // Sort alphabetically
-        return compare($aSorting['candidate'] ?? '', $zSorting['candidate'] ?? '');
+        return compare($aSorting['candidate'], $zSorting['candidate']);
     });
 
     return [
@@ -170,7 +160,7 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
     $asts = compileBaseUtility($candidate, $designSystem);
     if (empty($asts)) return [];
 
-    $respectImportant = $designSystem->isImportant() && ($flags & COMPILE_FLAG_RESPECT_IMPORTANT);
+    $respectImportant = $designSystem->important && ($flags & COMPILE_FLAG_RESPECT_IMPORTANT);
 
     $rules = [];
     $selector = '.' . escape($candidate['raw']);
@@ -191,10 +181,10 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
 
         // Apply variants
         foreach ($candidate['variants'] as $variant) {
-            $result = applyVariant($node, $variant, $designSystem->getVariants());
+            $result = applyVariant($node, $variant, $designSystem->variants);
 
-            // When the variant results in false, the variant cannot be applied
-            if ($result === false) return [];
+            // When the variant results in null, the variant cannot be applied
+            if ($result === null) return [];
         }
 
         $rules[] = [
@@ -213,21 +203,21 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
  * @param array $variant
  * @param object $variants
  * @param int $depth
- * @return bool False on failure (variant cannot be applied), true on success
+ * @return null|void
  */
-function applyVariant(array &$node, array $variant, object $variants, int $depth = 0): bool
+function applyVariant(array &$node, array $variant, object $variants, int $depth = 0)
 {
     if ($variant['kind'] === 'arbitrary') {
         // Relative selectors are not valid at the top level
-        if ($variant['relative'] && $depth === 0) return false;
+        if ($variant['relative'] && $depth === 0) return null;
 
         $node['nodes'] = [rule($variant['selector'], $node['nodes'])];
-        return true;
+        return;
     }
 
     // Get the variant's apply function
     $variantData = $variants->get($variant['root']);
-    if (!$variantData) return false;
+    if (!$variantData) return null;
 
     $applyFn = $variantData['applyFn'];
 
@@ -236,18 +226,17 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
         $isolatedNode = atRule('@slot');
 
         $result = applyVariant($isolatedNode, $variant['variant'], $variants, $depth + 1);
-        if ($result === false) return false;
+        if ($result === null) return null;
 
         if ($variant['root'] === 'not' && count($isolatedNode['nodes']) > 1) {
-            return false;
+            return null;
         }
 
         foreach ($isolatedNode['nodes'] as &$child) {
-            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') return false;
+            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') return null;
 
             $result = $applyFn($child, $variant);
-            // Compound variants explicitly return null for failure
-            if ($result === null) return false;
+            if ($result === null) return null;
         }
 
         // Replace placeholder with actual node
@@ -259,15 +248,12 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
         });
 
         $node['nodes'] = $isolatedNode['nodes'];
-        return true;
+        return;
     }
 
-    // All other variants - apply functions return false for failure,
-    // or null/nothing for success (TypeScript void vs null distinction)
+    // All other variants
     $result = $applyFn($node, $variant);
-    // Only treat explicit false as failure
-    if ($result === false) return false;
-    return true;
+    if ($result === null) return null;
 }
 
 /**
@@ -296,7 +282,7 @@ function compileBaseUtility(array $candidate, object $designSystem): array
 
         // Handle opacity modifier for arbitrary properties
         if ($candidate['modifier']) {
-            $value = asColor($value, $candidate['modifier'], $designSystem->getTheme());
+            $value = asColor($value, $candidate['modifier'], $designSystem->theme);
         }
 
         if ($value === null) return [];
@@ -304,7 +290,7 @@ function compileBaseUtility(array $candidate, object $designSystem): array
         return [[decl($candidate['property'], $value)]];
     }
 
-    $utilities = $designSystem->getUtilities()->get($candidate['root']) ?? [];
+    $utilities = $designSystem->utilities->get($candidate['root']) ?? [];
 
     $asts = [];
 
