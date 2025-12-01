@@ -351,3 +351,51 @@ function extractCandidates(string $html): array
 
     return array_unique($candidates);
 }
+
+/**
+ * Tailwind - Simple facade for TailwindPHP.
+ *
+ * Provides a clean, static API for common operations.
+ *
+ * @example
+ * use TailwindPHP\Tailwind;
+ *
+ * $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+ */
+class Tailwind
+{
+    /**
+     * Generate CSS from HTML content containing Tailwind classes.
+     *
+     * @param string $html HTML content to scan for classes
+     * @param string $css Optional CSS with @tailwind directives
+     * @return string Generated CSS
+     */
+    public static function generate(string $html, string $css = '@tailwind utilities;'): string
+    {
+        return generate($html, $css);
+    }
+
+    /**
+     * Compile CSS with Tailwind directives.
+     *
+     * @param string $css Input CSS containing @tailwind directives
+     * @param array $options Compilation options
+     * @return array{build: callable, sources: array, root: mixed, features: int}
+     */
+    public static function compile(string $css, array $options = []): array
+    {
+        return compile($css, $options);
+    }
+
+    /**
+     * Extract class name candidates from HTML content.
+     *
+     * @param string $html HTML content
+     * @return array<string> List of candidate class names
+     */
+    public static function extractCandidates(string $html): array
+    {
+        return extractCandidates($html);
+    }
+}
