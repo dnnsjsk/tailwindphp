@@ -193,3 +193,153 @@ Rather than manually porting 28,000+ lines of tests, we:
 1. Extract test cases from TypeScript using `scripts/extract-tests.php`
 2. Parse them at runtime in `src/utilities.test.php`
 3. Compare output against expected snapshots
+
+---
+
+## Gotchas & Patterns
+
+### Utility Registration
+
+Utilities are registered via `UtilityBuilder` in `src/utilities.php`. There are several registration methods:
+
+```php
+// Static utility (no value, e.g., flex, hidden)
+$builder->staticUtility('flex', [['display', 'flex']]);
+
+// Functional utility (takes a value, e.g., p-4, text-red-500)
+$builder->functionalUtility('p', [
+    'themeKeys' => ['--padding', '--spacing'],
+    'handle' => fn($value) => [decl('padding', $value)],
+]);
+
+// Spacing utility (special handling for spacing scale)
+$builder->spacingUtility('m', ['--margin', '--spacing'], fn($v) => [decl('margin', $v)]);
+
+// Color utility (handles opacity modifiers like bg-red-500/50)
+$builder->colorUtility('bg', [
+    'themeKeys' => ['--background-color', '--color'],
+    'handle' => fn($v) => [decl('background-color', $v)],
+]);
+```
+
+### Candidate Structure
+
+When a utility's `compileFn` is called, it receives a candidate object:
+
+```php
+[
+    'kind' => 'functional',
+    'root' => 'p',              // The utility name
+    'value' => [
+        'kind' => 'named',      // or 'arbitrary'
+        'value' => '4',         // The value after the dash
+        'fraction' => null,     // e.g., '1/2' for w-1/2
+    ],
+    'modifier' => [             // e.g., /50 in bg-red-500/50
+        'kind' => 'named',
+        'value' => '50',
+    ],
+    'important' => false,
+    'raw' => 'p-4',
+]
+```
+
+### Negative Values
+
+Negative utilities (e.g., `-translate-x-4`) are handled by:
+1. Setting `supportsNegative: true` in the utility config
+2. The builder registers both `translate-x` and `-translate-x`
+3. Negative values are wrapped: `calc({value} * -1)`
+
+Exception: Some utilities use `handleNegativeBareValue` for custom negative handling (e.g., angles use `-45deg` not `calc(45deg * -1)`).
+
+### Fractions
+
+Fractions like `w-1/2` are handled when `supportsFractions: true`:
+- Parsed as `['fraction' => '1/2']` in the value
+- Converted to `calc(1 / 2 * 100%)` (note: spaces around `/` required for lightningcss)
+
+### Modifiers
+
+Modifiers (e.g., `/50` in `bg-red-500/50`) are used for:
+- **Colors**: Opacity modifier (converted to `color-mix()`)
+- **Container queries**: Named container (`@container/sidebar`)
+
+The `CandidateParser` distinguishes modifiers from fractions by checking if the part after `/` is numeric.
+
+### AST Nodes
+
+CSS output is built using AST helper functions from `src/ast.php`:
+
+```php
+decl('padding', '1rem')                    // Declaration
+styleRule('.foo', [...])                   // Style rule
+atRule('@media', '(min-width: 640px)', []) // At-rule
+```
+
+The `decl()` function automatically applies LightningCSS optimizations to values.
+
+### Theme Resolution
+
+Theme values are resolved via `Theme::resolve()`:
+
+```php
+$theme->resolve('4', ['--padding', '--spacing']);
+// Tries --padding-4, then --spacing-4, then bare --padding/--spacing multiplier
+```
+
+The resolution order matters — more specific keys should come first.
+
+### Color Handling
+
+Colors with opacity use `color-mix()` in OKLAB color space:
+
+```php
+withAlpha('red', '50%')  // → "color-mix(in oklab, red 50%, transparent)"
+```
+
+### Static Values in Functional Utilities
+
+Some functional utilities have static fallbacks (e.g., `z-auto`):
+
+```php
+$builder->functionalUtility('z', [
+    'themeKeys' => ['--z-index'],
+    'staticValues' => [
+        'auto' => [decl('z-index', 'auto')],
+    ],
+    'handle' => fn($v) => [decl('z-index', $v)],
+]);
+```
+
+### Nested Rules
+
+Some utilities generate nested rules (e.g., `space-x-4` uses `& > :not(:last-child)`):
+
+```php
+return [
+    styleRule('& > :not(:last-child)', [
+        decl('margin-left', $value),
+    ]),
+];
+```
+
+The `&` is replaced with the parent selector during CSS formatting.
+
+### Testing Individual Utilities
+
+To debug a specific utility:
+
+```bash
+./vendor/bin/phpunit --filter="translate"
+```
+
+Or add a focused test in `tests/`:
+
+```php
+public function test_specific_utility(): void
+{
+    $css = TestHelper::run(['p-4']);
+    $this->assertStringContainsString('padding: 1rem', $css);
+}
+```

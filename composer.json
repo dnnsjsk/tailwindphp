@@ -1,6 +1,6 @@
 {
-    "name": "tailwindphp/tailwind-php",
-    "description": "A full port of TailwindCSS 4.0 to PHP",
+    "name": "dnnsjsk/tailwind-php",
+    "description": "A full port of TailwindCSS 4.x to PHP",
     "type": "library",
     "license": "MIT",
     "authors": [

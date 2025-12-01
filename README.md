@@ -13,7 +13,7 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 ## Installation
 
 ```bash
-composer require fabrikat/tailwind-php
+composer require dnnsjsk/tailwind-php
 ```
 
 ## Usage
