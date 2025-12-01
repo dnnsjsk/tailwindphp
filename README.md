@@ -70,43 +70,30 @@ All TailwindCSS utility categories are implemented:
 
 ## Testing
 
-We test against TailwindCSS's actual test suite to ensure compatibility. The approach varies by file size:
+We test against TailwindCSS's actual test suite to ensure compatibility.
 
 ### TailwindCSS Compliance Tests
 
-**For utilities.test.ts (28,000+ lines):** We extract and split the tests into smaller files under `extracted-tests/`, then parse them at runtime. This makes the massive test file manageable while still testing every single case.
+TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting this massive file manually, we:
 
-The test suite includes 364 tests extracted directly from [TailwindCSS's utilities.test.ts](https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/src/utilities.test.ts).
+1. **Pre-extract** — `scripts/extract-tests.php` splits the TypeScript test file into smaller `.ts` files under `extracted-tests/` (grouped by category). This only needs to run when TailwindCSS updates.
 
-**For other test files:** We port them directly as PHPUnit tests, following the same 1:1 structure.
-
-These tests ensure our PHP output matches TailwindCSS exactly:
-
-```php
-// Test case parsed from TailwindCSS source
-$css = TestHelper::run(['flex', 'items-center', 'p-4']);
-
-// Compared against expected TailwindCSS output
-$this->assertEquals($expectedCss, $css);
-```
-
-#### How Compliance Testing Works
-
-1. **Extract** — `scripts/extract-tests.php` parses TailwindCSS's TypeScript test file and extracts test cases to `extracted-tests/*.ts`
-
-2. **Parse** — `src/utilities.test.php` parses the extracted `.ts` files at runtime, extracting:
+2. **Parse at runtime** — `src/utilities.test.php` reads those `.ts` files and parses out:
    - Input classes (e.g., `['flex', 'p-4', 'bg-blue-500']`)
    - Expected CSS output (from `toMatchInlineSnapshot`)
 
-3. **Compare** — For each test case:
-   - Run input classes through our PHP implementation
-   - Parse both expected and actual CSS into normalized rules
-   - Compare selectors and declarations
+3. **Compare** — Each test runs the input classes through our PHP implementation and compares against TailwindCSS's expected output.
 
-4. **Normalize** — CSS values are normalized to match lightningcss output:
-   - `calc()` simplification for angles
-   - Leading zero removal (`.5` vs `0.5`)
-   - Space normalization in grid/transform values
+The test suite includes 364 tests extracted from [TailwindCSS's utilities.test.ts](https://github.com/tailwindlabs/tailwindcss/blob/main/packages/tailwindcss/src/utilities.test.ts).
+
+**For other test files:** We port them directly as PHPUnit tests, following the same 1:1 structure.
+
+#### CSS Normalization
+
+CSS values are normalized to match lightningcss output (which TailwindCSS uses):
+- `calc()` simplification for angles
+- Leading zero removal (`.5` vs `0.5`)
+- Space normalization in grid/transform values
 
 #### Updating Tests
 
