@@ -217,6 +217,13 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('appearance-auto', [['appearance', 'auto']]);
 
     // =========================================================================
+    // Forced Color Adjust
+    // =========================================================================
+
+    $builder->staticUtility('forced-color-adjust-auto', [['forced-color-adjust', 'auto']]);
+    $builder->staticUtility('forced-color-adjust-none', [['forced-color-adjust', 'none']]);
+
+    // =========================================================================
     // Accent Color
     // =========================================================================
 

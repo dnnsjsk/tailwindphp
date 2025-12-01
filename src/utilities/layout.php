@@ -292,8 +292,14 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('break-after-column', [['break-after', 'column']]);
 
     // Box Decoration Break
-    $builder->staticUtility('box-decoration-clone', [['box-decoration-break', 'clone']]);
-    $builder->staticUtility('box-decoration-slice', [['box-decoration-break', 'slice']]);
+    $builder->staticUtility('box-decoration-clone', [
+        ['-webkit-box-decoration-break', 'clone'],
+        ['box-decoration-break', 'clone'],
+    ]);
+    $builder->staticUtility('box-decoration-slice', [
+        ['-webkit-box-decoration-break', 'slice'],
+        ['box-decoration-break', 'slice'],
+    ]);
 
     // Overflow
     $overflowValues = ['auto', 'hidden', 'clip', 'visible', 'scroll'];
@@ -302,6 +308,11 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         $builder->staticUtility("overflow-x-{$val}", [['overflow-x', $val]]);
         $builder->staticUtility("overflow-y-{$val}", [['overflow-y', $val]]);
     }
+
+    // Overflow Wrap
+    $builder->staticUtility('wrap-anywhere', [['overflow-wrap', 'anywhere']]);
+    $builder->staticUtility('wrap-break-word', [['overflow-wrap', 'break-word']]);
+    $builder->staticUtility('wrap-normal', [['overflow-wrap', 'normal']]);
 
     // Overscroll Behavior
     $overscrollValues = ['auto', 'contain', 'none'];

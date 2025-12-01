@@ -41,6 +41,35 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('italic', [['font-style', 'italic']]);
     $builder->staticUtility('not-italic', [['font-style', 'normal']]);
 
+    // Font Stretch
+    $fontStretchKeywords = [
+        'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed',
+        'normal', 'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded',
+    ];
+
+    $builder->functionalUtility('font-stretch', [
+        'themeKeys' => [],
+        'handleBareValue' => function ($value) use ($fontStretchKeywords) {
+            // Handle percentage values (50%, 100%, 200%)
+            if (preg_match('/^(\d+)%$/', $value['value'], $m)) {
+                $percent = (int)$m[1];
+                // Valid range is 50% to 200%
+                if ($percent >= 50 && $percent <= 200 && $percent % 1 === 0) {
+                    return $value['value'];
+                }
+                return null;
+            }
+            return null;
+        },
+        'handle' => function ($value) {
+            return [decl('font-stretch', $value)];
+        },
+        'staticValues' => array_combine(
+            $fontStretchKeywords,
+            array_map(fn($kw) => [decl('font-stretch', $kw)], $fontStretchKeywords)
+        ),
+    ]);
+
     // Font Weight
     $builder->functionalUtility('font', [
         'themeKeys' => ['--font', '--font-weight'],
@@ -112,9 +141,18 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('break-keep', [['word-break', 'keep-all']]);
 
     // Hyphens
-    $builder->staticUtility('hyphens-none', [['hyphens', 'none']]);
-    $builder->staticUtility('hyphens-manual', [['hyphens', 'manual']]);
-    $builder->staticUtility('hyphens-auto', [['hyphens', 'auto']]);
+    $builder->staticUtility('hyphens-none', [
+        ['-webkit-hyphens', 'none'],
+        ['hyphens', 'none'],
+    ]);
+    $builder->staticUtility('hyphens-manual', [
+        ['-webkit-hyphens', 'manual'],
+        ['hyphens', 'manual'],
+    ]);
+    $builder->staticUtility('hyphens-auto', [
+        ['-webkit-hyphens', 'auto'],
+        ['hyphens', 'auto'],
+    ]);
 
     // List Style Type
     $builder->functionalUtility('list', [
@@ -133,6 +171,17 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     // List Style Position
     $builder->staticUtility('list-inside', [['list-style-position', 'inside']]);
     $builder->staticUtility('list-outside', [['list-style-position', 'outside']]);
+
+    // List Style Image
+    $builder->functionalUtility('list-image', [
+        'themeKeys' => ['--list-style-image'],
+        'handle' => function ($value) {
+            return [decl('list-style-image', $value)];
+        },
+        'staticValues' => [
+            'none' => [decl('list-style-image', 'none')],
+        ],
+    ]);
 
     // Vertical Align
     $builder->staticUtility('align-baseline', [['vertical-align', 'baseline']]);
