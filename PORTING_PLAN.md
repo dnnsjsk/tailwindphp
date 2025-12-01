@@ -99,6 +99,9 @@ tailwind-php/
 ├── scripts/
 │   └── extract-tests.php            # Extract tests from Tailwind source
 │
+├── reference/
+│   └── tailwindcss/                 # TailwindCSS submodule (for reference)
+│
 ├── composer.json
 ├── phpunit.xml
 └── README.md

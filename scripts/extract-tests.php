@@ -8,7 +8,7 @@
  * into separate .ts files grouped by category. Files over 1000 lines are split.
  */
 
-$inputFile = dirname(__DIR__) . '/tailwindcss/packages/tailwindcss/src/utilities.test.ts';
+$inputFile = dirname(__DIR__) . '/reference/tailwindcss/packages/tailwindcss/src/utilities.test.ts';
 $outputDir = dirname(__DIR__) . '/src/utilities-test';
 
 if (!file_exists($inputFile)) {

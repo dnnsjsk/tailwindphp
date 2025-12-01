@@ -135,7 +135,8 @@ tailwind-php/
 ├── tests/                  # Unit tests
 ├── scripts/                # Build scripts
 │   └── extract-tests.php   # Extract tests from TailwindCSS
-└── tailwindcss/            # TailwindCSS submodule (for reference)
+└── reference/
+    └── tailwindcss/        # TailwindCSS submodule (for reference)
 ```
 
 ### Adding New Utilities
