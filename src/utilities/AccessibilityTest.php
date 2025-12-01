@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP\Tests\Utilities;
+namespace TailwindPHP\Utilities;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\Tests\TestHelper;
+use TailwindPHP\TestHelper;
 
 use function TailwindPHP\Utilities\registerAccessibilityUtilities;
 

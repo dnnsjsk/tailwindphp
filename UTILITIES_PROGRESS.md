@@ -4,8 +4,8 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 
 ## Summary
 - **Total Tests in Original**: 267
-- **Tests Ported**: 194 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing + 31 typography + 47 borders)
-- **Tests Remaining**: 73
+- **Tests Ported**: 219 (4 accessibility + 20 layout + 30 flexbox + 31 spacing + 31 sizing + 31 typography + 47 borders + 25 effects)
+- **Tests Remaining**: 48
 
 ## Utility Categories
 
@@ -64,6 +64,12 @@ This file tracks the progress of porting utilities from TailwindCSS 4.0 to PHP.
 | Outline Offset | 2 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
 | Divide Width | 4 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
 | Divide Style | 5 | `src/utilities/borders.php` | `tests/utilities/BordersTest.php` |
+| Opacity | 3 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
+| Box Shadow | 7 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
+| Inset Shadow | 3 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
+| Drop Shadow | 3 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
+| Mix Blend Mode | 6 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
+| Background Blend Mode | 4 | `src/utilities/effects.php` | `tests/utilities/EffectsTest.php` |
 
 ### 🔄 In Progress
 

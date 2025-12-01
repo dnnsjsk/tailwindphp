@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP\Tests\Utils;
+namespace TailwindPHP\Utils;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;

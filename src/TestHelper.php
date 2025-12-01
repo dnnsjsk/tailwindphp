@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP\Tests;
+namespace TailwindPHP;
 
 use TailwindPHP\Theme;
 use TailwindPHP\Utilities\Utilities;

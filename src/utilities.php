@@ -602,10 +602,10 @@ require_once __DIR__ . '/utilities/spacing.php';
 require_once __DIR__ . '/utilities/sizing.php';
 require_once __DIR__ . '/utilities/typography.php';
 require_once __DIR__ . '/utilities/borders.php';
+require_once __DIR__ . '/utilities/effects.php';
 
 // Stub functions - will be implemented in individual files
 function registerBackgroundUtilities(UtilityBuilder $builder): void {}
-function registerEffectsUtilities(UtilityBuilder $builder): void {}
 function registerFiltersUtilities(UtilityBuilder $builder): void {}
 function registerTablesUtilities(UtilityBuilder $builder): void {}
 function registerTransitionsUtilities(UtilityBuilder $builder): void {}

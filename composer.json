@@ -51,8 +51,17 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "TailwindPHP\\Tests\\": "tests/"
-        }
+            "TailwindPHP\\": "src/"
+        },
+        "classmap": [
+            "src/"
+        ],
+        "exclude-from-classmap": [
+            "src/*.php",
+            "src/**/*.php",
+            "!src/*.test.php",
+            "!src/**/*.test.php"
+        ]
     },
     "scripts": {
         "test": "phpunit"
