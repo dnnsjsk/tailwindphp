@@ -49,17 +49,65 @@ src/
 
 **Note:** TailwindCSS's `utilities.ts` is 6,000+ lines. We split it into `src/utilities/` (one file per category) for maintainability.
 
+### PHP-Specific Code
+
+The `src/_tailwindphp/` folder contains PHP-specific helpers that are NOT part of the TailwindCSS port:
+
+- **LightningCss.php** — CSS optimizations (TailwindCSS uses lightningcss, a Rust library)
+- **CandidateParser.php** — Simplified candidate parsing for compilation
+- **CssFormatter.php** — CSS output formatting
+
+This separation keeps the 1:1 port clean while providing necessary PHP implementations.
+
+### Utility Categories
+
+All TailwindCSS utility categories are implemented:
+
+- **Layout** — display, position, z-index, float, clear, overflow, etc.
+- **Flexbox & Grid** — flex, grid, gap, justify, align, place, etc.
+- **Spacing** — margin, padding, space-between
+- **Sizing** — width, height, min/max variants, size
+- **Typography** — font, text, leading, tracking, etc.
+- **Backgrounds** — colors, gradients, images
+- **Borders** — width, radius, style, divide, outline
+- **Effects** — shadow, opacity, blend modes
+- **Filters** — blur, brightness, contrast, etc.
+- **Transforms** — translate, rotate, scale, skew
+- **Transitions** — duration, timing, delay
+- **Interactivity** — cursor, scroll, touch, select
+- **SVG** — fill, stroke
+- **Tables** — border-collapse, table-layout
+- **Accessibility** — sr-only, forced-colors
+
 ## Testing
+
+We test against TailwindCSS's actual test suite to ensure compatibility.
+
+### Running Tests
 
 ```bash
 # Run all tests
 ./vendor/bin/phpunit
 
-# Run compliance tests only
+# Run only compliance tests
 ./vendor/bin/phpunit src/utilities.test.php
+
+# Run specific test
+./vendor/bin/phpunit --filter="translate"
 ```
 
-We test against TailwindCSS's actual test suite (364 tests extracted from `utilities.test.ts`).
+### TailwindCSS Compliance Tests
+
+TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting manually, we:
+
+1. **Pre-extract** — `scripts/extract-tests.php` splits the TypeScript test file into smaller `.ts` files under `src/utilities-test/`
+2. **Parse at runtime** — `src/utilities.test.php` reads those files and parses input classes and expected CSS output
+3. **Compare** — Each test runs through our PHP implementation and compares against TailwindCSS's expected output
+
+### Requirements
+
+- PHP 8.1+
+- Composer
 
 ## Roadmap
 
