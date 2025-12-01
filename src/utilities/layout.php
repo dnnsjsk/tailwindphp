@@ -127,6 +127,7 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         'staticValues' => [
             'first' => [decl('order', '-9999')],
             'last' => [decl('order', '9999')],
+            'none' => [decl('order', '0')],
         ],
     ]);
 

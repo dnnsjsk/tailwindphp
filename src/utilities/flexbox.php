@@ -161,11 +161,12 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // Grid Column Span
+    // Grid Column (col-{n} for position, col-auto)
     $builder->functionalUtility('col', [
+        'supportsNegative' => true,
         'handleBareValue' => function ($value) {
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
-                return "span {$value['value']} / span {$value['value']}";
+                return $value['value'];
             }
             return null;
         },
@@ -175,15 +176,32 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
         },
         'staticValues' => [
             'auto' => [decl('grid-column', 'auto')],
+        ],
+    ]);
+
+    // Grid Column Span (col-span-{n})
+    $builder->functionalUtility('col-span', [
+        'handleBareValue' => function ($value) {
+            if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
+                return "span {$value['value']} / span {$value['value']}";
+            }
+            return null;
+        },
+        'themeKeys' => [],
+        'handle' => function ($value, $dataType) {
+            return [decl('grid-column', "span {$value} / span {$value}")];
+        },
+        'staticValues' => [
             'full' => [decl('grid-column', '1 / -1')],
         ],
     ]);
 
-    // Grid Row Span
+    // Grid Row (row-{n} for position, row-auto)
     $builder->functionalUtility('row', [
+        'supportsNegative' => true,
         'handleBareValue' => function ($value) {
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
-                return "span {$value['value']} / span {$value['value']}";
+                return $value['value'];
             }
             return null;
         },
@@ -193,6 +211,22 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
         },
         'staticValues' => [
             'auto' => [decl('grid-row', 'auto')],
+        ],
+    ]);
+
+    // Grid Row Span (row-span-{n})
+    $builder->functionalUtility('row-span', [
+        'handleBareValue' => function ($value) {
+            if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
+                return "span {$value['value']} / span {$value['value']}";
+            }
+            return null;
+        },
+        'themeKeys' => [],
+        'handle' => function ($value, $dataType) {
+            return [decl('grid-row', "span {$value} / span {$value}")];
+        },
+        'staticValues' => [
             'full' => [decl('grid-row', '1 / -1')],
         ],
     ]);
