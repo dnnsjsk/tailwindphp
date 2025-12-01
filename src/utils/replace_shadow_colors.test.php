@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
 use function TailwindPHP\Utils\replaceShadowColors;
-use function TailwindPHP\replaceAlpha;
+use function TailwindPHP\DesignSystem\replaceAlpha;
 
 /**
  * Tests for replace-shadow-colors.php

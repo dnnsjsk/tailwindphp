@@ -6,6 +6,8 @@ namespace TailwindPHP;
 
 use TailwindPHP\Utilities\Utilities;
 use TailwindPHP\Variants\Variants;
+use TailwindPHP\DesignSystem\DesignSystem;
+use function TailwindPHP\DesignSystem\buildDesignSystem;
 use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
 use function TailwindPHP\Walk\walk;

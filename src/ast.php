@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Ast;
 
-use TailwindPHP\LightningCss;
+use TailwindPHP\LightningCss\LightningCss;
 
 /**
  * AST node types and builder functions for TailwindPHP.

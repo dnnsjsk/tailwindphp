@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\DefaultTheme;
+
+use TailwindPHP\Theme;
 
 /**
  * Default Theme - Standard Tailwind CSS theme values.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TailwindPHP;
 
 use TailwindPHP\Utils\DefaultMap;
+use TailwindPHP\DesignSystem\DesignSystem;
 
 /**
  * @apply directive handling

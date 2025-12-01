@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace TailwindPHP\Tests;
 
 use TailwindPHP\Theme;
-use TailwindPHP\DefaultTheme;
-use TailwindPHP\CandidateParser;
-use TailwindPHP\CssFormatter;
+use TailwindPHP\DefaultTheme\DefaultTheme;
+use TailwindPHP\CandidateParser\CandidateParser;
+use TailwindPHP\CssFormatter\CssFormatter;
 use TailwindPHP\Utilities\Utilities;
-use function TailwindPHP\createUtilities;
+use function TailwindPHP\DesignSystem\createUtilities;
 use function TailwindPHP\Utils\escape;
 
 /**

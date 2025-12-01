@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\CssFormatter;
 
 /**
  * CSS Formatter - Format AST nodes into CSS strings.

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\LightningCss;
 
 /**
  * CSS Optimizer - PHP implementation of lightningcss transformations.

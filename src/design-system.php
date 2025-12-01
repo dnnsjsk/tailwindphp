@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\DesignSystem;
 
+use TailwindPHP\Theme;
 use TailwindPHP\Utilities\Utilities;
 use TailwindPHP\Utilities\UtilityBuilder;
 use TailwindPHP\Variants\Variants;
