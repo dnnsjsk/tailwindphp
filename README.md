@@ -1,6 +1,6 @@
 # Tailwind PHP
 
-A full port of TailwindCSS 4.0 to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
+A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
 ## Status
 
@@ -27,7 +27,7 @@ $css = TailwindPHP::generate('<div class="flex items-center p-4 bg-blue-500">Hel
 
 ## How It Works
 
-This is a 1:1 port of TailwindCSS 4.0's core functionality to PHP. The goal is feature parity with TailwindCSS while eliminating the Node.js dependency.
+This is a 1:1 port of TailwindCSS 4.x's core functionality to PHP. The goal is feature parity with TailwindCSS while eliminating the Node.js dependency.
 
 ### Architecture
 

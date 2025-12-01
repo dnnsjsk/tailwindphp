@@ -1,6 +1,6 @@
 # Tailwind PHP - Porting Plan
 
-A full 1:1 port of TailwindCSS 4.0 to PHP, focusing on the CSS-first approach (no JS config).
+A full 1:1 port of TailwindCSS 4.x to PHP, focusing on the CSS-first approach (no JS config).
 
 ## Current Status
 
