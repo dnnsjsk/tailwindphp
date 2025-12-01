@@ -1,0 +1,12 @@
+{
+    "category": "columns",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "columns",
+            "startLine": 7335,
+            "content": "test('columns', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --container-3xs: 16rem;\n          --container-7xl: 80rem;\n        }\n        @tailwind utilities;\n      `,\n      [\n        'columns-auto',\n        'columns-3xs',\n        'columns-7xl',\n        'columns-4',\n        'columns-99',\n        'columns-[123]',\n        'columns-[var(--value)]',\n      ],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --container-3xs: 16rem;\n      --container-7xl: 80rem;\n    }\n\n    .columns-3xs {\n      columns: var(--container-3xs);\n    }\n\n    .columns-4 {\n      columns: 4;\n    }\n\n    .columns-7xl {\n      columns: var(--container-7xl);\n    }\n\n    .columns-99 {\n      columns: 99;\n    }\n\n    .columns-\\\\[123\\\\] {\n      columns: 123;\n    }\n\n    .columns-\\\\[var\\\\(--value\\\\)\\\\] {\n      columns: var(--value);\n    }\n\n    .columns-auto {\n      columns: auto;\n    }\"\n  `)\n  expect(\n    await run([\n      'columns',\n      'columns--4',\n      '-columns-4',\n      '-columns-[123]',\n      '-columns-[var(--value)]',\n      'columns-unknown',\n      'columns-auto/foo',\n      'columns-3xs/foo',\n      'columns-7xl/foo',\n      'columns-4/foo',\n      'columns-99/foo',\n      'columns-[123]/foo',\n      'columns-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --columns-auto: 3;\n        }\n        @tailwind utilities;\n      `,\n      ['columns-auto'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --columns-auto: 3;\n    }\n\n    .columns-auto {\n      columns: var(--columns-auto);\n    }\"\n  `)\n})",
+            "endLine": 7426
+        }
+    ]
+}

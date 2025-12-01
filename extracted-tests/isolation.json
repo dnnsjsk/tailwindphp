@@ -1,0 +1,12 @@
+{
+    "category": "isolation",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "isolation",
+            "startLine": 1005,
+            "content": "test('isolation', async () => {\n  expect(await run(['isolate', 'isolation-auto'])).toMatchInlineSnapshot(`\n    \".isolate {\n      isolation: isolate;\n    }\n\n    .isolation-auto {\n      isolation: auto;\n    }\"\n  `)\n  expect(await run(['-isolate', '-isolation-auto', 'isolate/foo', 'isolation-auto/foo'])).toEqual(\n    '',\n  )\n})",
+            "endLine": 1018
+        }
+    ]
+}

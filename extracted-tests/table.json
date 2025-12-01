@@ -1,0 +1,12 @@
+{
+    "category": "table",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "table-layout",
+            "startLine": 3883,
+            "content": "test('table-layout', async () => {\n  expect(await run(['table-auto', 'table-fixed'])).toMatchInlineSnapshot(`\n    \".table-auto {\n      table-layout: auto;\n    }\n\n    .table-fixed {\n      table-layout: fixed;\n    }\"\n  `)\n  expect(await run(['-table-auto', '-table-fixed', 'table-auto/foo', 'table-fixed/foo'])).toEqual(\n    '',\n  )\n})",
+            "endLine": 3896
+        }
+    ]
+}

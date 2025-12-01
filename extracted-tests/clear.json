@@ -1,0 +1,12 @@
+{
+    "category": "clear",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "clear",
+            "startLine": 1693,
+            "content": "test('clear', async () => {\n  expect(\n    await run([\n      'clear-start',\n      'clear-end',\n      'clear-right',\n      'clear-left',\n      'clear-both',\n      'clear-none',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".clear-both {\n      clear: both;\n    }\n\n    .clear-end {\n      clear: inline-end;\n    }\n\n    .clear-left {\n      clear: left;\n    }\n\n    .clear-none {\n      clear: none;\n    }\n\n    .clear-right {\n      clear: right;\n    }\n\n    .clear-start {\n      clear: inline-start;\n    }\"\n  `)\n  expect(\n    await run([\n      'clear',\n      '-clear-start',\n      '-clear-end',\n      '-clear-right',\n      '-clear-left',\n      '-clear-both',\n      '-clear-none',\n      'clear-start/foo',\n      'clear-end/foo',\n      'clear-right/foo',\n      'clear-left/foo',\n      'clear-both/foo',\n      'clear-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 1745
+        }
+    ]
+}

@@ -1,0 +1,66 @@
+{
+    "category": "display",
+    "testCount": 10,
+    "tests": [
+        {
+            "name": "display",
+            "startLine": 2630,
+            "content": "test('display', async () => {\n  expect(\n    await run([\n      'block',\n      'inline-block',\n      'inline',\n      'flex',\n      'inline-flex',\n      'table',\n      'inline-table',\n      'table-caption',\n      'table-cell',\n      'table-column',\n      'table-column-group',\n      'table-footer-group',\n      'table-header-group',\n      'table-row-group',\n      'table-row',\n      'flow-root',\n      'grid',\n      'inline-grid',\n      'contents',\n      'list-item',\n      'hidden',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".block {\n      display: block;\n    }\n\n    .contents {\n      display: contents;\n    }\n\n    .flex {\n      display: flex;\n    }\n\n    .flow-root {\n      display: flow-root;\n    }\n\n    .grid {\n      display: grid;\n    }\n\n    .hidden {\n      display: none;\n    }\n\n    .inline {\n      display: inline;\n    }\n\n    .inline-block {\n      display: inline-block;\n    }\n\n    .inline-flex {\n      display: inline-flex;\n    }\n\n    .inline-grid {\n      display: inline-grid;\n    }\n\n    .inline-table {\n      display: inline-table;\n    }\n\n    .list-item {\n      display: list-item;\n    }\n\n    .table {\n      display: table;\n    }\n\n    .table-caption {\n      display: table-caption;\n    }\n\n    .table-cell {\n      display: table-cell;\n    }\n\n    .table-column {\n      display: table-column;\n    }\n\n    .table-column-group {\n      display: table-column-group;\n    }\n\n    .table-footer-group {\n      display: table-footer-group;\n    }\n\n    .table-header-group {\n      display: table-header-group;\n    }\n\n    .table-row {\n      display: table-row;\n    }\n\n    .table-row-group {\n      display: table-row-group;\n    }\"\n  `)\n  expect(\n    await run([\n      '-block',\n      '-inline-block',\n      '-inline',\n      '-flex',\n      '-inline-flex',\n      '-table',\n      '-inline-table',\n      '-table-caption',\n      '-table-cell',\n      '-table-column',\n      '-table-column-group',\n      '-table-footer-group',\n      '-table-header-group',\n      '-table-row-group',\n      '-table-row',\n      '-flow-root',\n      '-grid',\n      '-inline-grid',\n      '-contents',\n      '-list-item',\n      '-hidden',\n      'block/foo',\n      'inline-block/foo',\n      'inline/foo',\n      'flex/foo',\n      'inline-flex/foo',\n      'table/foo',\n      'inline-table/foo',\n      'table-caption/foo',\n      'table-cell/foo',\n      'table-column/foo',\n      'table-column-group/foo',\n      'table-footer-group/foo',\n      'table-header-group/foo',\n      'table-row-group/foo',\n      'table-row/foo',\n      'flow-root/foo',\n      'grid/foo',\n      'inline-grid/foo',\n      'contents/foo',\n      'list-item/foo',\n      'hidden/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 2786
+        },
+        {
+            "name": "flex",
+            "startLine": 3708,
+            "content": "test('flex', async () => {\n  expect(\n    await run([\n      'flex-1',\n      'flex-99',\n      'flex-1/2',\n      'flex-auto',\n      'flex-initial',\n      'flex-none',\n      'flex-[123]',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".flex-1 {\n      flex: 1;\n    }\n\n    .flex-1\\\\/2 {\n      flex: 50%;\n    }\n\n    .flex-99 {\n      flex: 99;\n    }\n\n    .flex-\\\\[123\\\\] {\n      flex: 123;\n    }\n\n    .flex-auto {\n      flex: auto;\n    }\n\n    .flex-initial {\n      flex: 0 auto;\n    }\n\n    .flex-none {\n      flex: none;\n    }\"\n  `)\n  expect(\n    await run([\n      '-flex-1',\n      'flex--1',\n      '-flex-auto',\n      '-flex-initial',\n      '-flex-none',\n      '-flex-[123]',\n      'flex-unknown',\n      'flex-1/foo',\n      'flex-99/foo',\n      'flex--1/2',\n      'flex--1/-2',\n      'flex-1/-2',\n      'flex-1/2/foo',\n      'flex-auto/foo',\n      'flex-initial/foo',\n      'flex-none/foo',\n      'flex-[123]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 3769
+        },
+        {
+            "name": "flex-shrink",
+            "startLine": 3771,
+            "content": "test('flex-shrink', async () => {\n  expect(await run(['shrink', 'shrink-0', 'shrink-[123]'])).toMatchInlineSnapshot(`\n    \".shrink {\n      flex-shrink: 1;\n    }\n\n    .shrink-0 {\n      flex-shrink: 0;\n    }\n\n    .shrink-\\\\[123\\\\] {\n      flex-shrink: 123;\n    }\"\n  `)\n  expect(\n    await run([\n      '-shrink',\n      'shrink--1',\n      'shrink-1.5',\n      '-shrink-0',\n      '-shrink-[123]',\n      'shrink-unknown',\n      'shrink/foo',\n      'shrink-0/foo',\n      'shrink-[123]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 3798
+        },
+        {
+            "name": "flex-grow",
+            "startLine": 3800,
+            "content": "test('flex-grow', async () => {\n  expect(await run(['grow', 'grow-0', 'grow-[123]'])).toMatchInlineSnapshot(`\n    \".grow {\n      flex-grow: 1;\n    }\n\n    .grow-0 {\n      flex-grow: 0;\n    }\n\n    .grow-\\\\[123\\\\] {\n      flex-grow: 123;\n    }\"\n  `)\n  expect(\n    await run([\n      '-grow',\n      'grow--1',\n      'grow-1.5',\n      '-grow-0',\n      '-grow-[123]',\n      'grow-unknown',\n      'grow/foo',\n      'grow-0/foo',\n      'grow-[123]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 3827
+        },
+        {
+            "name": "flex-basis",
+            "startLine": 3829,
+            "content": "test('flex-basis', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --container-xl: 36rem;\n        }\n        @tailwind utilities;\n      `,\n      ['basis-auto', 'basis-full', 'basis-xl', 'basis-11/12', 'basis-[123px]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --container-xl: 36rem;\n    }\n\n    .basis-11\\\\/12 {\n      flex-basis: 91.6667%;\n    }\n\n    .basis-\\\\[123px\\\\] {\n      flex-basis: 123px;\n    }\n\n    .basis-auto {\n      flex-basis: auto;\n    }\n\n    .basis-full {\n      flex-basis: 100%;\n    }\n\n    .basis-xl {\n      flex-basis: var(--container-xl);\n    }\"\n  `)\n  expect(\n    await run([\n      'basis',\n      'basis--1',\n      'basis--1/2',\n      'basis--1/-2',\n      'basis-1/-2',\n      '-basis-full',\n      '-basis-[123px]',\n      'basis-auto/foo',\n      'basis-full/foo',\n      'basis-xl/foo',\n      'basis-11/12/foo',\n      'basis-[123px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 3881
+        },
+        {
+            "name": "grid-flow",
+            "startLine": 7668,
+            "content": "test('grid-flow', async () => {\n  expect(\n    await run([\n      'grid-flow-row',\n      'grid-flow-col',\n      'grid-flow-dense',\n      'grid-flow-row-dense',\n      'grid-flow-col-dense',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".grid-flow-col {\n      grid-auto-flow: column;\n    }\n\n    .grid-flow-col-dense {\n      grid-auto-flow: column dense;\n    }\n\n    .grid-flow-dense {\n      grid-auto-flow: dense;\n    }\n\n    .grid-flow-row {\n      grid-auto-flow: row;\n    }\n\n    .grid-flow-row-dense {\n      grid-auto-flow: row dense;\n    }\"\n  `)\n  expect(\n    await run([\n      'grid-flow',\n      '-grid-flow-row',\n      '-grid-flow-col',\n      '-grid-flow-dense',\n      '-grid-flow-row-dense',\n      '-grid-flow-col-dense',\n      'grid-flow-row/foo',\n      'grid-flow-col/foo',\n      'grid-flow-dense/foo',\n      'grid-flow-row-dense/foo',\n      'grid-flow-col-dense/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7713
+        },
+        {
+            "name": "grid-cols",
+            "startLine": 7779,
+            "content": "test('grid-cols', async () => {\n  expect(\n    await run([\n      'grid-cols-none',\n      'grid-cols-subgrid',\n      'grid-cols-12',\n      'grid-cols-99',\n      'grid-cols-[123]',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".grid-cols-12 {\n      grid-template-columns: repeat(12, minmax(0, 1fr));\n    }\n\n    .grid-cols-99 {\n      grid-template-columns: repeat(99, minmax(0, 1fr));\n    }\n\n    .grid-cols-\\\\[123\\\\] {\n      grid-template-columns: 123px;\n    }\n\n    .grid-cols-none {\n      grid-template-columns: none;\n    }\n\n    .grid-cols-subgrid {\n      grid-template-columns: subgrid;\n    }\"\n  `)\n  expect(\n    await run([\n      'grid-cols',\n      'grid-cols-0',\n      '-grid-cols-none',\n      '-grid-cols-subgrid',\n      'grid-cols--12',\n      '-grid-cols-12',\n      '-grid-cols-[123]',\n      'grid-cols-unknown',\n      'grid-cols-none/foo',\n      'grid-cols-subgrid/foo',\n      'grid-cols-12/foo',\n      'grid-cols-99/foo',\n      'grid-cols-[123]/foo',\n    ]),\n  ).toEqual('')\n\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --grid-template-columns-none: 200px 1fr;\n        }\n        @tailwind utilities;\n      `,\n      ['grid-cols-none'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --grid-template-columns-none: 200px 1fr;\n    }\n\n    .grid-cols-none {\n      grid-template-columns: var(--grid-template-columns-none);\n    }\"\n  `)\n})",
+            "endLine": 7846
+        },
+        {
+            "name": "grid-rows",
+            "startLine": 7848,
+            "content": "test('grid-rows', async () => {\n  expect(\n    await run([\n      'grid-rows-none',\n      'grid-rows-subgrid',\n      'grid-rows-12',\n      'grid-rows-99',\n      'grid-rows-[123]',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \".grid-rows-12 {\n      grid-template-rows: repeat(12, minmax(0, 1fr));\n    }\n\n    .grid-rows-99 {\n      grid-template-rows: repeat(99, minmax(0, 1fr));\n    }\n\n    .grid-rows-\\\\[123\\\\] {\n      grid-template-rows: 123px;\n    }\n\n    .grid-rows-none {\n      grid-template-rows: none;\n    }\n\n    .grid-rows-subgrid {\n      grid-template-rows: subgrid;\n    }\"\n  `)\n  expect(\n    await run([\n      'grid-rows',\n      'grid-rows-0',\n      '-grid-rows-none',\n      '-grid-rows-subgrid',\n      'grid-rows--12',\n      '-grid-rows-12',\n      '-grid-rows-[123]',\n      'grid-rows-unknown',\n      'grid-rows-none/foo',\n      'grid-rows-subgrid/foo',\n      'grid-rows-12/foo',\n      'grid-rows-99/foo',\n      'grid-rows-[123]/foo',\n    ]),\n  ).toEqual('')\n\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --grid-template-rows-none: 200px 1fr;\n        }\n        @tailwind utilities;\n      `,\n      ['grid-rows-none'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --grid-template-rows-none: 200px 1fr;\n    }\n\n    .grid-rows-none {\n      grid-template-rows: var(--grid-template-rows-none);\n    }\"\n  `)\n})",
+            "endLine": 7915
+        },
+        {
+            "name": "flex-direction",
+            "startLine": 7917,
+            "content": "test('flex-direction', async () => {\n  expect(await run(['flex-row', 'flex-row-reverse', 'flex-col', 'flex-col-reverse']))\n    .toMatchInlineSnapshot(`\n      \".flex-col {\n        flex-direction: column;\n      }\n\n      .flex-col-reverse {\n        flex-direction: column-reverse;\n      }\n\n      .flex-row {\n        flex-direction: row;\n      }\n\n      .flex-row-reverse {\n        flex-direction: row-reverse;\n      }\"\n    `)\n  expect(\n    await run([\n      '-flex-row',\n      '-flex-row-reverse',\n      '-flex-col',\n      '-flex-col-reverse',\n      'flex-row/foo',\n      'flex-row-reverse/foo',\n      'flex-col/foo',\n      'flex-col-reverse/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7948
+        },
+        {
+            "name": "flex-wrap",
+            "startLine": 7950,
+            "content": "test('flex-wrap', async () => {\n  expect(await run(['flex-wrap', 'flex-wrap-reverse', 'flex-nowrap'])).toMatchInlineSnapshot(`\n    \".flex-nowrap {\n      flex-wrap: nowrap;\n    }\n\n    .flex-wrap {\n      flex-wrap: wrap;\n    }\n\n    .flex-wrap-reverse {\n      flex-wrap: wrap-reverse;\n    }\"\n  `)\n  expect(\n    await run([\n      '-flex-wrap',\n      '-flex-wrap-reverse',\n      '-flex-nowrap',\n      'flex-wrap/foo',\n      'flex-wrap-reverse/foo',\n      'flex-nowrap/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7974
+        }
+    ]
+}

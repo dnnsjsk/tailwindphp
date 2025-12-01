@@ -251,7 +251,7 @@ Port in dependency order:
 - [ ] `sort.php` + test
 
 ### Phase 4: Candidates & Compilation
-- [ ] `candidate.php` + test
+- [x] `candidate.php` + test
 - [ ] `canonicalize-candidates.php` + test
 - [ ] `compile.php`
 

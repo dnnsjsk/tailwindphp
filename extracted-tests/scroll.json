@@ -1,0 +1,138 @@
+{
+    "category": "scroll",
+    "testCount": 22,
+    "tests": [
+        {
+            "name": "scroll-snap-type",
+            "startLine": 6333,
+            "content": "test('scroll-snap-type', async () => {\n  expect(await run(['snap-none', 'snap-x', 'snap-y', 'snap-both'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-scroll-snap-strictness: proximity;\n        }\n      }\n    }\n\n    .snap-both {\n      scroll-snap-type: both var(--tw-scroll-snap-strictness);\n    }\n\n    .snap-none {\n      scroll-snap-type: none;\n    }\n\n    .snap-x {\n      scroll-snap-type: x var(--tw-scroll-snap-strictness);\n    }\n\n    .snap-y {\n      scroll-snap-type: y var(--tw-scroll-snap-strictness);\n    }\n\n    @property --tw-scroll-snap-strictness {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: proximity;\n    }\"\n  `)\n  expect(\n    await run([\n      '-snap-none',\n      '-snap-x',\n      '-snap-y',\n      '-snap-both',\n      'snap-none/foo',\n      'snap-x/foo',\n      'snap-y/foo',\n      'snap-both/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6377
+        },
+        {
+            "name": "--tw-scroll-snap-strictness",
+            "startLine": 6379,
+            "content": "test('--tw-scroll-snap-strictness', async () => {\n  expect(await run(['snap-mandatory', 'snap-proximity'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-scroll-snap-strictness: proximity;\n        }\n      }\n    }\n\n    .snap-mandatory {\n      --tw-scroll-snap-strictness: mandatory;\n    }\n\n    .snap-proximity {\n      --tw-scroll-snap-strictness: proximity;\n    }\n\n    @property --tw-scroll-snap-strictness {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: proximity;\n    }\"\n  `)\n  expect(\n    await run(['-snap-mandatory', '-snap-proximity', 'snap-mandatory/foo', 'snap-proximity/foo']),\n  ).toEqual('')\n})",
+            "endLine": 6406
+        },
+        {
+            "name": "scroll-snap-align",
+            "startLine": 6408,
+            "content": "test('scroll-snap-align', async () => {\n  expect(await run(['snap-align-none', 'snap-start', 'snap-end', 'snap-center']))\n    .toMatchInlineSnapshot(`\n      \".snap-align-none {\n        scroll-snap-align: none;\n      }\n\n      .snap-center {\n        scroll-snap-align: center;\n      }\n\n      .snap-end {\n        scroll-snap-align: end;\n      }\n\n      .snap-start {\n        scroll-snap-align: start;\n      }\"\n    `)\n  expect(\n    await run([\n      '-snap-align-none',\n      '-snap-start',\n      '-snap-end',\n      '-snap-center',\n      'snap-align-none/foo',\n      'snap-start/foo',\n      'snap-end/foo',\n      'snap-center/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6439
+        },
+        {
+            "name": "scroll-m",
+            "startLine": 6456,
+            "content": "test('scroll-m', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-m-4', 'scroll-m-[4px]', '-scroll-m-4', '-scroll-m-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-m-4 {\n      scroll-margin: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-m-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin: calc(var(--value) * -1);\n    }\n\n    .scroll-m-4 {\n      scroll-margin: var(--spacing-4);\n    }\n\n    .scroll-m-\\\\[4px\\\\] {\n      scroll-margin: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-m',\n      'scroll-m-4/foo',\n      'scroll-m-[4px]/foo',\n      '-scroll-m-4/foo',\n      '-scroll-m-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6497
+        },
+        {
+            "name": "scroll-mx",
+            "startLine": 6499,
+            "content": "test('scroll-mx', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-mx-4', 'scroll-mx-[4px]', '-scroll-mx-4', '-scroll-mx-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-mx-4 {\n      scroll-margin-inline: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-mx-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-inline: calc(var(--value) * -1);\n    }\n\n    .scroll-mx-4 {\n      scroll-margin-inline: var(--spacing-4);\n    }\n\n    .scroll-mx-\\\\[4px\\\\] {\n      scroll-margin-inline: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-mx',\n      'scroll-mx-4/foo',\n      'scroll-mx-[4px]/foo',\n      '-scroll-mx-4/foo',\n      '-scroll-mx-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6540
+        },
+        {
+            "name": "scroll-my",
+            "startLine": 6542,
+            "content": "test('scroll-my', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-my-4', 'scroll-my-[4px]', '-scroll-my-4', '-scroll-my-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-my-4 {\n      scroll-margin-block: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-my-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-block: calc(var(--value) * -1);\n    }\n\n    .scroll-my-4 {\n      scroll-margin-block: var(--spacing-4);\n    }\n\n    .scroll-my-\\\\[4px\\\\] {\n      scroll-margin-block: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-my',\n      'scroll-my-4/foo',\n      'scroll-my-[4px]/foo',\n      '-scroll-my-4/foo',\n      '-scroll-my-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6583
+        },
+        {
+            "name": "scroll-ms",
+            "startLine": 6585,
+            "content": "test('scroll-ms', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-ms-4', 'scroll-ms-[4px]', '-scroll-ms-4', '-scroll-ms-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-ms-4 {\n      scroll-margin-inline-start: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-ms-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-inline-start: calc(var(--value) * -1);\n    }\n\n    .scroll-ms-4 {\n      scroll-margin-inline-start: var(--spacing-4);\n    }\n\n    .scroll-ms-\\\\[4px\\\\] {\n      scroll-margin-inline-start: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-ms',\n      'scroll-ms-4/foo',\n      'scroll-ms-[4px]/foo',\n      '-scroll-ms-4/foo',\n      '-scroll-ms-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6626
+        },
+        {
+            "name": "scroll-me",
+            "startLine": 6628,
+            "content": "test('scroll-me', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-me-4', 'scroll-me-[4px]', '-scroll-me-4', '-scroll-me-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-me-4 {\n      scroll-margin-inline-end: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-me-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-inline-end: calc(var(--value) * -1);\n    }\n\n    .scroll-me-4 {\n      scroll-margin-inline-end: var(--spacing-4);\n    }\n\n    .scroll-me-\\\\[4px\\\\] {\n      scroll-margin-inline-end: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-me',\n      'scroll-me-4/foo',\n      'scroll-me-[4px]/foo',\n      '-scroll-me-4/foo',\n      '-scroll-me-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6669
+        },
+        {
+            "name": "scroll-mt",
+            "startLine": 6671,
+            "content": "test('scroll-mt', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-mt-4', 'scroll-mt-[4px]', '-scroll-mt-4', '-scroll-mt-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-mt-4 {\n      scroll-margin-top: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-mt-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-top: calc(var(--value) * -1);\n    }\n\n    .scroll-mt-4 {\n      scroll-margin-top: var(--spacing-4);\n    }\n\n    .scroll-mt-\\\\[4px\\\\] {\n      scroll-margin-top: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-mt',\n      'scroll-mt-4/foo',\n      'scroll-mt-[4px]/foo',\n      '-scroll-mt-4/foo',\n      '-scroll-mt-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6712
+        },
+        {
+            "name": "scroll-mr",
+            "startLine": 6714,
+            "content": "test('scroll-mr', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-mr-4', 'scroll-mr-[4px]', '-scroll-mr-4', '-scroll-mr-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-mr-4 {\n      scroll-margin-right: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-mr-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-right: calc(var(--value) * -1);\n    }\n\n    .scroll-mr-4 {\n      scroll-margin-right: var(--spacing-4);\n    }\n\n    .scroll-mr-\\\\[4px\\\\] {\n      scroll-margin-right: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-mr',\n      'scroll-mr-4/foo',\n      'scroll-mr-[4px]/foo',\n      '-scroll-mr-4/foo',\n      '-scroll-mr-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6755
+        },
+        {
+            "name": "scroll-mb",
+            "startLine": 6757,
+            "content": "test('scroll-mb', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-mb-4', 'scroll-mb-[4px]', '-scroll-mb-4', '-scroll-mb-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-mb-4 {\n      scroll-margin-bottom: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-mb-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-bottom: calc(var(--value) * -1);\n    }\n\n    .scroll-mb-4 {\n      scroll-margin-bottom: var(--spacing-4);\n    }\n\n    .scroll-mb-\\\\[4px\\\\] {\n      scroll-margin-bottom: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-mb',\n      'scroll-mb-4/foo',\n      'scroll-mb-[4px]/foo',\n      '-scroll-mb-4/foo',\n      '-scroll-mb-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6798
+        },
+        {
+            "name": "scroll-ml",
+            "startLine": 6800,
+            "content": "test('scroll-ml', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-ml-4', 'scroll-ml-[4px]', '-scroll-ml-4', '-scroll-ml-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .-scroll-ml-4 {\n      scroll-margin-left: calc(var(--spacing-4) * -1);\n    }\n\n    .-scroll-ml-\\\\[var\\\\(--value\\\\)\\\\] {\n      scroll-margin-left: calc(var(--value) * -1);\n    }\n\n    .scroll-ml-4 {\n      scroll-margin-left: var(--spacing-4);\n    }\n\n    .scroll-ml-\\\\[4px\\\\] {\n      scroll-margin-left: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-ml',\n      'scroll-ml-4/foo',\n      'scroll-ml-[4px]/foo',\n      '-scroll-ml-4/foo',\n      '-scroll-ml-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6841
+        },
+        {
+            "name": "scroll-p",
+            "startLine": 6843,
+            "content": "test('scroll-p', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-p-4', 'scroll-p-[4px]', '-scroll-p-4', '-scroll-p-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-p-4 {\n      scroll-padding: var(--spacing-4);\n    }\n\n    .scroll-p-\\\\[4px\\\\] {\n      scroll-padding: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-p',\n      'scroll-p-4/foo',\n      'scroll-p-[4px]/foo',\n      '-scroll-p-4/foo',\n      '-scroll-p-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6876
+        },
+        {
+            "name": "scroll-px",
+            "startLine": 6878,
+            "content": "test('scroll-px', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-px-4', 'scroll-px-[4px]', '-scroll-px-4', '-scroll-px-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-px-4 {\n      scroll-padding-inline: var(--spacing-4);\n    }\n\n    .scroll-px-\\\\[4px\\\\] {\n      scroll-padding-inline: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-px',\n      'scroll-px-4/foo',\n      'scroll-px-[4px]/foo',\n      '-scroll-px-4/foo',\n      '-scroll-px-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6911
+        },
+        {
+            "name": "scroll-py",
+            "startLine": 6913,
+            "content": "test('scroll-py', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-py-4', 'scroll-py-[4px]', '-scroll-py-4', '-scroll-py-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-py-4 {\n      scroll-padding-block: var(--spacing-4);\n    }\n\n    .scroll-py-\\\\[4px\\\\] {\n      scroll-padding-block: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-py',\n      'scroll-py-4/foo',\n      'scroll-py-[4px]/foo',\n      '-scroll-py-4/foo',\n      '-scroll-py-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6946
+        },
+        {
+            "name": "scroll-ps",
+            "startLine": 6948,
+            "content": "test('scroll-ps', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-ps-4', 'scroll-ps-[4px]', '-scroll-ps-4', '-scroll-ps-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-ps-4 {\n      scroll-padding-inline-start: var(--spacing-4);\n    }\n\n    .scroll-ps-\\\\[4px\\\\] {\n      scroll-padding-inline-start: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-ps',\n      'scroll-ps-4/foo',\n      'scroll-ps-[4px]/foo',\n      '-scroll-ps-4/foo',\n      '-scroll-ps-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6981
+        },
+        {
+            "name": "scroll-pe",
+            "startLine": 6983,
+            "content": "test('scroll-pe', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-pe-4', 'scroll-pe-[4px]', '-scroll-pe-4', '-scroll-pe-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-pe-4 {\n      scroll-padding-inline-end: var(--spacing-4);\n    }\n\n    .scroll-pe-\\\\[4px\\\\] {\n      scroll-padding-inline-end: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-pe',\n      'scroll-pe-4/foo',\n      'scroll-pe-[4px]/foo',\n      '-scroll-pe-4/foo',\n      '-scroll-pe-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7016
+        },
+        {
+            "name": "scroll-pt",
+            "startLine": 7018,
+            "content": "test('scroll-pt', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-pt-4', 'scroll-pt-[4px]', '-scroll-pt-4', '-scroll-pt-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-pt-4 {\n      scroll-padding-top: var(--spacing-4);\n    }\n\n    .scroll-pt-\\\\[4px\\\\] {\n      scroll-padding-top: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-pt',\n      'scroll-pt-4/foo',\n      'scroll-pt-[4px]/foo',\n      '-scroll-pt-4/foo',\n      '-scroll-pt-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7051
+        },
+        {
+            "name": "scroll-pr",
+            "startLine": 7053,
+            "content": "test('scroll-pr', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-pr-4', 'scroll-pr-[4px]', '-scroll-pr-4', '-scroll-pr-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-pr-4 {\n      scroll-padding-right: var(--spacing-4);\n    }\n\n    .scroll-pr-\\\\[4px\\\\] {\n      scroll-padding-right: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-pr',\n      'scroll-pr-4/foo',\n      'scroll-pr-[4px]/foo',\n      '-scroll-pr-4/foo',\n      '-scroll-pr-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7086
+        },
+        {
+            "name": "scroll-pb",
+            "startLine": 7088,
+            "content": "test('scroll-pb', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-pb-4', 'scroll-pb-[4px]', '-scroll-pb-4', '-scroll-pb-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-pb-4 {\n      scroll-padding-bottom: var(--spacing-4);\n    }\n\n    .scroll-pb-\\\\[4px\\\\] {\n      scroll-padding-bottom: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-pb',\n      'scroll-pb-4/foo',\n      'scroll-pb-[4px]/foo',\n      '-scroll-pb-4/foo',\n      '-scroll-pb-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7121
+        },
+        {
+            "name": "scroll-pl",
+            "startLine": 7123,
+            "content": "test('scroll-pl', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['scroll-pl-4', 'scroll-pl-[4px]', '-scroll-pl-4', '-scroll-pl-[var(--value)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .scroll-pl-4 {\n      scroll-padding-left: var(--spacing-4);\n    }\n\n    .scroll-pl-\\\\[4px\\\\] {\n      scroll-padding-left: 4px;\n    }\"\n  `)\n  expect(\n    await run([\n      'scroll-pl',\n      'scroll-pl-4/foo',\n      'scroll-pl-[4px]/foo',\n      '-scroll-pl-4/foo',\n      '-scroll-pl-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 7156
+        },
+        {
+            "name": "scroll-behavior",
+            "startLine": 9921,
+            "content": "test('scroll-behavior', async () => {\n  expect(await run(['scroll-auto', 'scroll-smooth'])).toMatchInlineSnapshot(`\n    \".scroll-auto {\n      scroll-behavior: auto;\n    }\n\n    .scroll-smooth {\n      scroll-behavior: smooth;\n    }\"\n  `)\n  expect(\n    await run(['scroll', '-scroll-auto', '-scroll-smooth', 'scroll-auto/foo', 'scroll-smooth/foo']),\n  ).toEqual('')\n})",
+            "endLine": 9934
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "category": "z-index",
+    "testCount": 11,
+    "tests": [
+        {
+            "name": "z-index",
+            "startLine": 1020,
+            "content": "test('z-index', async () => {\n  expect(await run(['z-auto', 'z-10', '-z-10', 'z-[123]', '-z-[var(--value)]']))\n    .toMatchInlineSnapshot(`\n      \".-z-10 {\n        z-index: calc(10 * -1);\n      }\n\n      .-z-\\\\[var\\\\(--value\\\\)\\\\] {\n        z-index: calc(var(--value) * -1);\n      }\n\n      .z-10 {\n        z-index: 10;\n      }\n\n      .z-\\\\[123\\\\] {\n        z-index: 123;\n      }\n\n      .z-auto {\n        z-index: auto;\n      }\"\n    `)\n  expect(\n    await run([\n      'z',\n      'z--1',\n      '-z-auto',\n      'z-unknown',\n      'z-123.5',\n      'z-auto/foo',\n      'z-10/foo',\n      '-z-10/foo',\n      'z-[123]/foo',\n      '-z-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --z-index-auto: 42;\n        }\n        @tailwind utilities;\n      `,\n      ['z-auto'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --z-index-auto: 42;\n    }\n\n    .z-auto {\n      z-index: var(--z-index-auto);\n    }\"\n  `)\n})",
+            "endLine": 1077
+        },
+        {
+            "name": "box-sizing",
+            "startLine": 2544,
+            "content": "test('box-sizing', async () => {\n  expect(await run(['box-border', 'box-content'])).toMatchInlineSnapshot(`\n    \".box-border {\n      box-sizing: border-box;\n    }\n\n    .box-content {\n      box-sizing: content-box;\n    }\"\n  `)\n  expect(\n    await run(['box', '-box-border', '-box-content', 'box-border/foo', 'box-content/foo']),\n  ).toEqual('')\n})",
+            "endLine": 2557
+        },
+        {
+            "name": "field-sizing",
+            "startLine": 2788,
+            "content": "test('field-sizing', async () => {\n  expect(await run(['field-sizing-content', 'field-sizing-fixed'])).toMatchInlineSnapshot(`\n    \".field-sizing-content {\n      field-sizing: content;\n    }\n\n    .field-sizing-fixed {\n      field-sizing: fixed;\n    }\"\n  `)\n  expect(\n    await run(['field-sizing-[other]', '-field-sizing-content', '-field-sizing-fixed']),\n  ).toEqual('')\n})",
+            "endLine": 2801
+        },
+        {
+            "name": "size",
+            "startLine": 2848,
+            "content": "test('size', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      [\n        'size-auto',\n        'size-full',\n        'size-min',\n        'size-max',\n        'size-fit',\n        'size-4',\n        'size-1/2',\n        'size-[4px]',\n      ],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .size-1\\\\/2 {\n      width: 50%;\n      height: 50%;\n    }\n\n    .size-4 {\n      width: var(--spacing-4);\n      height: var(--spacing-4);\n    }\n\n    .size-\\\\[4px\\\\] {\n      width: 4px;\n      height: 4px;\n    }\n\n    .size-auto {\n      width: auto;\n      height: auto;\n    }\n\n    .size-fit {\n      width: fit-content;\n      height: fit-content;\n    }\n\n    .size-full {\n      width: 100%;\n      height: 100%;\n    }\n\n    .size-max {\n      width: max-content;\n      height: max-content;\n    }\n\n    .size-min {\n      width: min-content;\n      height: min-content;\n    }\"\n  `)\n  expect(\n    await run([\n      'size',\n      'size--1',\n      'size--1/2',\n      'size--1/-2',\n      'size-1/-2',\n      '-size-4',\n      '-size-1/2',\n      '-size-[4px]',\n      'size-auto/foo',\n      'size-full/foo',\n      'size-min/foo',\n      'size-max/foo',\n      'size-fit/foo',\n      'size-4/foo',\n      'size-1/2/foo',\n      'size-[4px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 2933
+        },
+        {
+            "name": "translate-z",
+            "startLine": 4680,
+            "content": "test('translate-z', async () => {\n  expect(await run(['-translate-z-px', 'translate-z-px', '-translate-z-[var(--value)]']))\n    .toMatchInlineSnapshot(`\n      \"@layer properties {\n        @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n          *, :before, :after, ::backdrop {\n            --tw-translate-x: 0;\n            --tw-translate-y: 0;\n            --tw-translate-z: 0;\n          }\n        }\n      }\n\n      .-translate-z-\\\\[var\\\\(--value\\\\)\\\\] {\n        --tw-translate-z: calc(var(--value) * -1);\n        translate: var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z);\n      }\n\n      .-translate-z-px {\n        --tw-translate-z: -1px;\n        translate: var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z);\n      }\n\n      .translate-z-px {\n        --tw-translate-z: 1px;\n        translate: var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z);\n      }\n\n      @property --tw-translate-x {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0;\n      }\n\n      @property --tw-translate-y {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0;\n      }\n\n      @property --tw-translate-z {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0;\n      }\"\n    `)\n  expect(\n    await run([\n      'translate-z',\n      'translate-z--1',\n      'translate-z--1/2',\n      'translate-z--1/-2',\n      'translate-z-1/-2',\n      'translate-z-full',\n      '-translate-z-full',\n      'translate-z-1/2',\n      'translate-y-px/foo',\n      '-translate-z-[var(--value)]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 4740
+        },
+        {
+            "name": "rotate-z",
+            "startLine": 5009,
+            "content": "test('rotate-z', async () => {\n  expect(\n    await run([\n      'rotate-z-45',\n      'rotate-z-[123deg]',\n      'rotate-z-(--var)',\n      '-rotate-z-45',\n      '-rotate-z-[123deg]',\n      '-rotate-z-(--var)',\n    ]),\n  ).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-rotate-x: initial;\n          --tw-rotate-y: initial;\n          --tw-rotate-z: initial;\n          --tw-skew-x: initial;\n          --tw-skew-y: initial;\n        }\n      }\n    }\n\n    .-rotate-z-\\\\(--var\\\\) {\n      --tw-rotate-z: rotateZ(calc(var(--var) * -1));\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    .-rotate-z-45 {\n      --tw-rotate-z: rotateZ(calc(45deg * -1));\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    .-rotate-z-\\\\[123deg\\\\] {\n      --tw-rotate-z: rotateZ(calc(123deg * -1));\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    .rotate-z-\\\\(--var\\\\) {\n      --tw-rotate-z: rotateZ(var(--var));\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    .rotate-z-45 {\n      --tw-rotate-z: rotateZ(45deg);\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    .rotate-z-\\\\[123deg\\\\] {\n      --tw-rotate-z: rotateZ(123deg);\n      transform: var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );\n    }\n\n    @property --tw-rotate-x {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-rotate-y {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-rotate-z {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-skew-x {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-skew-y {\n      syntax: \"*\";\n      inherits: false\n    }\"\n  `)\n  expect(\n    await run([\n      'rotate-z',\n      'rotate-z--1',\n      '-rotate-z',\n      'rotate-z-potato',\n      'rotate-z-45/foo',\n      '-rotate-z-45/foo',\n      'rotate-z-[123deg]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 5098
+        },
+        {
+            "name": "scale-z",
+            "startLine": 5564,
+            "content": "test('scale-z', async () => {\n  expect(await run(['scale-z-50', '-scale-z-50', 'scale-z-[123deg]'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-scale-x: 1;\n          --tw-scale-y: 1;\n          --tw-scale-z: 1;\n        }\n      }\n    }\n\n    .-scale-z-50 {\n      --tw-scale-z: calc(50% * -1);\n      scale: var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z);\n    }\n\n    .scale-z-50 {\n      --tw-scale-z: 50%;\n      scale: var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z);\n    }\n\n    .scale-z-\\\\[123deg\\\\] {\n      --tw-scale-z: 123deg;\n      scale: var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z);\n    }\n\n    @property --tw-scale-x {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 1;\n    }\n\n    @property --tw-scale-y {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 1;\n    }\n\n    @property --tw-scale-z {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 1;\n    }\"\n  `)\n  expect(\n    await run([\n      'scale-z',\n      'scale-z--1',\n      'scale-z-1.5',\n      'scale-z-50/foo',\n      '-scale-z-50/foo',\n      'scale-z-[123deg]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 5619
+        },
+        {
+            "name": "touch-pinch-zoom",
+            "startLine": 6229,
+            "content": "test('touch-pinch-zoom', async () => {\n  expect(await run(['touch-pinch-zoom'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-pan-x: initial;\n          --tw-pan-y: initial;\n          --tw-pinch-zoom: initial;\n        }\n      }\n    }\n\n    .touch-pinch-zoom {\n      --tw-pinch-zoom: pinch-zoom;\n      touch-action: var(--tw-pan-x, ) var(--tw-pan-y, ) var(--tw-pinch-zoom, );\n    }\n\n    @property --tw-pan-x {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-pan-y {\n      syntax: \"*\";\n      inherits: false\n    }\n\n    @property --tw-pinch-zoom {\n      syntax: \"*\";\n      inherits: false\n    }\"\n  `)\n  expect(await run(['-touch-pinch-zoom', 'touch-pinch-zoom/foo'])).toEqual('')\n})",
+            "endLine": 6262
+        },
+        {
+            "name": "resize",
+            "startLine": 6301,
+            "content": "test('resize', async () => {\n  expect(await run(['resize-none', 'resize', 'resize-x', 'resize-y'])).toMatchInlineSnapshot(`\n    \".resize {\n      resize: both;\n    }\n\n    .resize-none {\n      resize: none;\n    }\n\n    .resize-x {\n      resize: horizontal;\n    }\n\n    .resize-y {\n      resize: vertical;\n    }\"\n  `)\n  expect(\n    await run([\n      '-resize-none',\n      '-resize',\n      '-resize-x',\n      '-resize-y',\n      'resize-none/foo',\n      'resize/foo',\n      'resize-x/foo',\n      'resize-y/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 6331
+        },
+        {
+            "name": "bg-size",
+            "startLine": 12388,
+            "content": "test('bg-size', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --color-red-500: #ef4444;\n        }\n        @tailwind utilities;\n      `,\n      ['bg-size-[120px]', 'bg-size-[120px_120px]', 'bg-size-[var(--some-var)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \".bg-size-\\\\[120px\\\\] {\n      background-size: 120px;\n    }\n\n    .bg-size-\\\\[120px_120px\\\\] {\n      background-size: 120px 120px;\n    }\n\n    .bg-size-\\\\[var\\\\(--some-var\\\\)\\\\] {\n      background-size: var(--some-var);\n    }\"\n  `)\n  expect(\n    await run([\n      'bg-size',\n      'bg-size/foo',\n      '-bg-size',\n      '-bg-size/foo',\n\n      'bg-size-[120px_120px]/foo',\n\n      '-bg-size-[120px_120px]',\n      '-bg-size-[120px_120px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 12425
+        },
+        {
+            "name": "mask-size",
+            "startLine": 14011,
+            "content": "test('mask-size', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --color-red-500: #ef4444;\n        }\n        @tailwind utilities;\n      `,\n      ['mask-size-[120px]', 'mask-size-[120px_120px]', 'mask-size-[var(--some-var)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \".mask-size-\\\\[120px\\\\] {\n      -webkit-mask-size: 120px;\n      mask-size: 120px;\n    }\n\n    .mask-size-\\\\[120px_120px\\\\] {\n      -webkit-mask-size: 120px 120px;\n      mask-size: 120px 120px;\n    }\n\n    .mask-size-\\\\[var\\\\(--some-var\\\\)\\\\] {\n      -webkit-mask-size: var(--some-var);\n      -webkit-mask-size: var(--some-var);\n      mask-size: var(--some-var);\n    }\"\n  `)\n  expect(\n    await run([\n      'mask-size',\n      'mask-size/foo',\n      '-mask-size',\n      '-mask-size/foo',\n\n      'mask-size-[120px_120px]/foo',\n\n      '-mask-size-[120px_120px]',\n      '-mask-size-[120px_120px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 14052
+        }
+    ]
+}

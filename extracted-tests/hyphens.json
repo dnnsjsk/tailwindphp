@@ -1,0 +1,12 @@
+{
+    "category": "hyphens",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "hyphens",
+            "startLine": 9962,
+            "content": "test('hyphens', async () => {\n  expect(await run(['hyphens-none', 'hyphens-manual', 'hyphens-auto'])).toMatchInlineSnapshot(`\n    \".hyphens-auto {\n      -webkit-hyphens: auto;\n      hyphens: auto;\n    }\n\n    .hyphens-manual {\n      -webkit-hyphens: manual;\n      hyphens: manual;\n    }\n\n    .hyphens-none {\n      -webkit-hyphens: none;\n      hyphens: none;\n    }\"\n  `)\n  expect(\n    await run([\n      'hyphens',\n      '-hyphens-none',\n      '-hyphens-manual',\n      '-hyphens-auto',\n      'hyphens-none/foo',\n      'hyphens-manual/foo',\n      'hyphens-auto/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 9990
+        }
+    ]
+}

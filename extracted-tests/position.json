@@ -1,0 +1,30 @@
+{
+    "category": "position",
+    "testCount": 4,
+    "tests": [
+        {
+            "name": "position",
+            "startLine": 86,
+            "content": "test('position', async () => {\n  expect(await run(['static', 'fixed', 'absolute', 'relative', 'sticky'])).toMatchInlineSnapshot(`\n    \".absolute {\n      position: absolute;\n    }\n\n    .fixed {\n      position: fixed;\n    }\n\n    .relative {\n      position: relative;\n    }\n\n    .static {\n      position: static;\n    }\n\n    .sticky {\n      position: sticky;\n    }\"\n  `)\n  expect(\n    await run([\n      '-static',\n      '-fixed',\n      '-absolute',\n      '-relative',\n      '-sticky',\n      'static/foo',\n      'fixed/foo',\n      'absolute/foo',\n      'relative/foo',\n      'sticky/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 122
+        },
+        {
+            "name": "list-style-position",
+            "startLine": 7158,
+            "content": "test('list-style-position', async () => {\n  expect(await run(['list-inside', 'list-outside'])).toMatchInlineSnapshot(`\n    \".list-inside {\n      list-style-position: inside;\n    }\n\n    .list-outside {\n      list-style-position: outside;\n    }\"\n  `)\n  expect(\n    await run(['-list-inside', '-list-outside', 'list-inside/foo', 'list-outside/foo']),\n  ).toEqual('')\n})",
+            "endLine": 7171
+        },
+        {
+            "name": "bg-position",
+            "startLine": 12349,
+            "content": "test('bg-position', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --color-red-500: #ef4444;\n        }\n        @tailwind utilities;\n      `,\n      ['bg-position-[120px]', 'bg-position-[120px_120px]', 'bg-position-[var(--some-var)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \".bg-position-\\\\[120px\\\\] {\n      background-position: 120px;\n    }\n\n    .bg-position-\\\\[120px_120px\\\\] {\n      background-position: 120px 120px;\n    }\n\n    .bg-position-\\\\[var\\\\(--some-var\\\\)\\\\] {\n      background-position: var(--some-var);\n    }\"\n  `)\n  expect(\n    await run([\n      'bg-position',\n      'bg-position/foo',\n      '-bg-position',\n      '-bg-position/foo',\n\n      'bg-position-[120px_120px]/foo',\n\n      '-bg-position-[120px_120px]',\n      '-bg-position-[120px_120px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 12386
+        },
+        {
+            "name": "mask-position",
+            "startLine": 13968,
+            "content": "test('mask-position', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --color-red-500: #ef4444;\n        }\n        @tailwind utilities;\n      `,\n      ['mask-position-[120px]', 'mask-position-[120px_120px]', 'mask-position-[var(--some-var)]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \".mask-position-\\\\[120px\\\\] {\n      -webkit-mask-position: 120px;\n      mask-position: 120px;\n    }\n\n    .mask-position-\\\\[120px_120px\\\\] {\n      -webkit-mask-position: 120px 120px;\n      mask-position: 120px 120px;\n    }\n\n    .mask-position-\\\\[var\\\\(--some-var\\\\)\\\\] {\n      -webkit-mask-position: var(--some-var);\n      -webkit-mask-position: var(--some-var);\n      mask-position: var(--some-var);\n    }\"\n  `)\n  expect(\n    await run([\n      'mask-position',\n      'mask-position/foo',\n      '-mask-position',\n      '-mask-position/foo',\n\n      'mask-position-[120px_120px]/foo',\n\n      '-mask-position-[120px_120px]',\n      '-mask-position-[120px_120px]/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 14009
+        }
+    ]
+}

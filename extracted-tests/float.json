@@ -1,0 +1,12 @@
+{
+    "category": "float",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "float",
+            "startLine": 1653,
+            "content": "test('float', async () => {\n  expect(await run(['float-start', 'float-end', 'float-right', 'float-left', 'float-none']))\n    .toMatchInlineSnapshot(`\n      \".float-end {\n        float: inline-end;\n      }\n\n      .float-left {\n        float: left;\n      }\n\n      .float-none {\n        float: none;\n      }\n\n      .float-right {\n        float: right;\n      }\n\n      .float-start {\n        float: inline-start;\n      }\"\n    `)\n  expect(\n    await run([\n      'float',\n      '-float-start',\n      '-float-end',\n      '-float-right',\n      '-float-left',\n      '-float-none',\n      'float-start/foo',\n      'float-end/foo',\n      'float-right/foo',\n      'float-left/foo',\n      'float-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 1691
+        }
+    ]
+}

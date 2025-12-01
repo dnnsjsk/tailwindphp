@@ -1,0 +1,12 @@
+{
+    "category": "forced-color",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "forced-color-adjust",
+            "startLine": 23306,
+            "content": "test('forced-color-adjust', async () => {\n  expect(await run(['forced-color-adjust-none', 'forced-color-adjust-auto']))\n    .toMatchInlineSnapshot(`\n      \".forced-color-adjust-auto {\n        forced-color-adjust: auto;\n      }\n\n      .forced-color-adjust-none {\n        forced-color-adjust: none;\n      }\"\n    `)\n  expect(\n    await run([\n      'forced',\n      'forced-color',\n      'forced-color-adjust',\n      '-forced-color-adjust-none',\n      '-forced-color-adjust-auto',\n      'forced-color-adjust-none/foo',\n      'forced-color-adjust-auto/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 23328
+        }
+    ]
+}

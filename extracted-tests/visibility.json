@@ -1,0 +1,12 @@
+{
+    "category": "visibility",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "border-collapse",
+            "startLine": 3913,
+            "content": "test('border-collapse', async () => {\n  expect(await run(['border-collapse', 'border-separate'])).toMatchInlineSnapshot(`\n    \".border-collapse {\n      border-collapse: collapse;\n    }\n\n    .border-separate {\n      border-collapse: separate;\n    }\"\n  `)\n  expect(\n    await run([\n      '-border-collapse',\n      '-border-separate',\n      'border-collapse/foo',\n      'border-separate/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 3931
+        }
+    ]
+}

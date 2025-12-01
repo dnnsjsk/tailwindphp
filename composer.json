@@ -40,7 +40,13 @@
             "src/selector-parser.php",
             "src/property-order.php",
             "src/theme.php",
-            "src/utils/decode-arbitrary-value.php"
+            "src/utils/decode-arbitrary-value.php",
+            "src/candidate.php",
+            "src/compile.php",
+            "src/utilities.php",
+            "src/variants.php",
+            "src/design-system.php",
+            "src/index.php"
         ]
     },
     "autoload-dev": {

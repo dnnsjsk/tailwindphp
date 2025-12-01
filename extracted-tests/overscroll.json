@@ -1,0 +1,24 @@
+{
+    "category": "overscroll",
+    "testCount": 3,
+    "tests": [
+        {
+            "name": "overscroll",
+            "startLine": 9837,
+            "content": "test('overscroll', async () => {\n  expect(await run(['overscroll-auto', 'overscroll-contain', 'overscroll-none']))\n    .toMatchInlineSnapshot(`\n      \".overscroll-auto {\n        overscroll-behavior: auto;\n      }\n\n      .overscroll-contain {\n        overscroll-behavior: contain;\n      }\n\n      .overscroll-none {\n        overscroll-behavior: none;\n      }\"\n    `)\n  expect(\n    await run([\n      'overscroll',\n      '-overscroll-auto',\n      '-overscroll-contain',\n      '-overscroll-none',\n      'overscroll-auto/foo',\n      'overscroll-contain/foo',\n      'overscroll-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 9863
+        },
+        {
+            "name": "overscroll-x",
+            "startLine": 9865,
+            "content": "test('overscroll-x', async () => {\n  expect(await run(['overscroll-x-auto', 'overscroll-x-contain', 'overscroll-x-none']))\n    .toMatchInlineSnapshot(`\n      \".overscroll-x-auto {\n        overscroll-behavior-x: auto;\n      }\n\n      .overscroll-x-contain {\n        overscroll-behavior-x: contain;\n      }\n\n      .overscroll-x-none {\n        overscroll-behavior-x: none;\n      }\"\n    `)\n  expect(\n    await run([\n      'overscroll-x',\n      '-overscroll-x-auto',\n      '-overscroll-x-contain',\n      '-overscroll-x-none',\n      'overscroll-x-auto/foo',\n      'overscroll-x-contain/foo',\n      'overscroll-x-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 9891
+        },
+        {
+            "name": "overscroll-y",
+            "startLine": 9893,
+            "content": "test('overscroll-y', async () => {\n  expect(await run(['overscroll-y-auto', 'overscroll-y-contain', 'overscroll-y-none']))\n    .toMatchInlineSnapshot(`\n      \".overscroll-y-auto {\n        overscroll-behavior-y: auto;\n      }\n\n      .overscroll-y-contain {\n        overscroll-behavior-y: contain;\n      }\n\n      .overscroll-y-none {\n        overscroll-behavior-y: none;\n      }\"\n    `)\n  expect(\n    await run([\n      'overscroll-y',\n      '-overscroll-y-auto',\n      '-overscroll-y-contain',\n      '-overscroll-y-none',\n      'overscroll-y-auto/foo',\n      'overscroll-y-contain/foo',\n      'overscroll-y-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 9919
+        }
+    ]
+}

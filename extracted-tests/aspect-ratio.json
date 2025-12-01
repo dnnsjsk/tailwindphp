@@ -1,0 +1,12 @@
+{
+    "category": "aspect-ratio",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "aspect-ratio",
+            "startLine": 2803,
+            "content": "test('aspect-ratio', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --aspect-video: 16 / 9;\n        }\n        @tailwind utilities;\n      `,\n      ['aspect-video', 'aspect-[10/9]', 'aspect-4/3'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --aspect-video: 16 / 9;\n    }\n\n    .aspect-4\\\\/3 {\n      aspect-ratio: 4 / 3;\n    }\n\n    .aspect-\\\\[10\\\\/9\\\\] {\n      aspect-ratio: 10 / 9;\n    }\n\n    .aspect-video {\n      aspect-ratio: var(--aspect-video);\n    }\"\n  `)\n  expect(\n    await run([\n      'aspect',\n      'aspect-potato',\n      '-aspect-video',\n      '-aspect-[10/9]',\n      'aspect-foo/bar',\n      'aspect-video/foo',\n      'aspect-[10/9]/foo',\n      'aspect-4/3/foo',\n      'aspect--4/3',\n      'aspect--4/-3',\n      'aspect-4/-3',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 2846
+        }
+    ]
+}

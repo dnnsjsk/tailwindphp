@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use function TailwindPHP\Escape\escape;
-use function TailwindPHP\Escape\unescape;
+use function TailwindPHP\Utils\escape;
+use function TailwindPHP\Utils\unescape;
 
 /**
  * Theme - Theme value management and resolution.
@@ -63,6 +63,14 @@ function isIgnoredThemeKey(string $themeKey, string $namespace): bool
  */
 class Theme
 {
+    // Theme option constants as class constants for easier access
+    public const OPTIONS_NONE = THEME_OPTION_NONE;
+    public const OPTIONS_INLINE = THEME_OPTION_INLINE;
+    public const OPTIONS_REFERENCE = THEME_OPTION_REFERENCE;
+    public const OPTIONS_DEFAULT = THEME_OPTION_DEFAULT;
+    public const OPTIONS_STATIC = THEME_OPTION_STATIC;
+    public const OPTIONS_USED = THEME_OPTION_USED;
+
     public ?string $prefix = null;
 
     /**

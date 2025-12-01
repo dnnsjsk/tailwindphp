@@ -1,0 +1,30 @@
+{
+    "category": "space",
+    "testCount": 4,
+    "tests": [
+        {
+            "name": "space-x",
+            "startLine": 8473,
+            "content": "test('space-x', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['space-x-4', 'space-x-[4px]', '-space-x-4'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-space-x-reverse: 0;\n        }\n      }\n    }\n\n    :root, :host {\n      --spacing-4: 1rem;\n    }\n\n    :where(.-space-x-4 > :not(:last-child)) {\n      --tw-space-x-reverse: 0;\n      margin-inline-start: calc(calc(var(--spacing-4) * -1) * var(--tw-space-x-reverse));\n      margin-inline-end: calc(calc(var(--spacing-4) * -1) * calc(1 - var(--tw-space-x-reverse)));\n    }\n\n    :where(.space-x-4 > :not(:last-child)) {\n      --tw-space-x-reverse: 0;\n      margin-inline-start: calc(var(--spacing-4) * var(--tw-space-x-reverse));\n      margin-inline-end: calc(var(--spacing-4) * calc(1 - var(--tw-space-x-reverse)));\n    }\n\n    :where(.space-x-\\\\[4px\\\\] > :not(:last-child)) {\n      --tw-space-x-reverse: 0;\n      margin-inline-start: calc(4px * var(--tw-space-x-reverse));\n      margin-inline-end: calc(4px * calc(1 - var(--tw-space-x-reverse)));\n    }\n\n    @property --tw-space-x-reverse {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 0;\n    }\"\n  `)\n  expect(await run(['space-x', 'space-x-4/foo', 'space-x-[4px]/foo', '-space-x-4/foo'])).toEqual('')\n})",
+            "endLine": 8522
+        },
+        {
+            "name": "space-y",
+            "startLine": 8524,
+            "content": "test('space-y', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['space-y-4', 'space-y-[4px]', '-space-y-4'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-space-y-reverse: 0;\n        }\n      }\n    }\n\n    :root, :host {\n      --spacing-4: 1rem;\n    }\n\n    :where(.-space-y-4 > :not(:last-child)) {\n      --tw-space-y-reverse: 0;\n      margin-block-start: calc(calc(var(--spacing-4) * -1) * var(--tw-space-y-reverse));\n      margin-block-end: calc(calc(var(--spacing-4) * -1) * calc(1 - var(--tw-space-y-reverse)));\n    }\n\n    :where(.space-y-4 > :not(:last-child)) {\n      --tw-space-y-reverse: 0;\n      margin-block-start: calc(var(--spacing-4) * var(--tw-space-y-reverse));\n      margin-block-end: calc(var(--spacing-4) * calc(1 - var(--tw-space-y-reverse)));\n    }\n\n    :where(.space-y-\\\\[4px\\\\] > :not(:last-child)) {\n      --tw-space-y-reverse: 0;\n      margin-block-start: calc(4px * var(--tw-space-y-reverse));\n      margin-block-end: calc(4px * calc(1 - var(--tw-space-y-reverse)));\n    }\n\n    @property --tw-space-y-reverse {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 0;\n    }\"\n  `)\n  expect(await run(['space-y', 'space-y-4/foo', 'space-y-[4px]/foo', '-space-y-4/foo'])).toEqual('')\n})",
+            "endLine": 8573
+        },
+        {
+            "name": "space-x-reverse",
+            "startLine": 8575,
+            "content": "test('space-x-reverse', async () => {\n  expect(await run(['space-x-reverse'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-space-x-reverse: 0;\n        }\n      }\n    }\n\n    :where(.space-x-reverse > :not(:last-child)) {\n      --tw-space-x-reverse: 1;\n    }\n\n    @property --tw-space-x-reverse {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 0;\n    }\"\n  `)\n  expect(await run(['-space-x-reverse', 'space-x-reverse/foo'])).toEqual('')\n})",
+            "endLine": 8596
+        },
+        {
+            "name": "space-y-reverse",
+            "startLine": 8598,
+            "content": "test('space-y-reverse', async () => {\n  expect(await run(['space-y-reverse'])).toMatchInlineSnapshot(`\n    \"@layer properties {\n      @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n        *, :before, :after, ::backdrop {\n          --tw-space-y-reverse: 0;\n        }\n      }\n    }\n\n    :where(.space-y-reverse > :not(:last-child)) {\n      --tw-space-y-reverse: 1;\n    }\n\n    @property --tw-space-y-reverse {\n      syntax: \"*\";\n      inherits: false;\n      initial-value: 0;\n    }\"\n  `)\n  expect(await run(['-space-y-reverse', 'space-y-reverse/foo'])).toEqual('')\n})",
+            "endLine": 8619
+        }
+    ]
+}

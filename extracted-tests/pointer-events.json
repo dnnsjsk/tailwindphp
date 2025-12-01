@@ -1,0 +1,12 @@
+{
+    "category": "pointer-events",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "pointer-events",
+            "startLine": 40,
+            "content": "test('pointer-events', async () => {\n  expect(await run(['pointer-events-none', 'pointer-events-auto'])).toMatchInlineSnapshot(`\n    \".pointer-events-auto {\n      pointer-events: auto;\n    }\n\n    .pointer-events-none {\n      pointer-events: none;\n    }\"\n  `)\n  expect(\n    await run([\n      '-pointer-events-none',\n      '-pointer-events-auto',\n      'pointer-events-[var(--value)]',\n      'pointer-events-none/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 58
+        }
+    ]
+}

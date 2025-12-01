@@ -1,0 +1,12 @@
+{
+    "category": "truncate",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "truncate",
+            "startLine": 9936,
+            "content": "test('truncate', async () => {\n  expect(await run(['truncate'])).toMatchInlineSnapshot(`\n    \".truncate {\n      text-overflow: ellipsis;\n      white-space: nowrap;\n      overflow: hidden;\n    }\"\n  `)\n  expect(await run(['-truncate', 'truncate/foo'])).toEqual('')\n})",
+            "endLine": 9945
+        }
+    ]
+}

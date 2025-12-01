@@ -1,0 +1,533 @@
+{
+    "totalTests": 267,
+    "totalLines": 28711,
+    "categories": {
+        "accessibility": {
+            "count": 2,
+            "tests": [
+                "sr-only",
+                "not-sr-only"
+            ]
+        },
+        "pointer-events": {
+            "count": 1,
+            "tests": [
+                "pointer-events"
+            ]
+        },
+        "other": {
+            "count": 5,
+            "tests": [
+                "visibility",
+                "indent",
+                "decoration",
+                "contain",
+                "underline-offset"
+            ]
+        },
+        "position": {
+            "count": 4,
+            "tests": [
+                "position",
+                "list-style-position",
+                "bg-position",
+                "mask-position"
+            ]
+        },
+        "inset": {
+            "count": 18,
+            "tests": [
+                "inset",
+                "inset-x",
+                "inset-y",
+                "start",
+                "end",
+                "top",
+                "right",
+                "bottom",
+                "left",
+                "col-start",
+                "col-end",
+                "row-start",
+                "row-end",
+                "scroll-snap-stop",
+                "bg-blend",
+                "mix-blend",
+                "inset-shadow",
+                "inset-ring"
+            ]
+        },
+        "isolation": {
+            "count": 1,
+            "tests": [
+                "isolation"
+            ]
+        },
+        "z-index": {
+            "count": 11,
+            "tests": [
+                "z-index",
+                "box-sizing",
+                "field-sizing",
+                "size",
+                "translate-z",
+                "rotate-z",
+                "scale-z",
+                "touch-pinch-zoom",
+                "resize",
+                "bg-size",
+                "mask-size"
+            ]
+        },
+        "order": {
+            "count": 9,
+            "tests": [
+                "order",
+                "margin sort order",
+                "border-spacing",
+                "border-spacing-x",
+                "border-spacing-y",
+                "divide-x with custom default border width",
+                "divide-y with custom default border width",
+                "border-style",
+                "border with custom default border width"
+            ]
+        },
+        "grid": {
+            "count": 3,
+            "tests": [
+                "col",
+                "auto-cols",
+                "divide-color"
+            ]
+        },
+        "sizing": {
+            "count": 21,
+            "tests": [
+                "row",
+                "width",
+                "min-width",
+                "max-width",
+                "height",
+                "min-height",
+                "max-height",
+                "skew",
+                "skew-x",
+                "skew-y",
+                "touch-action",
+                "touch-pan",
+                "color-scheme",
+                "auto-rows",
+                "font-stretch",
+                "placeholder",
+                "transition-behavior",
+                "will-change",
+                "font-smoothing",
+                "text-shadow",
+                "shadow"
+            ]
+        },
+        "float": {
+            "count": 1,
+            "tests": [
+                "float"
+            ]
+        },
+        "clear": {
+            "count": 1,
+            "tests": [
+                "clear"
+            ]
+        },
+        "margin": {
+            "count": 39,
+            "tests": [
+                "margin",
+                "mx",
+                "my",
+                "mt",
+                "ms",
+                "me",
+                "mr",
+                "mb",
+                "ml",
+                "transform",
+                "list-image",
+                "from",
+                "mask",
+                "mask-t-from",
+                "mask-t-to",
+                "mask-r-from",
+                "mask-r-to",
+                "mask-b-from",
+                "mask-b-to",
+                "mask-l-from",
+                "mask-l-to",
+                "mask-x-from",
+                "mask-x-to",
+                "mask-y-from",
+                "mask-y-to",
+                "mask-linear",
+                "mask-linear-from",
+                "mask-linear-to",
+                "mask-radial",
+                "mask-radial-at",
+                "mask-radial-from",
+                "mask-radial-to",
+                "mask-conic",
+                "mask-conic-from",
+                "mask-conic-to",
+                "mask-origin",
+                "text-transform",
+                "animate",
+                "font-variant-numeric"
+            ]
+        },
+        "padding": {
+            "count": 18,
+            "tests": [
+                "line-clamp",
+                "caption-side",
+                "perspective-origin",
+                "perspective",
+                "appearance",
+                "bg-clip",
+                "mask-clip",
+                "p",
+                "px",
+                "py",
+                "pt",
+                "ps",
+                "pe",
+                "pr",
+                "pb",
+                "pl",
+                "backdrop-filter",
+                "opacity"
+            ]
+        },
+        "display": {
+            "count": 10,
+            "tests": [
+                "display",
+                "flex",
+                "flex-shrink",
+                "flex-grow",
+                "flex-basis",
+                "grid-flow",
+                "grid-cols",
+                "grid-rows",
+                "flex-direction",
+                "flex-wrap"
+            ]
+        },
+        "aspect-ratio": {
+            "count": 1,
+            "tests": [
+                "aspect-ratio"
+            ]
+        },
+        "table": {
+            "count": 1,
+            "tests": [
+                "table-layout"
+            ]
+        },
+        "visibility": {
+            "count": 1,
+            "tests": [
+                "border-collapse"
+            ]
+        },
+        "transform": {
+            "count": 13,
+            "tests": [
+                "origin",
+                "translate",
+                "translate-x",
+                "translate-y",
+                "translate-3d",
+                "rotate",
+                "rotate-x",
+                "rotate-y",
+                "scale",
+                "scale-3d",
+                "scale-x",
+                "scale-y",
+                "bg-origin"
+            ]
+        },
+        "cursor": {
+            "count": 1,
+            "tests": [
+                "cursor"
+            ]
+        },
+        "select": {
+            "count": 1,
+            "tests": [
+                "select"
+            ]
+        },
+        "scroll": {
+            "count": 22,
+            "tests": [
+                "scroll-snap-type",
+                "--tw-scroll-snap-strictness",
+                "scroll-snap-align",
+                "scroll-m",
+                "scroll-mx",
+                "scroll-my",
+                "scroll-ms",
+                "scroll-me",
+                "scroll-mt",
+                "scroll-mr",
+                "scroll-mb",
+                "scroll-ml",
+                "scroll-p",
+                "scroll-px",
+                "scroll-py",
+                "scroll-ps",
+                "scroll-pe",
+                "scroll-pt",
+                "scroll-pr",
+                "scroll-pb",
+                "scroll-pl",
+                "scroll-behavior"
+            ]
+        },
+        "text": {
+            "count": 7,
+            "tests": [
+                "list",
+                "font",
+                "font-style",
+                "text-decoration-line",
+                "leading",
+                "tracking",
+                "text"
+            ]
+        },
+        "columns": {
+            "count": 1,
+            "tests": [
+                "columns"
+            ]
+        },
+        "word-break": {
+            "count": 4,
+            "tests": [
+                "break-before",
+                "break-inside",
+                "break-after",
+                "word-break"
+            ]
+        },
+        "content": {
+            "count": 3,
+            "tests": [
+                "place-content",
+                "align-content",
+                "content"
+            ]
+        },
+        "place": {
+            "count": 2,
+            "tests": [
+                "place-items",
+                "place-self"
+            ]
+        },
+        "align": {
+            "count": 7,
+            "tests": [
+                "items",
+                "justify",
+                "justify-items",
+                "self",
+                "justify-self",
+                "text-align",
+                "align"
+            ]
+        },
+        "gap": {
+            "count": 3,
+            "tests": [
+                "gap",
+                "gap-x",
+                "gap-y"
+            ]
+        },
+        "space": {
+            "count": 4,
+            "tests": [
+                "space-x",
+                "space-y",
+                "space-x-reverse",
+                "space-y-reverse"
+            ]
+        },
+        "divide": {
+            "count": 5,
+            "tests": [
+                "divide-x",
+                "divide-y",
+                "divide-x-reverse",
+                "divide-y-reverse",
+                "divide-style"
+            ]
+        },
+        "accent": {
+            "count": 1,
+            "tests": [
+                "accent"
+            ]
+        },
+        "caret": {
+            "count": 1,
+            "tests": [
+                "caret"
+            ]
+        },
+        "overflow": {
+            "count": 5,
+            "tests": [
+                "overflow",
+                "overflow-x",
+                "overflow-y",
+                "text-overflow",
+                "overflow-wrap"
+            ]
+        },
+        "overscroll": {
+            "count": 3,
+            "tests": [
+                "overscroll",
+                "overscroll-x",
+                "overscroll-y"
+            ]
+        },
+        "truncate": {
+            "count": 1,
+            "tests": [
+                "truncate"
+            ]
+        },
+        "hyphens": {
+            "count": 1,
+            "tests": [
+                "hyphens"
+            ]
+        },
+        "whitespace": {
+            "count": 1,
+            "tests": [
+                "whitespace"
+            ]
+        },
+        "text-wrap": {
+            "count": 1,
+            "tests": [
+                "text-wrap"
+            ]
+        },
+        "border": {
+            "count": 15,
+            "tests": [
+                "rounded",
+                "rounded-s",
+                "rounded-e",
+                "rounded-t",
+                "rounded-r",
+                "rounded-b",
+                "rounded-l",
+                "rounded-ss",
+                "rounded-se",
+                "rounded-ee",
+                "rounded-es",
+                "rounded-tl",
+                "rounded-tr",
+                "rounded-br",
+                "rounded-bl"
+            ]
+        },
+        "color": {
+            "count": 1,
+            "tests": [
+                "bg"
+            ]
+        },
+        "gradient": {
+            "count": 2,
+            "tests": [
+                "via",
+                "to"
+            ]
+        },
+        "box-decoration": {
+            "count": 1,
+            "tests": [
+                "box-decoration"
+            ]
+        },
+        "fill": {
+            "count": 1,
+            "tests": [
+                "fill"
+            ]
+        },
+        "stroke": {
+            "count": 1,
+            "tests": [
+                "stroke"
+            ]
+        },
+        "object": {
+            "count": 1,
+            "tests": [
+                "object"
+            ]
+        },
+        "filter": {
+            "count": 1,
+            "tests": [
+                "filter"
+            ]
+        },
+        "transition": {
+            "count": 4,
+            "tests": [
+                "transition",
+                "delay",
+                "duration",
+                "ease"
+            ]
+        },
+        "forced-color": {
+            "count": 1,
+            "tests": [
+                "forced-color-adjust"
+            ]
+        },
+        "outline": {
+            "count": 2,
+            "tests": [
+                "outline",
+                "outline-offset"
+            ]
+        },
+        "ring": {
+            "count": 2,
+            "tests": [
+                "ring",
+                "ring-offset"
+            ]
+        },
+        "container": {
+            "count": 1,
+            "tests": [
+                "@container"
+            ]
+        }
+    }
+}

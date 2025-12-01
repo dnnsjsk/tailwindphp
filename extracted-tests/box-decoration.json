@@ -1,0 +1,12 @@
+{
+    "category": "box-decoration",
+    "testCount": 1,
+    "tests": [
+        {
+            "name": "box-decoration",
+            "startLine": 19350,
+            "content": "test('box-decoration', async () => {\n  expect(await run(['box-decoration-slice', 'box-decoration-clone'])).toMatchInlineSnapshot(`\n    \".box-decoration-clone {\n      -webkit-box-decoration-break: clone;\n      box-decoration-break: clone;\n    }\n\n    .box-decoration-slice {\n      -webkit-box-decoration-break: slice;\n      box-decoration-break: slice;\n    }\"\n  `)\n  expect(\n    await run([\n      'box',\n      'box-decoration',\n      '-box-decoration-slice',\n      '-box-decoration-clone',\n      'box-decoration-slice/foo',\n      'box-decoration-clone/foo',\n    ]),\n  ).toEqual('')\n})",
+            "endLine": 19372
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "category": "gap",
+    "testCount": 3,
+    "tests": [
+        {
+            "name": "gap",
+            "startLine": 8388,
+            "content": "test('gap', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['gap-4', 'gap-[4px]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .gap-4 {\n      gap: var(--spacing-4);\n    }\n\n    .gap-\\\\[4px\\\\] {\n      gap: 4px;\n    }\"\n  `)\n  expect(await run(['gap', '-gap-4', '-gap-[4px]', 'gap-4/foo', 'gap-[4px]/foo'])).toEqual('')\n})",
+            "endLine": 8413
+        },
+        {
+            "name": "gap-x",
+            "startLine": 8415,
+            "content": "test('gap-x', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['gap-x-4', 'gap-x-[4px]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .gap-x-4 {\n      column-gap: var(--spacing-4);\n    }\n\n    .gap-x-\\\\[4px\\\\] {\n      column-gap: 4px;\n    }\"\n  `)\n  expect(\n    await run(['gap-x', '-gap-x-4', '-gap-x-[4px]', 'gap-x-4/foo', 'gap-x-[4px]/foo']),\n  ).toEqual('')\n})",
+            "endLine": 8442
+        },
+        {
+            "name": "gap-y",
+            "startLine": 8444,
+            "content": "test('gap-y', async () => {\n  expect(\n    await compileCss(\n      css`\n        @theme {\n          --spacing-4: 1rem;\n        }\n        @tailwind utilities;\n      `,\n      ['gap-y-4', 'gap-y-[4px]'],\n    ),\n  ).toMatchInlineSnapshot(`\n    \":root, :host {\n      --spacing-4: 1rem;\n    }\n\n    .gap-y-4 {\n      row-gap: var(--spacing-4);\n    }\n\n    .gap-y-\\\\[4px\\\\] {\n      row-gap: 4px;\n    }\"\n  `)\n  expect(\n    await run(['gap-y', '-gap-y-4', '-gap-y-[4px]', 'gap-y-4/foo', 'gap-y-[4px]/foo']),\n  ).toEqual('')\n})",
+            "endLine": 8471
+        }
+    ]
+}
