@@ -28,30 +28,32 @@ class effects extends TestCase
     #[Test]
     public function opacity_values(): void
     {
+        // When theme values exist (--opacity-0, --opacity-50, --opacity-100), use them
         $css = TestHelper::run(['opacity-0']);
-        $this->assertStringContainsString('opacity: 0;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-0);', $css);
 
         $css = TestHelper::run(['opacity-50']);
-        $this->assertStringContainsString('opacity: 0.5;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-50);', $css);
 
         $css = TestHelper::run(['opacity-100']);
-        $this->assertStringContainsString('opacity: 1;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-100);', $css);
     }
 
     #[Test]
     public function opacity_intermediate_values(): void
     {
+        // When theme values exist, use CSS variables
         $css = TestHelper::run(['opacity-5']);
-        $this->assertStringContainsString('opacity: 0.05;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-5);', $css);
 
         $css = TestHelper::run(['opacity-25']);
-        $this->assertStringContainsString('opacity: 0.25;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-25);', $css);
 
         $css = TestHelper::run(['opacity-75']);
-        $this->assertStringContainsString('opacity: 0.75;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-75);', $css);
 
         $css = TestHelper::run(['opacity-95']);
-        $this->assertStringContainsString('opacity: 0.95;', $css);
+        $this->assertStringContainsString('opacity: var(--opacity-95);', $css);
     }
 
     #[Test]

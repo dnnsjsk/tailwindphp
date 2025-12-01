@@ -345,9 +345,11 @@ function createUtilities(Theme $theme): Utilities
     // Register border utilities
     \TailwindPHP\Utilities\registerBorderUtilities($builder);
 
+    // Register effects utilities
+    \TailwindPHP\Utilities\registerEffectsUtilities($builder);
+
     // TODO: Register all other utility categories
     // - Backgrounds
-    // - Effects
     // - Filters
     // - Tables
     // - Transitions & Animation
