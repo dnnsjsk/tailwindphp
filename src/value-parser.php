@@ -268,3 +268,177 @@ function parse(string $input): array
 
     return $ast;
 }
+
+// Walk action kinds (matching TailwindPHP\walk.php)
+const VP_WALK_CONTINUE = 0;
+const VP_WALK_SKIP = 1;
+const VP_WALK_STOP = 2;
+const VP_WALK_REPLACE = 3;
+const VP_WALK_REPLACE_SKIP = 4;
+const VP_WALK_REPLACE_STOP = 5;
+
+/**
+ * WalkAction helper class for ValueParser.
+ */
+class WalkAction
+{
+    public const Continue = ['kind' => VP_WALK_CONTINUE];
+    public const Skip = ['kind' => VP_WALK_SKIP];
+    public const Stop = ['kind' => VP_WALK_STOP];
+
+    public static function Replace(array $nodes): array
+    {
+        if (!empty($nodes) && !isset($nodes[0])) {
+            $nodes = [$nodes];
+        }
+        return ['kind' => VP_WALK_REPLACE, 'nodes' => $nodes];
+    }
+
+    public static function ReplaceSkip(array $nodes): array
+    {
+        if (!empty($nodes) && !isset($nodes[0])) {
+            $nodes = [$nodes];
+        }
+        return ['kind' => VP_WALK_REPLACE_SKIP, 'nodes' => $nodes];
+    }
+
+    public static function ReplaceStop(array $nodes): array
+    {
+        if (!empty($nodes) && !isset($nodes[0])) {
+            $nodes = [$nodes];
+        }
+        return ['kind' => VP_WALK_REPLACE_STOP, 'nodes' => $nodes];
+    }
+}
+
+/**
+ * Walk through a value AST, visiting each node.
+ *
+ * @param array &$ast The AST to walk (modified in-place)
+ * @param callable|array $hooks Either a function (enter callback) or array with 'enter' and/or 'exit' callbacks
+ * @return void
+ */
+function walk(array &$ast, callable|array $hooks): void
+{
+    if (is_callable($hooks)) {
+        walkImplementation($ast, $hooks);
+    } else {
+        walkImplementation(
+            $ast,
+            $hooks['enter'] ?? null,
+            $hooks['exit'] ?? null
+        );
+    }
+}
+
+/**
+ * Internal walk implementation for ValueParser.
+ */
+function walkImplementation(array &$ast, ?callable $enter = null, ?callable $exit = null): void
+{
+    $stack = [[&$ast, 0, null]];
+
+    while (count($stack) > 0) {
+        $depth = count($stack) - 1;
+        $frame = &$stack[$depth];
+        $nodes = &$frame[0];
+        $offset = $frame[1];
+        $parent = $frame[2];
+
+        // Done with this level
+        if ($offset >= 0 && $offset >= count($nodes)) {
+            array_pop($stack);
+            continue;
+        }
+
+        if ($offset < 0 && (~$offset) >= count($nodes)) {
+            array_pop($stack);
+            continue;
+        }
+
+        // Enter phase (offsets are non-negative)
+        if ($offset >= 0) {
+            $node = &$nodes[$offset];
+            $result = $enter !== null ? $enter($node) : WalkAction::Continue;
+            if ($result === null) {
+                $result = WalkAction::Continue;
+            }
+
+            switch ($result['kind']) {
+                case VP_WALK_CONTINUE:
+                    if (isset($nodes[$offset]['nodes']) && count($nodes[$offset]['nodes']) > 0) {
+                        $stack[] = [&$nodes[$offset]['nodes'], 0, $nodes[$offset]];
+                    }
+                    $frame[1] = ~$offset;
+                    unset($node);
+                    continue 2;
+
+                case VP_WALK_STOP:
+                    return;
+
+                case VP_WALK_SKIP:
+                    $frame[1] = ~$offset;
+                    unset($node);
+                    continue 2;
+
+                case VP_WALK_REPLACE:
+                    unset($node);
+                    array_splice($nodes, $offset, 1, $result['nodes']);
+                    continue 2;
+
+                case VP_WALK_REPLACE_STOP:
+                    unset($node);
+                    array_splice($nodes, $offset, 1, $result['nodes']);
+                    return;
+
+                case VP_WALK_REPLACE_SKIP:
+                    unset($node);
+                    array_splice($nodes, $offset, 1, $result['nodes']);
+                    $frame[1] = $offset + count($result['nodes']);
+                    continue 2;
+
+                default:
+                    throw new \Exception("Invalid WalkAction kind in enter: {$result['kind']}");
+            }
+        }
+
+        // Exit phase
+        $index = ~$offset;
+        $node = &$nodes[$index];
+
+        $result = $exit !== null ? $exit($node) : WalkAction::Continue;
+        if ($result === null) {
+            $result = WalkAction::Continue;
+        }
+
+        switch ($result['kind']) {
+            case VP_WALK_CONTINUE:
+                $frame[1] = $index + 1;
+                unset($node);
+                continue 2;
+
+            case VP_WALK_STOP:
+                return;
+
+            case VP_WALK_REPLACE:
+                unset($node);
+                array_splice($nodes, $index, 1, $result['nodes']);
+                $frame[1] = $index + count($result['nodes']);
+                continue 2;
+
+            case VP_WALK_REPLACE_STOP:
+                unset($node);
+                array_splice($nodes, $index, 1, $result['nodes']);
+                return;
+
+            case VP_WALK_REPLACE_SKIP:
+                unset($node);
+                array_splice($nodes, $index, 1, $result['nodes']);
+                $frame[1] = $index + count($result['nodes']);
+                continue 2;
+
+            default:
+                throw new \Exception("Invalid WalkAction kind in exit: {$result['kind']}");
+        }
+    }
+}

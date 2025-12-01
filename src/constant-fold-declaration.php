@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use TailwindPHP\Utils\dimensions;
+use TailwindPHP\Utils\Dimensions;
 
 /**
  * Constant Fold Declaration
@@ -66,9 +66,9 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                     return;
                 }
 
-                $lhs = dimensions($valueNode['nodes'][0]['value']);
+                $lhs = Dimensions::get($valueNode['nodes'][0]['value']);
                 $operator = $valueNode['nodes'][2]['value'];
-                $rhs = dimensions($valueNode['nodes'][4]['value']);
+                $rhs = Dimensions::get($valueNode['nodes'][4]['value']);
 
                 // Nullify entire expression when multiplying by `0`
                 if (
@@ -119,7 +119,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
 
                     case '/':
                         if (
-                            $rhs[0] !== 0 && // Don't divide by zero
+                            $rhs[0] != 0 && // Don't divide by zero (use == for float comparison)
                             (($lhs[1] === null && $rhs[1] === null) || // Unitless / Unitless
                                 ($lhs[1] !== null && $rhs[1] === null)) // Unit / Unitless
                         ) {
@@ -146,18 +146,28 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
  */
 function canonicalizeDimension(string $input, ?int $rem = null): ?string
 {
-    $dimension = dimensions($input);
+    $dimension = Dimensions::get($input);
     if ($dimension === null) {
         return null;
     }
 
     [$value, $unit] = $dimension;
+
+    // Normalize negative zero to zero
+    if ($value == 0.0) {
+        $value = 0.0; // This removes the -0 sign
+    }
+
     if ($unit === null) {
-        return (string) $value; // Already unitless
+        // For unitless values, return as integer if possible
+        if ($value == 0.0) {
+            return '0';
+        }
+        return (string) (int) $value === (string) $value ? (string) (int) $value : (string) $value;
     }
 
     // Replace `0<length>` units with just `0`
-    if ($value === 0.0 && isLength($input)) {
+    if ($value == 0.0 && isLength($input)) {
         return '0';
     }
 
@@ -180,20 +190,34 @@ function canonicalizeDimension(string $input, ?int $rem = null): ?string
             return $rem !== null ? ($value * $rem) . 'px' : null;
 
         // <angle> to deg
+        case 'deg':
+            return ($value == 0.0 ? '0' : $value) . 'deg';
         case 'grad':
-            return ($value * 0.9) . 'deg';
+            $result = $value * 0.9;
+            return ($result == 0.0 ? '0' : $result) . 'deg';
         case 'rad':
-            return ($value * 180 / M_PI) . 'deg';
+            $result = $value * 180 / M_PI;
+            return ($result == 0.0 ? '0' : $result) . 'deg';
         case 'turn':
-            return ($value * 360) . 'deg';
+            $result = $value * 360;
+            return ($result == 0.0 ? '0' : $result) . 'deg';
 
         // <time> to s
+        case 's':
+            return ($value == 0.0 ? '0' : $value) . 's';
         case 'ms':
-            return ($value / 1000) . 's';
+            $result = $value / 1000;
+            return ($result == 0.0 ? '0' : $result) . 's';
 
         // <frequency> to hz
         case 'khz':
             return ($value * 1000) . 'hz';
+
+        // <percentage> and <flex>
+        case '%':
+            return ($value == 0.0 ? '0' : $value) . '%';
+        case 'fr':
+            return ($value == 0.0 ? '0' : $value) . 'fr';
 
         default:
             return "{$value}{$unit}"; // No canonicalization possible
@@ -208,7 +232,7 @@ function canonicalizeDimension(string $input, ?int $rem = null): ?string
  */
 function isLength(string $input): bool
 {
-    $dimension = dimensions($input);
+    $dimension = Dimensions::get($input);
     if ($dimension === null) {
         return false;
     }

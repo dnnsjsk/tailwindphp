@@ -44,6 +44,11 @@ const UNDERSCORE = 95;
  */
 function parse(string $input): ?array
 {
+    // Empty string or too short
+    if (strlen($input) < 3) {
+        return null;
+    }
+
     // Must start with `[` and end with `]`
     if ($input[0] !== '[' || $input[strlen($input) - 1] !== ']') {
         return null;
