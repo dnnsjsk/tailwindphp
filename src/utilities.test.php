@@ -57,100 +57,108 @@ class utilities extends TestCase
         $content = file_get_contents($filePath);
         $tests = [];
 
-        $lines = explode("\n", $content);
-        $inTest = false;
-        $braceCount = 0;
-        $testBody = '';
-        $currentTestName = '';
-        $testBodies = [];
+        // Find all test() blocks using regex
+        preg_match_all('/test\([\'"]([^\'"]+)[\'"],\s*async\s*\(\)\s*=>\s*\{/s', $content, $testMatches, PREG_OFFSET_CAPTURE);
 
-        foreach ($lines as $line) {
-            if (preg_match('/^test\([\'"]([^\'"]+)[\'"]/', $line, $m)) {
-                $inTest = true;
-                $currentTestName = $m[1];
-                $braceCount = substr_count($line, '{') - substr_count($line, '}');
-                $testBody = $line . "\n";
-                continue;
+        foreach ($testMatches[0] as $i => $match) {
+            $testName = $testMatches[1][$i][0];
+            $testStart = $match[1];
+
+            // Find the end of this test block by counting braces
+            $braceCount = 1;
+            $pos = $testStart + strlen($match[0]);
+
+            while ($pos < strlen($content) && $braceCount > 0) {
+                $char = $content[$pos];
+                if ($char === '{') $braceCount++;
+                elseif ($char === '}') $braceCount--;
+                $pos++;
             }
 
-            if ($inTest) {
-                $testBody .= $line . "\n";
-                $braceCount += substr_count($line, '{') - substr_count($line, '}');
+            $testBody = substr($content, $testStart, $pos - $testStart);
 
-                if ($braceCount <= 0) {
-                    $testBodies[$currentTestName] = $testBody;
-                    $inTest = false;
-                    $testBody = '';
-                }
-            }
-        }
-
-        foreach ($testBodies as $testName => $testBody) {
-            $pos = 0;
-            $testIndex = 0;
-
-            while (($expectPos = strpos($testBody, 'expect(', $pos)) !== false) {
-                $runPos = strpos($testBody, 'await run([', $expectPos);
-                $compilePos = strpos($testBody, 'await compileCss(', $expectPos);
-
-                $isRun = $runPos !== false && ($compilePos === false || $runPos < $compilePos);
-                $isCompile = $compilePos !== false && ($runPos === false || $compilePos < $runPos);
-
-                if ($isRun && $runPos < $expectPos + 50) {
-                    $arrayStart = strpos($testBody, '[', $runPos);
-                    $arrayEnd = self::findMatchingBracket($testBody, $arrayStart, '[', ']');
-
-                    if ($arrayEnd !== null) {
-                        $classesStr = substr($testBody, $arrayStart + 1, $arrayEnd - $arrayStart - 1);
-                        $classes = self::parseClassArray($classesStr);
-                        $afterArray = substr($testBody, $arrayEnd, 200);
-
-                        if (preg_match('/\)\s*\)\s*\.toMatchInlineSnapshot\s*\(\s*`/', $afterArray)) {
-                            $snapshotStart = strpos($testBody, '.toMatchInlineSnapshot(`', $arrayEnd);
-                            if ($snapshotStart !== false) {
-                                $cssStart = strpos($testBody, '`', $snapshotStart + 20) + 1;
-                                $cssEnd = strpos($testBody, '`)', $cssStart);
-                                if ($cssEnd !== false) {
-                                    $expectedCss = substr($testBody, $cssStart, $cssEnd - $cssStart);
-                                    if (!empty($classes)) {
-                                        $tests[] = [
-                                            'name' => $testName,
-                                            'index' => $testIndex,
-                                            'classes' => $classes,
-                                            'expected' => self::cleanExpectedCss($expectedCss),
-                                            'type' => 'match',
-                                        ];
-                                        $testIndex++;
-                                    }
-                                }
-                            }
-                        } elseif (preg_match('/\)\s*\)\s*\.toEqual\s*\(\s*[\'"][\'"]/', $afterArray)) {
-                            if (!empty($classes)) {
-                                $tests[] = [
-                                    'name' => $testName,
-                                    'index' => $testIndex,
-                                    'classes' => $classes,
-                                    'expected' => '',
-                                    'type' => 'empty',
-                                ];
-                                $testIndex++;
-                            }
-                        }
-                    }
-                    $pos = $arrayEnd !== null ? $arrayEnd : $expectPos + 10;
-                } elseif ($isCompile && $compilePos < $expectPos + 50) {
-                    $pos = $compilePos + 20;
-                    $testIndex++;
-                } else {
-                    $pos = $expectPos + 10;
-                }
-            }
+            // Parse run() calls from this test body
+            $runTests = self::parseRunCalls($testBody, $testName);
+            $tests = array_merge($tests, $runTests);
         }
 
         return $tests;
     }
 
-    private static function findMatchingBracket(string $str, int $start, string $open, string $close): ?int
+    /**
+     * Parse all run() calls from a test body.
+     */
+    private static function parseRunCalls(string $testBody, string $testName): array
+    {
+        $tests = [];
+        $testIndex = 0;
+        $offset = 0;
+
+        while (($runPos = strpos($testBody, 'await run([', $offset)) !== false) {
+            $arrayStart = $runPos + strlen('await run(');
+            $arrayEnd = self::findMatchingBracketWithStrings($testBody, $arrayStart);
+
+            if ($arrayEnd === null) {
+                $offset = $runPos + 10;
+                continue;
+            }
+
+            $classesStr = substr($testBody, $arrayStart + 1, $arrayEnd - $arrayStart - 1);
+            $classes = self::parseClassArray($classesStr);
+
+            if (empty($classes)) {
+                $offset = $arrayEnd;
+                continue;
+            }
+
+            // Look for the assertion after the run() call
+            $afterArray = substr($testBody, $arrayEnd, 500);
+
+            // Check for toMatchInlineSnapshot
+            if (preg_match('/\)\s*,?\s*\)\s*\.toMatchInlineSnapshot\s*\(\s*`/s', $afterArray) ||
+                preg_match('/\)\s*\)\s*\n\s*\.toMatchInlineSnapshot\s*\(\s*`/s', $afterArray)) {
+
+                $snapshotPos = strpos($testBody, '.toMatchInlineSnapshot(`', $arrayEnd);
+                if ($snapshotPos !== false) {
+                    $backtickStart = strpos($testBody, '`', $snapshotPos) + 1;
+                    $backtickEnd = self::findClosingBacktick($testBody, $backtickStart);
+
+                    if ($backtickEnd !== null) {
+                        $expectedCss = substr($testBody, $backtickStart, $backtickEnd - $backtickStart);
+                        $tests[] = [
+                            'name' => $testName,
+                            'index' => $testIndex++,
+                            'classes' => $classes,
+                            'expected' => self::cleanExpectedCss($expectedCss),
+                            'type' => 'match',
+                        ];
+                        $offset = $backtickEnd;
+                        continue;
+                    }
+                }
+            }
+
+            // Check for toEqual('')
+            if (preg_match('/\)\s*,?\s*\)\s*\.toEqual\s*\(\s*[\'"][\'"]/', $afterArray)) {
+                $tests[] = [
+                    'name' => $testName,
+                    'index' => $testIndex++,
+                    'classes' => $classes,
+                    'expected' => '',
+                    'type' => 'empty',
+                ];
+            }
+
+            $offset = $arrayEnd;
+        }
+
+        return $tests;
+    }
+
+    /**
+     * Find matching bracket, handling strings properly.
+     */
+    private static function findMatchingBracketWithStrings(string $str, int $start): ?int
     {
         $count = 1;
         $pos = $start + 1;
@@ -158,12 +166,50 @@ class utilities extends TestCase
 
         while ($pos < $len && $count > 0) {
             $char = $str[$pos];
-            if ($char === $open) $count++;
-            elseif ($char === $close) $count--;
+
+            // Skip strings
+            if ($char === "'" || $char === '"') {
+                $quote = $char;
+                $pos++;
+                while ($pos < $len && $str[$pos] !== $quote) {
+                    if ($str[$pos] === '\\') $pos++;
+                    $pos++;
+                }
+            } elseif ($char === '[') {
+                $count++;
+            } elseif ($char === ']') {
+                $count--;
+            }
             $pos++;
         }
 
         return $count === 0 ? $pos - 1 : null;
+    }
+
+    /**
+     * Find the closing backtick for a template literal.
+     */
+    private static function findClosingBacktick(string $str, int $start): ?int
+    {
+        $pos = $start;
+        $len = strlen($str);
+
+        while ($pos < $len) {
+            $char = $str[$pos];
+
+            if ($char === '\\' && $pos + 1 < $len) {
+                $pos += 2;
+                continue;
+            }
+
+            if ($char === '`') {
+                return $pos;
+            }
+
+            $pos++;
+        }
+
+        return null;
     }
 
     private static function parseClassArray(string $str): array
