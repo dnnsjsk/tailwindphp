@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TailwindPHP\Utils;
+
+/**
+ * Topologically sort a dependency graph.
+ *
+ * @template TKey
+ * @param array<TKey, array<TKey>> $graph Map of node to its dependencies
+ * @param callable(array<TKey>, TKey): void $onCircularDependency Callback for circular dependencies
+ * @return array<TKey>
+ */
+function topologicalSort(array $graph, callable $onCircularDependency): array
+{
+    $seen = [];
+    $wip = [];
+    $sorted = [];
+
+    $visit = function ($node, array $path = []) use (&$visit, &$graph, &$seen, &$wip, &$sorted, $onCircularDependency): void {
+        if (!array_key_exists($node, $graph)) {
+            return;
+        }
+        if (isset($seen[$node])) {
+            return;
+        }
+
+        // Circular dependency detected
+        if (isset($wip[$node])) {
+            $onCircularDependency($path, $node);
+            return;
+        }
+
+        $wip[$node] = true;
+
+        foreach ($graph[$node] ?? [] as $dependency) {
+            $path[] = $node;
+            $visit($dependency, $path);
+            array_pop($path);
+        }
+
+        $seen[$node] = true;
+        unset($wip[$node]);
+
+        $sorted[] = $node;
+    };
+
+    foreach (array_keys($graph) as $node) {
+        $visit($node);
+    }
+
+    return $sorted;
+}

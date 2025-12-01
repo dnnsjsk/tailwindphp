@@ -211,30 +211,31 @@ $css = TailwindPHP::generate($html, '
 
 ## Porting Phases
 
-### Phase 1: Project Setup
-- [ ] Create `composer.json` with PSR-4 autoloading
-- [ ] Set up PHPUnit
-- [ ] Create directory structure
-- [ ] Copy static CSS files (preflight.css, theme.css)
+### Phase 1: Project Setup ✅
+- [x] Create `composer.json` with PSR-4 autoloading
+- [x] Set up PHPUnit
+- [x] Create directory structure
+- [x] Copy static CSS files (preflight.css, theme.css)
 
 ### Phase 2: Foundation (Bottom-up)
 Port in dependency order:
 
-1. **Utils first** (no dependencies)
-   - [ ] `utils/segment.php` + test
-   - [ ] `utils/escape.php` + test
-   - [ ] `utils/default-map.php`
-   - [ ] `utils/decode-arbitrary-value.php` + test
-   - [ ] `utils/to-key-path.php` + test
-   - [ ] `utils/brace-expansion.php` + test
-   - [ ] `utils/compare.php` + test
-   - [ ] `utils/compare-breakpoints.php`
-   - [ ] `utils/dimensions.php`
-   - [ ] `utils/infer-data-type.php`
-   - [ ] `utils/is-valid-arbitrary.php`
-   - [ ] `utils/math-operators.php`
-   - [ ] `utils/replace-shadow-colors.php` + test
-   - [ ] `utils/topological-sort.php`
+1. **Utils first** (no dependencies) ✅
+   - [x] `utils/segment.php` + test
+   - [x] `utils/escape.php` + test
+   - [x] `utils/default-map.php`
+   - [ ] `utils/decode-arbitrary-value.php` + test (depends on value-parser)
+   - [x] `utils/to-key-path.php` + test
+   - [x] `utils/brace-expansion.php` + test
+   - [x] `utils/compare.php` + test
+   - [x] `utils/compare-breakpoints.php`
+   - [x] `utils/dimensions.php`
+   - [x] `utils/infer-data-type.php`
+   - [x] `utils/is-valid-arbitrary.php`
+   - [x] `utils/is-color.php`
+   - [x] `utils/math-operators.php`
+   - [x] `utils/replace-shadow-colors.php`
+   - [x] `utils/topological-sort.php`
 
 2. **Core parsing**
    - [ ] `css-parser.php` + test
