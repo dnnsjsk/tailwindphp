@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace TailwindPHP\Tests;
 
 use TailwindPHP\Theme;
+use TailwindPHP\DefaultTheme;
+use TailwindPHP\CandidateParser;
+use TailwindPHP\CssFormatter;
 use TailwindPHP\Utilities\Utilities;
 use function TailwindPHP\createUtilities;
 use function TailwindPHP\Utils\escape;
@@ -14,14 +17,14 @@ use function TailwindPHP\Utils\escape;
  *
  * Port of: packages/tailwindcss/src/test-utils/run.ts
  *
- * This helper uses the real Utilities registry and Theme but has simplified
- * candidate parsing. As more of the compilation pipeline is ported, this
- * can be replaced with the full DesignSystem.
+ * This helper uses the real Utilities registry and Theme with
+ * CandidateParser for parsing and CssFormatter for output.
  */
 class TestHelper
 {
     private static ?Theme $theme = null;
     private static ?Utilities $utilities = null;
+    private static ?CandidateParser $parser = null;
 
     /**
      * Get or create the shared Theme instance.
@@ -29,7 +32,7 @@ class TestHelper
     private static function getTheme(): Theme
     {
         if (self::$theme === null) {
-            self::$theme = self::createDefaultTheme();
+            self::$theme = DefaultTheme::create();
         }
         return self::$theme;
     }
@@ -46,232 +49,24 @@ class TestHelper
     }
 
     /**
+     * Get or create the shared CandidateParser instance.
+     */
+    private static function getParser(): CandidateParser
+    {
+        if (self::$parser === null) {
+            self::$parser = new CandidateParser(self::getUtilities());
+        }
+        return self::$parser;
+    }
+
+    /**
      * Reset the test helper (useful between tests if needed).
      */
     public static function reset(): void
     {
         self::$theme = null;
         self::$utilities = null;
-    }
-
-    /**
-     * Create a default theme with all standard values.
-     */
-    private static function createDefaultTheme(): Theme
-    {
-        $theme = new Theme();
-
-        // Spacing scale
-        $theme->add('--spacing', '0.25rem');
-        $theme->add('--spacing-0', '0px');
-        $theme->add('--spacing-px', '1px');
-        $theme->add('--spacing-0_5', '0.125rem');
-        $theme->add('--spacing-1', '0.25rem');
-        $theme->add('--spacing-1_5', '0.375rem');
-        $theme->add('--spacing-2', '0.5rem');
-        $theme->add('--spacing-2_5', '0.625rem');
-        $theme->add('--spacing-3', '0.75rem');
-        $theme->add('--spacing-3_5', '0.875rem');
-        $theme->add('--spacing-4', '1rem');
-        $theme->add('--spacing-5', '1.25rem');
-        $theme->add('--spacing-6', '1.5rem');
-        $theme->add('--spacing-7', '1.75rem');
-        $theme->add('--spacing-8', '2rem');
-        $theme->add('--spacing-9', '2.25rem');
-        $theme->add('--spacing-10', '2.5rem');
-        $theme->add('--spacing-11', '2.75rem');
-        $theme->add('--spacing-12', '3rem');
-        $theme->add('--spacing-14', '3.5rem');
-        $theme->add('--spacing-16', '4rem');
-        $theme->add('--spacing-20', '5rem');
-        $theme->add('--spacing-24', '6rem');
-        $theme->add('--spacing-28', '7rem');
-        $theme->add('--spacing-32', '8rem');
-        $theme->add('--spacing-36', '9rem');
-        $theme->add('--spacing-40', '10rem');
-        $theme->add('--spacing-44', '11rem');
-        $theme->add('--spacing-48', '12rem');
-        $theme->add('--spacing-52', '13rem');
-        $theme->add('--spacing-56', '14rem');
-        $theme->add('--spacing-60', '15rem');
-        $theme->add('--spacing-64', '16rem');
-        $theme->add('--spacing-72', '18rem');
-        $theme->add('--spacing-80', '20rem');
-        $theme->add('--spacing-96', '24rem');
-
-        // Breakpoints
-        $theme->add('--breakpoint-sm', '40rem');
-        $theme->add('--breakpoint-md', '48rem');
-        $theme->add('--breakpoint-lg', '64rem');
-        $theme->add('--breakpoint-xl', '80rem');
-        $theme->add('--breakpoint-2xl', '96rem');
-
-        // Border radius
-        $theme->add('--radius', '0.25rem');
-        $theme->add('--radius-none', '0px');
-        $theme->add('--radius-sm', '0.125rem');
-        $theme->add('--radius-md', '0.375rem');
-        $theme->add('--radius-lg', '0.5rem');
-        $theme->add('--radius-xl', '0.75rem');
-        $theme->add('--radius-2xl', '1rem');
-        $theme->add('--radius-3xl', '1.5rem');
-        $theme->add('--radius-full', '9999px');
-
-        // Font sizes
-        $theme->add('--font-size-xs', '0.75rem');
-        $theme->add('--font-size-xs--line-height', '1rem');
-        $theme->add('--font-size-sm', '0.875rem');
-        $theme->add('--font-size-sm--line-height', '1.25rem');
-        $theme->add('--font-size-base', '1rem');
-        $theme->add('--font-size-base--line-height', '1.5rem');
-        $theme->add('--font-size-lg', '1.125rem');
-        $theme->add('--font-size-lg--line-height', '1.75rem');
-        $theme->add('--font-size-xl', '1.25rem');
-        $theme->add('--font-size-xl--line-height', '1.75rem');
-        $theme->add('--font-size-2xl', '1.5rem');
-        $theme->add('--font-size-2xl--line-height', '2rem');
-        $theme->add('--font-size-3xl', '1.875rem');
-        $theme->add('--font-size-3xl--line-height', '2.25rem');
-        $theme->add('--font-size-4xl', '2.25rem');
-        $theme->add('--font-size-4xl--line-height', '2.5rem');
-        $theme->add('--font-size-5xl', '3rem');
-        $theme->add('--font-size-5xl--line-height', '1');
-        $theme->add('--font-size-6xl', '3.75rem');
-        $theme->add('--font-size-6xl--line-height', '1');
-        $theme->add('--font-size-7xl', '4.5rem');
-        $theme->add('--font-size-7xl--line-height', '1');
-        $theme->add('--font-size-8xl', '6rem');
-        $theme->add('--font-size-8xl--line-height', '1');
-        $theme->add('--font-size-9xl', '8rem');
-        $theme->add('--font-size-9xl--line-height', '1');
-
-        // Font weights
-        $theme->add('--font-weight-thin', '100');
-        $theme->add('--font-weight-extralight', '200');
-        $theme->add('--font-weight-light', '300');
-        $theme->add('--font-weight-normal', '400');
-        $theme->add('--font-weight-medium', '500');
-        $theme->add('--font-weight-semibold', '600');
-        $theme->add('--font-weight-bold', '700');
-        $theme->add('--font-weight-extrabold', '800');
-        $theme->add('--font-weight-black', '900');
-
-        // Line heights
-        $theme->add('--line-height-none', '1');
-        $theme->add('--line-height-tight', '1.25');
-        $theme->add('--line-height-snug', '1.375');
-        $theme->add('--line-height-normal', '1.5');
-        $theme->add('--line-height-relaxed', '1.625');
-        $theme->add('--line-height-loose', '2');
-
-        // Letter spacing
-        $theme->add('--letter-spacing-tighter', '-0.05em');
-        $theme->add('--letter-spacing-tight', '-0.025em');
-        $theme->add('--letter-spacing-normal', '0em');
-        $theme->add('--letter-spacing-wide', '0.025em');
-        $theme->add('--letter-spacing-wider', '0.05em');
-        $theme->add('--letter-spacing-widest', '0.1em');
-
-        // Colors (basic set)
-        $theme->add('--color-black', '#000');
-        $theme->add('--color-white', '#fff');
-        $theme->add('--color-transparent', 'transparent');
-        $theme->add('--color-current', 'currentColor');
-        $theme->add('--color-inherit', 'inherit');
-
-        // Shadow (none is static utility, not theme value)
-        $theme->add('--shadow', '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)');
-        $theme->add('--shadow-sm', '0 1px 2px 0 rgb(0 0 0 / 0.05)');
-        $theme->add('--shadow-md', '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)');
-        $theme->add('--shadow-lg', '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)');
-        $theme->add('--shadow-xl', '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)');
-        $theme->add('--shadow-2xl', '0 25px 50px -12px rgb(0 0 0 / 0.25)');
-        $theme->add('--shadow-inner', 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)');
-
-        // Inset shadow (none is static utility, not theme value)
-        $theme->add('--inset-shadow-sm', 'inset 0 1px 1px rgb(0 0 0 / 0.05)');
-        $theme->add('--inset-shadow', 'inset 0 2px 4px rgb(0 0 0 / 0.05)');
-
-        // Drop shadow (none is static utility, not theme value)
-        $theme->add('--drop-shadow', '0 1px 2px rgb(0 0 0 / 0.1), 0 1px 1px rgb(0 0 0 / 0.06)');
-        $theme->add('--drop-shadow-sm', '0 1px 1px rgb(0 0 0 / 0.05)');
-        $theme->add('--drop-shadow-md', '0 4px 3px rgb(0 0 0 / 0.07), 0 2px 2px rgb(0 0 0 / 0.06)');
-        $theme->add('--drop-shadow-lg', '0 10px 8px rgb(0 0 0 / 0.04), 0 4px 3px rgb(0 0 0 / 0.1)');
-        $theme->add('--drop-shadow-xl', '0 20px 13px rgb(0 0 0 / 0.03), 0 8px 5px rgb(0 0 0 / 0.08)');
-        $theme->add('--drop-shadow-2xl', '0 25px 25px rgb(0 0 0 / 0.15)');
-
-        // Blur
-        $theme->add('--blur', '8px');
-        $theme->add('--blur-none', '0');
-        $theme->add('--blur-sm', '4px');
-        $theme->add('--blur-md', '12px');
-        $theme->add('--blur-lg', '16px');
-        $theme->add('--blur-xl', '24px');
-        $theme->add('--blur-2xl', '40px');
-        $theme->add('--blur-3xl', '64px');
-
-        // Width (only named sizes, not static values like auto/full/screen which are static utilities)
-        $theme->add('--width-xs', '20rem');
-        $theme->add('--width-sm', '24rem');
-        $theme->add('--width-md', '28rem');
-        $theme->add('--width-lg', '32rem');
-        $theme->add('--width-xl', '36rem');
-        $theme->add('--width-2xl', '42rem');
-        $theme->add('--width-3xl', '48rem');
-        $theme->add('--width-4xl', '56rem');
-        $theme->add('--width-5xl', '64rem');
-        $theme->add('--width-6xl', '72rem');
-        $theme->add('--width-7xl', '80rem');
-
-        // Z-index (no 'auto' - that comes from staticValues)
-        $theme->add('--z-index-0', '0');
-        $theme->add('--z-index-10', '10');
-        $theme->add('--z-index-20', '20');
-        $theme->add('--z-index-30', '30');
-        $theme->add('--z-index-40', '40');
-        $theme->add('--z-index-50', '50');
-
-        // Opacity
-        $theme->add('--opacity-0', '0');
-        $theme->add('--opacity-5', '0.05');
-        $theme->add('--opacity-10', '0.1');
-        $theme->add('--opacity-15', '0.15');
-        $theme->add('--opacity-20', '0.2');
-        $theme->add('--opacity-25', '0.25');
-        $theme->add('--opacity-30', '0.3');
-        $theme->add('--opacity-35', '0.35');
-        $theme->add('--opacity-40', '0.4');
-        $theme->add('--opacity-45', '0.45');
-        $theme->add('--opacity-50', '0.5');
-        $theme->add('--opacity-55', '0.55');
-        $theme->add('--opacity-60', '0.6');
-        $theme->add('--opacity-65', '0.65');
-        $theme->add('--opacity-70', '0.7');
-        $theme->add('--opacity-75', '0.75');
-        $theme->add('--opacity-80', '0.8');
-        $theme->add('--opacity-85', '0.85');
-        $theme->add('--opacity-90', '0.9');
-        $theme->add('--opacity-95', '0.95');
-        $theme->add('--opacity-100', '1');
-
-        // Transition
-        $theme->add('--transition-duration-0', '0s');
-        $theme->add('--transition-duration-75', '75ms');
-        $theme->add('--transition-duration-100', '100ms');
-        $theme->add('--transition-duration-150', '150ms');
-        $theme->add('--transition-duration-200', '200ms');
-        $theme->add('--transition-duration-300', '300ms');
-        $theme->add('--transition-duration-500', '500ms');
-        $theme->add('--transition-duration-700', '700ms');
-        $theme->add('--transition-duration-1000', '1000ms');
-
-        // Ease
-        $theme->add('--ease-linear', 'linear');
-        $theme->add('--ease-in', 'cubic-bezier(0.4, 0, 1, 1)');
-        $theme->add('--ease-out', 'cubic-bezier(0, 0, 0.2, 1)');
-        $theme->add('--ease-in-out', 'cubic-bezier(0.4, 0, 0.2, 1)');
-
-        return $theme;
+        self::$parser = null;
     }
 
     /**
@@ -285,11 +80,11 @@ class TestHelper
     public static function run(array $candidates): string
     {
         $utilities = self::getUtilities();
-        $theme = self::getTheme();
+        $parser = self::getParser();
         $css = [];
 
         foreach ($candidates as $candidate) {
-            $result = self::compileCandidate($candidate, $utilities, $theme);
+            $result = self::compileCandidate($candidate, $utilities, $parser);
             if ($result !== null) {
                 $css[] = $result;
             }
@@ -298,29 +93,24 @@ class TestHelper
         // Sort CSS rules alphabetically by selector for consistent output
         usort($css, fn($a, $b) => strcmp($a['selector'], $b['selector']));
 
-        return self::formatCss($css);
+        return CssFormatter::format($css);
     }
 
     /**
      * Compile a single candidate to CSS.
      */
-    private static function compileCandidate(string $candidate, Utilities $utilities, Theme $theme): ?array
+    private static function compileCandidate(string $candidate, Utilities $utilities, CandidateParser $parser): ?array
     {
-        // Check for important modifier
-        $important = false;
-        $base = $candidate;
+        $parsed = $parser->parse($candidate);
 
-        if (str_ends_with($base, '!')) {
-            $important = true;
-            $base = substr($base, 0, -1);
-        } elseif (str_starts_with($base, '!')) {
-            $important = true;
-            $base = substr($base, 1);
+        if ($parsed === null) {
+            return null;
         }
 
-        // Check for static utility (including those starting with -, like -translate-full)
-        if ($utilities->has($base, 'static')) {
-            $utils = $utilities->get($base);
+        $important = $parsed['important'];
+
+        if ($parsed['kind'] === 'static') {
+            $utils = $utilities->get($parsed['root']);
             foreach ($utils as $util) {
                 if ($util['kind'] === 'static') {
                     $nodes = $util['compileFn']();
@@ -333,214 +123,22 @@ class TestHelper
                     }
                 }
             }
-        }
-
-        // Check for functional utility
-        $parts = self::parseFunctionalCandidate($base, $utilities);
-        if ($parts !== null) {
-            [$root, $value, $modifier] = $parts;
-
-            if ($utilities->has($root, 'functional')) {
-                $utils = $utilities->get($root);
-                foreach ($utils as $util) {
-                    if ($util['kind'] === 'functional') {
-                        $modifierObj = $modifier !== null ? ['kind' => 'named', 'value' => $modifier] : null;
-                        $candidateObj = [
-                            'kind' => 'functional',
-                            'root' => $root,
-                            'value' => $value,
-                            'modifier' => $modifierObj,
+        } elseif ($parsed['kind'] === 'functional') {
+            $utils = $utilities->get($parsed['root']);
+            foreach ($utils as $util) {
+                if ($util['kind'] === 'functional') {
+                    $nodes = $util['compileFn']($parsed);
+                    if ($nodes !== null && $nodes !== false) {
+                        return [
+                            'selector' => '.' . escape($candidate),
+                            'nodes' => $nodes,
                             'important' => $important,
-                            'raw' => $candidate,
                         ];
-
-                        $nodes = $util['compileFn']($candidateObj);
-                        if ($nodes !== null && $nodes !== false) {
-                            return [
-                                'selector' => '.' . escape($candidate),
-                                'nodes' => $nodes,
-                                'important' => $important,
-                            ];
-                        }
                     }
                 }
             }
         }
 
         return null;
-    }
-
-    /**
-     * Parse a functional candidate into root, value, and modifier.
-     * Returns [$root, $value, $modifier] or null.
-     */
-    private static function parseFunctionalCandidate(string $candidate, Utilities $utilities): ?array
-    {
-        // Check if this might have a modifier (/ not inside arbitrary values)
-        $hasSlash = !str_contains($candidate, '[') && str_contains($candidate, '/');
-
-        // If there's a / that could be a modifier, try modifier approach first
-        // This handles cases like @container-normal/sidebar where we want:
-        // - root: @container, value: normal, modifier: sidebar
-        // NOT: root: @container, value: normal/sidebar (which would be an invalid fraction)
-        if ($hasSlash) {
-            $slashPos = strrpos($candidate, '/');
-            $potentialModifier = substr($candidate, $slashPos + 1);
-            $candidateWithoutModifier = substr($candidate, 0, $slashPos);
-
-            // Only treat as modifier if the part after / is NOT numeric (not a fraction)
-            // Fractions look like: 1/2, 3/4. Modifiers look like: sidebar, foo
-            if (!is_numeric($potentialModifier) && !preg_match('/^\d+$/', $potentialModifier)) {
-                $result = self::parseFunctionalCandidateInternal($candidateWithoutModifier, $utilities);
-                if ($result !== null) {
-                    return [$result[0], $result[1], $potentialModifier];
-                }
-            }
-        }
-
-        // Try to parse without modifier extraction
-        $result = self::parseFunctionalCandidateInternal($candidate, $utilities);
-        if ($result !== null) {
-            return [$result[0], $result[1], null];
-        }
-
-        return null;
-    }
-
-    /**
-     * Internal helper to parse candidate without modifier handling.
-     */
-    private static function parseFunctionalCandidateInternal(string $candidate, Utilities $utilities): ?array
-    {
-        // First check for exact match (utility with default value like rounded-t, border-x)
-        if ($utilities->has($candidate, 'functional')) {
-            return [$candidate, null];
-        }
-
-        // Check for parenthesized CSS variable syntax like rotate-(--var)
-        if (str_ends_with($candidate, ')')) {
-            $idx = strpos($candidate, '-(');
-            if ($idx !== false) {
-                $maybeRoot = substr($candidate, 0, $idx);
-                if ($utilities->has($maybeRoot, 'functional')) {
-                    $value = substr($candidate, $idx + 2, -1);
-                    // Parenthesized values must start with -- (CSS variable)
-                    if (strlen($value) >= 2 && $value[0] === '-' && $value[1] === '-') {
-                        $valueObj = [
-                            'kind' => 'arbitrary',
-                            'value' => "var({$value})",
-                            'dataType' => null,
-                        ];
-                        return [$maybeRoot, $valueObj];
-                    }
-                }
-            }
-        }
-
-        // Try to find the root by testing progressively shorter prefixes
-        $idx = strrpos($candidate, '-');
-
-        while ($idx !== false && $idx > 0) {
-            $maybeRoot = substr($candidate, 0, $idx);
-
-            if ($utilities->has($maybeRoot, 'functional')) {
-                $value = substr($candidate, $idx + 1);
-                if ($value === '') {
-                    return null;
-                }
-
-                // Determine value kind
-                $valueObj = null;
-                if (str_starts_with($value, '[') && str_ends_with($value, ']')) {
-                    // Arbitrary value - decode underscores to spaces
-                    $innerValue = substr($value, 1, -1);
-                    $innerValue = str_replace('_', ' ', $innerValue);
-                    $valueObj = [
-                        'kind' => 'arbitrary',
-                        'value' => $innerValue,
-                        'dataType' => null,
-                    ];
-                } else {
-                    // Check if it's a fraction like 1/2
-                    $fraction = null;
-                    if (strpos($value, '/') !== false) {
-                        $fraction = $value;
-                    }
-                    $valueObj = [
-                        'kind' => 'named',
-                        'value' => $value,
-                        'fraction' => $fraction,
-                    ];
-                }
-
-                return [$maybeRoot, $valueObj];
-            }
-
-            $idx = strrpos(substr($candidate, 0, $idx), '-');
-        }
-
-        return null;
-    }
-
-    /**
-     * Format CSS rules into a string.
-     */
-    private static function formatCss(array $rules): string
-    {
-        if (empty($rules)) {
-            return '';
-        }
-
-        $output = [];
-
-        foreach ($rules as $rule) {
-            $selector = $rule['selector'];
-            $formatted = self::formatRule($selector, $rule['nodes'], $rule['important'] ?? false);
-            if ($formatted !== '') {
-                $output[] = $formatted;
-            }
-        }
-
-        return implode("\n\n", $output);
-    }
-
-    /**
-     * Format a rule and its nodes, handling nested rules.
-     */
-    private static function formatRule(string $parentSelector, array $nodes, bool $important): string
-    {
-        $declarations = [];
-        $nestedRules = [];
-
-        foreach ($nodes as $node) {
-            if ($node['kind'] === 'declaration') {
-                $value = $node['value'];
-                if ($important || ($node['important'] ?? false)) {
-                    $value .= ' !important';
-                }
-                $declarations[] = "  {$node['property']}: {$value};";
-            } elseif ($node['kind'] === 'rule') {
-                // Handle nested rule - replace & with parent selector
-                $nestedSelector = str_replace('&', $parentSelector, $node['selector']);
-                $nestedFormatted = self::formatRule($nestedSelector, $node['nodes'], $important);
-                if ($nestedFormatted !== '') {
-                    $nestedRules[] = $nestedFormatted;
-                }
-            }
-        }
-
-        $output = [];
-
-        // Add declarations for this rule
-        if (!empty($declarations)) {
-            $output[] = "{$parentSelector} {\n" . implode("\n", $declarations) . "\n}";
-        }
-
-        // Add nested rules
-        foreach ($nestedRules as $nested) {
-            $output[] = $nested;
-        }
-
-        return implode("\n\n", $output);
     }
 }

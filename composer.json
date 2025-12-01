@@ -20,6 +20,9 @@
         },
         "files": [
             "src/_tailwindphp/LightningCss.php",
+            "src/_tailwindphp/CandidateParser.php",
+            "src/_tailwindphp/CssFormatter.php",
+            "src/default-theme.php",
             "src/utils/segment.php",
             "src/utils/escape.php",
             "src/utils/default-map.php",
