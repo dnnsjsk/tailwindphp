@@ -388,7 +388,20 @@ class UtilityBuilder
                     $dataType = $candidate['value']['dataType'] ?? null;
                 } else {
                     $lookupValue = $candidate['value']['fraction'] ?? $candidate['value']['value'];
-                    $value = $theme->resolve($lookupValue, $desc['themeKeys'] ?? []);
+
+                    // For spacing utilities (handleBareValueFirst), try bare value handler before theme resolution
+                    // This ensures p-4 uses calc(var(--spacing) * 4) instead of var(--spacing-4)
+                    if (($desc['handleBareValueFirst'] ?? false) && isset($desc['handleBareValue'])) {
+                        $value = $desc['handleBareValue']($candidate['value']);
+                        if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier'])) {
+                            return null;
+                        }
+                    }
+
+                    // Theme resolution
+                    if ($value === null) {
+                        $value = $theme->resolve($lookupValue, $desc['themeKeys'] ?? []);
+                    }
 
                     // Handle fractions like w-1/2
                     if ($value === null && ($desc['supportsFractions'] ?? false) && isset($candidate['value']['fraction'])) {
@@ -409,8 +422,8 @@ class UtilityBuilder
                         }
                     }
 
-                    // Handle bare values
-                    if ($value === null && isset($desc['handleBareValue'])) {
+                    // Handle bare values (fallback for non-spacing utilities)
+                    if ($value === null && isset($desc['handleBareValue']) && !($desc['handleBareValueFirst'] ?? false)) {
                         $value = $desc['handleBareValue']($candidate['value']);
                         if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier'])) {
                             return null;
@@ -421,7 +434,7 @@ class UtilityBuilder
                     if ($value === null && !$negative && isset($desc['staticValues']) && !isset($candidate['modifier'])) {
                         $fallback = $desc['staticValues'][$candidate['value']['value']] ?? null;
                         if ($fallback !== null) {
-                            return array_map('TailwindPHP\\Ast\\cloneAstNode', $fallback);
+                            return array_map('TailwindPHP\\cloneAstNode', $fallback);
                         }
                     }
                 }
@@ -526,11 +539,12 @@ class UtilityBuilder
             'supportsFractions' => $supportsFractions,
             'supportsNegative' => $supportsNegative,
             'defaultValue' => null,
+            'handleBareValueFirst' => true, // TailwindCSS 4.0: prefer calc(var(--spacing) * N) over var(--spacing-N)
             'handleBareValue' => function ($value) use ($theme) {
                 $multiplier = $theme->resolve(null, ['--spacing']);
                 if ($multiplier === null) return null;
                 if (!isValidSpacingMultiplier($value['value'])) return null;
-                return "calc({$value['value']} * {$multiplier})";
+                return "calc(var(--spacing) * {$value['value']})";
             },
             'staticValues' => $staticValues,
             'handle' => $handle,
@@ -583,11 +597,11 @@ function createUtilities(Theme $theme): Utilities
 // Include individual utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
 require_once __DIR__ . '/utilities/layout.php';
+require_once __DIR__ . '/utilities/spacing.php';
+require_once __DIR__ . '/utilities/sizing.php';
 
 // Stub functions - will be implemented in individual files
 function registerFlexboxGridUtilities(UtilityBuilder $builder): void {}
-function registerSpacingUtilities(UtilityBuilder $builder): void {}
-function registerSizingUtilities(UtilityBuilder $builder): void {}
 function registerTypographyUtilities(UtilityBuilder $builder): void {}
 function registerBackgroundUtilities(UtilityBuilder $builder): void {}
 function registerBorderUtilities(UtilityBuilder $builder): void {}

@@ -221,10 +221,15 @@ class TestHelper
                         'dataType' => null,
                     ];
                 } else {
+                    // Check if it's a fraction like 1/2
+                    $fraction = null;
+                    if (strpos($value, '/') !== false) {
+                        $fraction = $value;
+                    }
                     $valueObj = [
                         'kind' => 'named',
                         'value' => $value,
-                        'fraction' => null,
+                        'fraction' => $fraction,
                     ];
                 }
 

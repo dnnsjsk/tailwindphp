@@ -12,6 +12,9 @@ use TailwindPHP\Utils\DefaultMap;
 // Load utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
 require_once __DIR__ . '/utilities/layout.php';
+require_once __DIR__ . '/utilities/flexbox.php';
+require_once __DIR__ . '/utilities/spacing.php';
+require_once __DIR__ . '/utilities/sizing.php';
 
 /**
  * Design System - Combines theme, utilities, and variants.
@@ -320,10 +323,16 @@ function createUtilities(Theme $theme): Utilities
     // Register layout utilities
     \TailwindPHP\Utilities\registerLayoutUtilities($builder);
 
+    // Register flexbox & grid utilities
+    \TailwindPHP\Utilities\registerFlexboxUtilities($builder);
+
+    // Register spacing utilities
+    \TailwindPHP\Utilities\registerSpacingUtilities($builder);
+
+    // Register sizing utilities
+    \TailwindPHP\Utilities\registerSizingUtilities($builder);
+
     // TODO: Register all other utility categories
-    // - Flexbox & Grid
-    // - Spacing
-    // - Sizing
     // - Typography
     // - Backgrounds
     // - Borders
