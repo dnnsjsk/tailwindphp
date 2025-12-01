@@ -355,23 +355,11 @@ function createUtilities(Theme $theme): Utilities
 
 /**
  * Create variants with all built-in variant definitions.
- * This is a placeholder that will be populated with all variants.
  *
  * @param Theme $theme
  * @return Variants
  */
 function createVariants(Theme $theme): Variants
 {
-    $variants = new Variants();
-
-    // Register all built-in variants
-    // This will be expanded to include all variants from variants.ts
-
-    // TODO: Register pseudo-class variants (hover, focus, active, etc.)
-    // TODO: Register pseudo-element variants (before, after, etc.)
-    // TODO: Register media query variants (sm, md, lg, xl, 2xl, dark, etc.)
-    // TODO: Register state variants (disabled, checked, required, etc.)
-    // TODO: Register group/peer variants
-
-    return $variants;
+    return \TailwindPHP\Variants\createVariants($theme);
 }
