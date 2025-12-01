@@ -6,12 +6,12 @@ namespace TailwindPHP;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\WalkAction;
+use TailwindPHP\Walk\WalkAction;
 
-use function TailwindPHP\walk;
-use function TailwindPHP\styleRule;
-use function TailwindPHP\decl;
-use function TailwindPHP\toCss;
+use function TailwindPHP\Walk\walk;
+use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\toCss;
 
 class walk extends TestCase
 {

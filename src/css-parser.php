@@ -2,7 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\CssParser;
+
+use function TailwindPHP\Ast\rule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\comment;
+use function TailwindPHP\Ast\parseAtRule;
 
 /**
  * CSS Parser - Character-by-character CSS tokenizer.

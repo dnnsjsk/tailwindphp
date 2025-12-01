@@ -6,11 +6,11 @@ namespace TailwindPHP;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\WalkAction;
+use TailwindPHP\Walk\WalkAction;
 
 use function TailwindPHP\SelectorParser\parse;
 use function TailwindPHP\SelectorParser\toCss;
-use function TailwindPHP\walk;
+use function TailwindPHP\Walk\walk;
 
 class selector_parser extends TestCase
 {

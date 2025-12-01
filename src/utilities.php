@@ -6,9 +6,9 @@ namespace TailwindPHP\Utilities;
 
 use TailwindPHP\Theme;
 use TailwindPHP\Utils\DefaultMap;
-use function TailwindPHP\decl;
-use function TailwindPHP\atRule;
-use function TailwindPHP\cloneAstNode;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRule;
+use function TailwindPHP\Ast\cloneAstNode;
 use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Utils\isValidOpacityValue;
 use function TailwindPHP\Utils\isPositiveInteger;
@@ -348,7 +348,7 @@ class UtilityBuilder
     {
         $this->utilities->static($className, function () use ($declarations) {
             return array_map(function ($node) {
-                return is_callable($node) ? $node() : \TailwindPHP\decl($node[0], $node[1]);
+                return is_callable($node) ? $node() : \TailwindPHP\Ast\decl($node[0], $node[1]);
             }, $declarations);
         });
     }
@@ -430,7 +430,7 @@ class UtilityBuilder
                     if ($value === null && !$negative && isset($desc['staticValues']) && !isset($candidate['modifier'])) {
                         $fallback = $desc['staticValues'][$candidate['value']['value']] ?? null;
                         if ($fallback !== null) {
-                            return array_map('TailwindPHP\\cloneAstNode', $fallback);
+                            return array_map('TailwindPHP\\Ast\\cloneAstNode', $fallback);
                         }
                     }
                 }

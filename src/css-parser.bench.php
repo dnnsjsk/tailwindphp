@@ -12,7 +12,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../benchmarks/Benchmark.php';
 
 use TailwindPHP\Benchmarks\Benchmark;
-use function TailwindPHP\parse;
+use function TailwindPHP\CssParser\parse;
 
 $bench = new Benchmark();
 

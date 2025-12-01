@@ -7,12 +7,12 @@ namespace TailwindPHP;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
-use TailwindPHP\CssSyntaxError;
+use TailwindPHP\CssParser\CssSyntaxError;
 
-use function TailwindPHP\parse;
-use function TailwindPHP\rule;
-use function TailwindPHP\decl;
-use function TailwindPHP\comment;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\Ast\rule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\comment;
 
 class css_parser extends TestCase
 {

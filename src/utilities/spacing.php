@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use function TailwindPHP\decl;
-use function TailwindPHP\styleRule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\styleRule;
 
 /**
  * Spacing Utilities

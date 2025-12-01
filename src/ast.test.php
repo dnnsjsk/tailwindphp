@@ -7,15 +7,15 @@ namespace TailwindPHP;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-use function TailwindPHP\parse;
-use function TailwindPHP\toCss;
-use function TailwindPHP\styleRule;
-use function TailwindPHP\atRule;
-use function TailwindPHP\decl;
-use function TailwindPHP\comment;
-use function TailwindPHP\context;
-use function TailwindPHP\atRoot;
-use function TailwindPHP\cloneAstNode;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\atRule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\comment;
+use function TailwindPHP\Ast\context;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Ast\cloneAstNode;
 
 class ast extends TestCase
 {

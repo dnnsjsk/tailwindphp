@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\Ast;
+
+use TailwindPHP\LightningCss;
 
 /**
  * AST node types and builder functions for TailwindPHP.
@@ -152,7 +154,7 @@ function cloneAstNode(array $node): array
             return [
                 'kind' => $node['kind'],
                 'selector' => $node['selector'],
-                'nodes' => array_map('TailwindPHP\\cloneAstNode', $node['nodes']),
+                'nodes' => array_map('TailwindPHP\\Ast\\cloneAstNode', $node['nodes']),
             ];
 
         case 'at-rule':
@@ -160,20 +162,20 @@ function cloneAstNode(array $node): array
                 'kind' => $node['kind'],
                 'name' => $node['name'],
                 'params' => $node['params'],
-                'nodes' => array_map('TailwindPHP\\cloneAstNode', $node['nodes']),
+                'nodes' => array_map('TailwindPHP\\Ast\\cloneAstNode', $node['nodes']),
             ];
 
         case 'at-root':
             return [
                 'kind' => $node['kind'],
-                'nodes' => array_map('TailwindPHP\\cloneAstNode', $node['nodes']),
+                'nodes' => array_map('TailwindPHP\\Ast\\cloneAstNode', $node['nodes']),
             ];
 
         case 'context':
             return [
                 'kind' => $node['kind'],
                 'context' => $node['context'],
-                'nodes' => array_map('TailwindPHP\\cloneAstNode', $node['nodes']),
+                'nodes' => array_map('TailwindPHP\\Ast\\cloneAstNode', $node['nodes']),
             ];
 
         case 'declaration':

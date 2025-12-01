@@ -6,7 +6,7 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 
 **Work in Progress** — Utilities are complete, variants and directives are in development.
 
-- 784 tests passing
+- 698 tests passing
 - 364/364 TailwindCSS compliance tests passing
 - All utility categories implemented
 
@@ -23,14 +23,6 @@ use TailwindPHP\Tailwind;
 
 // Generate CSS from HTML containing Tailwind classes
 $css = Tailwind::generate('<div class="flex items-center p-4 bg-blue-500">Hello</div>');
-```
-
-Or use the function directly:
-
-```php
-use function TailwindPHP\generate;
-
-$css = generate('<div class="flex items-center p-4 bg-blue-500">Hello</div>');
 ```
 
 ## How It Works

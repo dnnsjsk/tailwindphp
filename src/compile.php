@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Compile;
 
-use function TailwindPHP\rule;
-use function TailwindPHP\decl;
-use function TailwindPHP\atRule;
+use function TailwindPHP\Ast\rule;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRule;
 use function TailwindPHP\Utils\escape;
 use function TailwindPHP\Utils\compare;
-use function TailwindPHP\walk;
+use function TailwindPHP\Walk\walk;
 
-use const TailwindPHP\PROPERTY_ORDER;
+use const TailwindPHP\PropertyOrder\PROPERTY_ORDER;
 
 /**
  * Compile - Candidate compilation to CSS AST.

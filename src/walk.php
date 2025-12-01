@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\Walk;
 
 /**
  * AST Walk - Traversal utilities for the CSS AST.

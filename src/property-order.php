@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\PropertyOrder;
 
 /**
  * Property Order - CSS property ordering for consistent output.

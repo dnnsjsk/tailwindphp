@@ -6,6 +6,9 @@ namespace TailwindPHP;
 
 use TailwindPHP\Utilities\Utilities;
 use TailwindPHP\Variants\Variants;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Walk\walk;
 
 /**
  * TailwindPHP - CSS-first Tailwind CSS compiler for PHP.
@@ -353,23 +356,16 @@ function extractCandidates(string $html): array
 }
 
 /**
- * Tailwind - Simple facade for TailwindPHP.
+ * Tailwind facade class for cleaner API.
  *
- * Provides a clean, static API for common operations.
- *
- * @example
- * use TailwindPHP\Tailwind;
- *
- * $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+ * Usage:
+ *   use TailwindPHP\Tailwind;
+ *   $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
  */
 class Tailwind
 {
     /**
-     * Generate CSS from HTML content containing Tailwind classes.
-     *
-     * @param string $html HTML content to scan for classes
-     * @param string $css Optional CSS with @tailwind directives
-     * @return string Generated CSS
+     * Generate CSS from HTML containing Tailwind classes.
      */
     public static function generate(string $html, string $css = '@tailwind utilities;'): string
     {
@@ -377,11 +373,7 @@ class Tailwind
     }
 
     /**
-     * Compile CSS with Tailwind directives.
-     *
-     * @param string $css Input CSS containing @tailwind directives
-     * @param array $options Compilation options
-     * @return array{build: callable, sources: array, root: mixed, features: int}
+     * Compile CSS with Tailwind utilities.
      */
     public static function compile(string $css, array $options = []): array
     {
@@ -390,9 +382,6 @@ class Tailwind
 
     /**
      * Extract class name candidates from HTML content.
-     *
-     * @param string $html HTML content
-     * @return array<string> List of candidate class names
      */
     public static function extractCandidates(string $html): array
     {

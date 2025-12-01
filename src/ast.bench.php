@@ -12,9 +12,9 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../benchmarks/Benchmark.php';
 
 use TailwindPHP\Benchmarks\Benchmark;
-use function TailwindPHP\parse;
-use function TailwindPHP\toCss;
-use function TailwindPHP\cloneAstNode;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Ast\cloneAstNode;
 
 $bench = new Benchmark();
 
@@ -43,7 +43,7 @@ $bench->describe('AST to CSS', function ($bench) use ($ast) {
 
 $bench->describe('Cloning AST nodes', function ($bench) use ($ast) {
     $bench->bench('cloneAstNode()', function () use ($ast) {
-        array_map('TailwindPHP\\cloneAstNode', $ast);
+        array_map('TailwindPHP\\Ast\\cloneAstNode', $ast);
     });
 });
 

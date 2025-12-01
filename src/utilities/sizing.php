@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use function TailwindPHP\decl;
+use function TailwindPHP\Ast\decl;
 
 /**
  * Sizing Utilities
