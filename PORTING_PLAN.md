@@ -1,10 +1,18 @@
 # Tailwind PHP - Porting Plan
 
-A full port of TailwindCSS 4.0 to PHP, focusing on the CSS-first approach (no JS config).
+A full 1:1 port of TailwindCSS 4.0 to PHP, focusing on the CSS-first approach (no JS config).
 
 ## Overview
 
-**Goal:** Create a Composer package that compiles Tailwind CSS using pure PHP, supporting all Tailwind 4.0 CSS directives.
+**Goal:** Create a Composer package that compiles Tailwind CSS using pure PHP.
+
+**Simple API:**
+```php
+use TailwindPHP\TailwindPHP;
+
+// Extract classes from HTML/content and generate CSS
+$css = TailwindPHP::generate('<div class="flex items-center p-4 bg-blue-500">...</div>');
+```
 
 **Scope:**
 - ✅ CSS-only configuration (`@theme`, `@utility`, `@variant`, etc.)
@@ -15,73 +23,49 @@ A full port of TailwindCSS 4.0 to PHP, focusing on the CSS-first approach (no JS
 - ❌ JS plugins (removed)
 - ❌ `@plugin` directive (removed)
 - ❌ `@config` directive (removed)
+- ❌ `content` option / file scanning (not needed - pass content directly)
 
 ---
 
-## Package Structure
+## Package Structure (1:1 with Tailwind)
 
 ```
 tailwind-php/
 ├── src/
-│   ├── TailwindPHP.php              # Main entry point
-│   ├── Compiler.php                  # Orchestrates compilation pipeline
+│   ├── index.php                    # Main entry (from index.ts)
+│   ├── ast.php                      # AST nodes & toCss (from ast.ts)
+│   ├── apply.php                    # @apply processing (from apply.ts)
+│   ├── at-import.php                # @import handling (from at-import.ts)
+│   ├── candidate.php                # Class name parsing (from candidate.ts)
+│   ├── canonicalize-candidates.php  # Canonicalization (from canonicalize-candidates.ts)
+│   ├── compile.php                  # Candidate compilation (from compile.ts)
+│   ├── css-functions.php            # theme(), --alpha(), etc (from css-functions.ts)
+│   ├── css-parser.php               # CSS tokenizer (from css-parser.ts)
+│   ├── design-system.php            # Central registry (from design-system.ts)
+│   ├── property-order.php           # CSS property ordering (from property-order.ts)
+│   ├── selector-parser.php          # Selector parsing (from selector-parser.ts)
+│   ├── sort.php                     # Sorting utilities (from sort.ts)
+│   ├── theme.php                    # Theme management (from theme.ts)
+│   ├── utilities.php                # All utilities (from utilities.ts)
+│   ├── value-parser.php             # Value parsing (from value-parser.ts)
+│   ├── variants.php                 # All variants (from variants.ts)
+│   ├── walk.php                     # AST traversal (from walk.ts)
 │   │
-│   ├── Parser/
-│   │   ├── CssParser.php            # CSS tokenizer/parser
-│   │   ├── CandidateParser.php      # Utility class name parser
-│   │   └── ValueParser.php          # CSS value parsing utilities
-│   │
-│   ├── Ast/
-│   │   ├── Node.php                 # Base AST node interface
-│   │   ├── StyleRule.php            # .selector { ... }
-│   │   ├── AtRule.php               # @media, @theme, etc.
-│   │   ├── Declaration.php          # property: value;
-│   │   ├── Comment.php              # /* comment */
-│   │   └── AstBuilder.php           # Helper for building AST
-│   │
-│   ├── DesignSystem/
-│   │   ├── DesignSystem.php         # Central registry
-│   │   ├── Theme.php                # Theme variable storage
-│   │   ├── Utilities.php            # Utility registry
-│   │   └── Variants.php             # Variant registry
-│   │
-│   ├── Utilities/
-│   │   ├── StaticUtilities.php      # underline, flex, etc.
-│   │   ├── ColorUtilities.php       # bg-*, text-*, border-*, etc.
-│   │   ├── SpacingUtilities.php     # m-*, p-*, gap-*, etc.
-│   │   ├── TypographyUtilities.php  # font-*, text-*, etc.
-│   │   ├── LayoutUtilities.php      # w-*, h-*, flex-*, grid-*, etc.
-│   │   ├── EffectsUtilities.php     # shadow-*, opacity-*, etc.
-│   │   ├── FiltersUtilities.php     # blur-*, brightness-*, etc.
-│   │   ├── TransformUtilities.php   # scale-*, rotate-*, etc.
-│   │   └── InteractivityUtilities.php # cursor-*, select-*, etc.
-│   │
-│   ├── Variants/
-│   │   ├── PseudoClassVariants.php  # hover, focus, active, etc.
-│   │   ├── PseudoElementVariants.php # before, after, placeholder, etc.
-│   │   ├── MediaVariants.php        # sm, md, lg, dark, print, etc.
-│   │   ├── ContainerVariants.php    # @container queries
-│   │   ├── AriaVariants.php         # aria-*, data-*
-│   │   └── GroupVariants.php        # group-*, peer-*
-│   │
-│   ├── Processing/
-│   │   ├── AtImport.php             # @import/@reference processing
-│   │   ├── AtApply.php              # @apply directive
-│   │   ├── AtTheme.php              # @theme block processing
-│   │   ├── AtUtility.php            # @utility definitions
-│   │   ├── AtVariant.php            # @variant/@custom-variant
-│   │   ├── AtSource.php             # @source directive
-│   │   └── CssFunctions.php         # theme(), --alpha(), --spacing()
-│   │
-│   ├── Output/
-│   │   ├── CssWriter.php            # AST to CSS string
-│   │   ├── Optimizer.php            # CSS optimization
-│   │   └── PropertyOrder.php        # CSS property ordering
-│   │
-│   └── Utils/
-│       ├── DefaultMap.php           # Lazy-loading cache map
-│       ├── Segment.php              # String segmentation
-│       └── Walker.php               # AST traversal
+│   └── utils/
+│       ├── brace-expansion.php      # Brace expansion
+│       ├── compare.php              # Comparison utilities
+│       ├── compare-breakpoints.php  # Breakpoint comparison
+│       ├── decode-arbitrary-value.php
+│       ├── default-map.php          # Lazy cache map
+│       ├── dimensions.php           # Dimension parsing
+│       ├── escape.php               # CSS escaping
+│       ├── infer-data-type.php      # Type inference
+│       ├── is-valid-arbitrary.php   # Arbitrary validation
+│       ├── math-operators.php       # Math operations
+│       ├── replace-shadow-colors.php
+│       ├── segment.php              # String segmentation
+│       ├── to-key-path.php          # Key path parsing
+│       └── topological-sort.php     # Topological sorting
 │
 ├── resources/
 │   ├── preflight.css                # Preflight styles
@@ -89,18 +73,29 @@ tailwind-php/
 │   └── utilities.css                # Core utility definitions
 │
 ├── tests/
-│   ├── Unit/
-│   │   ├── Parser/
-│   │   ├── Ast/
-│   │   ├── DesignSystem/
-│   │   ├── Utilities/
-│   │   ├── Variants/
-│   │   └── Processing/
+│   ├── ast.test.php                 # from ast.test.ts
+│   ├── apply.test.php               # (if needed, tests in index.test.ts)
+│   ├── at-import.test.php           # from at-import.test.ts
+│   ├── candidate.test.php           # from candidate.test.ts
+│   ├── canonicalize-candidates.test.php
+│   ├── css-functions.test.php       # from css-functions.test.ts
+│   ├── css-parser.test.php          # from css-parser.test.ts
+│   ├── index.test.php               # from index.test.ts (main integration)
+│   ├── selector-parser.test.php     # from selector-parser.test.ts
+│   ├── sort.test.php                # from sort.test.ts
+│   ├── utilities.test.php           # from utilities.test.ts
+│   ├── value-parser.test.php        # from value-parser.test.ts
+│   ├── variants.test.php            # from variants.test.ts
+│   ├── walk.test.php                # from walk.test.ts
 │   │
-│   └── Integration/
-│       ├── CompilerTest.php
-│       ├── UtilitiesTest.php
-│       └── VariantsTest.php
+│   └── utils/
+│       ├── brace-expansion.test.php
+│       ├── compare.test.php
+│       ├── decode-arbitrary-value.test.php
+│       ├── escape.test.php
+│       ├── replace-shadow-colors.test.php
+│       ├── segment.test.php
+│       └── to-key-path.test.php
 │
 ├── composer.json
 ├── phpunit.xml
@@ -109,359 +104,66 @@ tailwind-php/
 
 ---
 
-## Porting Phases
+## File Mapping (1:1)
 
-### Phase 1: Foundation (Core Infrastructure)
+| TypeScript Source | PHP Target | Test File |
+|-------------------|------------|-----------|
+| `index.ts` | `src/index.php` | `tests/index.test.php` |
+| `ast.ts` | `src/ast.php` | `tests/ast.test.php` |
+| `apply.ts` | `src/apply.php` | (in index.test.php) |
+| `at-import.ts` | `src/at-import.php` | `tests/at-import.test.php` |
+| `candidate.ts` | `src/candidate.php` | `tests/candidate.test.php` |
+| `canonicalize-candidates.ts` | `src/canonicalize-candidates.php` | `tests/canonicalize-candidates.test.php` |
+| `compile.ts` | `src/compile.php` | (in index.test.php) |
+| `css-functions.ts` | `src/css-functions.php` | `tests/css-functions.test.php` |
+| `css-parser.ts` | `src/css-parser.php` | `tests/css-parser.test.php` |
+| `design-system.ts` | `src/design-system.php` | (in index.test.php) |
+| `property-order.ts` | `src/property-order.php` | - |
+| `selector-parser.ts` | `src/selector-parser.php` | `tests/selector-parser.test.php` |
+| `sort.ts` | `src/sort.php` | `tests/sort.test.php` |
+| `theme.ts` | `src/theme.php` | (in index.test.php) |
+| `utilities.ts` | `src/utilities.php` | `tests/utilities.test.php` |
+| `value-parser.ts` | `src/value-parser.php` | `tests/value-parser.test.php` |
+| `variants.ts` | `src/variants.php` | `tests/variants.test.php` |
+| `walk.ts` | `src/walk.php` | `tests/walk.test.php` |
 
-**1.1 Project Setup**
-- [ ] Create `composer.json` with autoloading
-- [ ] Set up PHPUnit for testing
-- [ ] Configure PHP-CS-Fixer for code style
-- [ ] Set up GitHub Actions for CI
+### Utils (1:1)
 
-**1.2 AST System** (`src/Ast/`)
-Port from: `packages/tailwindcss/src/ast.ts`
-
-- [ ] `Node.php` - Base interface with `kind`, source location
-- [ ] `StyleRule.php` - Selector + nested nodes
-- [ ] `AtRule.php` - At-rule name + params + nodes
-- [ ] `Declaration.php` - Property + value + important flag
-- [ ] `Comment.php` - Comment content
-- [ ] `AstBuilder.php` - Factory methods for creating nodes
-
-**1.3 CSS Parser** (`src/Parser/CssParser.php`)
-Port from: `packages/tailwindcss/src/css-parser.ts` (~718 lines)
-
-- [ ] Character-by-character tokenizer
-- [ ] Handle comments, strings, at-rules, selectors
-- [ ] Track source locations
-- [ ] Parse nested rules and declarations
-- [ ] Extract license comments
-
-**1.4 AST Walker** (`src/Utils/Walker.php`)
-Port from: `packages/tailwindcss/src/walk.ts` (~182 lines)
-
-- [ ] Enter/exit phase hooks
-- [ ] Walk actions (Continue, Skip, Stop, Replace)
-- [ ] Recursive traversal with context
-
-**1.5 CSS Writer** (`src/Output/CssWriter.php`)
-Port from: `ast.ts` `toCss()` function
-
-- [ ] Convert AST back to CSS string
-- [ ] Handle indentation and formatting
-- [ ] Minification option
-
----
-
-### Phase 2: Design System Core
-
-**2.1 Theme System** (`src/DesignSystem/Theme.php`)
-Port from: `packages/tailwindcss/src/theme.ts` (~305 lines)
-
-- [ ] Store theme variables with namespacing
-- [ ] Resolve theme values by path
-- [ ] Handle theme options (INLINE, REFERENCE, DEFAULT)
-- [ ] Manage keyframes
-
-**2.2 Design System** (`src/DesignSystem/DesignSystem.php`)
-Port from: `packages/tailwindcss/src/design-system.ts` (~234 lines)
-
-- [ ] Central registry for theme, utilities, variants
-- [ ] Candidate parsing interface
-- [ ] Utility compilation interface
-- [ ] Caching layer
-
-**2.3 Utilities Registry** (`src/DesignSystem/Utilities.php`)
-Port from: `packages/tailwindcss/src/utilities.ts` (partial)
-
-- [ ] Static utility registration
-- [ ] Functional utility registration
-- [ ] Utility lookup and caching
-
-**2.4 Variants Registry** (`src/DesignSystem/Variants.php`)
-Port from: `packages/tailwindcss/src/variants.ts` (partial)
-
-- [ ] Static variant registration
-- [ ] Functional variant registration
-- [ ] Compound variant support
-- [ ] Variant ordering
+| TypeScript Source | PHP Target | Test File |
+|-------------------|------------|-----------|
+| `utils/brace-expansion.ts` | `src/utils/brace-expansion.php` | `tests/utils/brace-expansion.test.php` |
+| `utils/compare.ts` | `src/utils/compare.php` | `tests/utils/compare.test.php` |
+| `utils/compare-breakpoints.ts` | `src/utils/compare-breakpoints.php` | - |
+| `utils/decode-arbitrary-value.ts` | `src/utils/decode-arbitrary-value.php` | `tests/utils/decode-arbitrary-value.test.php` |
+| `utils/default-map.ts` | `src/utils/default-map.php` | - |
+| `utils/dimensions.ts` | `src/utils/dimensions.php` | - |
+| `utils/escape.ts` | `src/utils/escape.php` | `tests/utils/escape.test.php` |
+| `utils/infer-data-type.ts` | `src/utils/infer-data-type.php` | - |
+| `utils/is-valid-arbitrary.ts` | `src/utils/is-valid-arbitrary.php` | - |
+| `utils/math-operators.ts` | `src/utils/math-operators.php` | - |
+| `utils/replace-shadow-colors.ts` | `src/utils/replace-shadow-colors.php` | `tests/utils/replace-shadow-colors.test.php` |
+| `utils/segment.ts` | `src/utils/segment.php` | `tests/utils/segment.test.php` |
+| `utils/to-key-path.ts` | `src/utils/to-key-path.php` | `tests/utils/to-key-path.test.php` |
+| `utils/topological-sort.ts` | `src/utils/topological-sort.php` | - |
 
 ---
 
-### Phase 3: Parsing & Candidates
+## Files to Skip (JS-specific)
 
-**3.1 Candidate Parser** (`src/Parser/CandidateParser.php`)
-Port from: `packages/tailwindcss/src/candidate.ts` (~900 lines)
-
-- [ ] Parse utility class names
-- [ ] Extract variants (colon-separated)
-- [ ] Handle arbitrary values `[...]`
-- [ ] Parse modifiers `/50`, `/[50%]`
-- [ ] Handle negative values `-m-4`
-- [ ] Important flag `!`
-
-**3.2 Value Parser** (`src/Parser/ValueParser.php`)
-Port from: Various utility value parsing
-
-- [ ] Parse color values
-- [ ] Parse spacing values
-- [ ] Parse arbitrary CSS values
-- [ ] Handle CSS variables
+- `compat/*` - JS config/plugin compatibility layer
+- `plugin.ts` - JS plugin API
+- `intellisense.ts` - Editor integration
+- `source-maps/*` - Source map generation (defer)
+- `*.bench.ts` - Benchmarks (can add later)
+- `index.cts`, `plugin.cts` - CommonJS wrappers
+- `node.d.ts` - TypeScript declarations
+- `types.ts` - TypeScript types
+- `feature-flags.ts` - Feature flags (minimal)
+- `attribute-selector-parser.ts` - Can inline if small
 
 ---
 
-### Phase 4: Core Utilities
-
-Port from: `packages/tailwindcss/src/utilities.ts` + theme defaults
-
-**4.1 Layout Utilities**
-- [ ] Display: `block`, `flex`, `grid`, `hidden`, etc.
-- [ ] Position: `static`, `relative`, `absolute`, `fixed`, `sticky`
-- [ ] Positioning: `top-*`, `right-*`, `bottom-*`, `left-*`, `inset-*`
-- [ ] Sizing: `w-*`, `h-*`, `min-w-*`, `max-w-*`, `size-*`
-- [ ] Overflow: `overflow-*`
-- [ ] Z-index: `z-*`
-
-**4.2 Flexbox & Grid**
-- [ ] Flex: `flex-*`, `grow-*`, `shrink-*`, `basis-*`
-- [ ] Flex direction: `flex-row`, `flex-col`
-- [ ] Flex wrap: `flex-wrap`, `flex-nowrap`
-- [ ] Justify: `justify-*`
-- [ ] Align: `items-*`, `content-*`, `self-*`
-- [ ] Grid: `grid-cols-*`, `grid-rows-*`, `col-*`, `row-*`, `gap-*`
-- [ ] Place: `place-*`
-- [ ] Order: `order-*`
-
-**4.3 Spacing**
-- [ ] Margin: `m-*`, `mx-*`, `my-*`, `mt-*`, `mr-*`, `mb-*`, `ml-*`, `ms-*`, `me-*`
-- [ ] Padding: `p-*`, `px-*`, `py-*`, `pt-*`, `pr-*`, `pb-*`, `pl-*`, `ps-*`, `pe-*`
-- [ ] Space between: `space-x-*`, `space-y-*`
-
-**4.4 Typography**
-- [ ] Font family: `font-sans`, `font-serif`, `font-mono`
-- [ ] Font size: `text-xs`, `text-sm`, `text-base`, etc.
-- [ ] Font weight: `font-thin`, `font-bold`, etc.
-- [ ] Font style: `italic`, `not-italic`
-- [ ] Letter spacing: `tracking-*`
-- [ ] Line height: `leading-*`
-- [ ] Text align: `text-left`, `text-center`, etc.
-- [ ] Text color: `text-*`
-- [ ] Text decoration: `underline`, `line-through`, `no-underline`
-- [ ] Text transform: `uppercase`, `lowercase`, `capitalize`
-- [ ] Text overflow: `truncate`, `text-ellipsis`
-- [ ] Whitespace: `whitespace-*`
-- [ ] Word break: `break-*`
-
-**4.5 Backgrounds**
-- [ ] Background color: `bg-*`
-- [ ] Background opacity: `bg-opacity-*`
-- [ ] Background image: `bg-none`, `bg-gradient-*`
-- [ ] Background size: `bg-auto`, `bg-cover`, `bg-contain`
-- [ ] Background position: `bg-center`, `bg-top`, etc.
-- [ ] Background repeat: `bg-repeat`, `bg-no-repeat`
-- [ ] Gradient stops: `from-*`, `via-*`, `to-*`
-
-**4.6 Borders**
-- [ ] Border width: `border`, `border-*`
-- [ ] Border color: `border-*`
-- [ ] Border style: `border-solid`, `border-dashed`, etc.
-- [ ] Border radius: `rounded`, `rounded-*`
-- [ ] Divide: `divide-*`
-- [ ] Outline: `outline-*`
-- [ ] Ring: `ring-*`
-
-**4.7 Effects**
-- [ ] Box shadow: `shadow-*`
-- [ ] Opacity: `opacity-*`
-- [ ] Mix blend: `mix-blend-*`
-- [ ] Background blend: `bg-blend-*`
-
-**4.8 Filters**
-- [ ] Blur: `blur-*`
-- [ ] Brightness: `brightness-*`
-- [ ] Contrast: `contrast-*`
-- [ ] Drop shadow: `drop-shadow-*`
-- [ ] Grayscale: `grayscale-*`
-- [ ] Hue rotate: `hue-rotate-*`
-- [ ] Invert: `invert-*`
-- [ ] Saturate: `saturate-*`
-- [ ] Sepia: `sepia-*`
-- [ ] Backdrop filters: `backdrop-*`
-
-**4.9 Transforms**
-- [ ] Scale: `scale-*`
-- [ ] Rotate: `rotate-*`
-- [ ] Translate: `translate-*`
-- [ ] Skew: `skew-*`
-- [ ] Transform origin: `origin-*`
-
-**4.10 Transitions & Animation**
-- [ ] Transition: `transition-*`
-- [ ] Duration: `duration-*`
-- [ ] Timing: `ease-*`
-- [ ] Delay: `delay-*`
-- [ ] Animation: `animate-*`
-
-**4.11 Interactivity**
-- [ ] Cursor: `cursor-*`
-- [ ] Pointer events: `pointer-events-*`
-- [ ] Resize: `resize-*`
-- [ ] Scroll: `scroll-*`
-- [ ] Touch action: `touch-*`
-- [ ] User select: `select-*`
-- [ ] Will change: `will-change-*`
-
-**4.12 SVG**
-- [ ] Fill: `fill-*`
-- [ ] Stroke: `stroke-*`
-
-**4.13 Accessibility**
-- [ ] Screen reader: `sr-only`, `not-sr-only`
-
----
-
-### Phase 5: Variants
-
-Port from: `packages/tailwindcss/src/variants.ts`
-
-**5.1 Pseudo-class Variants**
-- [ ] `hover`, `focus`, `focus-within`, `focus-visible`
-- [ ] `active`, `visited`, `target`
-- [ ] `first`, `last`, `only`, `odd`, `even`
-- [ ] `first-of-type`, `last-of-type`, `only-of-type`
-- [ ] `empty`, `disabled`, `enabled`, `checked`, `indeterminate`
-- [ ] `default`, `required`, `valid`, `invalid`, `in-range`, `out-of-range`
-- [ ] `placeholder-shown`, `autofill`, `read-only`
-
-**5.2 Pseudo-element Variants**
-- [ ] `before`, `after`
-- [ ] `first-letter`, `first-line`
-- [ ] `marker`, `selection`
-- [ ] `file`, `placeholder`
-- [ ] `backdrop`
-
-**5.3 Media/Responsive Variants**
-- [ ] Breakpoints: `sm`, `md`, `lg`, `xl`, `2xl`
-- [ ] `dark`, `light` (color scheme)
-- [ ] `motion-safe`, `motion-reduce`
-- [ ] `print`
-- [ ] `portrait`, `landscape`
-- [ ] `contrast-more`, `contrast-less`
-
-**5.4 Container Query Variants**
-- [ ] `@container`, `@container-*`
-- [ ] Named containers
-
-**5.5 Supports Variants**
-- [ ] `supports-*`
-
-**5.6 Aria/Data Variants**
-- [ ] `aria-*` (aria-checked, aria-disabled, etc.)
-- [ ] `data-*`
-
-**5.7 Group/Peer Variants**
-- [ ] `group-*`
-- [ ] `peer-*`
-
-**5.8 State Variants**
-- [ ] `open`
-- [ ] `closed`
-
-**5.9 Direction Variants**
-- [ ] `ltr`, `rtl`
-
-**5.10 Arbitrary Variants**
-- [ ] `[&_p]`, `[&:hover_p]`
-
----
-
-### Phase 6: Directive Processing
-
-**6.1 @import Processing** (`src/Processing/AtImport.php`)
-Port from: `packages/tailwindcss/src/at-import.ts`
-
-- [ ] Resolve file paths
-- [ ] Handle `@import "..." layer(...)`
-- [ ] Handle `@import "..." theme(reference)`
-- [ ] Circular import detection
-
-**6.2 @theme Processing** (`src/Processing/AtTheme.php`)
-Port from: `index.ts` theme extraction
-
-- [ ] Extract theme variables from `@theme` blocks
-- [ ] Handle `@theme inline`, `@theme reference`
-- [ ] Namespace prefixing
-
-**6.3 @utility Processing** (`src/Processing/AtUtility.php`)
-Port from: `index.ts` utility extraction
-
-- [ ] Register custom utilities from `@utility` blocks
-- [ ] Support functional utilities with values
-
-**6.4 @variant/@custom-variant** (`src/Processing/AtVariant.php`)
-Port from: `index.ts` variant extraction
-
-- [ ] Register custom variants
-- [ ] Handle variant dependencies (topological sort)
-
-**6.5 @apply Processing** (`src/Processing/AtApply.php`)
-Port from: `packages/tailwindcss/src/apply.ts` (~350 lines)
-
-- [ ] Find and resolve `@apply` directives
-- [ ] Topological sort for dependency resolution
-- [ ] Circular dependency detection
-- [ ] Inline utility CSS
-
-**6.6 CSS Functions** (`src/Processing/CssFunctions.php`)
-Port from: `packages/tailwindcss/src/css-functions.ts` (~200 lines)
-
-- [ ] `theme(--variable)` resolution
-- [ ] `--alpha(color / alpha)` processing
-- [ ] `--spacing(multiplier)` calculation
-
-**6.7 @source Processing** (`src/Processing/AtSource.php`)
-- [ ] Parse `@source` glob patterns
-- [ ] File scanning for candidate extraction
-
----
-
-### Phase 7: Compiler Integration
-
-**7.1 Main Compiler** (`src/Compiler.php`)
-Port from: `packages/tailwindcss/src/index.ts` (~867 lines)
-
-- [ ] `compile(string $css): CompileResult`
-- [ ] `compileAst(array $ast): CompileResult`
-- [ ] Pipeline orchestration
-- [ ] Feature detection
-
-**7.2 Candidate Compilation** (`src/Output/CandidateCompiler.php`)
-Port from: `packages/tailwindcss/src/compile.ts` (~368 lines)
-
-- [ ] Parse candidates
-- [ ] Generate AST for each
-- [ ] Apply variants
-- [ ] Sort output
-
-**7.3 Property Ordering** (`src/Output/PropertyOrder.php`)
-Port from: `packages/tailwindcss/src/property-order.ts`
-
-- [ ] CSS property sort order
-- [ ] Consistent output ordering
-
-**7.4 AST Optimizer** (`src/Output/Optimizer.php`)
-Port from: `ast.ts` `optimizeAst()`
-
-- [ ] Merge duplicate rules
-- [ ] Remove empty rules
-- [ ] Combine media queries
-
----
-
-### Phase 8: Public API
-
-**8.1 Main Entry Point** (`src/TailwindPHP.php`)
+## Public API
 
 ```php
 <?php
@@ -471,130 +173,157 @@ namespace TailwindPHP;
 class TailwindPHP
 {
     /**
-     * Compile CSS with Tailwind directives
+     * Generate CSS from content containing Tailwind classes.
+     *
+     * @param string $content HTML or any content with Tailwind classes
+     * @param string|null $css Optional base CSS with @theme, @utility, etc.
+     * @return string Generated CSS
      */
-    public static function compile(string $css, array $options = []): string;
-
-    /**
-     * Compile and return result object with metadata
-     */
-    public static function process(string $css, array $options = []): CompileResult;
-
-    /**
-     * Generate CSS for specific utility classes
-     */
-    public static function generate(array $classes, array $options = []): string;
-
-    /**
-     * Scan files for utility classes
-     */
-    public static function scan(array $patterns): array;
+    public static function generate(string $content, ?string $css = null): string;
 }
 ```
 
-**8.2 Configuration**
-
+**Usage:**
 ```php
-$options = [
-    'content' => ['./src/**/*.php', './templates/**/*.html'],
-    'minify' => true,
-    'prefix' => 'tw-',
-    'important' => false,
-];
+// Simple - just pass HTML
+$css = TailwindPHP::generate('<div class="flex p-4 bg-blue-500">Hello</div>');
+
+// With custom theme
+$css = TailwindPHP::generate($html, '
+    @theme {
+        --color-primary: #3490dc;
+    }
+');
+
+// With @apply in custom CSS
+$css = TailwindPHP::generate($html, '
+    @theme {
+        --color-primary: #3490dc;
+    }
+
+    .btn {
+        @apply px-4 py-2 rounded bg-primary text-white;
+    }
+');
 ```
 
 ---
 
-### Phase 9: Testing
+## Porting Phases
 
-**9.1 Unit Tests**
-Port key tests from: `packages/tailwindcss/src/*.test.ts`
+### Phase 1: Project Setup
+- [ ] Create `composer.json` with PSR-4 autoloading
+- [ ] Set up PHPUnit
+- [ ] Create directory structure
+- [ ] Copy static CSS files (preflight.css, theme.css)
 
-- [ ] CSS Parser tests
-- [ ] Candidate Parser tests
-- [ ] AST tests
-- [ ] Theme tests
-- [ ] Walker tests
+### Phase 2: Foundation (Bottom-up)
+Port in dependency order:
 
-**9.2 Integration Tests**
-Port from: `packages/tailwindcss/src/index.test.ts` (~4800 lines)
+1. **Utils first** (no dependencies)
+   - [ ] `utils/segment.php` + test
+   - [ ] `utils/escape.php` + test
+   - [ ] `utils/default-map.php`
+   - [ ] `utils/decode-arbitrary-value.php` + test
+   - [ ] `utils/to-key-path.php` + test
+   - [ ] `utils/brace-expansion.php` + test
+   - [ ] `utils/compare.php` + test
+   - [ ] `utils/compare-breakpoints.php`
+   - [ ] `utils/dimensions.php`
+   - [ ] `utils/infer-data-type.php`
+   - [ ] `utils/is-valid-arbitrary.php`
+   - [ ] `utils/math-operators.php`
+   - [ ] `utils/replace-shadow-colors.php` + test
+   - [ ] `utils/topological-sort.php`
 
-- [ ] Full compilation tests
-- [ ] All utility output tests
-- [ ] All variant tests
-- [ ] Directive processing tests
+2. **Core parsing**
+   - [ ] `css-parser.php` + test
+   - [ ] `ast.php` + test
+   - [ ] `walk.php` + test
+   - [ ] `value-parser.php` + test
+   - [ ] `selector-parser.php` + test
 
-**9.3 Compatibility Tests**
-- [ ] Compare output with original Tailwind for same input
-- [ ] Test all example CSS from Tailwind docs
+### Phase 3: Design System
+- [ ] `theme.php`
+- [ ] `design-system.php`
+- [ ] `property-order.php`
+- [ ] `sort.php` + test
+
+### Phase 4: Candidates & Compilation
+- [ ] `candidate.php` + test
+- [ ] `canonicalize-candidates.php` + test
+- [ ] `compile.php`
+
+### Phase 5: Utilities & Variants
+- [ ] `utilities.php` + test
+- [ ] `variants.php` + test
+
+### Phase 6: Directives
+- [ ] `css-functions.php` + test
+- [ ] `apply.php`
+- [ ] `at-import.php` + test
+
+### Phase 7: Main Entry
+- [ ] `index.php` + test (integration tests)
+- [ ] Public API wrapper
+
+### Phase 8: Polish
+- [ ] Full test coverage
+- [ ] Compare output with original Tailwind
+- [ ] Documentation
+- [ ] Publish to Packagist
 
 ---
 
-### Phase 10: Resources & Polish
+## Test Strategy
 
-**10.1 Static Resources**
-Copy from: `packages/tailwindcss/`
+Each file gets a corresponding test file mirroring the TypeScript tests:
 
-- [ ] `preflight.css`
-- [ ] `theme.css` (default theme)
-- [ ] `utilities.css` (if needed)
+```php
+// tests/css-parser.test.php
+class CssParserTest extends TestCase
+{
+    public function test_parses_simple_rule()
+    {
+        $ast = parse('.foo { color: red }');
 
-**10.2 Documentation**
-- [ ] README.md with usage examples
-- [ ] API documentation
-- [ ] Migration guide from Node Tailwind
+        $this->assertEquals([
+            rule('.foo', [
+                decl('color', 'red')
+            ])
+        ], $ast);
+    }
 
-**10.3 Composer Package**
-- [ ] Finalize `composer.json`
-- [ ] Add to Packagist
-- [ ] Version tagging
+    // ... port all tests from css-parser.test.ts
+}
+```
 
----
-
-## File Mapping Reference
-
-| TypeScript Source | PHP Target |
-|-------------------|------------|
-| `src/index.ts` | `src/Compiler.php` |
-| `src/css-parser.ts` | `src/Parser/CssParser.php` |
-| `src/ast.ts` | `src/Ast/*.php` |
-| `src/candidate.ts` | `src/Parser/CandidateParser.php` |
-| `src/design-system.ts` | `src/DesignSystem/DesignSystem.php` |
-| `src/theme.ts` | `src/DesignSystem/Theme.php` |
-| `src/utilities.ts` | `src/DesignSystem/Utilities.php` + `src/Utilities/*.php` |
-| `src/variants.ts` | `src/DesignSystem/Variants.php` + `src/Variants/*.php` |
-| `src/compile.ts` | `src/Output/CandidateCompiler.php` |
-| `src/apply.ts` | `src/Processing/AtApply.php` |
-| `src/at-import.ts` | `src/Processing/AtImport.php` |
-| `src/css-functions.ts` | `src/Processing/CssFunctions.php` |
-| `src/walk.ts` | `src/Utils/Walker.php` |
+**Integration tests** in `index.test.php` cover the full pipeline - these are the most important for ensuring compatibility.
 
 ---
 
-## Estimated Complexity
+## Line Count Estimates
 
-| Component | TS Lines | Est. PHP Lines | Complexity |
-|-----------|----------|----------------|------------|
-| CSS Parser | 718 | ~800 | Medium |
-| AST System | 800 | ~600 | Low |
-| Candidate Parser | 900 | ~1000 | High |
-| Design System | 234 | ~300 | Low |
-| Theme | 305 | ~350 | Low |
-| Utilities Registry | 200 | ~250 | Low |
-| Utilities (all) | 800+ | ~2000 | Medium |
-| Variants Registry | 200 | ~250 | Low |
-| Variants (all) | 600+ | ~1500 | Medium |
-| Compiler | 867 | ~900 | High |
-| @apply | 350 | ~400 | Medium |
-| CSS Functions | 200 | ~250 | Low |
-| Walker | 182 | ~200 | Low |
-| **Total** | ~6000 | ~9000 | |
+| File | TS Lines | Est. PHP Lines |
+|------|----------|----------------|
+| `css-parser.php` | 718 | ~800 |
+| `ast.php` | 800 | ~900 |
+| `candidate.php` | 900 | ~1000 |
+| `canonicalize-candidates.php` | 1600 | ~1800 |
+| `utilities.php` | 5700 | ~6500 |
+| `variants.php` | 1100 | ~1200 |
+| `index.php` | 867 | ~950 |
+| `compile.php` | 368 | ~400 |
+| `design-system.php` | 234 | ~300 |
+| `theme.php` | 305 | ~350 |
+| Utils (all) | ~1000 | ~1100 |
+| **Total** | ~13,500 | ~15,300 |
 
 ---
 
 ## Next Steps
 
-1. **Start with Phase 1** - Get the foundation right
-2. **Test early and often** - Port tests alongside implementation
-3. **Validate against Tailwind output** - Ensure compatibility
-4. **Iterate** - Refine based on real-world usage
+1. Set up project with composer.json and PHPUnit
+2. Start with utils (smallest, no dependencies)
+3. Port css-parser.php with tests
+4. Build up from there
