@@ -32,7 +32,10 @@
             "src/utils/is-color.php",
             "src/utils/math-operators.php",
             "src/utils/is-valid-arbitrary.php",
-            "src/utils/infer-data-type.php"
+            "src/utils/infer-data-type.php",
+            "src/ast.php",
+            "src/css-parser.php",
+            "src/walk.php"
         ]
     },
     "autoload-dev": {

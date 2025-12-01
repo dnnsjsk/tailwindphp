@@ -238,9 +238,9 @@ Port in dependency order:
    - [x] `utils/topological-sort.php`
 
 2. **Core parsing**
-   - [ ] `css-parser.php` + test
-   - [ ] `ast.php` + test
-   - [ ] `walk.php` + test
+   - [x] `css-parser.php` + test
+   - [x] `ast.php` + test
+   - [x] `walk.php` + test
    - [ ] `value-parser.php` + test
    - [ ] `selector-parser.php` + test
 
