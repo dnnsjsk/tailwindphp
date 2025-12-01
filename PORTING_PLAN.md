@@ -81,6 +81,8 @@ tailwind-php/
 │   │   ├── transitions.php
 │   │   └── typography.php
 │   │
+│   ├── utilities-test/              # TailwindCSS test cases (*.ts)
+│   │
 │   └── utils/                       # Helper utilities
 │       ├── brace-expansion.php
 │       ├── compare.php
@@ -94,7 +96,6 @@ tailwind-php/
 │   ├── TestHelper.php               # Test utilities
 │   └── ...
 │
-├── extracted-tests/                 # TailwindCSS test cases (*.ts)
 ├── scripts/
 │   └── extract-tests.php            # Extract tests from Tailwind source
 │
@@ -112,7 +113,7 @@ The test suite consists of:
 1. **TailwindCSS Compliance Tests** (`src/utilities.test.php`)
    - 364 tests parsed from TailwindCSS source
    - Verifies output matches TailwindCSS exactly
-   - Auto-parsed from `extracted-tests/*.ts`
+   - Auto-parsed from `src/utilities-test/*.ts`
 
 2. **Unit Tests** (`tests/`)
    - Tests for individual components (parser, AST, etc.)

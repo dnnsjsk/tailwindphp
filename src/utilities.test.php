@@ -32,7 +32,7 @@ class utilities extends TestCase
             return;
         }
 
-        $extractedDir = dirname(__DIR__) . '/extracted-tests';
+        $extractedDir = __DIR__ . '/utilities-test';
         $tsFiles = glob($extractedDir . '/*.ts');
 
         foreach ($tsFiles as $file) {

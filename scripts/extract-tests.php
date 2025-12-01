@@ -9,7 +9,7 @@
  */
 
 $inputFile = dirname(__DIR__) . '/tailwindcss/packages/tailwindcss/src/utilities.test.ts';
-$outputDir = dirname(__DIR__) . '/extracted-tests';
+$outputDir = dirname(__DIR__) . '/src/utilities-test';
 
 if (!file_exists($inputFile)) {
     echo "Error: utilities.test.ts not found at: $inputFile\n";

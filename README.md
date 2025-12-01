@@ -76,7 +76,7 @@ We test against TailwindCSS's actual test suite to ensure compatibility.
 
 TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting this massive file manually, we:
 
-1. **Pre-extract** — `scripts/extract-tests.php` splits the TypeScript test file into smaller `.ts` files under `extracted-tests/` (grouped by category). This only needs to run when TailwindCSS updates.
+1. **Pre-extract** — `scripts/extract-tests.php` splits the TypeScript test file into smaller `.ts` files under `src/utilities-test/` (grouped by category). This only needs to run when TailwindCSS updates.
 
 2. **Parse at runtime** — `src/utilities.test.php` reads those `.ts` files and parses out:
    - Input classes (e.g., `['flex', 'p-4', 'bg-blue-500']`)
@@ -130,9 +130,9 @@ php scripts/extract-tests.php
 tailwind-php/
 ├── src/                    # Source code
 │   ├── utilities/          # Utility implementations
+│   ├── utilities-test/     # TailwindCSS test cases (.ts files)
 │   └── utils/              # Helper functions
 ├── tests/                  # Unit tests
-├── extracted-tests/        # TailwindCSS test cases (.ts files)
 ├── scripts/                # Build scripts
 │   └── extract-tests.php   # Extract tests from TailwindCSS
 └── tailwindcss/            # TailwindCSS submodule (for reference)
