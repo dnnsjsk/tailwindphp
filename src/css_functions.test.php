@@ -95,12 +95,12 @@ class css_functions extends TestCase
      * - --theme() with initial fallback handling
      */
     private const PENDING_FEATURE_TESTS = [
-        // --theme() with initial fallback handling (complex resolution)
-        '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial`',
-        '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial` in @reference mode',
-        '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial`',
-        '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial` in @reference mode',
-        '--theme(…) does not inject the fallback if the fallback is `initial`',
+        // --theme() with initial fallback handling (complex resolution) - testing
+        // '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial`',
+        // '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial` in @reference mode',
+        // '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial`',
+        // '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial` in @reference mode',
+        // '--theme(…) does not inject the fallback if the fallback is `initial`',
 
         // Stacking opacity in @theme definitions - IMPLEMENTED
 
@@ -144,8 +144,11 @@ class css_functions extends TestCase
             $this->markTestSkipped("Test '$name' requires features not yet implemented in PHP port");
         }
 
-        // Build full CSS with @tailwind utilities if we have classes
-        $fullCss = "@tailwind utilities;\n" . $inputCss;
+        // Build full CSS - only add @tailwind utilities if not already present
+        $fullCss = $inputCss;
+        if (!str_contains($inputCss, '@tailwind utilities')) {
+            $fullCss = "@tailwind utilities;\n" . $inputCss;
+        }
 
         if ($type === 'error') {
             // Error tests pass - PHP handles errors differently (gracefully or via exceptions)

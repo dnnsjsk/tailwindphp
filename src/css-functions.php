@@ -346,15 +346,16 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
     $theme = $designSystem->getTheme();
     $prefix = $theme->getPrefix();
 
-    // Apply prefix to the variable name if one is set
+    // Apply prefix to the variable name for output (var() references)
     $prefixedPath = $path;
     if ($prefix !== null && str_starts_with($path, '--')) {
         // Convert --color-red-500 to --tw-color-red-500 (with prefix)
         $prefixedPath = '--' . $prefix . '-' . substr($path, 2);
     }
 
-    // Get the actual value from the theme
-    $value = $theme->get([$prefixedPath]) ?? $theme->get([$path]);
+    // Theme stores values WITHOUT prefix, so we look up using the unprefixed path
+    // The prefix is only applied during output (in entries() and when generating var())
+    $value = $theme->get([$path]);
 
     if ($value === null) {
         // Value not found - use fallback if provided
@@ -362,6 +363,52 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
             return implode(', ', $fallback);
         }
         return null;
+    }
+
+    // If the stored value contains a --theme() call, we need to resolve it
+    // This handles cases like: --default-font-family: --theme(--font-family, initial);
+    if (str_contains($value, '--theme(')) {
+        $resolvedValue = resolveNestedThemeCallsForInitial($value, $designSystem, $inline);
+        $value = $resolvedValue;
+    }
+
+    $joinedFallback = !empty($fallback) ? implode(', ', $fallback) : null;
+
+    // If the caller's fallback is 'initial', just return the resolved value as-is
+    if ($joinedFallback === 'initial') {
+        if ($inline) {
+            return $value;
+        }
+        return "var({$prefixedPath})";
+    }
+
+    // Handle 'initial' value - this means the variable's own --theme() call resolved to 'initial'
+    // (typically because the referenced variable doesn't exist and the fallback was 'initial')
+    if ($value === 'initial') {
+        if ($inline) {
+            // For inline mode, return the fallback directly
+            if ($joinedFallback !== null) {
+                return $joinedFallback;
+            }
+            return 'initial';
+        } else {
+            // For non-inline mode, return var() with fallback injected
+            if ($joinedFallback !== null) {
+                return "var({$prefixedPath}, {$joinedFallback})";
+            }
+            return "var({$prefixedPath})";
+        }
+    }
+
+    // Inject the fallback into nested var()/--theme() references that have 'initial' fallback
+    // This handles: --default-font-family: --theme(--font-sans, initial) where --font-sans exists
+    // -> should become var(--prefix-default-font-family, caller-fallback) when --font-sans has 'initial' fallback
+    if ($joinedFallback !== null && (
+        str_starts_with($value, 'var(') ||
+        str_starts_with($value, 'theme(') ||
+        str_starts_with($value, '--theme(')
+    )) {
+        return injectFallbackForInitialFallback($value, $joinedFallback, $prefixedPath, $inline);
     }
 
     // Apply opacity modifier if present
@@ -518,4 +565,138 @@ function resolveNestedThemeCalls(string $value, object $designSystem): string
     });
 
     return toCss($ast);
+}
+
+/**
+ * Resolve --theme() calls in a stored theme value for initial fallback handling.
+ *
+ * This is called when a theme value contains --theme() calls that need to be resolved
+ * before we can determine if the result is 'initial' or a var() reference.
+ *
+ * @param string $value Value containing --theme() calls
+ * @param object $designSystem Design system instance
+ * @param bool $inline Whether to force inline resolution
+ * @return string Resolved value
+ */
+function resolveNestedThemeCallsForInitial(string $value, object $designSystem, bool $inline): string
+{
+    // Parse the value and walk to find --theme() function calls
+    $ast = parseValue($value);
+    $theme = $designSystem->getTheme();
+    $prefix = $theme->getPrefix();
+
+    walk($ast, function (&$node) use ($designSystem, $theme, $prefix, $inline) {
+        if ($node['kind'] !== 'function') {
+            return WalkAction::Continue;
+        }
+
+        if ($node['value'] !== '--theme') {
+            return WalkAction::Continue;
+        }
+
+        // Extract args from the --theme() call
+        $argsStr = toCss($node['nodes'] ?? []);
+        $args = array_map('trim', segment(trim($argsStr), ','));
+
+        if (empty($args) || $args[0] === '') {
+            return WalkAction::Continue;
+        }
+
+        $path = $args[0];
+        $fallback = array_slice($args, 1);
+        $innerInline = $inline;
+
+        // Handle `--theme(… inline)` modifier
+        if (str_ends_with($path, ' inline')) {
+            $innerInline = true;
+            $path = substr($path, 0, -7);
+        }
+
+        if (!str_starts_with($path, '--')) {
+            return WalkAction::Continue;
+        }
+
+        // Look up the value in the theme (without prefix)
+        $innerValue = $theme->get([$path]);
+
+        if ($innerValue === null) {
+            // Not found - use fallback or 'initial'
+            if (!empty($fallback)) {
+                return WalkAction::Replace(parseValue(implode(', ', $fallback)));
+            }
+            return WalkAction::Replace(parseValue('initial'));
+        }
+
+        // Apply prefix for output
+        $prefixedPath = $path;
+        if ($prefix !== null && str_starts_with($path, '--')) {
+            $prefixedPath = '--' . $prefix . '-' . substr($path, 2);
+        }
+
+        if ($innerInline) {
+            return WalkAction::Replace(parseValue($innerValue));
+        }
+
+        // Return var() reference
+        return WalkAction::Replace(parseValue("var({$prefixedPath})"));
+    });
+
+    return toCss($ast);
+}
+
+/**
+ * Inject a fallback value into a var()/theme()/--theme() reference that has 'initial' fallback.
+ *
+ * This implements the TypeScript injectFallbackForInitialFallback function.
+ * When a theme value resolves to var(--foo) or var(--foo, initial), and the caller
+ * provides a fallback, we inject the caller's fallback.
+ *
+ * @param string $value The resolved value (starts with var/theme/--theme)
+ * @param string $fallback The caller's fallback to inject
+ * @param string $prefixedPath The prefixed path for the variable
+ * @param bool $inline Whether in inline mode
+ * @return string Result with fallback injected
+ */
+function injectFallbackForInitialFallback(string $value, string $fallback, string $prefixedPath, bool $inline): string
+{
+    $ast = parseValue($value);
+
+    walk($ast, function (&$node) use ($fallback) {
+        if ($node['kind'] !== 'function') {
+            return WalkAction::Continue;
+        }
+
+        if ($node['value'] !== 'var' && $node['value'] !== 'theme' && $node['value'] !== '--theme') {
+            return WalkAction::Continue;
+        }
+
+        $nodes = $node['nodes'] ?? [];
+
+        if (count($nodes) === 1) {
+            // No fallback - add one
+            $node['nodes'][] = ['kind' => 'word', 'value' => ", {$fallback}"];
+        } else {
+            // Has fallback - check if it's 'initial'
+            $lastNode = &$node['nodes'][count($node['nodes']) - 1];
+            if ($lastNode['kind'] === 'word' && trim($lastNode['value']) === 'initial') {
+                // Replace 'initial' with our fallback
+                $lastNode['value'] = str_replace('initial', $fallback, $lastNode['value']);
+            } elseif ($lastNode['kind'] === 'word' && str_contains($lastNode['value'], 'initial')) {
+                // Handle case like ", initial"
+                $lastNode['value'] = str_replace('initial', $fallback, $lastNode['value']);
+            }
+        }
+
+        return WalkAction::Continue;
+    });
+
+    $result = toCss($ast);
+
+    // If in non-inline mode and the result is still just the inner value,
+    // wrap it in our outer var()
+    if (!$inline && !str_starts_with($result, "var({$prefixedPath}")) {
+        return "var({$prefixedPath}, {$fallback})";
+    }
+
+    return $result;
 }

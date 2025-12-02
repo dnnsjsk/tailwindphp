@@ -284,7 +284,11 @@ function parseCss(array &$ast, array $options = []): array
                 if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
                     // Unescape CSS escape sequences in property names (e.g., \* -> *)
                     $property = preg_replace('/\\\\(.)/', '$1', $child['property']);
-                    $theme->add($property, $child['value'] ?? '', $themeOptions);
+                    $value = $child['value'] ?? '';
+
+                    // Store the raw value including --theme() calls
+                    // They will be resolved later by substituteFunctions()
+                    $theme->add($property, $value, $themeOptions);
                 } elseif ($child['kind'] === 'at-rule' && $child['name'] === '@keyframes') {
                     $theme->addKeyframes($child, $themeOptions);
                 }
@@ -495,6 +499,15 @@ function parseCss(array &$ast, array $options = []): array
                 foreach ($theme->entries() as [$key, $value]) {
                     // Skip REFERENCE and INLINE values - they don't get output as CSS variables
                     if ($value['options'] & (Theme::OPTIONS_REFERENCE | Theme::OPTIONS_INLINE)) {
+                        continue;
+                    }
+                    // Skip values that are 'initial' - they act as markers for fallback injection
+                    if ($value['value'] === 'initial') {
+                        continue;
+                    }
+                    // Skip values that contain --theme() calls resolving to 'initial'
+                    // These are markers for fallback injection, not actual CSS values
+                    if (str_contains($value['value'], '--theme(') && themeValueResolvesToInitial($value['value'], $theme)) {
                         continue;
                     }
                     $nodes[] = decl(\TailwindPHP\Utils\escape($key), $value['value']);
@@ -1090,6 +1103,155 @@ function extractCandidates(string $html): array
     }
 
     return array_unique($candidates);
+}
+
+/**
+ * Check if a theme value containing --theme() calls would resolve to 'initial'.
+ *
+ * This is used to determine if a theme value should be output as a CSS variable.
+ * When the value would resolve to 'initial', it acts as a marker for fallback injection
+ * and should not be output to the CSS.
+ *
+ * @param string $value The value string containing --theme() calls
+ * @param Theme $theme The theme instance for lookups
+ * @return bool True if the value resolves to 'initial'
+ */
+function themeValueResolvesToInitial(string $value, Theme $theme): bool
+{
+    // Simple regex to extract --theme() arguments
+    if (!preg_match('/^--theme\(([^)]+)\)$/', trim($value), $match)) {
+        return false;
+    }
+
+    $args = $match[1];
+
+    // Parse the arguments
+    $parts = [];
+    $current = '';
+    $depth = 0;
+    for ($i = 0; $i < strlen($args); $i++) {
+        $char = $args[$i];
+        if ($char === '(') $depth++;
+        if ($char === ')') $depth--;
+        if ($char === ',' && $depth === 0) {
+            $parts[] = trim($current);
+            $current = '';
+        } else {
+            $current .= $char;
+        }
+    }
+    if ($current !== '') {
+        $parts[] = trim($current);
+    }
+
+    $path = $parts[0];
+    $fallback = count($parts) > 1 ? trim(implode(', ', array_slice($parts, 1))) : null;
+
+    // Handle 'inline' modifier
+    if (str_ends_with($path, ' inline')) {
+        $path = substr($path, 0, -7);
+    }
+
+    // The path should start with --
+    if (!str_starts_with($path, '--')) {
+        return false;
+    }
+
+    // Look up the value in the theme (without prefix - theme stores unprefixed)
+    $themeValue = $theme->get([$path]);
+
+    // If the referenced variable doesn't exist and the fallback is 'initial', then resolves to initial
+    if ($themeValue === null && $fallback === 'initial') {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Resolve --theme() calls within a value string during @theme processing.
+ *
+ * This allows patterns like `--theme(--font-family, initial)` to resolve
+ * to 'initial' when --font-family doesn't exist in the theme.
+ *
+ * @param string $value The value string containing --theme() calls
+ * @param Theme $theme The theme instance for lookups
+ * @return string The resolved value
+ */
+function resolveThemeCallsInValue(string $value, Theme $theme): string
+{
+    // Match --theme(path[, fallback]) patterns
+    // This is a simplified regex that handles basic cases
+    if (!preg_match_all('/--theme\(([^)]+)\)/', $value, $matches, PREG_SET_ORDER)) {
+        return $value;
+    }
+
+    foreach ($matches as $match) {
+        $fullMatch = $match[0];
+        $args = $match[1];
+
+        // Parse the arguments - split on comma, but be careful with nested parens
+        $parts = [];
+        $current = '';
+        $depth = 0;
+        for ($i = 0; $i < strlen($args); $i++) {
+            $char = $args[$i];
+            if ($char === '(') $depth++;
+            if ($char === ')') $depth--;
+            if ($char === ',' && $depth === 0) {
+                $parts[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+        if ($current !== '') {
+            $parts[] = trim($current);
+        }
+
+        $path = $parts[0];
+        $fallback = count($parts) > 1 ? implode(', ', array_slice($parts, 1)) : null;
+
+        // Handle 'inline' modifier
+        $inline = false;
+        if (str_ends_with($path, ' inline')) {
+            $inline = true;
+            $path = substr($path, 0, -7);
+        }
+
+        // The path should start with --
+        if (!str_starts_with($path, '--')) {
+            continue;
+        }
+
+        // Try to get the value from the theme
+        $prefix = $theme->getPrefix();
+        $prefixedPath = $path;
+        if ($prefix !== null && str_starts_with($path, '--')) {
+            $prefixedPath = '--' . $prefix . '-' . substr($path, 2);
+        }
+
+        $themeValue = $theme->get([$prefixedPath]) ?? $theme->get([$path]);
+
+        if ($themeValue === null) {
+            // Value doesn't exist - use fallback
+            if ($fallback !== null) {
+                $value = str_replace($fullMatch, $fallback, $value);
+            }
+            // If no fallback, leave as-is (will cause error or be handled later)
+        } else {
+            // Value exists
+            if ($inline) {
+                // Return the actual value
+                $value = str_replace($fullMatch, $themeValue, $value);
+            } else {
+                // Return var() reference
+                $value = str_replace($fullMatch, "var({$prefixedPath})", $value);
+            }
+        }
+    }
+
+    return $value;
 }
 
 /**
