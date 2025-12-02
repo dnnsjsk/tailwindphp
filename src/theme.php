@@ -545,6 +545,17 @@ class Theme
     }
 
     /**
+     * Check if a keyframe is registered in the theme.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasKeyframe(string $name): bool
+    {
+        return isset($this->keyframes[$name]);
+    }
+
+    /**
      * Check if a value exists for a key.
      *
      * @param string $key

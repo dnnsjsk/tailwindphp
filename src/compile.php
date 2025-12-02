@@ -368,9 +368,34 @@ function compileBaseUtility(array $candidate, object $designSystem): array
  */
 function asColor(string $value, array $modifier, object $theme): ?string
 {
-    // This will be implemented when utilities.php is ported
-    // For now, return the value as-is
-    return $value;
+    $modifierValue = $modifier['value'] ?? null;
+    if ($modifierValue === null) return $value;
+
+    // Check if modifier is a valid percentage or decimal
+    $alpha = null;
+    if (is_numeric($modifierValue)) {
+        // Numeric values are treated as percentages (e.g., /50 = 50%)
+        $alpha = $modifierValue . '%';
+    } elseif (str_ends_with($modifierValue, '%')) {
+        // Already a percentage
+        $alpha = $modifierValue;
+    } elseif (preg_match('/^0?\.\d+$/', $modifierValue)) {
+        // Decimal like .5 or 0.5
+        $alpha = (floatval($modifierValue) * 100) . '%';
+    } else {
+        // Invalid modifier (e.g., /not-a-percentage)
+        return null;
+    }
+
+    // Check if value is a color that can have opacity applied
+    // For CSS variables, we use color-mix and let the polyfill handle @supports fallback
+    // For concrete colors (like 'red'), we can compute the oklab value directly
+    if (str_contains($value, 'var(')) {
+        // CSS variable - use color-mix (not inline), polyfill will add @supports fallback
+        return \TailwindPHP\Utilities\withAlpha($value, $alpha, false);
+    }
+    // Concrete color - compute inline oklab value
+    return \TailwindPHP\Utilities\withAlpha($value, $alpha, true);
 }
 
 /**

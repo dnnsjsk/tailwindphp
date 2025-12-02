@@ -82,14 +82,8 @@ class index extends TestCase
      * Tests for features not yet implemented.
      */
     private const PENDING_TESTS = [
-        // Arbitrary properties with opacity modifiers need @supports color-mix() handling
-        'should generate arbitrary properties with modifiers',
-        'should not generate arbitrary properties with invalid modifiers',
-        'should generate arbitrary properties with variables and with modifiers',
         // Extraction captured wrong classes for this test (comment in source confused parser)
         'built-in variants can be overridden while keeping their order',
-        // Unused keyframes preservation not implemented
-        'keyframes outside of `@theme are always preserved',
     ];
 
     /**

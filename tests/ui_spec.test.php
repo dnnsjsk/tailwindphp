@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP;
+namespace TailwindPHP\Tests;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use function TailwindPHP\compile;
 
 /**
  * Tests extracted from ui.spec.ts (Playwright browser tests)

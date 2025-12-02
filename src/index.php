@@ -848,17 +848,19 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             return;
         }
 
-        // Filter keyframes to only used ones
+        // Filter keyframes to only used ones (but only for theme keyframes)
         if ($node['kind'] === 'at-rule' && $node['name'] === '@keyframes') {
             $keyframeName = trim($node['params'] ?? '');
-            // Check if this keyframe is directly used or has STATIC option
-            if (!isset($usedKeyframeNames[$keyframeName])) {
+            // Only filter keyframes that came from @theme
+            // Keyframes defined outside @theme are always preserved
+            $isThemeKeyframe = $theme->hasKeyframe($keyframeName);
+            if ($isThemeKeyframe && !isset($usedKeyframeNames[$keyframeName])) {
                 // Check if theme has STATIC option for this keyframe
                 $keyframeOptions = $theme->getKeyframeOptions($keyframeName);
                 if ($keyframeOptions & Theme::OPTIONS_STATIC) {
                     // Keep it - static keyframes are always included
                 } else {
-                    return; // Skip unused keyframes
+                    return; // Skip unused theme keyframes
                 }
             }
         }
@@ -1307,6 +1309,9 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
                             $opacity = floatval(rtrim($opacityStr, '%'));
                             if ($opacity > 1) $opacity = $opacity / 100;
                             $fallbackColor = LightningCss::colorWithAlpha($colorValue, $opacity);
+                        } else {
+                            // Unknown variable (arbitrary property) - fallback to just the variable
+                            $fallbackColor = "var($varName)";
                         }
                     }
 

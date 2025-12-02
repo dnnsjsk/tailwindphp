@@ -153,10 +153,11 @@ tailwind-php/
 │   ├── utils/                  # Helper functions
 │   │
 │   ├── *.php                   # Core implementation
-│   └── *.test.php              # Test files
+│   └── *.test.php              # Unit test files
 │
 ├── tests/
-│   └── TestHelper.php          # Test utilities
+│   ├── TestHelper.php          # Test utilities
+│   └── ui_spec.test.php        # Browser/integration tests (from tests/ui.spec.ts)
 │
 ├── test-coverage/
 │   ├── */tests/                # Extracted test data
@@ -274,7 +275,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 1,139 tests (1,082 passing, 57 skipped)**
+**Total: 1,139 tests (1,086 passing, 53 skipped)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -282,7 +283,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 |-----------|--------|-------|
 | `utilities.test.php` | ✅ | 364 |
 | `variants.test.php` | ✅ | 139 |
-| `index.test.php` | ✅ | 78 (9 skipped - outside scope/pending) |
+| `index.test.php` | ✅ | 78 (5 skipped - outside scope, 1 pending) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 | `ui_spec.test.php` | ✅ | 68 (48 skipped - pending utilities) |
 

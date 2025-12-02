@@ -250,6 +250,12 @@ function registerGradientWithAngle(UtilityBuilder $builder, string $gradientType
  */
 function registerConicGradientUtilities(UtilityBuilder $builder): void
 {
+    // Base bg-conic (no value)
+    $builder->staticUtility('bg-conic', [
+        ['--tw-gradient-position', 'in oklab'],
+        ['background-image', 'conic-gradient(var(--tw-gradient-stops))'],
+    ]);
+
     // bg-conic with interpolation modifiers
     $interpolationModes = ['oklch', 'oklab', 'hsl', 'srgb', 'longer', 'shorter', 'increasing', 'decreasing'];
 
@@ -262,33 +268,43 @@ function registerConicGradientUtilities(UtilityBuilder $builder): void
     }
 
     // bg-conic-{angle} utilities (e.g., bg-conic-45)
-    // Note: supportsNegative is false - same as Tailwind's handleBgConic({ negative: false })
     $builder->functionalUtility('bg-conic', [
         'themeKeys' => ['--gradient'],
-        'supportsNegative' => false,
+        'supportsNegative' => true,
         'handleBareValue' => function ($value) {
-            if (is_numeric($value['value'])) {
-                return "from {$value['value']}deg";
+            // Numeric values are angles
+            if (is_numeric($value['value'] ?? '')) {
+                return $value['value'] . 'deg';
             }
             return null;
         },
-        'handle' => function ($value, $modifier = null) {
+        'handle' => function ($value, $modifier = null, $negative = false) {
+            if ($value === null) return null;
+
             $interpolation = getGradientInterpolationMode($modifier);
             $interpolationStr = $interpolation ? " in {$interpolation}" : '';
 
-            // For angle values
-            if (str_contains($value, 'deg') || str_contains($value, 'from')) {
-                $position = str_starts_with($value, 'from') ? $value : "from {$value}";
+            // Handle arbitrary values - full gradient syntax
+            if (str_contains($value, ',') || str_starts_with($value, 'from') || str_starts_with($value, 'at')) {
                 return [
-                    decl('--tw-gradient-position', $position . $interpolationStr),
-                    decl('background-image', 'conic-gradient(var(--tw-gradient-stops))'),
+                    decl('--tw-gradient-position', $value),
+                    decl('background-image', "conic-gradient(var(--tw-gradient-stops, {$value}))"),
                 ];
             }
 
-            // For arbitrary values
+            // Handle angle values (like "45deg" or just "45")
+            $angleValue = $value;
+            if (!str_contains($value, 'deg')) {
+                $angleValue = "{$value}deg";
+            }
+
+            if ($negative) {
+                $angleValue = "calc({$angleValue} * -1)";
+            }
+
             return [
-                decl('--tw-gradient-position', $value),
-                decl('background-image', "conic-gradient(var(--tw-gradient-stops, {$value}))"),
+                decl('--tw-gradient-position', "from {$angleValue}{$interpolationStr}"),
+                decl('background-image', 'conic-gradient(var(--tw-gradient-stops))'),
             ];
         },
     ]);
@@ -299,6 +315,12 @@ function registerConicGradientUtilities(UtilityBuilder $builder): void
  */
 function registerRadialGradientUtilities(UtilityBuilder $builder): void
 {
+    // Base bg-radial (no value)
+    $builder->staticUtility('bg-radial', [
+        ['--tw-gradient-position', 'in oklab'],
+        ['background-image', 'radial-gradient(var(--tw-gradient-stops))'],
+    ]);
+
     // bg-radial with interpolation modifiers
     $interpolationModes = ['oklch', 'oklab', 'hsl', 'srgb', 'longer', 'shorter', 'increasing', 'decreasing'];
 
@@ -310,20 +332,31 @@ function registerRadialGradientUtilities(UtilityBuilder $builder): void
         ]);
     }
 
-    // bg-radial-[shape] utilities
+    // bg-radial-[shape] utilities - only for arbitrary values
     $builder->functionalUtility('bg-radial', [
         'themeKeys' => ['--gradient'],
-        'handleBareValue' => function ($value) {
-            return $value;
-        },
         'handle' => function ($value, $modifier = null) {
-            $interpolation = getGradientInterpolationMode($modifier);
-            $interpolationStr = $interpolation ? " in {$interpolation}" : '';
+            if ($value === null) return null;
 
-            return [
-                decl('--tw-gradient-position', $value . $interpolationStr),
-                decl('background-image', "radial-gradient(var(--tw-gradient-stops, {$value}))"),
-            ];
+            $interpolation = getGradientInterpolationMode($modifier);
+
+            // Handle arbitrary values - full gradient syntax or position
+            if (str_contains($value, ',') || str_starts_with($value, 'at') || str_starts_with($value, 'circle') || str_starts_with($value, 'ellipse')) {
+                // If "at center" (default position), just use default without position
+                if ($value === 'at center') {
+                    return [
+                        decl('--tw-gradient-position', ''),
+                        decl('background-image', 'radial-gradient(var(--tw-gradient-stops))'),
+                    ];
+                }
+
+                return [
+                    decl('--tw-gradient-position', $value),
+                    decl('background-image', "radial-gradient(var(--tw-gradient-stops, {$value}))"),
+                ];
+            }
+
+            return null;
         },
     ]);
 }
