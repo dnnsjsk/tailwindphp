@@ -526,4 +526,680 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
         $this->assertStringContainsString('.group', $css);
     }
+
+    // =========================================================================
+    // EXHAUSTIVE OPACITY MODIFIERS (5, 10, 15, ... 95)
+    // =========================================================================
+
+    public function test_bg_opacity_5(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/5">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_10(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/10">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_15(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/15">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_20(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/20">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/25">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_30(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/30">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_35(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/35">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_40(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/40">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_45(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/45">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_55(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/55">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_60(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/60">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_65(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/65">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_70(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/70">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/75">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_80(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/80">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_85(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/85">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_90(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/90">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_opacity_95(): void
+    {
+        $css = Tailwind::generate('<div class="bg-blue-500/95">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    // Text color with all opacity values
+    public function test_text_opacity_5(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/5">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    public function test_text_opacity_10(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/10">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    public function test_text_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/25">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    public function test_text_opacity_50(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/50">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    public function test_text_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/75">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    public function test_text_opacity_95(): void
+    {
+        $css = Tailwind::generate('<div class="text-red-500/95">');
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    // Border color with all opacity values
+    public function test_border_opacity_5(): void
+    {
+        $css = Tailwind::generate('<div class="border-green-500/5">');
+        $this->assertStringContainsString('border-color:', $css);
+    }
+
+    public function test_border_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="border-green-500/25">');
+        $this->assertStringContainsString('border-color:', $css);
+    }
+
+    public function test_border_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="border-green-500/75">');
+        $this->assertStringContainsString('border-color:', $css);
+    }
+
+    public function test_border_opacity_95(): void
+    {
+        $css = Tailwind::generate('<div class="border-green-500/95">');
+        $this->assertStringContainsString('border-color:', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE COLOR TESTS
+    // =========================================================================
+
+    // All color palette shades
+    public function test_bg_red_50(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-50">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_100(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-100">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_200(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-200">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_300(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-300">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_400(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-400">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_600(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-600">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_700(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-700">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_800(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-800">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_900(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-900">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_red_950(): void
+    {
+        $css = Tailwind::generate('<div class="bg-red-950">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    // Other color palettes
+    public function test_bg_orange_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-orange-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_amber_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-amber-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_yellow_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-yellow-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_lime_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-lime-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_green_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-green-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_emerald_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-emerald-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_teal_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-teal-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_cyan_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-cyan-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_sky_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-sky-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_indigo_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-indigo-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_violet_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-violet-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_purple_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-purple-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_fuchsia_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-fuchsia-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_pink_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-pink-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_rose_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-rose-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    // Neutral colors
+    public function test_bg_slate_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-slate-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_gray_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-gray-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_zinc_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-zinc-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_neutral_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-neutral-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    public function test_bg_stone_500(): void
+    {
+        $css = Tailwind::generate('<div class="bg-stone-500">');
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE LINE HEIGHT WITH TEXT SIZE COMBINATIONS
+    // =========================================================================
+
+    public function test_text_xs_7(): void
+    {
+        $css = Tailwind::generate('<div class="text-xs/7">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_sm_7(): void
+    {
+        $css = Tailwind::generate('<div class="text-sm/7">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_base_7(): void
+    {
+        $css = Tailwind::generate('<div class="text-base/7">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_lg_8(): void
+    {
+        $css = Tailwind::generate('<div class="text-lg/8">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_xl_8(): void
+    {
+        $css = Tailwind::generate('<div class="text-xl/8">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_2xl_9(): void
+    {
+        $css = Tailwind::generate('<div class="text-2xl/9">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_3xl_10(): void
+    {
+        $css = Tailwind::generate('<div class="text-3xl/10">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_sm_snug(): void
+    {
+        $css = Tailwind::generate('<div class="text-sm/snug">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_base_relaxed(): void
+    {
+        $css = Tailwind::generate('<div class="text-base/relaxed">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    public function test_text_lg_normal(): void
+    {
+        $css = Tailwind::generate('<div class="text-lg/normal">');
+        $this->assertStringContainsString('font-size:', $css);
+        $this->assertStringContainsString('line-height:', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE GRADIENT STOP OPACITY
+    // =========================================================================
+
+    public function test_from_opacity_10(): void
+    {
+        $css = Tailwind::generate('<div class="from-blue-500/10">');
+        $this->assertStringContainsString('--tw-gradient-from:', $css);
+    }
+
+    public function test_from_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="from-blue-500/25">');
+        $this->assertStringContainsString('--tw-gradient-from:', $css);
+    }
+
+    public function test_from_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="from-blue-500/75">');
+        $this->assertStringContainsString('--tw-gradient-from:', $css);
+    }
+
+    public function test_via_opacity_10(): void
+    {
+        $css = Tailwind::generate('<div class="via-green-500/10">');
+        $this->assertStringContainsString('--tw-gradient-via:', $css);
+    }
+
+    public function test_via_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="via-green-500/25">');
+        $this->assertStringContainsString('--tw-gradient-via:', $css);
+    }
+
+    public function test_via_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="via-green-500/75">');
+        $this->assertStringContainsString('--tw-gradient-via:', $css);
+    }
+
+    public function test_to_opacity_10(): void
+    {
+        $css = Tailwind::generate('<div class="to-red-500/10">');
+        $this->assertStringContainsString('--tw-gradient-to:', $css);
+    }
+
+    public function test_to_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="to-red-500/25">');
+        $this->assertStringContainsString('--tw-gradient-to:', $css);
+    }
+
+    public function test_to_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="to-red-500/75">');
+        $this->assertStringContainsString('--tw-gradient-to:', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE RING/SHADOW OPACITY
+    // =========================================================================
+
+    public function test_ring_color_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="ring-blue-500/25">');
+        $this->assertStringContainsString('--tw-ring-color:', $css);
+    }
+
+    public function test_ring_color_opacity_50(): void
+    {
+        $css = Tailwind::generate('<div class="ring-blue-500/50">');
+        $this->assertStringContainsString('--tw-ring-color:', $css);
+    }
+
+    public function test_ring_color_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="ring-blue-500/75">');
+        $this->assertStringContainsString('--tw-ring-color:', $css);
+    }
+
+    public function test_shadow_color_opacity_25(): void
+    {
+        $css = Tailwind::generate('<div class="shadow-blue-500/25">');
+        $this->assertStringContainsString('--tw-shadow-color:', $css);
+    }
+
+    public function test_shadow_color_opacity_50(): void
+    {
+        $css = Tailwind::generate('<div class="shadow-blue-500/50">');
+        $this->assertStringContainsString('--tw-shadow-color:', $css);
+    }
+
+    public function test_shadow_color_opacity_75(): void
+    {
+        $css = Tailwind::generate('<div class="shadow-blue-500/75">');
+        $this->assertStringContainsString('--tw-shadow-color:', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE ARBITRARY VALUE TESTS
+    // =========================================================================
+
+    public function test_arbitrary_margin_px(): void
+    {
+        $css = Tailwind::generate('<div class="m-[15px]">');
+        $this->assertStringContainsString('margin: 15px', $css);
+    }
+
+    public function test_arbitrary_margin_rem(): void
+    {
+        $css = Tailwind::generate('<div class="m-[1.5rem]">');
+        $this->assertStringContainsString('margin: 1.5rem', $css);
+    }
+
+    public function test_arbitrary_padding_px(): void
+    {
+        $css = Tailwind::generate('<div class="p-[25px]">');
+        $this->assertStringContainsString('padding: 25px', $css);
+    }
+
+    public function test_arbitrary_gap_px(): void
+    {
+        $css = Tailwind::generate('<div class="gap-[12px]">');
+        $this->assertStringContainsString('gap: 12px', $css);
+    }
+
+    public function test_arbitrary_gap_rem(): void
+    {
+        $css = Tailwind::generate('<div class="gap-[1rem]">');
+        $this->assertStringContainsString('gap: 1rem', $css);
+    }
+
+    public function test_arbitrary_top_px(): void
+    {
+        $css = Tailwind::generate('<div class="top-[100px]">');
+        $this->assertStringContainsString('top: 100px', $css);
+    }
+
+    public function test_arbitrary_left_percent(): void
+    {
+        $css = Tailwind::generate('<div class="left-[25%]">');
+        $this->assertStringContainsString('left: 25%', $css);
+    }
+
+    public function test_arbitrary_translate_percent(): void
+    {
+        $css = Tailwind::generate('<div class="translate-x-[50%]">');
+        $this->assertStringContainsString('translate:', $css);
+    }
+
+    public function test_arbitrary_rotate_deg(): void
+    {
+        $css = Tailwind::generate('<div class="rotate-[17deg]">');
+        $this->assertStringContainsString('rotate:', $css);
+    }
+
+    public function test_arbitrary_scale_number(): void
+    {
+        $css = Tailwind::generate('<div class="scale-[1.15]">');
+        $this->assertStringContainsString('scale:', $css);
+    }
+
+    public function test_arbitrary_skew_deg(): void
+    {
+        $css = Tailwind::generate('<div class="skew-x-[5deg]">');
+        $this->assertStringContainsString('transform:', $css);
+    }
+
+    public function test_arbitrary_blur_px(): void
+    {
+        $css = Tailwind::generate('<div class="blur-[10px]">');
+        $this->assertStringContainsString('filter:', $css);
+    }
+
+    public function test_arbitrary_brightness_number(): void
+    {
+        $css = Tailwind::generate('<div class="brightness-[1.25]">');
+        $this->assertStringContainsString('filter:', $css);
+    }
+
+    public function test_arbitrary_border_radius_px(): void
+    {
+        $css = Tailwind::generate('<div class="rounded-[12px]">');
+        $this->assertStringContainsString('border-radius: 12px', $css);
+    }
+
+    public function test_arbitrary_border_width_px(): void
+    {
+        $css = Tailwind::generate('<div class="border-[3px]">');
+        $this->assertStringContainsString('border-width: 3px', $css);
+    }
+
+    public function test_arbitrary_font_size_px(): void
+    {
+        $css = Tailwind::generate('<div class="text-[22px]">');
+        $this->assertStringContainsString('font-size: 22px', $css);
+    }
+
+    public function test_arbitrary_font_size_rem(): void
+    {
+        $css = Tailwind::generate('<div class="text-[1.375rem]">');
+        $this->assertStringContainsString('font-size: 1.375rem', $css);
+    }
+
+    public function test_arbitrary_line_height_number(): void
+    {
+        $css = Tailwind::generate('<div class="leading-[1.6]">');
+        $this->assertStringContainsString('line-height: 1.6', $css);
+    }
+
+    public function test_arbitrary_line_height_px(): void
+    {
+        $css = Tailwind::generate('<div class="leading-[28px]">');
+        $this->assertStringContainsString('line-height: 28px', $css);
+    }
+
+    public function test_arbitrary_z_index(): void
+    {
+        $css = Tailwind::generate('<div class="z-[100]">');
+        $this->assertStringContainsString('z-index: 100', $css);
+    }
+
+    public function test_arbitrary_grid_cols(): void
+    {
+        $css = Tailwind::generate('<div class="grid-cols-[200px_1fr_200px]">');
+        $this->assertStringContainsString('grid-template-columns: 200px 1fr 200px', $css);
+    }
+
+    public function test_arbitrary_grid_rows(): void
+    {
+        $css = Tailwind::generate('<div class="grid-rows-[auto_1fr_auto]">');
+        $this->assertStringContainsString('grid-template-rows: auto 1fr auto', $css);
+    }
+
+    public function test_arbitrary_aspect_ratio(): void
+    {
+        $css = Tailwind::generate('<div class="aspect-[4/3]">');
+        // Note: no spaces around / in the output
+        $this->assertStringContainsString('aspect-ratio: 4/3', $css);
+    }
 }

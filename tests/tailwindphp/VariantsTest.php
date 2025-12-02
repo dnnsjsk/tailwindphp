@@ -527,4 +527,455 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
         $this->assertStringContainsString('> *', $css);
     }
+
+    // =========================================================================
+    // EXHAUSTIVE DEEP STACKED VARIANTS (3+ deep)
+    // =========================================================================
+
+    public function test_4_deep_stacked_sm_dark_hover_focus(): void
+    {
+        $css = Tailwind::generate('<div class="sm:dark:hover:focus:bg-blue-500">');
+        $this->assertStringContainsString('@media (min-width: 40rem)', $css);
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString(':focus', $css);
+    }
+
+    public function test_4_deep_stacked_lg_dark_hover_active(): void
+    {
+        $css = Tailwind::generate('<div class="lg:dark:hover:active:text-white">');
+        $this->assertStringContainsString('@media (min-width: 64rem)', $css);
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString(':active', $css);
+    }
+
+    public function test_triple_stacked_md_group_hover_first(): void
+    {
+        $css = Tailwind::generate('<div class="group"><span class="md:group-hover:first:mt-0">');
+        $this->assertStringContainsString('@media (min-width: 48rem)', $css);
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString(':first-child', $css);
+    }
+
+    public function test_triple_stacked_dark_peer_focus_disabled(): void
+    {
+        $css = Tailwind::generate('<input class="peer"><span class="dark:peer-focus:disabled:opacity-50">');
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+        $this->assertStringContainsString(':focus', $css);
+        $this->assertStringContainsString(':disabled', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE RESPONSIVE VARIANTS
+    // =========================================================================
+
+    public function test_min_lg(): void
+    {
+        $css = Tailwind::generate('<div class="min-lg:flex">');
+        $this->assertStringContainsString('@media (min-width: 64rem)', $css);
+    }
+
+    public function test_min_xl(): void
+    {
+        $css = Tailwind::generate('<div class="min-xl:flex">');
+        $this->assertStringContainsString('@media (min-width: 80rem)', $css);
+    }
+
+    public function test_max_lg(): void
+    {
+        $css = Tailwind::generate('<div class="max-lg:flex">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('not', $css);
+    }
+
+    public function test_max_xl(): void
+    {
+        $css = Tailwind::generate('<div class="max-xl:flex">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('not', $css);
+    }
+
+    public function test_max_2xl(): void
+    {
+        $css = Tailwind::generate('<div class="max-2xl:flex">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('not', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE NTH-CHILD VARIANTS
+    // =========================================================================
+
+    public function test_nth_3(): void
+    {
+        $css = Tailwind::generate('<div class="nth-3:bg-blue-500">');
+        $this->assertStringContainsString(':nth-child(3)', $css);
+    }
+
+    public function test_even_variant(): void
+    {
+        $css = Tailwind::generate('<div class="even:bg-blue-500">');
+        $this->assertStringContainsString(':nth-child(2n)', $css);
+    }
+
+    public function test_odd_variant(): void
+    {
+        $css = Tailwind::generate('<div class="odd:bg-blue-500">');
+        $this->assertStringContainsString(':nth-child(odd)', $css);
+    }
+
+    public function test_nth_last_3(): void
+    {
+        $css = Tailwind::generate('<div class="nth-last-3:bg-blue-500">');
+        $this->assertStringContainsString(':nth-last-child(3)', $css);
+    }
+
+    public function test_nth_of_type_3(): void
+    {
+        $css = Tailwind::generate('<div class="nth-of-type-3:bg-blue-500">');
+        $this->assertStringContainsString(':nth-of-type(3)', $css);
+    }
+
+    public function test_nth_last_of_type_3(): void
+    {
+        $css = Tailwind::generate('<div class="nth-last-of-type-3:bg-blue-500">');
+        $this->assertStringContainsString(':nth-last-of-type(3)', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE GROUP/PEER VARIANTS
+    // =========================================================================
+
+    public function test_group_disabled(): void
+    {
+        $css = Tailwind::generate('<div class="group"><span class="group-disabled:opacity-50">');
+        $this->assertStringContainsString(':disabled', $css);
+        $this->assertStringContainsString('.group', $css);
+    }
+
+    public function test_group_checked(): void
+    {
+        $css = Tailwind::generate('<div class="group"><span class="group-checked:bg-blue-500">');
+        $this->assertStringContainsString(':checked', $css);
+        $this->assertStringContainsString('.group', $css);
+    }
+
+    public function test_group_focus_within(): void
+    {
+        $css = Tailwind::generate('<div class="group"><span class="group-focus-within:ring-2">');
+        $this->assertStringContainsString(':focus-within', $css);
+        $this->assertStringContainsString('.group', $css);
+    }
+
+    public function test_group_focus_visible(): void
+    {
+        $css = Tailwind::generate('<div class="group"><span class="group-focus-visible:outline-2">');
+        $this->assertStringContainsString(':focus-visible', $css);
+        $this->assertStringContainsString('.group', $css);
+    }
+
+    public function test_peer_disabled(): void
+    {
+        $css = Tailwind::generate('<input class="peer"><span class="peer-disabled:opacity-50">');
+        $this->assertStringContainsString(':disabled', $css);
+        $this->assertStringContainsString('.peer', $css);
+    }
+
+    public function test_peer_placeholder_shown(): void
+    {
+        $css = Tailwind::generate('<input class="peer"><span class="peer-placeholder-shown:text-gray-500">');
+        $this->assertStringContainsString(':placeholder-shown', $css);
+        $this->assertStringContainsString('.peer', $css);
+    }
+
+    public function test_peer_required(): void
+    {
+        $css = Tailwind::generate('<input class="peer"><span class="peer-required:text-red-500">');
+        $this->assertStringContainsString(':required', $css);
+        $this->assertStringContainsString('.peer', $css);
+    }
+
+    public function test_peer_valid(): void
+    {
+        $css = Tailwind::generate('<input class="peer"><span class="peer-valid:text-green-500">');
+        $this->assertStringContainsString(':valid', $css);
+        $this->assertStringContainsString('.peer', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE ARIA VARIANTS
+    // =========================================================================
+
+    public function test_aria_readonly(): void { $this->assertVariantGenerates('aria-readonly:bg-gray-100', '[aria-readonly="true"]'); }
+    public function test_aria_required(): void { $this->assertVariantGenerates('aria-required:text-red-500', '[aria-required="true"]'); }
+    public function test_aria_current_page(): void
+    {
+        $css = Tailwind::generate('<div class="aria-[current=page]:font-bold">');
+        $this->assertStringContainsString('[aria-current="page"]', $css);
+    }
+    public function test_aria_busy(): void { $this->assertVariantGenerates('aria-busy:cursor-wait', '[aria-busy="true"]'); }
+
+    // =========================================================================
+    // EXHAUSTIVE DATA VARIANTS
+    // =========================================================================
+
+    public function test_data_open(): void { $this->assertVariantGenerates('data-open:block', '[data-open]'); }
+    public function test_data_closed(): void { $this->assertVariantGenerates('data-closed:hidden', '[data-closed]'); }
+    public function test_data_state_active(): void
+    {
+        $css = Tailwind::generate('<div class="data-[state=active]:bg-blue-500">');
+        $this->assertStringContainsString('[data-state="active"]', $css);
+    }
+    public function test_data_orientation_vertical(): void
+    {
+        $css = Tailwind::generate('<div class="data-[orientation=vertical]:flex-col">');
+        $this->assertStringContainsString('[data-orientation="vertical"]', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE SUPPORTS VARIANTS
+    // =========================================================================
+
+    public function test_supports_flex(): void
+    {
+        $css = Tailwind::generate('<div class="supports-[display:flex]:flex">');
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_supports_gap(): void
+    {
+        $css = Tailwind::generate('<div class="supports-[gap:1rem]:gap-4">');
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('gap: 1rem', $css);
+    }
+
+    public function test_supports_sticky(): void
+    {
+        $css = Tailwind::generate('<div class="supports-[position:sticky]:sticky">');
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('position: sticky', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE ARBITRARY VARIANTS
+    // =========================================================================
+
+    public function test_arbitrary_first_child(): void
+    {
+        $css = Tailwind::generate('<div class="[&:first-child]:mt-0">');
+        $this->assertStringContainsString(':first-child', $css);
+    }
+
+    public function test_arbitrary_last_child(): void
+    {
+        $css = Tailwind::generate('<div class="[&:last-child]:mb-0">');
+        $this->assertStringContainsString(':last-child', $css);
+    }
+
+    public function test_arbitrary_not_first(): void
+    {
+        $css = Tailwind::generate('<div class="[&:not(:first-child)]:mt-4">');
+        $this->assertStringContainsString(':not(:first-child)', $css);
+    }
+
+    public function test_arbitrary_not_last(): void
+    {
+        $css = Tailwind::generate('<div class="[&:not(:last-child)]:mb-4">');
+        $this->assertStringContainsString(':not(:last-child)', $css);
+    }
+
+    public function test_arbitrary_descendant(): void
+    {
+        $css = Tailwind::generate('<div class="[&_p]:text-gray-700">');
+        $this->assertStringContainsString(' p', $css);
+    }
+
+    public function test_arbitrary_child_selector(): void
+    {
+        $css = Tailwind::generate('<div class="[&>div]:border">');
+        $this->assertStringContainsString('>div', $css);
+    }
+
+    public function test_arbitrary_sibling_selector(): void
+    {
+        $css = Tailwind::generate('<div class="[&+div]:mt-4">');
+        $this->assertStringContainsString('+div', $css);
+    }
+
+    public function test_arbitrary_general_sibling(): void
+    {
+        $css = Tailwind::generate('<div class="[&~div]:text-gray-500">');
+        $this->assertStringContainsString('~div', $css);
+    }
+
+    public function test_arbitrary_data_attribute(): void
+    {
+        $css = Tailwind::generate('<div class="[&[data-loading]]:opacity-50">');
+        $this->assertStringContainsString('[data-loading]', $css);
+    }
+
+    public function test_arbitrary_class_selector(): void
+    {
+        $css = Tailwind::generate('<div class="[&.active]:bg-blue-500">');
+        $this->assertStringContainsString('.active', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE CONTAINER QUERIES
+    // =========================================================================
+
+    public function test_container_sm(): void
+    {
+        $css = Tailwind::generate('<div class="@container"><span class="@sm:flex">');
+        $this->assertStringContainsString('@container', $css);
+    }
+
+    public function test_container_md(): void
+    {
+        $css = Tailwind::generate('<div class="@container"><span class="@md:grid">');
+        $this->assertStringContainsString('@container', $css);
+    }
+
+    public function test_container_lg(): void
+    {
+        $css = Tailwind::generate('<div class="@container"><span class="@lg:hidden">');
+        $this->assertStringContainsString('@container', $css);
+    }
+
+    public function test_container_xl(): void
+    {
+        $css = Tailwind::generate('<div class="@container"><span class="@xl:block">');
+        $this->assertStringContainsString('@container', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE MOTION/PREFERENCE VARIANTS
+    // =========================================================================
+
+    public function test_prefers_reduced_motion(): void
+    {
+        $css = Tailwind::generate('<div class="motion-reduce:transition-none">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
+    }
+
+    public function test_prefers_no_reduced_motion(): void
+    {
+        $css = Tailwind::generate('<div class="motion-safe:transition-all">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('prefers-reduced-motion: no-preference', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE INVERTED COLORS VARIANT
+    // =========================================================================
+
+    public function test_inverted_colors(): void
+    {
+        $css = Tailwind::generate('<div class="inverted-colors:invert">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('inverted-colors: inverted', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE SCRIPTING VARIANT
+    // =========================================================================
+
+    public function test_noscript(): void
+    {
+        $css = Tailwind::generate('<div class="noscript:hidden">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('scripting: none', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE POINTER VARIANTS
+    // =========================================================================
+
+    public function test_pointer_coarse(): void
+    {
+        $css = Tailwind::generate('<div class="pointer-coarse:p-4">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('pointer: coarse', $css);
+    }
+
+    public function test_pointer_fine(): void
+    {
+        $css = Tailwind::generate('<div class="pointer-fine:p-2">');
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('pointer: fine', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE STARTING STYLE VARIANT
+    // =========================================================================
+
+    public function test_starting(): void
+    {
+        $css = Tailwind::generate('<div class="starting:opacity-0">');
+        $this->assertStringContainsString('@starting-style', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE IN-* VARIANTS (inside composition)
+    // =========================================================================
+
+    public function test_in_hover(): void
+    {
+        $css = Tailwind::generate('<div class="in-hover:text-blue-500">');
+        // in-hover applies to elements inside a hovered container
+        $this->assertStringContainsString(':hover', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE STANDALONE CHILDREN VARIANT
+    // =========================================================================
+
+    public function test_children_variant(): void
+    {
+        $css = Tailwind::generate('<div class="*:mt-2">');
+        $this->assertStringContainsString('> *', $css);
+    }
+
+    public function test_children_first_variant(): void
+    {
+        $css = Tailwind::generate('<div class="first:*:mt-0">');
+        $this->assertStringContainsString(':first-child', $css);
+        $this->assertStringContainsString('> *', $css);
+    }
+
+    // =========================================================================
+    // EXHAUSTIVE MULTIPLE CLASSES WITH VARIANTS
+    // =========================================================================
+
+    public function test_multiple_hover_classes(): void
+    {
+        $css = Tailwind::generate('<div class="hover:bg-blue-500 hover:text-white hover:shadow-lg">');
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString('background-color:', $css);
+        $this->assertStringContainsString('color:', $css);
+        $this->assertStringContainsString('box-shadow:', $css);
+    }
+
+    public function test_multiple_responsive_classes(): void
+    {
+        $css = Tailwind::generate('<div class="sm:flex sm:gap-4 sm:p-6">');
+        $this->assertStringContainsString('@media (min-width: 40rem)', $css);
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringContainsString('gap:', $css);
+        $this->assertStringContainsString('padding:', $css);
+    }
+
+    public function test_mixed_variants(): void
+    {
+        $css = Tailwind::generate('<div class="flex hover:flex-col md:flex-row dark:bg-gray-900">');
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString('flex-direction: column', $css);
+        $this->assertStringContainsString('@media (min-width: 48rem)', $css);
+        $this->assertStringContainsString('flex-direction: row', $css);
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+    }
 }

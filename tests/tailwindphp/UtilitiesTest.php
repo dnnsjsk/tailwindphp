@@ -994,4 +994,830 @@ class UtilitiesTest extends TestCase
     // Arbitrary property
     public function test_arbitrary_property(): void { $this->assertGenerates('[clip-path:circle(50%)]', 'clip-path: circle(50%)'); }
     public function test_arbitrary_property_with_spaces(): void { $this->assertGenerates('[margin:10px_20px]', 'margin: 10px 20px'); }
+
+    // =========================================================================
+    // EXHAUSTIVE TYPOGRAPHY TESTS
+    // =========================================================================
+
+    // All font sizes
+    public function test_text_3xl(): void { $this->assertGenerates('text-3xl', 'font-size:'); }
+    public function test_text_4xl(): void { $this->assertGenerates('text-4xl', 'font-size:'); }
+    public function test_text_5xl(): void { $this->assertGenerates('text-5xl', 'font-size:'); }
+    public function test_text_6xl(): void { $this->assertGenerates('text-6xl', 'font-size:'); }
+    public function test_text_7xl(): void { $this->assertGenerates('text-7xl', 'font-size:'); }
+    public function test_text_8xl(): void { $this->assertGenerates('text-8xl', 'font-size:'); }
+    public function test_text_9xl(): void { $this->assertGenerates('text-9xl', 'font-size:'); }
+
+    // Line height spacing values
+    public function test_leading_4(): void { $this->assertGenerates('leading-4', 'line-height: calc(var(--spacing) * 4)'); }
+    public function test_leading_5(): void { $this->assertGenerates('leading-5', 'line-height: calc(var(--spacing) * 5)'); }
+    public function test_leading_6(): void { $this->assertGenerates('leading-6', 'line-height: calc(var(--spacing) * 6)'); }
+    public function test_leading_7(): void { $this->assertGenerates('leading-7', 'line-height: calc(var(--spacing) * 7)'); }
+    public function test_leading_8(): void { $this->assertGenerates('leading-8', 'line-height: calc(var(--spacing) * 8)'); }
+    public function test_leading_9(): void { $this->assertGenerates('leading-9', 'line-height: calc(var(--spacing) * 9)'); }
+    public function test_leading_10(): void { $this->assertGenerates('leading-10', 'line-height: calc(var(--spacing) * 10)'); }
+
+    // Named line heights
+    public function test_leading_snug(): void { $this->assertGenerates('leading-snug', 'line-height: var(--leading-snug)'); }
+    public function test_leading_relaxed(): void { $this->assertGenerates('leading-relaxed', 'line-height: var(--leading-relaxed)'); }
+
+    // =========================================================================
+    // EXHAUSTIVE CURSOR TESTS
+    // =========================================================================
+
+    public function test_cursor_crosshair(): void { $this->assertGenerates('cursor-crosshair', 'cursor: crosshair'); }
+    public function test_cursor_help(): void { $this->assertGenerates('cursor-help', 'cursor: help'); }
+    public function test_cursor_none(): void { $this->assertGenerates('cursor-none', 'cursor: none'); }
+    public function test_cursor_progress(): void { $this->assertGenerates('cursor-progress', 'cursor: progress'); }
+    public function test_cursor_cell(): void { $this->assertGenerates('cursor-cell', 'cursor: cell'); }
+    public function test_cursor_vertical_text(): void { $this->assertGenerates('cursor-vertical-text', 'cursor: vertical-text'); }
+    public function test_cursor_alias(): void { $this->assertGenerates('cursor-alias', 'cursor: alias'); }
+    public function test_cursor_copy(): void { $this->assertGenerates('cursor-copy', 'cursor: copy'); }
+    public function test_cursor_no_drop(): void { $this->assertGenerates('cursor-no-drop', 'cursor: no-drop'); }
+    public function test_cursor_context_menu(): void { $this->assertGenerates('cursor-context-menu', 'cursor: context-menu'); }
+    public function test_cursor_all_scroll(): void { $this->assertGenerates('cursor-all-scroll', 'cursor: all-scroll'); }
+    public function test_cursor_col_resize(): void { $this->assertGenerates('cursor-col-resize', 'cursor: col-resize'); }
+    public function test_cursor_row_resize(): void { $this->assertGenerates('cursor-row-resize', 'cursor: row-resize'); }
+    public function test_cursor_n_resize(): void { $this->assertGenerates('cursor-n-resize', 'cursor: n-resize'); }
+    public function test_cursor_e_resize(): void { $this->assertGenerates('cursor-e-resize', 'cursor: e-resize'); }
+    public function test_cursor_s_resize(): void { $this->assertGenerates('cursor-s-resize', 'cursor: s-resize'); }
+    public function test_cursor_w_resize(): void { $this->assertGenerates('cursor-w-resize', 'cursor: w-resize'); }
+    public function test_cursor_ne_resize(): void { $this->assertGenerates('cursor-ne-resize', 'cursor: ne-resize'); }
+    public function test_cursor_nw_resize(): void { $this->assertGenerates('cursor-nw-resize', 'cursor: nw-resize'); }
+    public function test_cursor_se_resize(): void { $this->assertGenerates('cursor-se-resize', 'cursor: se-resize'); }
+    public function test_cursor_sw_resize(): void { $this->assertGenerates('cursor-sw-resize', 'cursor: sw-resize'); }
+    public function test_cursor_ew_resize(): void { $this->assertGenerates('cursor-ew-resize', 'cursor: ew-resize'); }
+    public function test_cursor_ns_resize(): void { $this->assertGenerates('cursor-ns-resize', 'cursor: ns-resize'); }
+    public function test_cursor_nesw_resize(): void { $this->assertGenerates('cursor-nesw-resize', 'cursor: nesw-resize'); }
+    public function test_cursor_nwse_resize(): void { $this->assertGenerates('cursor-nwse-resize', 'cursor: nwse-resize'); }
+    public function test_cursor_zoom_in(): void { $this->assertGenerates('cursor-zoom-in', 'cursor: zoom-in'); }
+    public function test_cursor_zoom_out(): void { $this->assertGenerates('cursor-zoom-out', 'cursor: zoom-out'); }
+
+    // =========================================================================
+    // EXHAUSTIVE BLEND MODE TESTS
+    // =========================================================================
+
+    // Mix blend modes
+    public function test_mix_blend_darken(): void { $this->assertGenerates('mix-blend-darken', 'mix-blend-mode: darken'); }
+    public function test_mix_blend_lighten(): void { $this->assertGenerates('mix-blend-lighten', 'mix-blend-mode: lighten'); }
+    public function test_mix_blend_color_dodge(): void { $this->assertGenerates('mix-blend-color-dodge', 'mix-blend-mode: color-dodge'); }
+    public function test_mix_blend_color_burn(): void { $this->assertGenerates('mix-blend-color-burn', 'mix-blend-mode: color-burn'); }
+    public function test_mix_blend_hard_light(): void { $this->assertGenerates('mix-blend-hard-light', 'mix-blend-mode: hard-light'); }
+    public function test_mix_blend_soft_light(): void { $this->assertGenerates('mix-blend-soft-light', 'mix-blend-mode: soft-light'); }
+    public function test_mix_blend_difference(): void { $this->assertGenerates('mix-blend-difference', 'mix-blend-mode: difference'); }
+    public function test_mix_blend_exclusion(): void { $this->assertGenerates('mix-blend-exclusion', 'mix-blend-mode: exclusion'); }
+    public function test_mix_blend_hue(): void { $this->assertGenerates('mix-blend-hue', 'mix-blend-mode: hue'); }
+    public function test_mix_blend_saturation(): void { $this->assertGenerates('mix-blend-saturation', 'mix-blend-mode: saturation'); }
+    public function test_mix_blend_color(): void { $this->assertGenerates('mix-blend-color', 'mix-blend-mode: color'); }
+    public function test_mix_blend_luminosity(): void { $this->assertGenerates('mix-blend-luminosity', 'mix-blend-mode: luminosity'); }
+    public function test_mix_blend_plus_darker(): void { $this->assertGenerates('mix-blend-plus-darker', 'mix-blend-mode: plus-darker'); }
+    public function test_mix_blend_plus_lighter(): void { $this->assertGenerates('mix-blend-plus-lighter', 'mix-blend-mode: plus-lighter'); }
+
+    // Background blend modes
+    public function test_bg_blend_screen(): void { $this->assertGenerates('bg-blend-screen', 'background-blend-mode: screen'); }
+    public function test_bg_blend_overlay(): void { $this->assertGenerates('bg-blend-overlay', 'background-blend-mode: overlay'); }
+    public function test_bg_blend_darken(): void { $this->assertGenerates('bg-blend-darken', 'background-blend-mode: darken'); }
+    public function test_bg_blend_lighten(): void { $this->assertGenerates('bg-blend-lighten', 'background-blend-mode: lighten'); }
+    public function test_bg_blend_color_dodge(): void { $this->assertGenerates('bg-blend-color-dodge', 'background-blend-mode: color-dodge'); }
+    public function test_bg_blend_color_burn(): void { $this->assertGenerates('bg-blend-color-burn', 'background-blend-mode: color-burn'); }
+    public function test_bg_blend_hard_light(): void { $this->assertGenerates('bg-blend-hard-light', 'background-blend-mode: hard-light'); }
+    public function test_bg_blend_soft_light(): void { $this->assertGenerates('bg-blend-soft-light', 'background-blend-mode: soft-light'); }
+    public function test_bg_blend_difference(): void { $this->assertGenerates('bg-blend-difference', 'background-blend-mode: difference'); }
+    public function test_bg_blend_exclusion(): void { $this->assertGenerates('bg-blend-exclusion', 'background-blend-mode: exclusion'); }
+    public function test_bg_blend_hue(): void { $this->assertGenerates('bg-blend-hue', 'background-blend-mode: hue'); }
+    public function test_bg_blend_saturation(): void { $this->assertGenerates('bg-blend-saturation', 'background-blend-mode: saturation'); }
+    public function test_bg_blend_color(): void { $this->assertGenerates('bg-blend-color', 'background-blend-mode: color'); }
+    public function test_bg_blend_luminosity(): void { $this->assertGenerates('bg-blend-luminosity', 'background-blend-mode: luminosity'); }
+
+    // =========================================================================
+    // EXHAUSTIVE TRANSFORM TESTS
+    // =========================================================================
+
+    // All scale values
+    public function test_scale_75(): void { $this->assertGenerates('scale-75', 'scale:'); }
+    public function test_scale_90(): void { $this->assertGenerates('scale-90', 'scale:'); }
+    public function test_scale_95(): void { $this->assertGenerates('scale-95', 'scale:'); }
+    public function test_scale_105(): void { $this->assertGenerates('scale-105', 'scale:'); }
+    public function test_scale_110(): void { $this->assertGenerates('scale-110', 'scale:'); }
+    public function test_scale_125(): void { $this->assertGenerates('scale-125', 'scale:'); }
+    public function test_scale_x_75(): void { $this->assertGenerates('scale-x-75', 'scale:'); }
+    public function test_scale_x_100(): void { $this->assertGenerates('scale-x-100', 'scale:'); }
+    public function test_scale_x_125(): void { $this->assertGenerates('scale-x-125', 'scale:'); }
+    public function test_scale_y_75(): void { $this->assertGenerates('scale-y-75', 'scale:'); }
+    public function test_scale_y_100(): void { $this->assertGenerates('scale-y-100', 'scale:'); }
+    public function test_scale_y_125(): void { $this->assertGenerates('scale-y-125', 'scale:'); }
+    public function test_negative_scale_x_100(): void { $this->assertGenerates('-scale-x-100', 'scale:'); }
+    public function test_negative_scale_y_100(): void { $this->assertGenerates('-scale-y-100', 'scale:'); }
+
+    // All rotate values
+    public function test_rotate_1(): void { $this->assertGenerates('rotate-1', 'rotate:'); }
+    public function test_rotate_2(): void { $this->assertGenerates('rotate-2', 'rotate:'); }
+    public function test_rotate_3(): void { $this->assertGenerates('rotate-3', 'rotate:'); }
+    public function test_rotate_6(): void { $this->assertGenerates('rotate-6', 'rotate:'); }
+    public function test_rotate_12(): void { $this->assertGenerates('rotate-12', 'rotate:'); }
+    public function test_negative_rotate_1(): void { $this->assertGenerates('-rotate-1', 'rotate:'); }
+    public function test_negative_rotate_2(): void { $this->assertGenerates('-rotate-2', 'rotate:'); }
+    public function test_negative_rotate_90(): void { $this->assertGenerates('-rotate-90', 'rotate:'); }
+    public function test_negative_rotate_180(): void { $this->assertGenerates('-rotate-180', 'rotate:'); }
+
+    // Skew values
+    public function test_skew_x_1(): void { $this->assertGenerates('skew-x-1', 'transform:'); }
+    public function test_skew_x_2(): void { $this->assertGenerates('skew-x-2', 'transform:'); }
+    public function test_skew_x_6(): void { $this->assertGenerates('skew-x-6', 'transform:'); }
+    public function test_skew_x_12(): void { $this->assertGenerates('skew-x-12', 'transform:'); }
+    public function test_skew_y_1(): void { $this->assertGenerates('skew-y-1', 'transform:'); }
+    public function test_skew_y_2(): void { $this->assertGenerates('skew-y-2', 'transform:'); }
+    public function test_skew_y_3(): void { $this->assertGenerates('skew-y-3', 'transform:'); }
+    public function test_skew_y_12(): void { $this->assertGenerates('skew-y-12', 'transform:'); }
+    public function test_negative_skew_y_3(): void { $this->assertGenerates('-skew-y-3', 'transform:'); }
+    public function test_negative_skew_y_6(): void { $this->assertGenerates('-skew-y-6', 'transform:'); }
+
+    // All translate values
+    public function test_translate_x_1(): void { $this->assertGenerates('translate-x-1', 'translate:'); }
+    public function test_translate_x_2(): void { $this->assertGenerates('translate-x-2', 'translate:'); }
+    public function test_translate_x_3(): void { $this->assertGenerates('translate-x-3', 'translate:'); }
+    public function test_translate_x_8(): void { $this->assertGenerates('translate-x-8', 'translate:'); }
+    public function test_translate_x_12(): void { $this->assertGenerates('translate-x-12', 'translate:'); }
+    public function test_translate_x_16(): void { $this->assertGenerates('translate-x-16', 'translate:'); }
+    public function test_translate_x_px(): void { $this->assertGenerates('translate-x-px', 'translate:'); }
+    public function test_translate_y_1(): void { $this->assertGenerates('translate-y-1', 'translate:'); }
+    public function test_translate_y_2(): void { $this->assertGenerates('translate-y-2', 'translate:'); }
+    public function test_translate_y_full(): void { $this->assertGenerates('translate-y-full', 'translate:'); }
+    public function test_translate_y_1_2(): void { $this->assertGenerates('translate-y-1/2', 'translate:'); }
+    public function test_translate_y_1_3(): void { $this->assertGenerates('translate-y-1/3', 'translate:'); }
+    public function test_translate_y_1_4(): void { $this->assertGenerates('translate-y-1/4', 'translate:'); }
+    public function test_negative_translate_y_4(): void { $this->assertGenerates('-translate-y-4', 'translate:'); }
+    public function test_negative_translate_y_1_2(): void { $this->assertGenerates('-translate-y-1/2', 'translate:'); }
+
+    // Transform origin complete
+    public function test_origin_left(): void { $this->assertGenerates('origin-left', 'transform-origin:'); }
+    public function test_origin_right(): void { $this->assertGenerates('origin-right', 'transform-origin:'); }
+    public function test_origin_bottom(): void { $this->assertGenerates('origin-bottom', 'transform-origin: bottom'); }
+    public function test_origin_top_left(): void { $this->assertGenerates('origin-top-left', 'transform-origin: 0 0'); }
+    public function test_origin_bottom_right(): void { $this->assertGenerates('origin-bottom-right', 'transform-origin: 100% 100%'); }
+
+    // =========================================================================
+    // EXHAUSTIVE SPACING TESTS
+    // =========================================================================
+
+    // All common spacing values for padding
+    public function test_p_0_5(): void { $this->assertGenerates('p-0.5', 'padding:'); }
+    public function test_p_1(): void { $this->assertGenerates('p-1', 'padding:'); }
+    public function test_p_1_5(): void { $this->assertGenerates('p-1.5', 'padding:'); }
+    public function test_p_2(): void { $this->assertGenerates('p-2', 'padding:'); }
+    public function test_p_2_5(): void { $this->assertGenerates('p-2.5', 'padding:'); }
+    public function test_p_3(): void { $this->assertGenerates('p-3', 'padding:'); }
+    public function test_p_3_5(): void { $this->assertGenerates('p-3.5', 'padding:'); }
+    public function test_p_5(): void { $this->assertGenerates('p-5', 'padding:'); }
+    public function test_p_6(): void { $this->assertGenerates('p-6', 'padding:'); }
+    public function test_p_7(): void { $this->assertGenerates('p-7', 'padding:'); }
+    public function test_p_8(): void { $this->assertGenerates('p-8', 'padding:'); }
+    public function test_p_9(): void { $this->assertGenerates('p-9', 'padding:'); }
+    public function test_p_10(): void { $this->assertGenerates('p-10', 'padding:'); }
+    public function test_p_11(): void { $this->assertGenerates('p-11', 'padding:'); }
+    public function test_p_12(): void { $this->assertGenerates('p-12', 'padding:'); }
+    public function test_p_14(): void { $this->assertGenerates('p-14', 'padding:'); }
+    public function test_p_16(): void { $this->assertGenerates('p-16', 'padding:'); }
+    public function test_p_20(): void { $this->assertGenerates('p-20', 'padding:'); }
+    public function test_p_24(): void { $this->assertGenerates('p-24', 'padding:'); }
+    public function test_p_28(): void { $this->assertGenerates('p-28', 'padding:'); }
+    public function test_p_32(): void { $this->assertGenerates('p-32', 'padding:'); }
+    public function test_p_36(): void { $this->assertGenerates('p-36', 'padding:'); }
+    public function test_p_40(): void { $this->assertGenerates('p-40', 'padding:'); }
+    public function test_p_44(): void { $this->assertGenerates('p-44', 'padding:'); }
+    public function test_p_48(): void { $this->assertGenerates('p-48', 'padding:'); }
+    public function test_p_52(): void { $this->assertGenerates('p-52', 'padding:'); }
+    public function test_p_56(): void { $this->assertGenerates('p-56', 'padding:'); }
+    public function test_p_60(): void { $this->assertGenerates('p-60', 'padding:'); }
+    public function test_p_64(): void { $this->assertGenerates('p-64', 'padding:'); }
+    public function test_p_72(): void { $this->assertGenerates('p-72', 'padding:'); }
+    public function test_p_80(): void { $this->assertGenerates('p-80', 'padding:'); }
+    public function test_p_96(): void { $this->assertGenerates('p-96', 'padding:'); }
+
+    // Margin spacing
+    public function test_m_0_5(): void { $this->assertGenerates('m-0.5', 'margin:'); }
+    public function test_m_1(): void { $this->assertGenerates('m-1', 'margin:'); }
+    public function test_m_1_5(): void { $this->assertGenerates('m-1.5', 'margin:'); }
+    public function test_m_2(): void { $this->assertGenerates('m-2', 'margin:'); }
+    public function test_m_3(): void { $this->assertGenerates('m-3', 'margin:'); }
+    public function test_m_5(): void { $this->assertGenerates('m-5', 'margin:'); }
+    public function test_m_6(): void { $this->assertGenerates('m-6', 'margin:'); }
+    public function test_m_8(): void { $this->assertGenerates('m-8', 'margin:'); }
+    public function test_m_10(): void { $this->assertGenerates('m-10', 'margin:'); }
+    public function test_m_12(): void { $this->assertGenerates('m-12', 'margin:'); }
+    public function test_m_16(): void { $this->assertGenerates('m-16', 'margin:'); }
+    public function test_m_20(): void { $this->assertGenerates('m-20', 'margin:'); }
+    public function test_m_24(): void { $this->assertGenerates('m-24', 'margin:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE WIDTH/HEIGHT TESTS
+    // =========================================================================
+
+    // All common width values
+    public function test_w_0_5(): void { $this->assertGenerates('w-0.5', 'width:'); }
+    public function test_w_1(): void { $this->assertGenerates('w-1', 'width:'); }
+    public function test_w_1_5(): void { $this->assertGenerates('w-1.5', 'width:'); }
+    public function test_w_2(): void { $this->assertGenerates('w-2', 'width:'); }
+    public function test_w_3(): void { $this->assertGenerates('w-3', 'width:'); }
+    public function test_w_5(): void { $this->assertGenerates('w-5', 'width:'); }
+    public function test_w_6(): void { $this->assertGenerates('w-6', 'width:'); }
+    public function test_w_8(): void { $this->assertGenerates('w-8', 'width:'); }
+    public function test_w_10(): void { $this->assertGenerates('w-10', 'width:'); }
+    public function test_w_12(): void { $this->assertGenerates('w-12', 'width:'); }
+    public function test_w_14(): void { $this->assertGenerates('w-14', 'width:'); }
+    public function test_w_16(): void { $this->assertGenerates('w-16', 'width:'); }
+    public function test_w_20(): void { $this->assertGenerates('w-20', 'width:'); }
+    public function test_w_24(): void { $this->assertGenerates('w-24', 'width:'); }
+    public function test_w_28(): void { $this->assertGenerates('w-28', 'width:'); }
+    public function test_w_32(): void { $this->assertGenerates('w-32', 'width:'); }
+    public function test_w_36(): void { $this->assertGenerates('w-36', 'width:'); }
+    public function test_w_40(): void { $this->assertGenerates('w-40', 'width:'); }
+    public function test_w_44(): void { $this->assertGenerates('w-44', 'width:'); }
+    public function test_w_48(): void { $this->assertGenerates('w-48', 'width:'); }
+    public function test_w_52(): void { $this->assertGenerates('w-52', 'width:'); }
+    public function test_w_56(): void { $this->assertGenerates('w-56', 'width:'); }
+    public function test_w_60(): void { $this->assertGenerates('w-60', 'width:'); }
+    public function test_w_64(): void { $this->assertGenerates('w-64', 'width:'); }
+    public function test_w_72(): void { $this->assertGenerates('w-72', 'width:'); }
+    public function test_w_80(): void { $this->assertGenerates('w-80', 'width:'); }
+    public function test_w_96(): void { $this->assertGenerates('w-96', 'width:'); }
+
+    // Width fractions
+    public function test_w_frac_1_3(): void { $this->assertGenerates('w-1/3', 'width:'); }
+    public function test_w_frac_2_3(): void { $this->assertGenerates('w-2/3', 'width:'); }
+    public function test_w_frac_1_4(): void { $this->assertGenerates('w-1/4', 'width:'); }
+    public function test_w_frac_2_4(): void { $this->assertGenerates('w-2/4', 'width:'); }
+    public function test_w_frac_3_4(): void { $this->assertGenerates('w-3/4', 'width:'); }
+    public function test_w_frac_1_5(): void { $this->assertGenerates('w-1/5', 'width:'); }
+    public function test_w_frac_2_5(): void { $this->assertGenerates('w-2/5', 'width:'); }
+    public function test_w_frac_3_5(): void { $this->assertGenerates('w-3/5', 'width:'); }
+    public function test_w_frac_4_5(): void { $this->assertGenerates('w-4/5', 'width:'); }
+    public function test_w_frac_1_6(): void { $this->assertGenerates('w-1/6', 'width:'); }
+    public function test_w_frac_5_6(): void { $this->assertGenerates('w-5/6', 'width:'); }
+    public function test_w_frac_1_12(): void { $this->assertGenerates('w-1/12', 'width:'); }
+    public function test_w_frac_5_12(): void { $this->assertGenerates('w-5/12', 'width:'); }
+    public function test_w_frac_7_12(): void { $this->assertGenerates('w-7/12', 'width:'); }
+    public function test_w_frac_11_12(): void { $this->assertGenerates('w-11/12', 'width:'); }
+
+    // Height spacing values
+    public function test_h_0_5(): void { $this->assertGenerates('h-0.5', 'height:'); }
+    public function test_h_1(): void { $this->assertGenerates('h-1', 'height:'); }
+    public function test_h_2(): void { $this->assertGenerates('h-2', 'height:'); }
+    public function test_h_3(): void { $this->assertGenerates('h-3', 'height:'); }
+    public function test_h_5(): void { $this->assertGenerates('h-5', 'height:'); }
+    public function test_h_6(): void { $this->assertGenerates('h-6', 'height:'); }
+    public function test_h_8(): void { $this->assertGenerates('h-8', 'height:'); }
+    public function test_h_10(): void { $this->assertGenerates('h-10', 'height:'); }
+    public function test_h_12(): void { $this->assertGenerates('h-12', 'height:'); }
+    public function test_h_16(): void { $this->assertGenerates('h-16', 'height:'); }
+    public function test_h_20(): void { $this->assertGenerates('h-20', 'height:'); }
+    public function test_h_24(): void { $this->assertGenerates('h-24', 'height:'); }
+    public function test_h_32(): void { $this->assertGenerates('h-32', 'height:'); }
+    public function test_h_40(): void { $this->assertGenerates('h-40', 'height:'); }
+    public function test_h_48(): void { $this->assertGenerates('h-48', 'height:'); }
+    public function test_h_56(): void { $this->assertGenerates('h-56', 'height:'); }
+    public function test_h_64(): void { $this->assertGenerates('h-64', 'height:'); }
+    public function test_h_72(): void { $this->assertGenerates('h-72', 'height:'); }
+    public function test_h_80(): void { $this->assertGenerates('h-80', 'height:'); }
+    public function test_h_96(): void { $this->assertGenerates('h-96', 'height:'); }
+
+    // Height fractions
+    public function test_h_1_2(): void { $this->assertGenerates('h-1/2', 'height:'); }
+    public function test_h_1_3(): void { $this->assertGenerates('h-1/3', 'height:'); }
+    public function test_h_2_3(): void { $this->assertGenerates('h-2/3', 'height:'); }
+    public function test_h_1_4(): void { $this->assertGenerates('h-1/4', 'height:'); }
+    public function test_h_3_4(): void { $this->assertGenerates('h-3/4', 'height:'); }
+    public function test_h_1_5(): void { $this->assertGenerates('h-1/5', 'height:'); }
+    public function test_h_2_5(): void { $this->assertGenerates('h-2/5', 'height:'); }
+    public function test_h_1_6(): void { $this->assertGenerates('h-1/6', 'height:'); }
+
+    // Size (width + height) values
+    public function test_size_1(): void { $this->assertGenerates('size-1', 'width:'); }
+    public function test_size_2(): void { $this->assertGenerates('size-2', 'width:'); }
+    public function test_size_3(): void { $this->assertGenerates('size-3', 'width:'); }
+    public function test_size_5(): void { $this->assertGenerates('size-5', 'width:'); }
+    public function test_size_6(): void { $this->assertGenerates('size-6', 'width:'); }
+    public function test_size_8(): void { $this->assertGenerates('size-8', 'width:'); }
+    public function test_size_10(): void { $this->assertGenerates('size-10', 'width:'); }
+    public function test_size_12(): void { $this->assertGenerates('size-12', 'width:'); }
+    public function test_size_16(): void { $this->assertGenerates('size-16', 'width:'); }
+    public function test_size_20(): void { $this->assertGenerates('size-20', 'width:'); }
+    public function test_size_24(): void { $this->assertGenerates('size-24', 'width:'); }
+    public function test_size_1_2(): void { $this->assertGenerates('size-1/2', 'width:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE MAX-WIDTH TESTS
+    // =========================================================================
+
+    public function test_max_w_2xl(): void { $this->assertGenerates('max-w-2xl', 'max-width:'); }
+    public function test_max_w_3xl(): void { $this->assertGenerates('max-w-3xl', 'max-width:'); }
+    public function test_max_w_4xl(): void { $this->assertGenerates('max-w-4xl', 'max-width:'); }
+    public function test_max_w_5xl(): void { $this->assertGenerates('max-w-5xl', 'max-width:'); }
+    public function test_max_w_6xl(): void { $this->assertGenerates('max-w-6xl', 'max-width:'); }
+    public function test_max_w_7xl(): void { $this->assertGenerates('max-w-7xl', 'max-width:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE GAP TESTS
+    // =========================================================================
+
+    public function test_gap_0_5(): void { $this->assertGenerates('gap-0.5', 'gap:'); }
+    public function test_gap_1(): void { $this->assertGenerates('gap-1', 'gap:'); }
+    public function test_gap_1_5(): void { $this->assertGenerates('gap-1.5', 'gap:'); }
+    public function test_gap_2(): void { $this->assertGenerates('gap-2', 'gap:'); }
+    public function test_gap_2_5(): void { $this->assertGenerates('gap-2.5', 'gap:'); }
+    public function test_gap_3(): void { $this->assertGenerates('gap-3', 'gap:'); }
+    public function test_gap_3_5(): void { $this->assertGenerates('gap-3.5', 'gap:'); }
+    public function test_gap_5(): void { $this->assertGenerates('gap-5', 'gap:'); }
+    public function test_gap_6(): void { $this->assertGenerates('gap-6', 'gap:'); }
+    public function test_gap_7(): void { $this->assertGenerates('gap-7', 'gap:'); }
+    public function test_gap_8(): void { $this->assertGenerates('gap-8', 'gap:'); }
+    public function test_gap_9(): void { $this->assertGenerates('gap-9', 'gap:'); }
+    public function test_gap_10(): void { $this->assertGenerates('gap-10', 'gap:'); }
+    public function test_gap_11(): void { $this->assertGenerates('gap-11', 'gap:'); }
+    public function test_gap_12(): void { $this->assertGenerates('gap-12', 'gap:'); }
+    public function test_gap_14(): void { $this->assertGenerates('gap-14', 'gap:'); }
+    public function test_gap_16(): void { $this->assertGenerates('gap-16', 'gap:'); }
+    public function test_gap_px(): void { $this->assertGenerates('gap-px', 'gap:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE Z-INDEX TESTS
+    // =========================================================================
+
+    public function test_z_20(): void { $this->assertGenerates('z-20', 'z-index: 20'); }
+    public function test_z_30(): void { $this->assertGenerates('z-30', 'z-index: 30'); }
+    public function test_z_40(): void { $this->assertGenerates('z-40', 'z-index: 40'); }
+    public function test_negative_z_20(): void { $this->assertGenerates('-z-20', 'z-index:'); }
+    public function test_negative_z_30(): void { $this->assertGenerates('-z-30', 'z-index:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE BORDER RADIUS TESTS
+    // =========================================================================
+
+    public function test_rounded_2xl(): void { $this->assertGenerates('rounded-2xl', 'border-radius:'); }
+    public function test_rounded_3xl(): void { $this->assertGenerates('rounded-3xl', 'border-radius:'); }
+    public function test_rounded_t_sm(): void { $this->assertGenerates('rounded-t-sm', 'border-top-left-radius:'); }
+    public function test_rounded_t_md(): void { $this->assertGenerates('rounded-t-md', 'border-top-left-radius:'); }
+    public function test_rounded_t_lg(): void { $this->assertGenerates('rounded-t-lg', 'border-top-left-radius:'); }
+    public function test_rounded_t_xl(): void { $this->assertGenerates('rounded-t-xl', 'border-top-left-radius:'); }
+    public function test_rounded_t_2xl(): void { $this->assertGenerates('rounded-t-2xl', 'border-top-left-radius:'); }
+    public function test_rounded_t_full(): void { $this->assertGenerates('rounded-t-full', 'border-top-left-radius:'); }
+    public function test_rounded_r_sm(): void { $this->assertGenerates('rounded-r-sm', 'border-top-right-radius:'); }
+    public function test_rounded_r_lg(): void { $this->assertGenerates('rounded-r-lg', 'border-top-right-radius:'); }
+    public function test_rounded_b_sm(): void { $this->assertGenerates('rounded-b-sm', 'border-bottom-left-radius:'); }
+    public function test_rounded_b_lg(): void { $this->assertGenerates('rounded-b-lg', 'border-bottom-left-radius:'); }
+    public function test_rounded_l_sm(): void { $this->assertGenerates('rounded-l-sm', 'border-top-left-radius:'); }
+    public function test_rounded_l_lg(): void { $this->assertGenerates('rounded-l-lg', 'border-top-left-radius:'); }
+    public function test_rounded_tl_sm(): void { $this->assertGenerates('rounded-tl-sm', 'border-top-left-radius:'); }
+    public function test_rounded_tl_lg(): void { $this->assertGenerates('rounded-tl-lg', 'border-top-left-radius:'); }
+    public function test_rounded_tl_full(): void { $this->assertGenerates('rounded-tl-full', 'border-top-left-radius:'); }
+    public function test_rounded_tr_sm(): void { $this->assertGenerates('rounded-tr-sm', 'border-top-right-radius:'); }
+    public function test_rounded_br_lg(): void { $this->assertGenerates('rounded-br-lg', 'border-bottom-right-radius:'); }
+    public function test_rounded_bl_xl(): void { $this->assertGenerates('rounded-bl-xl', 'border-bottom-left-radius:'); }
+    public function test_rounded_s(): void { $this->assertGenerates('rounded-s', 'border-start-start-radius:'); }
+    public function test_rounded_e(): void { $this->assertGenerates('rounded-e', 'border-start-end-radius:'); }
+    public function test_rounded_ss(): void { $this->assertGenerates('rounded-ss', 'border-start-start-radius:'); }
+    public function test_rounded_se(): void { $this->assertGenerates('rounded-se', 'border-start-end-radius:'); }
+    public function test_rounded_es(): void { $this->assertGenerates('rounded-es', 'border-end-start-radius:'); }
+    public function test_rounded_ee(): void { $this->assertGenerates('rounded-ee', 'border-end-end-radius:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE BORDER WIDTH TESTS
+    // =========================================================================
+
+    public function test_border_x_0(): void { $this->assertGenerates('border-x-0', 'border-inline-width: 0'); }
+    public function test_border_x_2(): void { $this->assertGenerates('border-x-2', 'border-inline-width: 2px'); }
+    public function test_border_x_4(): void { $this->assertGenerates('border-x-4', 'border-inline-width: 4px'); }
+    public function test_border_x_8(): void { $this->assertGenerates('border-x-8', 'border-inline-width: 8px'); }
+    public function test_border_y_0(): void { $this->assertGenerates('border-y-0', 'border-block-width: 0'); }
+    public function test_border_y_2(): void { $this->assertGenerates('border-y-2', 'border-block-width: 2px'); }
+    public function test_border_y_4(): void { $this->assertGenerates('border-y-4', 'border-block-width: 4px'); }
+    public function test_border_y_8(): void { $this->assertGenerates('border-y-8', 'border-block-width: 8px'); }
+    public function test_border_t_0(): void { $this->assertGenerates('border-t-0', 'border-top-width: 0'); }
+    public function test_border_t_2(): void { $this->assertGenerates('border-t-2', 'border-top-width: 2px'); }
+    public function test_border_t_4(): void { $this->assertGenerates('border-t-4', 'border-top-width: 4px'); }
+    public function test_border_t_8(): void { $this->assertGenerates('border-t-8', 'border-top-width: 8px'); }
+    public function test_border_r_0(): void { $this->assertGenerates('border-r-0', 'border-right-width: 0'); }
+    public function test_border_r_2(): void { $this->assertGenerates('border-r-2', 'border-right-width: 2px'); }
+    public function test_border_b_2(): void { $this->assertGenerates('border-b-2', 'border-bottom-width: 2px'); }
+    public function test_border_l_2(): void { $this->assertGenerates('border-l-2', 'border-left-width: 2px'); }
+
+    // =========================================================================
+    // EXHAUSTIVE OPACITY TESTS
+    // =========================================================================
+
+    public function test_opacity_5(): void { $this->assertGenerates('opacity-5', 'opacity:'); }
+    public function test_opacity_10(): void { $this->assertGenerates('opacity-10', 'opacity:'); }
+    public function test_opacity_15(): void { $this->assertGenerates('opacity-15', 'opacity:'); }
+    public function test_opacity_20(): void { $this->assertGenerates('opacity-20', 'opacity:'); }
+    public function test_opacity_25(): void { $this->assertGenerates('opacity-25', 'opacity:'); }
+    public function test_opacity_30(): void { $this->assertGenerates('opacity-30', 'opacity:'); }
+    public function test_opacity_35(): void { $this->assertGenerates('opacity-35', 'opacity:'); }
+    public function test_opacity_40(): void { $this->assertGenerates('opacity-40', 'opacity:'); }
+    public function test_opacity_45(): void { $this->assertGenerates('opacity-45', 'opacity:'); }
+    public function test_opacity_55(): void { $this->assertGenerates('opacity-55', 'opacity:'); }
+    public function test_opacity_60(): void { $this->assertGenerates('opacity-60', 'opacity:'); }
+    public function test_opacity_65(): void { $this->assertGenerates('opacity-65', 'opacity:'); }
+    public function test_opacity_70(): void { $this->assertGenerates('opacity-70', 'opacity:'); }
+    public function test_opacity_75(): void { $this->assertGenerates('opacity-75', 'opacity:'); }
+    public function test_opacity_80(): void { $this->assertGenerates('opacity-80', 'opacity:'); }
+    public function test_opacity_85(): void { $this->assertGenerates('opacity-85', 'opacity:'); }
+    public function test_opacity_90(): void { $this->assertGenerates('opacity-90', 'opacity:'); }
+    public function test_opacity_95(): void { $this->assertGenerates('opacity-95', 'opacity:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE SHADOW TESTS
+    // =========================================================================
+
+    public function test_shadow_xs(): void { $this->assertGenerates('shadow-xs', 'box-shadow:'); }
+    public function test_inset_shadow_xs(): void { $this->assertGenerates('inset-shadow-xs', 'box-shadow:'); }
+    public function test_inset_shadow_2xs(): void { $this->assertGenerates('inset-shadow-2xs', 'box-shadow:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE FILTER TESTS
+    // =========================================================================
+
+    public function test_blur_2xl(): void { $this->assertGenerates('blur-2xl', 'filter:'); }
+    public function test_blur_3xl(): void { $this->assertGenerates('blur-3xl', 'filter:'); }
+    public function test_brightness_75(): void { $this->assertGenerates('brightness-75', 'filter:'); }
+    public function test_brightness_90(): void { $this->assertGenerates('brightness-90', 'filter:'); }
+    public function test_brightness_95(): void { $this->assertGenerates('brightness-95', 'filter:'); }
+    public function test_brightness_105(): void { $this->assertGenerates('brightness-105', 'filter:'); }
+    public function test_brightness_110(): void { $this->assertGenerates('brightness-110', 'filter:'); }
+    public function test_brightness_125(): void { $this->assertGenerates('brightness-125', 'filter:'); }
+    public function test_brightness_200(): void { $this->assertGenerates('brightness-200', 'filter:'); }
+    public function test_contrast_75(): void { $this->assertGenerates('contrast-75', 'filter:'); }
+    public function test_contrast_125(): void { $this->assertGenerates('contrast-125', 'filter:'); }
+    public function test_contrast_150(): void { $this->assertGenerates('contrast-150', 'filter:'); }
+    public function test_contrast_200(): void { $this->assertGenerates('contrast-200', 'filter:'); }
+    public function test_saturate_150(): void { $this->assertGenerates('saturate-150', 'filter:'); }
+    public function test_saturate_200(): void { $this->assertGenerates('saturate-200', 'filter:'); }
+    public function test_hue_rotate_30(): void { $this->assertGenerates('hue-rotate-30', 'filter:'); }
+    public function test_hue_rotate_60(): void { $this->assertGenerates('hue-rotate-60', 'filter:'); }
+    public function test_negative_hue_rotate_15(): void { $this->assertGenerates('-hue-rotate-15', 'filter:'); }
+    public function test_negative_hue_rotate_30(): void { $this->assertGenerates('-hue-rotate-30', 'filter:'); }
+    public function test_negative_hue_rotate_60(): void { $this->assertGenerates('-hue-rotate-60', 'filter:'); }
+    public function test_negative_hue_rotate_90(): void { $this->assertGenerates('-hue-rotate-90', 'filter:'); }
+    public function test_negative_hue_rotate_180(): void { $this->assertGenerates('-hue-rotate-180', 'filter:'); }
+
+    // Backdrop filters
+    public function test_backdrop_blur_md(): void { $this->assertGenerates('backdrop-blur-md', 'backdrop-filter:'); }
+    public function test_backdrop_blur_lg(): void { $this->assertGenerates('backdrop-blur-lg', 'backdrop-filter:'); }
+    public function test_backdrop_blur_xl(): void { $this->assertGenerates('backdrop-blur-xl', 'backdrop-filter:'); }
+    public function test_backdrop_blur_2xl(): void { $this->assertGenerates('backdrop-blur-2xl', 'backdrop-filter:'); }
+    public function test_backdrop_blur_3xl(): void { $this->assertGenerates('backdrop-blur-3xl', 'backdrop-filter:'); }
+    public function test_backdrop_blur_none(): void { $this->assertGenerates('backdrop-blur-none', 'backdrop-filter:'); }
+    public function test_backdrop_brightness_0(): void { $this->assertGenerates('backdrop-brightness-0', 'backdrop-filter:'); }
+    public function test_backdrop_brightness_100(): void { $this->assertGenerates('backdrop-brightness-100', 'backdrop-filter:'); }
+    public function test_backdrop_brightness_150(): void { $this->assertGenerates('backdrop-brightness-150', 'backdrop-filter:'); }
+    public function test_backdrop_contrast_0(): void { $this->assertGenerates('backdrop-contrast-0', 'backdrop-filter:'); }
+    public function test_backdrop_contrast_100(): void { $this->assertGenerates('backdrop-contrast-100', 'backdrop-filter:'); }
+    public function test_backdrop_contrast_150(): void { $this->assertGenerates('backdrop-contrast-150', 'backdrop-filter:'); }
+    public function test_backdrop_grayscale_0(): void { $this->assertGenerates('backdrop-grayscale-0', 'backdrop-filter:'); }
+    public function test_backdrop_invert_0(): void { $this->assertGenerates('backdrop-invert-0', 'backdrop-filter:'); }
+    public function test_backdrop_sepia_0(): void { $this->assertGenerates('backdrop-sepia-0', 'backdrop-filter:'); }
+    public function test_backdrop_saturate_0(): void { $this->assertGenerates('backdrop-saturate-0', 'backdrop-filter:'); }
+    public function test_backdrop_saturate_100(): void { $this->assertGenerates('backdrop-saturate-100', 'backdrop-filter:'); }
+    public function test_backdrop_saturate_150(): void { $this->assertGenerates('backdrop-saturate-150', 'backdrop-filter:'); }
+    public function test_backdrop_saturate_200(): void { $this->assertGenerates('backdrop-saturate-200', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_0(): void { $this->assertGenerates('backdrop-hue-rotate-0', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_15(): void { $this->assertGenerates('backdrop-hue-rotate-15', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_30(): void { $this->assertGenerates('backdrop-hue-rotate-30', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_60(): void { $this->assertGenerates('backdrop-hue-rotate-60', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_180(): void { $this->assertGenerates('backdrop-hue-rotate-180', 'backdrop-filter:'); }
+    public function test_backdrop_opacity_0(): void { $this->assertGenerates('backdrop-opacity-0', 'backdrop-filter:'); }
+    public function test_backdrop_opacity_100(): void { $this->assertGenerates('backdrop-opacity-100', 'backdrop-filter:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE RING TESTS
+    // =========================================================================
+
+    public function test_ring_4(): void { $this->assertGenerates('ring-4', 'box-shadow:'); }
+    public function test_ring_8(): void { $this->assertGenerates('ring-8', 'box-shadow:'); }
+    public function test_ring_offset_0(): void { $this->assertGenerates('ring-offset-0', '--tw-ring-offset-width:'); }
+    public function test_ring_offset_1(): void { $this->assertGenerates('ring-offset-1', '--tw-ring-offset-width:'); }
+    public function test_ring_offset_4(): void { $this->assertGenerates('ring-offset-4', '--tw-ring-offset-width:'); }
+    public function test_ring_offset_8(): void { $this->assertGenerates('ring-offset-8', '--tw-ring-offset-width:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE OUTLINE TESTS
+    // =========================================================================
+
+    public function test_outline_8(): void { $this->assertGenerates('outline-8', 'outline-width:'); }
+    public function test_outline_offset_1(): void { $this->assertGenerates('outline-offset-1', 'outline-offset:'); }
+    public function test_outline_offset_4(): void { $this->assertGenerates('outline-offset-4', 'outline-offset:'); }
+    public function test_outline_offset_8(): void { $this->assertGenerates('outline-offset-8', 'outline-offset:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE ANIMATION TESTS
+    // =========================================================================
+
+    // animate-in and animate-out are not Tailwind 4 default utilities
+
+    // =========================================================================
+    // EXHAUSTIVE TRANSITION DURATION TESTS
+    // =========================================================================
+
+    public function test_duration_0(): void { $this->assertGenerates('duration-0', 'transition-duration:'); }
+    public function test_duration_700(): void { $this->assertGenerates('duration-700', 'transition-duration:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE GRID TESTS
+    // =========================================================================
+
+    public function test_grid_cols_2(): void { $this->assertGenerates('grid-cols-2', 'grid-template-columns:'); }
+    public function test_grid_cols_3(): void { $this->assertGenerates('grid-cols-3', 'grid-template-columns:'); }
+    public function test_grid_cols_4(): void { $this->assertGenerates('grid-cols-4', 'grid-template-columns:'); }
+    public function test_grid_cols_5(): void { $this->assertGenerates('grid-cols-5', 'grid-template-columns:'); }
+    public function test_grid_cols_6(): void { $this->assertGenerates('grid-cols-6', 'grid-template-columns:'); }
+    public function test_grid_cols_7(): void { $this->assertGenerates('grid-cols-7', 'grid-template-columns:'); }
+    public function test_grid_cols_8(): void { $this->assertGenerates('grid-cols-8', 'grid-template-columns:'); }
+    public function test_grid_cols_9(): void { $this->assertGenerates('grid-cols-9', 'grid-template-columns:'); }
+    public function test_grid_cols_10(): void { $this->assertGenerates('grid-cols-10', 'grid-template-columns:'); }
+    public function test_grid_cols_11(): void { $this->assertGenerates('grid-cols-11', 'grid-template-columns:'); }
+    public function test_grid_rows_2(): void { $this->assertGenerates('grid-rows-2', 'grid-template-rows:'); }
+    public function test_grid_rows_3(): void { $this->assertGenerates('grid-rows-3', 'grid-template-rows:'); }
+    public function test_grid_rows_4(): void { $this->assertGenerates('grid-rows-4', 'grid-template-rows:'); }
+    public function test_grid_rows_5(): void { $this->assertGenerates('grid-rows-5', 'grid-template-rows:'); }
+    public function test_grid_rows_subgrid(): void { $this->assertGenerates('grid-rows-subgrid', 'grid-template-rows: subgrid'); }
+    public function test_col_span_2(): void { $this->assertGenerates('col-span-2', 'grid-column:'); }
+    public function test_col_span_3(): void { $this->assertGenerates('col-span-3', 'grid-column:'); }
+    public function test_col_span_4(): void { $this->assertGenerates('col-span-4', 'grid-column:'); }
+    public function test_col_span_5(): void { $this->assertGenerates('col-span-5', 'grid-column:'); }
+    public function test_col_span_6(): void { $this->assertGenerates('col-span-6', 'grid-column:'); }
+    public function test_col_span_7(): void { $this->assertGenerates('col-span-7', 'grid-column:'); }
+    public function test_col_span_8(): void { $this->assertGenerates('col-span-8', 'grid-column:'); }
+    public function test_col_span_9(): void { $this->assertGenerates('col-span-9', 'grid-column:'); }
+    public function test_col_span_10(): void { $this->assertGenerates('col-span-10', 'grid-column:'); }
+    public function test_col_span_11(): void { $this->assertGenerates('col-span-11', 'grid-column:'); }
+    public function test_col_span_12(): void { $this->assertGenerates('col-span-12', 'grid-column:'); }
+    public function test_col_start_2(): void { $this->assertGenerates('col-start-2', 'grid-column-start:'); }
+    public function test_col_start_3(): void { $this->assertGenerates('col-start-3', 'grid-column-start:'); }
+    public function test_col_start_auto(): void { $this->assertGenerates('col-start-auto', 'grid-column-start: auto'); }
+    public function test_col_end_2(): void { $this->assertGenerates('col-end-2', 'grid-column-end:'); }
+    public function test_col_end_3(): void { $this->assertGenerates('col-end-3', 'grid-column-end:'); }
+    public function test_col_end_auto(): void { $this->assertGenerates('col-end-auto', 'grid-column-end: auto'); }
+    public function test_row_span_2(): void { $this->assertGenerates('row-span-2', 'grid-row:'); }
+    public function test_row_span_3(): void { $this->assertGenerates('row-span-3', 'grid-row:'); }
+    public function test_row_span_4(): void { $this->assertGenerates('row-span-4', 'grid-row:'); }
+    public function test_row_span_5(): void { $this->assertGenerates('row-span-5', 'grid-row:'); }
+    public function test_row_span_6(): void { $this->assertGenerates('row-span-6', 'grid-row:'); }
+    public function test_row_start_2(): void { $this->assertGenerates('row-start-2', 'grid-row-start:'); }
+    public function test_row_start_3(): void { $this->assertGenerates('row-start-3', 'grid-row-start:'); }
+    public function test_row_start_auto(): void { $this->assertGenerates('row-start-auto', 'grid-row-start: auto'); }
+    public function test_row_end_2(): void { $this->assertGenerates('row-end-2', 'grid-row-end:'); }
+    public function test_row_end_auto(): void { $this->assertGenerates('row-end-auto', 'grid-row-end: auto'); }
+    public function test_grid_flow_col_dense(): void { $this->assertGenerates('grid-flow-col-dense', 'grid-auto-flow: column dense'); }
+
+    // =========================================================================
+    // EXHAUSTIVE INSET TESTS
+    // =========================================================================
+
+    public function test_inset_1(): void { $this->assertGenerates('inset-1', 'inset:'); }
+    public function test_inset_2(): void { $this->assertGenerates('inset-2', 'inset:'); }
+    public function test_inset_4(): void { $this->assertGenerates('inset-4', 'inset:'); }
+    public function test_inset_8(): void { $this->assertGenerates('inset-8', 'inset:'); }
+    public function test_inset_full(): void { $this->assertGenerates('inset-full', 'inset: 100%'); }
+    public function test_inset_1_2(): void { $this->assertGenerates('inset-1/2', 'inset:'); }
+    public function test_inset_x_1(): void { $this->assertGenerates('inset-x-1', 'inset-inline:'); }
+    public function test_inset_x_4(): void { $this->assertGenerates('inset-x-4', 'inset-inline:'); }
+    public function test_inset_x_auto(): void { $this->assertGenerates('inset-x-auto', 'inset-inline: auto'); }
+    public function test_inset_y_1(): void { $this->assertGenerates('inset-y-1', 'inset-block:'); }
+    public function test_inset_y_4(): void { $this->assertGenerates('inset-y-4', 'inset-block:'); }
+    public function test_inset_y_auto(): void { $this->assertGenerates('inset-y-auto', 'inset-block: auto'); }
+    public function test_top_1(): void { $this->assertGenerates('top-1', 'top:'); }
+    public function test_top_2(): void { $this->assertGenerates('top-2', 'top:'); }
+    public function test_top_4(): void { $this->assertGenerates('top-4', 'top:'); }
+    public function test_top_auto(): void { $this->assertGenerates('top-auto', 'top: auto'); }
+    public function test_top_full(): void { $this->assertGenerates('top-full', 'top: 100%'); }
+    public function test_top_1_2(): void { $this->assertGenerates('top-1/2', 'top:'); }
+    public function test_top_1_3(): void { $this->assertGenerates('top-1/3', 'top:'); }
+    public function test_right_1(): void { $this->assertGenerates('right-1', 'right:'); }
+    public function test_right_auto(): void { $this->assertGenerates('right-auto', 'right: auto'); }
+    public function test_right_full(): void { $this->assertGenerates('right-full', 'right: 100%'); }
+    public function test_bottom_1(): void { $this->assertGenerates('bottom-1', 'bottom:'); }
+    public function test_bottom_auto(): void { $this->assertGenerates('bottom-auto', 'bottom: auto'); }
+    public function test_bottom_full(): void { $this->assertGenerates('bottom-full', 'bottom: 100%'); }
+    public function test_left_1(): void { $this->assertGenerates('left-1', 'left:'); }
+    public function test_left_auto(): void { $this->assertGenerates('left-auto', 'left: auto'); }
+    public function test_left_full(): void { $this->assertGenerates('left-full', 'left: 100%'); }
+    public function test_start_1(): void { $this->assertGenerates('start-1', 'inset-inline-start:'); }
+    public function test_start_auto(): void { $this->assertGenerates('start-auto', 'inset-inline-start: auto'); }
+    public function test_end_1(): void { $this->assertGenerates('end-1', 'inset-inline-end:'); }
+    public function test_end_auto(): void { $this->assertGenerates('end-auto', 'inset-inline-end: auto'); }
+    public function test_negative_inset_1(): void { $this->assertGenerates('-inset-1', 'inset:'); }
+    public function test_negative_inset_4(): void { $this->assertGenerates('-inset-4', 'inset:'); }
+    public function test_negative_top_1(): void { $this->assertGenerates('-top-1', 'top:'); }
+    public function test_negative_right_1(): void { $this->assertGenerates('-right-1', 'right:'); }
+    public function test_negative_bottom_1(): void { $this->assertGenerates('-bottom-1', 'bottom:'); }
+    public function test_negative_left_1(): void { $this->assertGenerates('-left-1', 'left:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE FLEX TESTS
+    // =========================================================================
+
+    public function test_grow_1(): void { $this->assertGenerates('grow-1', 'flex-grow:'); }
+    public function test_shrink_1(): void { $this->assertGenerates('shrink-1', 'flex-shrink:'); }
+    public function test_basis_0(): void { $this->assertGenerates('basis-0', 'flex-basis:'); }
+    public function test_basis_1(): void { $this->assertGenerates('basis-1', 'flex-basis:'); }
+    public function test_basis_2(): void { $this->assertGenerates('basis-2', 'flex-basis:'); }
+    public function test_basis_4(): void { $this->assertGenerates('basis-4', 'flex-basis:'); }
+    public function test_basis_8(): void { $this->assertGenerates('basis-8', 'flex-basis:'); }
+    public function test_basis_12(): void { $this->assertGenerates('basis-12', 'flex-basis:'); }
+    public function test_basis_16(): void { $this->assertGenerates('basis-16', 'flex-basis:'); }
+    public function test_basis_24(): void { $this->assertGenerates('basis-24', 'flex-basis:'); }
+    public function test_basis_32(): void { $this->assertGenerates('basis-32', 'flex-basis:'); }
+    public function test_basis_auto(): void { $this->assertGenerates('basis-auto', 'flex-basis: auto'); }
+    public function test_basis_full(): void { $this->assertGenerates('basis-full', 'flex-basis: 100%'); }
+    public function test_basis_1_2(): void { $this->assertGenerates('basis-1/2', 'flex-basis:'); }
+    public function test_basis_1_3(): void { $this->assertGenerates('basis-1/3', 'flex-basis:'); }
+    public function test_basis_1_4(): void { $this->assertGenerates('basis-1/4', 'flex-basis:'); }
+    public function test_order_2(): void { $this->assertGenerates('order-2', 'order: 2'); }
+    public function test_order_3(): void { $this->assertGenerates('order-3', 'order: 3'); }
+    public function test_order_4(): void { $this->assertGenerates('order-4', 'order: 4'); }
+    public function test_order_5(): void { $this->assertGenerates('order-5', 'order: 5'); }
+    public function test_order_12(): void { $this->assertGenerates('order-12', 'order: 12'); }
+    public function test_negative_order_1(): void { $this->assertGenerates('-order-1', 'order:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE OBJECT POSITION TESTS
+    // =========================================================================
+
+    public function test_object_left(): void { $this->assertGenerates('object-left', 'object-position:'); }
+    public function test_object_right(): void { $this->assertGenerates('object-right', 'object-position:'); }
+    public function test_object_left_top(): void { $this->assertGenerates('object-left-top', 'object-position:'); }
+    public function test_object_left_bottom(): void { $this->assertGenerates('object-left-bottom', 'object-position:'); }
+    public function test_object_right_top(): void { $this->assertGenerates('object-right-top', 'object-position:'); }
+    public function test_object_right_bottom(): void { $this->assertGenerates('object-right-bottom', 'object-position:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE OVERFLOW TESTS
+    // =========================================================================
+
+    public function test_overflow_x_visible(): void { $this->assertGenerates('overflow-x-visible', 'overflow-x: visible'); }
+    public function test_overflow_x_scroll(): void { $this->assertGenerates('overflow-x-scroll', 'overflow-x: scroll'); }
+    public function test_overflow_x_clip(): void { $this->assertGenerates('overflow-x-clip', 'overflow-x: clip'); }
+    public function test_overflow_y_auto(): void { $this->assertGenerates('overflow-y-auto', 'overflow-y: auto'); }
+    public function test_overflow_y_visible(): void { $this->assertGenerates('overflow-y-visible', 'overflow-y: visible'); }
+    public function test_overflow_y_scroll(): void { $this->assertGenerates('overflow-y-scroll', 'overflow-y: scroll'); }
+    public function test_overflow_y_clip(): void { $this->assertGenerates('overflow-y-clip', 'overflow-y: clip'); }
+
+    // =========================================================================
+    // EXHAUSTIVE SCROLL SNAP TESTS
+    // =========================================================================
+
+    public function test_scroll_mr_4(): void { $this->assertGenerates('scroll-mr-4', 'scroll-margin-right:'); }
+    public function test_scroll_mb_4(): void { $this->assertGenerates('scroll-mb-4', 'scroll-margin-bottom:'); }
+    public function test_scroll_ml_4(): void { $this->assertGenerates('scroll-ml-4', 'scroll-margin-left:'); }
+    public function test_scroll_pr_4(): void { $this->assertGenerates('scroll-pr-4', 'scroll-padding-right:'); }
+    public function test_scroll_pb_4(): void { $this->assertGenerates('scroll-pb-4', 'scroll-padding-bottom:'); }
+    public function test_scroll_pl_4(): void { $this->assertGenerates('scroll-pl-4', 'scroll-padding-left:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE TOUCH ACTION TESTS
+    // =========================================================================
+
+    public function test_touch_pan_left(): void { $this->assertGenerates('touch-pan-left', 'touch-action:'); }
+    public function test_touch_pan_right(): void { $this->assertGenerates('touch-pan-right', 'touch-action:'); }
+    public function test_touch_pan_up(): void { $this->assertGenerates('touch-pan-up', 'touch-action:'); }
+    public function test_touch_pan_down(): void { $this->assertGenerates('touch-pan-down', 'touch-action:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE VERTICAL ALIGN TESTS
+    // =========================================================================
+
+    public function test_align_text_top(): void { $this->assertGenerates('align-text-top', 'vertical-align: text-top'); }
+    public function test_align_text_bottom(): void { $this->assertGenerates('align-text-bottom', 'vertical-align: text-bottom'); }
+    public function test_align_sub(): void { $this->assertGenerates('align-sub', 'vertical-align: sub'); }
+    public function test_align_super(): void { $this->assertGenerates('align-super', 'vertical-align: super'); }
+
+    // =========================================================================
+    // EXHAUSTIVE CONTENT TESTS
+    // =========================================================================
+
+    public function test_content_none(): void { $this->assertGenerates('content-none', 'content: none'); }
+
+    // =========================================================================
+    // EXHAUSTIVE PLACE TESTS
+    // =========================================================================
+
+    public function test_place_content_end(): void { $this->assertGenerates('place-content-end', 'place-content: end'); }
+    public function test_place_content_around(): void { $this->assertGenerates('place-content-around', 'place-content: space-around'); }
+    public function test_place_content_evenly(): void { $this->assertGenerates('place-content-evenly', 'place-content: space-evenly'); }
+    public function test_place_content_baseline(): void { $this->assertGenerates('place-content-baseline', 'place-content: baseline'); }
+    public function test_place_content_stretch(): void { $this->assertGenerates('place-content-stretch', 'place-content: stretch'); }
+    public function test_place_items_end(): void { $this->assertGenerates('place-items-end', 'place-items: end'); }
+    public function test_place_items_baseline(): void { $this->assertGenerates('place-items-baseline', 'place-items: baseline'); }
+    public function test_place_items_stretch(): void { $this->assertGenerates('place-items-stretch', 'place-items: stretch'); }
+    public function test_place_self_start(): void { $this->assertGenerates('place-self-start', 'place-self: start'); }
+    public function test_place_self_end(): void { $this->assertGenerates('place-self-end', 'place-self: end'); }
+    public function test_place_self_stretch(): void { $this->assertGenerates('place-self-stretch', 'place-self: stretch'); }
+
+    // =========================================================================
+    // EXHAUSTIVE JUSTIFY TESTS
+    // =========================================================================
+
+    public function test_justify_normal(): void { $this->assertGenerates('justify-normal', 'justify-content: normal'); }
+    public function test_justify_items_end(): void { $this->assertGenerates('justify-items-end', 'justify-items: end'); }
+    public function test_justify_self_end(): void { $this->assertGenerates('justify-self-end', 'justify-self:'); }
+    public function test_justify_self_stretch(): void { $this->assertGenerates('justify-self-stretch', 'justify-self: stretch'); }
+
+    // =========================================================================
+    // EXHAUSTIVE ALIGN TESTS
+    // =========================================================================
+
+    public function test_content_normal(): void { $this->assertGenerates('content-normal', 'align-content: normal'); }
+    public function test_content_stretch(): void { $this->assertGenerates('content-stretch', 'align-content: stretch'); }
+    public function test_content_around(): void { $this->assertGenerates('content-around', 'align-content: space-around'); }
+    public function test_content_evenly(): void { $this->assertGenerates('content-evenly', 'align-content: space-evenly'); }
+    public function test_content_baseline(): void { $this->assertGenerates('content-baseline', 'align-content: baseline'); }
+    public function test_self_end(): void { $this->assertGenerates('self-end', 'align-self: flex-end'); }
+    public function test_self_baseline(): void { $this->assertGenerates('self-baseline', 'align-self: baseline'); }
+
+    // =========================================================================
+    // EXHAUSTIVE COLUMNS TESTS
+    // =========================================================================
+
+    public function test_columns_3(): void { $this->assertGenerates('columns-3', 'columns: 3'); }
+    public function test_columns_4(): void { $this->assertGenerates('columns-4', 'columns: 4'); }
+    public function test_columns_5(): void { $this->assertGenerates('columns-5', 'columns: 5'); }
+    public function test_columns_6(): void { $this->assertGenerates('columns-6', 'columns: 6'); }
+    public function test_columns_7(): void { $this->assertGenerates('columns-7', 'columns: 7'); }
+    public function test_columns_8(): void { $this->assertGenerates('columns-8', 'columns: 8'); }
+    public function test_columns_9(): void { $this->assertGenerates('columns-9', 'columns: 9'); }
+    public function test_columns_10(): void { $this->assertGenerates('columns-10', 'columns: 10'); }
+    public function test_columns_11(): void { $this->assertGenerates('columns-11', 'columns: 11'); }
+    public function test_columns_12(): void { $this->assertGenerates('columns-12', 'columns: 12'); }
+    public function test_columns_3xs(): void { $this->assertGenerates('columns-3xs', 'columns:'); }
+    public function test_columns_2xs(): void { $this->assertGenerates('columns-2xs', 'columns:'); }
+    public function test_columns_xs(): void { $this->assertGenerates('columns-xs', 'columns:'); }
+    public function test_columns_sm(): void { $this->assertGenerates('columns-sm', 'columns:'); }
+    public function test_columns_md(): void { $this->assertGenerates('columns-md', 'columns:'); }
+    public function test_columns_lg(): void { $this->assertGenerates('columns-lg', 'columns:'); }
+    public function test_columns_xl(): void { $this->assertGenerates('columns-xl', 'columns:'); }
+    public function test_columns_2xl(): void { $this->assertGenerates('columns-2xl', 'columns:'); }
+    public function test_columns_3xl(): void { $this->assertGenerates('columns-3xl', 'columns:'); }
+    public function test_columns_4xl(): void { $this->assertGenerates('columns-4xl', 'columns:'); }
+    public function test_columns_5xl(): void { $this->assertGenerates('columns-5xl', 'columns:'); }
+    public function test_columns_6xl(): void { $this->assertGenerates('columns-6xl', 'columns:'); }
+    public function test_columns_7xl(): void { $this->assertGenerates('columns-7xl', 'columns:'); }
+
+    // =========================================================================
+    // EXHAUSTIVE BREAK TESTS
+    // =========================================================================
+
+    public function test_break_before_avoid(): void { $this->assertGenerates('break-before-avoid', 'break-before: avoid'); }
+    public function test_break_before_all(): void { $this->assertGenerates('break-before-all', 'break-before: all'); }
+    public function test_break_before_avoid_page(): void { $this->assertGenerates('break-before-avoid-page', 'break-before: avoid-page'); }
+    public function test_break_before_page(): void { $this->assertGenerates('break-before-page', 'break-before: page'); }
+    public function test_break_before_left(): void { $this->assertGenerates('break-before-left', 'break-before: left'); }
+    public function test_break_before_right(): void { $this->assertGenerates('break-before-right', 'break-before: right'); }
+    public function test_break_before_column(): void { $this->assertGenerates('break-before-column', 'break-before: column'); }
+    public function test_break_after_auto(): void { $this->assertGenerates('break-after-auto', 'break-after: auto'); }
+    public function test_break_after_avoid(): void { $this->assertGenerates('break-after-avoid', 'break-after: avoid'); }
+    public function test_break_after_all(): void { $this->assertGenerates('break-after-all', 'break-after: all'); }
+    public function test_break_after_avoid_page(): void { $this->assertGenerates('break-after-avoid-page', 'break-after: avoid-page'); }
+    public function test_break_after_left(): void { $this->assertGenerates('break-after-left', 'break-after: left'); }
+    public function test_break_after_right(): void { $this->assertGenerates('break-after-right', 'break-after: right'); }
+    public function test_break_after_column(): void { $this->assertGenerates('break-after-column', 'break-after: column'); }
+    public function test_break_inside_auto(): void { $this->assertGenerates('break-inside-auto', 'break-inside: auto'); }
+    public function test_break_inside_avoid_page(): void { $this->assertGenerates('break-inside-avoid-page', 'break-inside: avoid-page'); }
+    public function test_break_inside_avoid_column(): void { $this->assertGenerates('break-inside-avoid-column', 'break-inside: avoid-column'); }
+
+    // =========================================================================
+    // EXHAUSTIVE TABLE DISPLAY TESTS
+    // =========================================================================
+
+    public function test_display_inline_table(): void { $this->assertGenerates('inline-table', 'display: inline-table'); }
+    public function test_display_table_caption(): void { $this->assertGenerates('table-caption', 'display: table-caption'); }
+    public function test_display_table_column(): void { $this->assertGenerates('table-column', 'display: table-column'); }
+    public function test_display_table_column_group(): void { $this->assertGenerates('table-column-group', 'display: table-column-group'); }
+    public function test_display_table_footer_group(): void { $this->assertGenerates('table-footer-group', 'display: table-footer-group'); }
+    public function test_display_table_header_group(): void { $this->assertGenerates('table-header-group', 'display: table-header-group'); }
+    public function test_display_table_row_group(): void { $this->assertGenerates('table-row-group', 'display: table-row-group'); }
+    public function test_display_flow_root(): void { $this->assertGenerates('flow-root', 'display: flow-root'); }
+    public function test_display_list_item(): void { $this->assertGenerates('list-item', 'display: list-item'); }
+
+    // =========================================================================
+    // EXHAUSTIVE LIST STYLE TESTS
+    // =========================================================================
+
+    public function test_list_image_none(): void { $this->assertGenerates('list-image-none', 'list-style-image: none'); }
+
+    // =========================================================================
+    // EXHAUSTIVE APPEARANCE TESTS
+    // =========================================================================
+
+    // =========================================================================
+    // EXHAUSTIVE CONTAIN TESTS
+    // =========================================================================
+
+    public function test_contain_none(): void { $this->assertGenerates('contain-none', 'contain: none'); }
+    public function test_contain_content(): void { $this->assertGenerates('contain-content', 'contain: content'); }
+    public function test_contain_strict(): void { $this->assertGenerates('contain-strict', 'contain: strict'); }
+    // contain-size/layout/paint/style use CSS variables for composability
+    public function test_contain_size(): void { $this->assertGenerates('contain-size', '--tw-contain-size: size'); }
+    public function test_contain_layout(): void { $this->assertGenerates('contain-layout', '--tw-contain-layout: layout'); }
+    public function test_contain_paint(): void { $this->assertGenerates('contain-paint', '--tw-contain-paint: paint'); }
+    public function test_contain_style(): void { $this->assertGenerates('contain-style', '--tw-contain-style: style'); }
+
 }
