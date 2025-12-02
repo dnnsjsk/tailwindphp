@@ -459,20 +459,41 @@ function substituteAtSlot(array &$ast, array $nodes): void
  */
 function substituteAtVariant(array &$ast, object $designSystem): void
 {
-    walk($ast, function (&$node) use ($designSystem) {
-        if ($node['kind'] === 'at-rule' && $node['name'] === '@variant') {
-            $variantName = trim($node['params']);
-            $variant = $designSystem->variants->get($variantName);
-            if ($variant) {
-                // Apply the variant transformation
-                // This is simplified - full implementation would be more complex
-                $node['kind'] = 'rule';
-                $node['selector'] = '&';
-                unset($node['name'], $node['params']);
+    // Keep substituting until no more @variant rules are found
+    $maxIterations = 100; // Prevent infinite loops
+    $iterations = 0;
+
+    do {
+        $foundVariant = false;
+        $iterations++;
+
+        walk($ast, function (&$node) use ($designSystem, &$foundVariant) {
+            if ($node['kind'] === 'at-rule' && $node['name'] === '@variant') {
+                $variantName = trim($node['params']);
+                $variant = $designSystem->getVariants()->get($variantName);
+                if ($variant) {
+                    // Create a wrapper rule with the inner nodes
+                    $wrapperRule = [
+                        'kind' => 'rule',
+                        'selector' => '&',
+                        'nodes' => $node['nodes'] ?? [],
+                    ];
+
+                    // Apply the variant transformation
+                    $applyFn = $variant['applyFn'];
+                    $applyFn($wrapperRule);
+
+                    // Replace this node with the transformed result
+                    $node['kind'] = 'context';
+                    $node['nodes'] = $wrapperRule['nodes'];
+                    unset($node['name'], $node['params']);
+
+                    $foundVariant = true;
+                }
+                return \TailwindPHP\Walk\WalkAction::Skip;
             }
-            return \TailwindPHP\Walk\WalkAction::Skip;
-        }
-    });
+        });
+    } while ($foundVariant && $iterations < $maxIterations);
 }
 
 /**
@@ -827,7 +848,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         '& ::-webkit-details-marker',
         '&::-webkit-details-marker',
     ]);
-    $staticVariant('selection', ['& ::selection', '&::selection']);
+    $staticVariant('selection', ['& *::selection', '&::selection']);
     $staticVariant('file', ['&::file-selector-button']);
     $staticVariant('placeholder', ['&::placeholder']);
     $staticVariant('backdrop', ['&::backdrop']);

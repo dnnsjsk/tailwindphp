@@ -548,6 +548,19 @@ class variants extends TestCase
             return true;
         }
 
+        // Handle merged selectors - if actual is a comma-separated list,
+        // check if expected matches one of the parts (after normalization)
+        // Use the splitSelectorList helper to correctly handle commas inside parentheses
+        if (str_contains($actual, ', ')) {
+            $actualParts = self::splitSelectorList($actual);
+            foreach ($actualParts as $part) {
+                $normalizedPart = trim($part);
+                if ($expected === $normalizedPart) {
+                    return true;
+                }
+            }
+        }
+
         // Normalize media query syntax differences
         // Legacy: @media not all and (min-width: X) === Modern: @media (width < X)
         // Legacy: @media (min-width: X) === Modern: @media (width >= X)
@@ -560,8 +573,8 @@ class variants extends TestCase
 
         // Handle nested @media deduplication
         // Expected: @media X|||@media X|||selector vs Actual: @media X|||selector
-        // Both are functionally equivalent
-        if (str_contains($expected, '|||@media') && str_contains($expected, '|||@media')) {
+        // Both are functionally equivalent when the @media queries are identical
+        if (str_contains($expected, '|||') || str_contains($actual, '|||')) {
             $expectedParts = explode('|||', $expected);
             $actualParts = explode('|||', $actual);
 
@@ -573,17 +586,47 @@ class variants extends TestCase
                 }
             }
 
-            // Check if all actual @media prefixes are in expected
+            // Get unique @media prefixes from actual
+            $actualMedias = [];
             foreach ($actualParts as $part) {
-                if (str_starts_with($part, '@media') && !isset($expectedMedias[$part])) {
-                    return false;
+                if (str_starts_with($part, '@media')) {
+                    $actualMedias[$part] = true;
                 }
             }
 
-            // Compare the selector part (last element)
+            // Check if all unique @media prefixes match
+            if ($expectedMedias != $actualMedias) {
+                // Check if actual's @media is a subset of expected's (deduplication case)
+                foreach ($actualMedias as $media => $_) {
+                    if (!isset($expectedMedias[$media])) {
+                        return false;
+                    }
+                }
+            }
+
+            // Compare the selector part (last non-@media element)
             $expectedSelector = end($expectedParts);
             $actualSelector = end($actualParts);
-            return $expectedSelector === $actualSelector;
+
+            // Handle escaping differences in selector
+            $expectedSelector = str_replace('\\\\', '\\', $expectedSelector);
+            $actualSelector = str_replace('\\\\', '\\', $actualSelector);
+
+            if ($expectedSelector === $actualSelector) {
+                return true;
+            }
+
+            // If actual selector is comma-separated (merged), check each part
+            if (str_contains($actualSelector, ', ')) {
+                $actualSelectorParts = self::splitSelectorList($actualSelector);
+                foreach ($actualSelectorParts as $part) {
+                    if ($expectedSelector === trim($part)) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         return false;

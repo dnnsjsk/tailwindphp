@@ -54,6 +54,7 @@
             "src/variants.php",
             "src/design-system.php",
             "src/apply.php",
+            "src/css-functions.php",
             "src/index.php"
         ]
     },

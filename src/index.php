@@ -11,6 +11,7 @@ use function TailwindPHP\DesignSystem\buildDesignSystem;
 use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
 use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\atRule;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Walk\walk;
 use TailwindPHP\Walk\WalkAction;
@@ -68,6 +69,9 @@ function compileAst(array $ast, array $options = []): array
     $utilitiesNodePath = $result['utilitiesNodePath'];
     $features = $result['features'];
     $inlineCandidates = $result['inlineCandidates'];
+
+    // Substitute CSS functions (theme(), --theme(), --spacing(), --alpha())
+    $features |= substituteFunctions($ast, $designSystem);
 
     // Process @apply directives first (this also handles @utility with @apply inside)
     // substituteAtApply will:
@@ -172,6 +176,9 @@ function compileAst(array $ast, array $options = []): array
 
             $newNodes = $compileResult['astNodes'];
 
+            // Apply CSS function substitution to compiled utilities (resolves theme() etc.)
+            substituteFunctions($newNodes, $designSystem);
+
             // If no new nodes were generated, return cached result
             if ($previousAstNodeCount === count($newNodes)) {
                 if ($compiled === null) {
@@ -208,9 +215,10 @@ function parseCss(array &$ast, array $options = []): array
     $root = null;
     $firstThemeRule = null;
     $important = false;
+    $customVariants = []; // Collect @custom-variant definitions
 
-    // Walk AST to find @tailwind utilities, @theme, @source, @utility, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, $options) {
+    // Walk AST to find @tailwind utilities, @theme, @source, @utility, @custom-variant, @media important
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, $options) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -325,6 +333,39 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::Skip;
         }
 
+        // Handle @custom-variant
+        if ($node['name'] === '@custom-variant') {
+            if ($ctx->parent !== null) {
+                throw new \Exception('`@custom-variant` cannot be nested.');
+            }
+
+            $params = $node['params'] ?? '';
+            $parts = \TailwindPHP\Utils\segment($params, ' ');
+            $name = $parts[0] ?? '';
+            $selector = isset($parts[1]) ? implode(' ', array_slice($parts, 1)) : null;
+
+            if (!preg_match(\TailwindPHP\Variants\IS_VALID_VARIANT_NAME, $name)) {
+                throw new \Exception(
+                    "`@custom-variant {$name}` defines an invalid variant name. Variants should only contain alphanumeric, dashes, or underscore characters and start with a lowercase letter or number."
+                );
+            }
+
+            $nodes = $node['nodes'] ?? [];
+            if (count($nodes) > 0 && $selector) {
+                throw new \Exception("`@custom-variant {$name}` cannot have both a selector and a body.");
+            }
+
+            // Store for later registration
+            $customVariants[] = [
+                'name' => $name,
+                'selector' => $selector,
+                'nodes' => $nodes,
+            ];
+
+            $features |= FEATURE_VARIANTS;
+            return WalkAction::ReplaceSkip([]);
+        }
+
         // Handle @media important, @media theme(...), @media prefix(...)
         if ($node['name'] === '@media') {
             $params = \TailwindPHP\Utils\segment($node['params'], ' ');
@@ -410,6 +451,11 @@ function parseCss(array &$ast, array $options = []): array
         $designSystem->setImportant(true);
     }
 
+    // Register custom variants
+    foreach ($customVariants as $customVariant) {
+        registerCustomVariant($designSystem, $customVariant['name'], $customVariant['selector'], $customVariant['nodes']);
+    }
+
     // Note: @utility registration and removal is deferred to compileAst
     // This is because @apply inside @utility needs to be processed first
 
@@ -452,6 +498,68 @@ function parseThemeOptions(string $params): array
     }
 
     return [$options, $prefix];
+}
+
+/**
+ * Register a custom variant with the design system.
+ *
+ * @param DesignSystem\DesignSystem $designSystem The design system
+ * @param string $name The variant name
+ * @param string|null $selector The selector (for simple variants like "&:hover")
+ * @param array $nodes The AST nodes (for complex variants with @slot)
+ */
+function registerCustomVariant($designSystem, string $name, ?string $selector, array $nodes): void
+{
+    $variants = $designSystem->getVariants();
+
+    // Simple selector-based variant: @custom-variant hocus (&:hover, &:focus);
+    if ($selector !== null && empty($nodes)) {
+        if (!str_starts_with($selector, '(') || !str_ends_with($selector, ')')) {
+            throw new \Exception("`@custom-variant {$name}` selector must be wrapped in parentheses.");
+        }
+
+        // Parse selectors from "(sel1, sel2, ...)"
+        $selectorContent = substr($selector, 1, -1);
+        $selectors = array_map('trim', \TailwindPHP\Utils\segment($selectorContent, ','));
+
+        if (empty($selectors) || in_array('', $selectors, true)) {
+            throw new \Exception("`@custom-variant {$name} {$selector}` selector is invalid.");
+        }
+
+        $atRuleParams = [];
+        $styleRuleSelectors = [];
+
+        foreach ($selectors as $sel) {
+            if (str_starts_with($sel, '@')) {
+                $atRuleParams[] = $sel;
+            } else {
+                $styleRuleSelectors[] = $sel;
+            }
+        }
+
+        // Build the variant apply function
+        $variants->static($name, function (&$r) use ($atRuleParams, $styleRuleSelectors) {
+            // Wrap in style rule selectors first
+            if (!empty($styleRuleSelectors)) {
+                $r['nodes'] = [styleRule(implode(', ', $styleRuleSelectors), $r['nodes'])];
+            }
+
+            // Then wrap in at-rules
+            foreach (array_reverse($atRuleParams) as $atRuleParam) {
+                // Parse at-rule name and params
+                if (preg_match('/^(@[a-z-]+)\s*(.*)$/', $atRuleParam, $m)) {
+                    $r['nodes'] = [atRule($m[1], $m[2], $r['nodes'])];
+                }
+            }
+        }, ['compounds' => \TailwindPHP\Variants\compoundsForSelectors($selectors)]);
+    }
+    // Body-based variant: @custom-variant hocus { &:hover, &:focus { @slot; } }
+    elseif (!empty($nodes)) {
+        $variants->fromAst($name, $nodes, $designSystem);
+    }
+    else {
+        throw new \Exception("`@custom-variant {$name}` has no selector or body.");
+    }
 }
 
 // Regex patterns for utility name validation
@@ -537,8 +645,8 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             $value = $node['value'] ?? '';
             // Extract variables from var() functions
             // The regex matches CSS custom property names which can contain
-            // any character except whitespace, quotes, or closing parens
-            if (preg_match_all('/var\(\s*(--[^\s\)\'"]+)/', $value, $matches)) {
+            // any character except whitespace, quotes, closing parens, or commas
+            if (preg_match_all('/var\(\s*(--[^\s\)\'\",]+)/', $value, $matches)) {
                 foreach ($matches[1] as $var) {
                     // Unescape the variable name (e.g., --width-1\/2 -> --width-1/2)
                     $usedVariables[preg_replace('/\\\\(.)/', '$1', $var)] = true;
@@ -698,6 +806,9 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     // Transform CSS nesting (flatten & selectors, hoist @media)
     $result = LightningCss::transformNesting($result);
 
+    // Add vendor prefixes to declarations that need them
+    $result = LightningCss::addVendorPrefixes($result);
+
     // Apply LightningCSS value optimizations to all declarations
     $optimizeValues = function (array &$node) use (&$optimizeValues): void {
         if ($node['kind'] === 'declaration' && isset($node['value'])) {
@@ -738,9 +849,8 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
                     break;
                 }
             }
-            if ($initialValue !== null) {
-                $fallbackDeclarations[] = decl($propName, $initialValue);
-            }
+            // Use 'initial' as fallback if no initial-value is specified
+            $fallbackDeclarations[] = decl($propName, $initialValue ?? 'initial');
         }
 
         if (!empty($fallbackDeclarations)) {
@@ -761,6 +871,9 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
 
     // Append other atRoots (non-@property) and @property rules
     $result = array_merge($result, $otherAtRoots, $atPropertyRules);
+
+    // Merge adjacent rules with same declarations (selector merging)
+    $result = LightningCss::mergeRulesWithSameDeclarations($result);
 
     return $result;
 }

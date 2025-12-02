@@ -2,7 +2,7 @@
     {
         "name": "adds vendor prefixes",
         "type": "compileCss",
-        "classes": [],
+        "classes": ["[text-size-adjust:none]"],
         "css": "@tailwind utilities;",
         "expected": "\".\\\\[text-size-adjust\\\\:none\\\\] {\n        -webkit-text-size-adjust: none;\n        -moz-text-size-adjust: none;\n        text-size-adjust: none;\n      }\""
     },

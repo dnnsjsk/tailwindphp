@@ -392,20 +392,27 @@ class UtilityBuilder
                     $value = $candidate['value']['value'];
                     $dataType = $candidate['value']['dataType'] ?? null;
                 } else {
-                    // Reject modifiers for named values (unless explicitly supported)
-                    // Most utilities don't support modifiers except colors and special cases like @container
-                    // Exception: numeric fractions like flex-1/2 have a modifier (the denominator) but it's consumed by the fraction
+                    // Check for numeric fractions (like flex-1/2)
                     $hasNumericFraction = isset($candidate['value']['fraction']) &&
                         isset($candidate['modifier']['value']) &&
                         ctype_digit($candidate['modifier']['value']);
-                    if (isset($candidate['modifier']) && $candidate['modifier'] !== null && !$hasNumericFraction) {
-                        return null;
-                    }
 
                     $lookupValue = $candidate['value']['fraction'] ?? $candidate['value']['value'];
 
                     // Theme resolution first (matches original TailwindCSS order)
                     $value = $theme->resolve($lookupValue, $desc['themeKeys'] ?? []);
+
+                    // If we have a modifier and no theme value resolved:
+                    // - For named fractions (foo/bar): if theme value exists, modifier is consumed by fraction
+                    // - For numeric fractions (1/2): modifier is consumed by fraction
+                    // - Otherwise: reject - modifier not supported for this utility
+                    $hasFraction = isset($candidate['value']['fraction']);
+                    $fractionResolvedFromTheme = $value !== null && $hasFraction;
+                    if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+                        if (!$hasNumericFraction && !$fractionResolvedFromTheme) {
+                            return null;
+                        }
+                    }
 
                     // Handle fractions like w-1/2
                     if ($value === null && ($desc['supportsFractions'] ?? false) && isset($candidate['value']['fraction'])) {

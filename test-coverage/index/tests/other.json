@@ -223,7 +223,9 @@
         "name": "built-in variants can be overridden while keeping their order",
         "type": "compileCss",
         "classes": [
-            "rtl"
+            "rtl:flex",
+            "dark:flex",
+            "starting:flex"
         ],
         "css": "@custom-variant dark (&:is([data-theme='dark'] *));\n          @layer utilities {\n            @tailwind utilities;\n          }",
         "expected": "\"@layer utilities {\n        .rtl\\\\:flex:where(:dir(rtl), [dir=\"rtl\"], [dir=\"rtl\"] *), .dark\\\\:flex:is([data-theme=\"dark\"] *) {\n          display: flex;\n        }\n\n        @starting-style {\n          .starting\\\\:flex {\n            display: flex;\n          }\n        }\n      }\""

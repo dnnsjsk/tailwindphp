@@ -48,8 +48,113 @@ class LightningCss
         $value = self::normalizeLeadingZeros($value);
         $value = self::normalizeGridValues($value, $property);
         $value = self::normalizeTransformFunctions($value, $property);
+        $value = self::normalizeAnimationValue($value, $property);
+        $value = self::normalizeUrlQuoting($value);
 
         return $value;
+    }
+
+    /**
+     * Normalize URL quoting.
+     *
+     * LightningCSS adds quotes around URL values if not already quoted.
+     * e.g., url(./file.jpg) -> url("./file.jpg")
+     *
+     * @param string $value The CSS value
+     * @return string Normalized value
+     */
+    public static function normalizeUrlQuoting(string $value): string
+    {
+        // Match url() functions with unquoted values
+        return preg_replace_callback(
+            '/url\(\s*([^"\')][^\)]*?)\s*\)/',
+            function ($match) {
+                $url = trim($match[1]);
+                // Don't quote data URIs, variable references, or already quoted
+                if (str_starts_with($url, 'data:') ||
+                    str_starts_with($url, 'var(') ||
+                    str_starts_with($url, '"') ||
+                    str_starts_with($url, "'")) {
+                    return $match[0];
+                }
+                return 'url("' . $url . '")';
+            },
+            $value
+        );
+    }
+
+    /**
+     * Normalize animation value to put the animation name last.
+     *
+     * LightningCSS reorders animation values so the name comes at the end.
+     * e.g., "used 1s infinite" -> "1s infinite used"
+     *
+     * @param string $value The CSS value
+     * @param string $property The CSS property name
+     * @return string Normalized value
+     */
+    public static function normalizeAnimationValue(string $value, string $property = ''): string
+    {
+        // Only apply to animation property
+        if ($property !== 'animation') {
+            return $value;
+        }
+
+        // Skip if it contains var() - can't reliably parse
+        if (str_contains($value, 'var(')) {
+            return $value;
+        }
+
+        // Handle multiple animations (comma-separated)
+        $animations = preg_split('/,\s*/', $value);
+        $result = [];
+
+        foreach ($animations as $animation) {
+            $parts = preg_split('/\s+/', trim($animation));
+            if (count($parts) <= 1) {
+                $result[] = $animation;
+                continue;
+            }
+
+            // Find the animation name (not a time, keyword, or number)
+            $keywords = ['none', 'normal', 'reverse', 'alternate', 'alternate-reverse',
+                         'running', 'paused', 'forwards', 'backwards', 'both', 'infinite',
+                         'linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out', 'step-start', 'step-end'];
+
+            $nameIndex = -1;
+            foreach ($parts as $i => $part) {
+                // Skip times (ends with s or ms)
+                if (preg_match('/^[\d.]+m?s$/', $part)) {
+                    continue;
+                }
+                // Skip iteration count (number or 'infinite')
+                if (is_numeric($part) || $part === 'infinite') {
+                    continue;
+                }
+                // Skip known keywords
+                if (in_array(strtolower($part), $keywords)) {
+                    continue;
+                }
+                // Skip cubic-bezier() or steps()
+                if (preg_match('/^(cubic-bezier|steps)\(/', $part)) {
+                    continue;
+                }
+                // This is likely the animation name
+                $nameIndex = $i;
+                break;
+            }
+
+            if ($nameIndex >= 0 && $nameIndex < count($parts) - 1) {
+                // Move name to the end (if not already there)
+                $name = $parts[$nameIndex];
+                array_splice($parts, $nameIndex, 1);
+                $parts[] = $name;
+            }
+
+            $result[] = implode(' ', $parts);
+        }
+
+        return implode(', ', $result);
     }
 
     /**
@@ -378,6 +483,10 @@ class LightningCss
                 }
             }
 
+            // LightningCSS normalizes `*::pseudo` to ` ::pseudo` since `*` is implicit
+            // e.g., `.foo *::selection` becomes `.foo ::selection`
+            $selector = preg_replace('/\s\*::/', ' ::', $selector);
+
             // If this is a nested rule inside a parent rule
             $declarations = [];
             $nestedRules = [];
@@ -407,8 +516,35 @@ class LightningCss
         }
 
         if ($node['kind'] === 'at-rule') {
+            // Handle @layer specially - it should NOT have its contents hoisted
+            if ($node['name'] === '@layer') {
+                // Process layer contents but keep them inside the layer
+                $layerNodes = [];
+                $layerAtRules = []; // Separate at-rules collector for layer contents
+
+                foreach ($node['nodes'] ?? [] as $child) {
+                    self::flattenNode($child, $layerNodes, $layerAtRules, $parentSelector);
+                }
+
+                // Merge at-rules collected within the layer
+                $mergedLayerAtRules = self::mergeAtRules($layerAtRules);
+
+                // Combine regular nodes with merged at-rules (at-rules go at end)
+                $allLayerNodes = array_merge($layerNodes, $mergedLayerAtRules);
+
+                if (!empty($allLayerNodes)) {
+                    $parent[] = [
+                        'kind' => 'at-rule',
+                        'name' => '@layer',
+                        'params' => $node['params'],
+                        'nodes' => $allLayerNodes,
+                    ];
+                }
+                return;
+            }
+
             // For at-rules like @media, @supports, @starting-style
-            if (in_array($node['name'], ['@media', '@supports', '@container', '@layer', '@starting-style'])) {
+            if (in_array($node['name'], ['@media', '@supports', '@container', '@starting-style'])) {
                 // Collect declarations and nested rules from at-rule body
                 $declarations = [];
                 $nestedRules = [];
@@ -520,6 +656,79 @@ class LightningCss
     }
 
     /**
+     * Merge ADJACENT rules with identical declarations by combining their selectors.
+     * This optimizes output by grouping selectors that share the same styles.
+     * Only merges rules that are directly adjacent to preserve ordering semantics.
+     *
+     * @param array $nodes
+     * @return array
+     */
+    public static function mergeRulesWithSameDeclarations(array $nodes): array
+    {
+        $result = [];
+        $lastDeclKey = null;
+        $lastIndex = -1;
+        $lastSelectors = []; // Track selectors we've already added to the merged rule
+
+        foreach ($nodes as $node) {
+            if ($node['kind'] === 'rule') {
+                // Serialize declarations for comparison
+                $declKey = self::serializeDeclarations($node['nodes'] ?? []);
+                $currentSelector = $node['selector'];
+
+                // Only merge if this rule immediately follows another rule with same declarations
+                if ($lastDeclKey === $declKey && $lastIndex === count($result) - 1 && $lastIndex >= 0) {
+                    // Check if this selector is already included (avoid duplicates)
+                    if (!isset($lastSelectors[$currentSelector])) {
+                        // Merge selectors with previous rule
+                        $result[$lastIndex]['selector'] .= ', ' . $currentSelector;
+                        $lastSelectors[$currentSelector] = true;
+                    }
+                    // If selector already included, skip it entirely
+                } else {
+                    $result[] = $node;
+                    $lastDeclKey = $declKey;
+                    $lastIndex = count($result) - 1;
+                    $lastSelectors = [$currentSelector => true]; // Reset tracked selectors
+                }
+            } else {
+                // For at-rules, recursively merge their child rules
+                if ($node['kind'] === 'at-rule' && isset($node['nodes'])) {
+                    $node['nodes'] = self::mergeRulesWithSameDeclarations($node['nodes']);
+                }
+                $result[] = $node;
+                $lastDeclKey = null; // Reset when encountering non-rule
+                $lastIndex = -1;
+                $lastSelectors = [];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Serialize declarations for comparison.
+     *
+     * @param array $nodes
+     * @return string
+     */
+    private static function serializeDeclarations(array $nodes): string
+    {
+        $parts = [];
+        foreach ($nodes as $node) {
+            if ($node['kind'] === 'declaration') {
+                $important = !empty($node['important']) ? '!important' : '';
+                $parts[] = ($node['property'] ?? '') . ':' . ($node['value'] ?? '') . $important;
+            } elseif ($node['kind'] === 'rule') {
+                // Include nested rules in serialization
+                $parts[] = 'rule:' . ($node['selector'] ?? '') . '{' . self::serializeDeclarations($node['nodes'] ?? []) . '}';
+            }
+        }
+        sort($parts); // Sort for consistent comparison
+        return implode(';', $parts);
+    }
+
+    /**
      * Minify a CSS string (optional, for production builds).
      *
      * @param string $css The CSS to minify
@@ -538,5 +747,115 @@ class LightningCss
         $css = str_replace(';}', '}', $css);
 
         return trim($css);
+    }
+
+    /**
+     * Properties that require vendor prefixes.
+     * Maps property name to array of prefixed versions (in order).
+     */
+    private const VENDOR_PREFIXES = [
+        'text-size-adjust' => ['-webkit-text-size-adjust', '-moz-text-size-adjust', 'text-size-adjust'],
+        'appearance' => ['-webkit-appearance', 'appearance'],
+        'user-select' => ['-webkit-user-select', '-moz-user-select', 'user-select'],
+        'backdrop-filter' => ['-webkit-backdrop-filter', 'backdrop-filter'],
+        'text-decoration-skip-ink' => ['-webkit-text-decoration-skip-ink', 'text-decoration-skip-ink'],
+        'hyphens' => ['-webkit-hyphens', 'hyphens'],
+        'print-color-adjust' => ['-webkit-print-color-adjust', 'print-color-adjust'],
+        'mask' => ['-webkit-mask', 'mask'],
+        'mask-image' => ['-webkit-mask-image', 'mask-image'],
+        'mask-size' => ['-webkit-mask-size', 'mask-size'],
+        'mask-position' => ['-webkit-mask-position', 'mask-position'],
+        'mask-repeat' => ['-webkit-mask-repeat', 'mask-repeat'],
+        'mask-clip' => ['-webkit-mask-clip', 'mask-clip'],
+        'mask-composite' => ['-webkit-mask-composite', 'mask-composite'],
+        'text-decoration-color' => ['-webkit-text-decoration-color', 'text-decoration-color'],
+    ];
+
+    /**
+     * Add vendor prefixes to declarations in the AST.
+     *
+     * @param array $ast The AST to process
+     * @return array AST with vendor prefixes added
+     */
+    public static function addVendorPrefixes(array $ast): array
+    {
+        $result = [];
+
+        foreach ($ast as $node) {
+            if ($node['kind'] === 'rule' || $node['kind'] === 'at-rule') {
+                if (isset($node['nodes'])) {
+                    $node['nodes'] = self::addVendorPrefixesToNodes($node['nodes']);
+                }
+                $result[] = $node;
+            } elseif ($node['kind'] === 'declaration') {
+                // Handle top-level declarations
+                $expanded = self::expandDeclarationWithPrefixes($node);
+                foreach ($expanded as $decl) {
+                    $result[] = $decl;
+                }
+            } else {
+                $result[] = $node;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Add vendor prefixes to a list of nodes.
+     *
+     * @param array $nodes
+     * @return array
+     */
+    private static function addVendorPrefixesToNodes(array $nodes): array
+    {
+        $result = [];
+
+        foreach ($nodes as $node) {
+            if ($node['kind'] === 'declaration') {
+                $expanded = self::expandDeclarationWithPrefixes($node);
+                foreach ($expanded as $decl) {
+                    $result[] = $decl;
+                }
+            } elseif ($node['kind'] === 'rule' || $node['kind'] === 'at-rule') {
+                if (isset($node['nodes'])) {
+                    $node['nodes'] = self::addVendorPrefixesToNodes($node['nodes']);
+                }
+                $result[] = $node;
+            } else {
+                $result[] = $node;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Expand a declaration to include vendor-prefixed versions.
+     *
+     * @param array $decl
+     * @return array Array of declarations (may be multiple if prefixes are needed)
+     */
+    private static function expandDeclarationWithPrefixes(array $decl): array
+    {
+        $property = $decl['property'] ?? '';
+
+        if (!isset(self::VENDOR_PREFIXES[$property])) {
+            return [$decl];
+        }
+
+        $prefixes = self::VENDOR_PREFIXES[$property];
+        $result = [];
+
+        foreach ($prefixes as $prefixedProp) {
+            $result[] = [
+                'kind' => 'declaration',
+                'property' => $prefixedProp,
+                'value' => $decl['value'] ?? '',
+                'important' => $decl['important'] ?? false,
+            ];
+        }
+
+        return $result;
     }
 }

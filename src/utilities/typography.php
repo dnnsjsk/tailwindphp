@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Utilities\property;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
 use function TailwindPHP\Utils\inferDataType;
@@ -204,28 +206,89 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         ),
     ]);
 
-    // Font Weight
-    $builder->functionalUtility('font', [
-        'themeKeys' => ['--font', '--font-weight'],
-        'defaultValue' => null,
-        'handle' => function ($value) {
+    // Font Family and Font Weight (combined 'font' utility)
+    // This utility handles both font-family (from --font-*) and font-weight (from --font-weight-*)
+    $theme = $builder->getTheme();
+    $utilities = $builder->getUtilities();
+
+    // Static font-weight values
+    $staticWeights = [
+        'thin' => '100',
+        'extralight' => '200',
+        'light' => '300',
+        'normal' => '400',
+        'medium' => '500',
+        'semibold' => '600',
+        'bold' => '700',
+        'extrabold' => '800',
+        'black' => '900',
+    ];
+
+    $utilities->functional('font', function ($candidate) use ($theme, $staticWeights) {
+        if (!isset($candidate['value']) || $candidate['modifier'] !== null) {
+            return null;
+        }
+
+        if ($candidate['value']['kind'] === 'named') {
+            $name = $candidate['value']['value'];
+
+            // Try to resolve from --font-* (font family) first
+            $fontFamilyValue = $theme->resolve($name, ['--font']);
+            if ($fontFamilyValue !== null) {
+                return [decl('font-family', $fontFamilyValue)];
+            }
+
+            // Try to resolve from --font-weight-* (theme values)
+            $fontWeightValue = $theme->resolve($name, ['--font-weight']);
+            if ($fontWeightValue !== null) {
+                return [
+                    atRoot([property('--tw-font-weight')]),
+                    decl('--tw-font-weight', $fontWeightValue),
+                    decl('font-weight', $fontWeightValue),
+                ];
+            }
+
+            // Fall back to static font-weight values (thin, bold, etc.)
+            if (isset($staticWeights[$name])) {
+                return [
+                    atRoot([property('--tw-font-weight')]),
+                    decl('--tw-font-weight', $staticWeights[$name]),
+                    decl('font-weight', $staticWeights[$name]),
+                ];
+            }
+
+            return null;
+        }
+
+        if ($candidate['value']['kind'] === 'arbitrary') {
+            $value = $candidate['value']['value'];
+            $dataType = $candidate['value']['dataType'] ?? null;
+
+            // If data type indicates font family
+            if ($dataType === 'generic-name' || $dataType === 'family-name') {
+                return [decl('font-family', $value)];
+            }
+
+            // Default to font-weight for arbitrary values
             return [
+                atRoot([property('--tw-font-weight')]),
                 decl('--tw-font-weight', $value),
                 decl('font-weight', $value),
             ];
-        },
-        'staticValues' => [
-            'thin' => [decl('--tw-font-weight', '100'), decl('font-weight', '100')],
-            'extralight' => [decl('--tw-font-weight', '200'), decl('font-weight', '200')],
-            'light' => [decl('--tw-font-weight', '300'), decl('font-weight', '300')],
-            'normal' => [decl('--tw-font-weight', '400'), decl('font-weight', '400')],
-            'medium' => [decl('--tw-font-weight', '500'), decl('font-weight', '500')],
-            'semibold' => [decl('--tw-font-weight', '600'), decl('font-weight', '600')],
-            'bold' => [decl('--tw-font-weight', '700'), decl('font-weight', '700')],
-            'extrabold' => [decl('--tw-font-weight', '800'), decl('font-weight', '800')],
-            'black' => [decl('--tw-font-weight', '900'), decl('font-weight', '900')],
-        ],
+        }
+
+        return null;
+    }, [
+        'types' => ['font-weight', 'generic-name', 'family-name'],
     ]);
+
+    // Add suggestions for font utility
+    $builder->suggest('font', function () {
+        return [
+            ['values' => [], 'valueThemeKeys' => ['--font']],
+            ['values' => [], 'valueThemeKeys' => ['--font-weight']],
+        ];
+    });
 
     // Text Decoration Line
     $builder->staticUtility('underline', [['text-decoration-line', 'underline']]);
