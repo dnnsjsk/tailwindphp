@@ -1,0 +1,35 @@
+[
+    {
+        "name": "touch action",
+        "type": "standalone",
+        "classes": [
+            "touch-pan-x",
+            "touch-pan-y",
+            "hover:touch-pinch-zoom"
+        ],
+        "expectations": [
+            {
+                "property": "touch-action",
+                "value": "pan-x pan-y"
+            }
+        ]
+    },
+    {
+        "name": "scale can be a number or percentage",
+        "type": "standalone",
+        "classes": [
+            "scale-[50%]",
+            "hover:scale-[1.5]"
+        ],
+        "expectations": [
+            {
+                "property": "scale",
+                "value": "0.5"
+            },
+            {
+                "property": "scale",
+                "value": "1.5"
+            }
+        ]
+    }
+]

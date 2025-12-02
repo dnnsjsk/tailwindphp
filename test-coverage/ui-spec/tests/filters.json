@@ -1,0 +1,24 @@
+[
+    {
+        "name": "filter",
+        "type": "standalone",
+        "classes": [
+            "blur-md",
+            "brightness-50",
+            "contrast-50",
+            "drop-shadow-md",
+            "grayscale",
+            "hue-rotate-180",
+            "invert",
+            "saturate-50",
+            "sepia",
+            "contrast-100"
+        ],
+        "expectations": [
+            {
+                "property": "filter",
+                "value": "contrast(1)"
+            }
+        ]
+    }
+]

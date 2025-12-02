@@ -1,0 +1,17 @@
+{
+    "sourceFile": "tailwindcss\/packages\/tailwindcss\/tests\/ui.spec.ts",
+    "sourceLines": 2261,
+    "totalTests": 68,
+    "forLoopTests": 54,
+    "standaloneTests": 14,
+    "categories": {
+        "gradients": 32,
+        "masks": 22,
+        "misc": 2,
+        "shadows": 1,
+        "filters": 1,
+        "borders": 5,
+        "typography": 4,
+        "transitions": 1
+    }
+}

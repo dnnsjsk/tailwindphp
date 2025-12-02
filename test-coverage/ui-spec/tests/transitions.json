@@ -1,0 +1,30 @@
+[
+    {
+        "name": "explicit duration and ease utilities are respected when overriding transition-property",
+        "type": "standalone",
+        "classes": [
+            "ease-[linear]",
+            "duration-500",
+            "transition-[opacity]",
+            "hover:transition-[background-color]"
+        ],
+        "expectations": [
+            {
+                "property": "transition-timing-function",
+                "value": "linear"
+            },
+            {
+                "property": "transition-duration",
+                "value": "0.5s"
+            },
+            {
+                "property": "transition-timing-function",
+                "value": "linear"
+            },
+            {
+                "property": "transition-duration",
+                "value": "0.5s"
+            }
+        ]
+    }
+]

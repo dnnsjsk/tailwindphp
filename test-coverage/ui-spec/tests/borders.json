@@ -1,0 +1,89 @@
+[
+    {
+        "name": "outline style is optional",
+        "type": "standalone",
+        "classes": [
+            "outline-2",
+            "outline-white"
+        ],
+        "expectations": [
+            {
+                "property": "outline",
+                "value": "rgb(255, 255, 255) solid 2px"
+            }
+        ]
+    },
+    {
+        "name": "outline style is preserved when changing outline width",
+        "type": "standalone",
+        "classes": [
+            "outline-2",
+            "outline-dotted",
+            "outline-white",
+            "hover:outline-4"
+        ],
+        "expectations": [
+            {
+                "property": "outline",
+                "value": "rgb(255, 255, 255) dotted 2px"
+            },
+            {
+                "property": "outline",
+                "value": "rgb(255, 255, 255) dotted 4px"
+            }
+        ]
+    },
+    {
+        "name": "borders can be added without a border-style utility",
+        "type": "standalone",
+        "classes": [
+            "text-black",
+            "border-2"
+        ],
+        "expectations": [
+            {
+                "property": "border",
+                "value": "2px solid rgb(0, 0, 0)"
+            }
+        ]
+    },
+    {
+        "name": "borders can be added to a single side without a border-style utility",
+        "type": "standalone",
+        "classes": [
+            "text-black",
+            "border-r-2",
+            "border-dashed",
+            "hover:border-r-4"
+        ],
+        "expectations": [
+            {
+                "property": "border-right",
+                "value": "2px dashed rgb(0, 0, 0)"
+            },
+            {
+                "property": "border-right",
+                "value": "4px dashed rgb(0, 0, 0)"
+            }
+        ]
+    },
+    {
+        "name": "dividers can be added without setting border-style",
+        "type": "standalone",
+        "classes": [
+            "divide-y-2",
+            "divide-dashed",
+            "hover:divide-y-4"
+        ],
+        "expectations": [
+            {
+                "property": "border-bottom",
+                "value": "2px dashed rgb(0, 0, 0)"
+            },
+            {
+                "property": "border-bottom",
+                "value": "4px dashed rgb(0, 0, 0)"
+            }
+        ]
+    }
+]

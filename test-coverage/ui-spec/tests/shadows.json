@@ -1,0 +1,22 @@
+[
+    {
+        "name": "text shadow colors",
+        "type": "standalone",
+        "classes": {
+            "0": "text-shadow-xs",
+            "1": "text-shadow-red",
+            "2": "text-shadow-lg",
+            "4": "text-shadow-[0px_2px_4px]",
+            "8": "hover:text-shadow-lg",
+            "12": "hover:text-shadow-initial",
+            "13": "text-shadow-xs/75",
+            "15": "text-shadow-red/75"
+        },
+        "expectations": [
+            {
+                "property": "text-shadow",
+                "value": "oklab(0 0 0 / 0.75) 0px 1px 1px"
+            }
+        ]
+    }
+]

@@ -1,0 +1,452 @@
+[
+    {
+        "name": "background gradient, \"bg-linear-to-r from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-to-r via-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "via-red"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgba(0, 0, 0, 0) 0%, rgb(255, 0, 0) 50%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-to-r to-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "to-red"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgba(0, 0, 0, 0) 0%, rgb(255, 0, 0) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-to-r from-red to-blue\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "from-red",
+            "to-blue"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgb(255, 0, 0) 0%, rgb(0, 0, 255) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-45 from-red to-blue\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-45",
+            "from-red",
+            "to-blue"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(45deg in oklab, rgb(255, 0, 0) 0%, rgb(0, 0, 255) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-to-r via-red to-blue\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "via-red",
+            "to-blue"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgba(0, 0, 0, 0) 0%, rgb(255, 0, 0) 50%, rgb(0, 0, 255) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-to-r from-red via-green to-blue\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-to-r",
+            "from-red",
+            "via-green",
+            "to-blue"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right in oklab, rgb(255, 0, 0) 0%, rgb(0, 255, 0) 50%, rgb(0, 0, 255) 100%)"
+    },
+    {
+        "name": "background gradient, \"bg-linear-[to_right,var(--color-red),var(--color-green),var(--color-blue)]\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-linear-[to_right,var(--color-red),var(--color-green),var(--color-blue)]"
+        ],
+        "property": "background-image",
+        "expected": "linear-gradient(to right, rgb(255, 0, 0), rgb(0, 255, 0), rgb(0, 0, 255))"
+    },
+    {
+        "name": "conic gradient, \"bg-conic from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-conic",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "conic-gradient(in oklab, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "conic gradient, \"bg-conic-45 from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-conic-45",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "conic-gradient(from 45deg in oklab, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "conic gradient, \"bg-conic-[from_45deg] from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-conic-[from_45deg]",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "conic-gradient(from 45deg, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "conic gradient, \"bg-conic-[from_45deg,var(--color-red),transparent]\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-conic-[from_45deg,var(--color-red),transparent]"
+        ],
+        "property": "background-image",
+        "expected": "conic-gradient(from 45deg, rgb(255, 0, 0), rgba(0, 0, 0, 0))"
+    },
+    {
+        "name": "radial gradient, \"bg-radial from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-radial",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "radial-gradient(in oklab, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "radial gradient, \"bg-radial-[at_0%_0%] from-red\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-radial-[at_0%_0%]",
+            "from-red"
+        ],
+        "property": "background-image",
+        "expected": "radial-gradient(at 0% 0%, rgb(255, 0, 0) 0%, rgba(0, 0, 0, 0) 100%)"
+    },
+    {
+        "name": "radial gradient, \"bg-radial-[at_0%_0%,var(--color-red),transparent]\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-radial-[at_0%_0%,var(--color-red),transparent]"
+        ],
+        "property": "background-image",
+        "expected": "radial-gradient(at 0% 0%, rgb(255, 0, 0), rgba(0, 0, 0, 0))"
+    },
+    {
+        "name": "radial gradient, \"bg-radial-[at_center] from-red to-green\"",
+        "type": "for-loop",
+        "classes": [
+            "bg-radial-[at_center]",
+            "from-red",
+            "to-green"
+        ],
+        "property": "background-image",
+        "expected": "radial-gradient(rgb(255, 0, 0) 0%, rgb(0, 255, 0) 100%)"
+    },
+    {
+        "name": "mask linear, \"mask-linear-45 mask-linear-from-20%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-linear-45",
+            "mask-linear-from-20%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(45deg, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(calc(45deg), rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask linear, \"mask-linear-45 mask-linear-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-linear-45",
+            "mask-linear-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(45deg, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(calc(45deg), rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask linear, \"mask-linear-45 mask-linear-from-20% mask-linear-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-linear-45",
+            "mask-linear-from-20%",
+            "mask-linear-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(45deg, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(calc(45deg), rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-from-20%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-from-20%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-circle mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-circle",
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(circle, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-ellipse mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-ellipse",
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-at-top-left mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-at-top-left",
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(at 0% 0%, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(at left top, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-circle mask-radial-at-top-left mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-circle",
+            "mask-radial-at-top-left",
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(circle at 0% 0%, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(circle at left top, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-[100%_100%] mask-radial-from-20%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-[100%_100%]",
+            "mask-radial-from-20%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(100% 100%, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))"
+        ]
+    },
+    {
+        "name": "mask radial, \"mask-radial-[25%_150%] mask-radial-at-top mask-ellipse mask-radial-from-20% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-radial-[25%_150%]",
+            "mask-radial-at-top",
+            "mask-ellipse",
+            "mask-radial-from-20%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(25% 150% at 50% 0%, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "radial-gradient(25% 150% at center top, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            ", "
+        ]
+    },
+    {
+        "name": "mask conic, \"mask-conic-45 mask-conic-from-20%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-conic-45",
+            "mask-conic-from-20%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from 45deg, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from calc(45deg), rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            ", "
+        ]
+    },
+    {
+        "name": "mask conic, \"mask-conic-45 mask-conic-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-conic-45",
+            "mask-conic-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from 45deg, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%)",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from calc(45deg), rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 80%)",
+            ", "
+        ]
+    },
+    {
+        "name": "mask conic, \"mask-conic-45 mask-conic-from-20% mask-conic-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-conic-45",
+            "mask-conic-from-20%",
+            "mask-conic-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from 45deg, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            ", ",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))",
+            "conic-gradient(from calc(45deg), rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 80%)",
+            ", "
+        ]
+    },
+    {
+        "name": "mask multiple, \"mask-conic-45 mask-conic-from-20% mask-linear-30 mask-linear-to-70% mask-circle mask-radial-from-40% mask-radial-to-80%\"",
+        "type": "for-loop",
+        "classes": [
+            "mask-conic-45",
+            "mask-conic-from-20%",
+            "mask-linear-30",
+            "mask-linear-to-70%",
+            "mask-circle",
+            "mask-radial-from-40%",
+            "mask-radial-to-80%"
+        ],
+        "property": "mask-image",
+        "expected": [
+            "linear-gradient(30deg, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 70%)",
+            "radial-gradient(circle, rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 80%)",
+            "conic-gradient(from 45deg, rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            ", ",
+            "linear-gradient(calc(30deg), rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 70%)",
+            "radial-gradient(circle, rgb(0, 0, 0) 40%, rgba(0, 0, 0, 0) 80%)",
+            "conic-gradient(from calc(45deg), rgb(0, 0, 0) 20%, rgba(0, 0, 0, 0) 100%)",
+            ", "
+        ]
+    }
+]

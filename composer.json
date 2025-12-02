@@ -78,7 +78,8 @@
             "php test-coverage/extract-run-tests.php",
             "php test-coverage/extract-index-tests.php",
             "php test-coverage/extract-css-functions-tests.php",
-            "php test-coverage/extract-candidate-tests.php"
+            "php test-coverage/extract-candidate-tests.php",
+            "php test-coverage/extract-ui-spec-tests.php"
         ],
         "test": "phpunit",
         "extract-and-test": [

@@ -66,6 +66,7 @@ test-coverage/
 ├── index/tests/         # From index.test.ts (JSON format)
 ├── css-functions/tests/ # From css-functions.test.ts
 ├── candidate/tests/     # From candidate.test.ts
+├── ui-spec/tests/       # From tests/ui.spec.ts (Playwright browser tests)
 └── extract-*.php        # Extraction scripts
 ```
 
@@ -76,6 +77,7 @@ Located in `test-coverage/`:
 - `extract-index-tests.php` - Extracts index.test.ts to JSON
 - `extract-css-functions-tests.php` - Extracts css-functions tests
 - `extract-candidate-tests.php` - Extracts candidate tests
+- `extract-ui-spec-tests.php` - Extracts ui.spec.ts browser tests
 
 ### Commands
 
@@ -272,7 +274,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 1,056 tests passing**
+**Total: 1,124 tests (1,076 passing, 48 skipped for pending utilities)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -282,6 +284,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `variants.test.php` | ✅ | 139 |
 | `index.test.php` | ✅ | 62 |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
+| `ui_spec.test.php` | ✅ | 68 (48 skipped - pending utilities) |
 
 ### Unit Tests (ported from TypeScript)
 

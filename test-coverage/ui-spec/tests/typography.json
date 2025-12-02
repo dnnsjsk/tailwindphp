@@ -1,0 +1,146 @@
+[
+    {
+        "name": "explicit leading utilities are respected when overriding font-size",
+        "type": "standalone",
+        "classes": {
+            "0": "text-sm",
+            "1": "hover:text-xl",
+            "3": "leading-tight",
+            "6": "leading-[10px]"
+        },
+        "expectations": [
+            {
+                "property": "line-height",
+                "value": "16px"
+            },
+            {
+                "property": "line-height",
+                "value": "24px"
+            },
+            {
+                "property": "line-height",
+                "value": "8px"
+            },
+            {
+                "property": "line-height",
+                "value": "8px"
+            },
+            {
+                "property": "line-height",
+                "value": "10px"
+            },
+            {
+                "property": "line-height",
+                "value": "10px"
+            }
+        ]
+    },
+    {
+        "name": "explicit leading utilities are overridden by line-height modifiers",
+        "type": "standalone",
+        "classes": {
+            "0": "text-sm",
+            "1": "hover:text-xl/[100px]",
+            "3": "leading-tight",
+            "6": "leading-[10px]"
+        },
+        "expectations": [
+            {
+                "property": "line-height",
+                "value": "16px"
+            },
+            {
+                "property": "line-height",
+                "value": "100px"
+            },
+            {
+                "property": "line-height",
+                "value": "8px"
+            },
+            {
+                "property": "line-height",
+                "value": "100px"
+            },
+            {
+                "property": "line-height",
+                "value": "10px"
+            },
+            {
+                "property": "line-height",
+                "value": "100px"
+            }
+        ]
+    },
+    {
+        "name": "explicit tracking utilities are respected when overriding font-size",
+        "type": "standalone",
+        "classes": {
+            "0": "text-sm",
+            "1": "hover:text-xl",
+            "3": "tracking-tight",
+            "6": "tracking-[3px]"
+        },
+        "expectations": [
+            {
+                "property": "letter-spacing",
+                "value": "5px"
+            },
+            {
+                "property": "letter-spacing",
+                "value": "10px"
+            },
+            {
+                "property": "letter-spacing",
+                "value": "1px"
+            },
+            {
+                "property": "letter-spacing",
+                "value": "1px"
+            },
+            {
+                "property": "letter-spacing",
+                "value": "3px"
+            },
+            {
+                "property": "letter-spacing",
+                "value": "3px"
+            }
+        ]
+    },
+    {
+        "name": "explicit font-weight utilities are respected when overriding font-size",
+        "type": "standalone",
+        "classes": {
+            "0": "text-sm",
+            "1": "hover:text-xl",
+            "3": "font-bold",
+            "6": "font-[900]"
+        },
+        "expectations": [
+            {
+                "property": "font-weight",
+                "value": "100"
+            },
+            {
+                "property": "font-weight",
+                "value": "200"
+            },
+            {
+                "property": "font-weight",
+                "value": "700"
+            },
+            {
+                "property": "font-weight",
+                "value": "700"
+            },
+            {
+                "property": "font-weight",
+                "value": "900"
+            },
+            {
+                "property": "font-weight",
+                "value": "900"
+            }
+        ]
+    }
+]
