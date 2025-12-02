@@ -244,8 +244,8 @@ class LightningCss
         }
 
         if ($node['kind'] === 'at-rule') {
-            // For at-rules like @media, @supports
-            if (in_array($node['name'], ['@media', '@supports', '@container', '@layer'])) {
+            // For at-rules like @media, @supports, @starting-style
+            if (in_array($node['name'], ['@media', '@supports', '@container', '@layer', '@starting-style'])) {
                 // Collect declarations and nested rules from at-rule body
                 $declarations = [];
                 $nestedRules = [];

@@ -586,7 +586,11 @@ function negateSelector(string $selector): ?string
     if (strpos($selector, '::') !== false) return false;
 
     $selectors = array_map(function ($sel) {
-        // Replace `&` in target variant with `*`
+        // For selectors like &:is(...), just remove the & prefix
+        // For other selectors, replace & with *
+        if (str_starts_with($sel, '&:is(') || str_starts_with($sel, '&:')) {
+            return substr($sel, 1);
+        }
         return str_replace('&', '*', $sel);
     }, segment($selector, ','));
 
@@ -1041,47 +1045,60 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         ];
     });
 
-    $variants->functional('nth', function (&$ruleNode, $variant) {
+    // Helper to normalize nth values (2n+1 → odd, used by lightningcss)
+    $normalizeNthValue = function (string $value): string {
+        // Normalize 2n+1 to odd (lightningcss optimization)
+        if (preg_match('/^2n\s*\+\s*1(?:\s+of\s+(.+))?$/i', $value, $m)) {
+            return isset($m[1]) ? "odd of {$m[1]}" : 'odd';
+        }
+        return $value;
+    };
+
+    $variants->functional('nth', function (&$ruleNode, $variant) use ($normalizeNthValue) {
         if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
         if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
+        $nthValue = $normalizeNthValue($value['value']);
         $ruleNode['nodes'] = [
-            \TailwindPHP\Ast\styleRule("&:nth-child({$value['value']})", $ruleNode['nodes']),
+            \TailwindPHP\Ast\styleRule("&:nth-child({$nthValue})", $ruleNode['nodes']),
         ];
     });
 
-    $variants->functional('nth-last', function (&$ruleNode, $variant) {
+    $variants->functional('nth-last', function (&$ruleNode, $variant) use ($normalizeNthValue) {
         if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
         if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
+        $nthValue = $normalizeNthValue($value['value']);
         $ruleNode['nodes'] = [
-            \TailwindPHP\Ast\styleRule("&:nth-last-child({$value['value']})", $ruleNode['nodes']),
+            \TailwindPHP\Ast\styleRule("&:nth-last-child({$nthValue})", $ruleNode['nodes']),
         ];
     });
 
-    $variants->functional('nth-of-type', function (&$ruleNode, $variant) {
+    $variants->functional('nth-of-type', function (&$ruleNode, $variant) use ($normalizeNthValue) {
         if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
         if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
+        $nthValue = $normalizeNthValue($value['value']);
         $ruleNode['nodes'] = [
-            \TailwindPHP\Ast\styleRule("&:nth-of-type({$value['value']})", $ruleNode['nodes']),
+            \TailwindPHP\Ast\styleRule("&:nth-of-type({$nthValue})", $ruleNode['nodes']),
         ];
     });
 
-    $variants->functional('nth-last-of-type', function (&$ruleNode, $variant) {
+    $variants->functional('nth-last-of-type', function (&$ruleNode, $variant) use ($normalizeNthValue) {
         if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
         if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
+        $nthValue = $normalizeNthValue($value['value']);
         $ruleNode['nodes'] = [
-            \TailwindPHP\Ast\styleRule("&:nth-last-of-type({$value['value']})", $ruleNode['nodes']),
+            \TailwindPHP\Ast\styleRule("&:nth-last-of-type({$nthValue})", $ruleNode['nodes']),
         ];
     });
 
