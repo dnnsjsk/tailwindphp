@@ -4,13 +4,23 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 
 ## Status
 
-**Work in Progress** — Core functionality complete, expanding test coverage.
+✅ **997 tests passing** — Feature complete for core TailwindCSS functionality.
 
-- 784 tests passing
-- 364/364 TailwindCSS compliance tests passing
-- All utility categories implemented
-- Variants (hover, focus, responsive, dark mode, etc.)
-- Directives (@apply, @theme, @tailwind)
+| Test Suite | Status |
+|------------|--------|
+| Utilities | 364/364 ✅ |
+| Variants | 144/144 ✅ |
+| Integration (index) | 62/62 ✅ |
+
+### Features
+
+- All 364+ utility classes
+- All variants (hover, focus, responsive, dark mode, etc.)
+- Directives: `@apply`, `@theme`, `@tailwind`, `@utility`, `@custom-variant`
+- Functions: `theme()`, `--theme()`, `--spacing()`, `--alpha()`
+- Shadow/ring stacking with CSS `@property` rules
+- Vendor prefixes (autoprefixer equivalent)
+- Keyframe handling
 
 ## Installation
 
@@ -115,9 +125,16 @@ TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting manually,
 
 - [x] All utility classes (364/364 tests passing)
 - [x] Variants (hover, focus, responsive, dark mode, etc.)
-- [x] `@apply` directive
-- [x] `@theme` customization
-- [x] `theme()` function
+- [x] `@apply` directive with nested selectors
+- [x] `@theme` customization with namespace clearing
+- [x] `@utility` custom utilities
+- [x] `@custom-variant` support
+- [x] `theme()`, `--theme()`, `--spacing()`, `--alpha()` functions
+- [x] Shadow/ring stacking system (`--tw-*` variables)
+- [x] `@property` rules with `@layer properties` fallback
+- [x] Vendor prefixes (autoprefixer equivalent)
+- [ ] `css-functions.test.php` test coverage
+- [ ] `candidate.test.php` test coverage
 
 ## Development
 

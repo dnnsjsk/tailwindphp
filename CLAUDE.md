@@ -272,17 +272,47 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-- **utilities.test.php**: 364/364 passing
-- **variants.test.php**: 144/144 passing
-- **index.test.php**: In progress (requires @apply, @import, @utility)
-- **css-functions.test.php**: Pending
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `utilities.test.php` | ✅ **100%** | 364/364 |
+| `variants.test.php` | ✅ **100%** | 144/144 |
+| `index.test.php` | ✅ **100%** | 62/62 |
+| `css-functions.test.php` | 🔄 Pending | - |
+| `candidate.test.php` | 🔄 Pending | - |
 
-### Missing Features
+**Total: 997 tests passing** (8 skipped for unimplemented features)
 
-Features needed for full index.test.php coverage:
-- `@apply` directive
-- `@utility` custom utilities
-- `@import` handling
-- `@custom-variant` support
-- Prefix support (`tw:`)
-- Full keyframe handling
+### Implemented Features
+
+- ✅ All utility classes (364 utilities)
+- ✅ All variants (hover, focus, responsive, dark mode, etc.)
+- ✅ `@apply` directive with nested selectors
+- ✅ `@theme` customization with namespace clearing
+- ✅ `@utility` custom utilities
+- ✅ `@custom-variant` support
+- ✅ `@import 'tailwindcss'` module resolution
+- ✅ `theme()` and `--theme()` functions
+- ✅ `--spacing()` and `--alpha()` functions
+- ✅ Prefix support (`tw:`)
+- ✅ Shadow/ring stacking with `--tw-*` variables
+- ✅ `@property` rules with `@layer properties` fallback
+- ✅ Vendor prefixes (autoprefixer equivalent)
+- ✅ Keyframe handling and hoisting
+
+### Port Deviation Markers
+
+When implementing features that differ from the TypeScript source, use the `@port-deviation` marker:
+
+```php
+/**
+ * @port-deviation LightningCSS replacement
+ * PHP cannot use the Rust-based lightningcss library. This method implements
+ * equivalent CSS transformation logic in pure PHP.
+ */
+public static function flattenNesting(array &$ast): void
+```
+
+For inline deviations:
+```php
+// @port-deviation: PHP regex syntax differs from JS
+$pattern = '/.../';
