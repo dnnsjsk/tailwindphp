@@ -303,6 +303,65 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('decoration-dashed', [['text-decoration-style', 'dashed']]);
     $builder->staticUtility('decoration-wavy', [['text-decoration-style', 'wavy']]);
 
+    // Text Decoration Thickness
+    $builder->staticUtility('decoration-auto', [['text-decoration-thickness', 'auto']]);
+    $builder->staticUtility('decoration-from-font', [['text-decoration-thickness', 'from-font']]);
+
+    // Text Decoration Color / Thickness (functional)
+    $builder->getUtilities()->functional('decoration', function ($candidate) use ($theme) {
+        if (!isset($candidate['value'])) {
+            return null;
+        }
+
+        $candidateValue = $candidate['value'];
+
+        // Handle arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'length', 'percentage']);
+
+            switch ($type) {
+                case 'length':
+                case 'percentage':
+                    if (isset($candidate['modifier'])) {
+                        return null;
+                    }
+                    return [decl('text-decoration-thickness', $value)];
+                default:
+                    $colorValue = asColor($value, $candidate['modifier'] ?? null, $theme);
+                    if ($colorValue === null) {
+                        return null;
+                    }
+                    return [decl('text-decoration-color', $colorValue)];
+            }
+        }
+
+        // text-decoration-thickness from theme
+        $thicknessValue = $theme->resolve($candidateValue['value'] ?? null, ['--text-decoration-thickness']);
+        if ($thicknessValue) {
+            if (isset($candidate['modifier'])) {
+                return null;
+            }
+            return [decl('text-decoration-thickness', $thicknessValue)];
+        }
+
+        // Bare integer values for thickness (e.g., decoration-2 = 2px)
+        if (isPositiveInteger($candidateValue['value'] ?? '')) {
+            if (isset($candidate['modifier'])) {
+                return null;
+            }
+            return [decl('text-decoration-thickness', "{$candidateValue['value']}px")];
+        }
+
+        // text-decoration-color from theme
+        $colorValue = resolveThemeColor($candidate, $theme, ['--text-decoration-color', '--color']);
+        if ($colorValue) {
+            return [decl('text-decoration-color', $colorValue)];
+        }
+
+        return null;
+    });
+
     // Text Underline Offset
     $builder->functionalUtility('underline-offset', [
         'themeKeys' => ['--text-underline-offset'],

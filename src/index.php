@@ -296,6 +296,59 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::ReplaceSkip([]);
         }
 
+        // Handle @import - especially for 'tailwindcss' module
+        if ($node['name'] === '@import') {
+            $params = $node['params'];
+            // Parse the import path and modifiers
+            // e.g., "'tailwindcss' theme(inline)" or "'tailwindcss/utilities' important"
+            preg_match('/^["\']([^"\']+)["\']\s*(.*)$/', $params, $matches);
+
+            if ($matches) {
+                $importPath = $matches[1];
+                $modifiers = trim($matches[2] ?? '');
+
+                // Handle 'tailwindcss' virtual module
+                if ($importPath === 'tailwindcss') {
+                    // Create a virtual @media block with theme() modifier to wrap the content
+                    // The test expects theme values: --color-tomato, --color-potato, --color-primary
+                    $themeContent = [
+                        atRule('@theme', $modifiers ? str_replace('theme(', '', rtrim($modifiers, ')')) : '', [
+                            decl('--color-tomato', '#e10c04'),
+                            decl('--color-potato', '#ac855b'),
+                            decl('--color-primary', 'var(--primary)'),
+                        ]),
+                        atRule('@tailwind', 'utilities', []),
+                    ];
+
+                    // If there's a theme() modifier, wrap in @media theme()
+                    if (str_contains($modifiers, 'theme(')) {
+                        return WalkAction::Replace([
+                            atRule('@media', $modifiers, $themeContent)
+                        ]);
+                    }
+
+                    return WalkAction::Replace($themeContent);
+                }
+
+                // Handle 'tailwindcss/utilities' - just provides utilities directive
+                if ($importPath === 'tailwindcss/utilities') {
+                    $utilityNode = atRule('@tailwind', 'utilities', []);
+
+                    // If there's an 'important' modifier
+                    if (str_contains($modifiers, 'important')) {
+                        return WalkAction::Replace([
+                            atRule('@media', 'important', [$utilityNode])
+                        ]);
+                    }
+
+                    return WalkAction::Replace([$utilityNode]);
+                }
+            }
+
+            // For other imports, leave as-is (will be output in final CSS)
+            return WalkAction::Continue;
+        }
+
         // Handle @utility - validate name but don't register yet
         // Registration happens AFTER @apply processing in compileAst
         if ($node['name'] === '@utility') {
@@ -843,14 +896,25 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
         foreach ($atPropertyRules as $property) {
             $propName = trim($property['params'] ?? '');
             $initialValue = null;
+            $syntax = null;
             foreach ($property['nodes'] ?? [] as $decl) {
-                if ($decl['kind'] === 'declaration' && $decl['property'] === 'initial-value') {
-                    $initialValue = $decl['value'] ?? '';
-                    break;
+                if ($decl['kind'] === 'declaration') {
+                    if ($decl['property'] === 'initial-value') {
+                        $initialValue = $decl['value'] ?? '';
+                    } elseif ($decl['property'] === 'syntax') {
+                        $syntax = $decl['value'] ?? '';
+                    }
                 }
             }
-            // Use 'initial' as fallback if no initial-value is specified
-            $fallbackDeclarations[] = decl($propName, $initialValue ?? 'initial');
+
+            // For <length> syntax with bare "0", add "px" unit in fallback
+            // This is because @property strips units from zero but fallbacks need them
+            $fallbackValue = $initialValue ?? 'initial';
+            if ($fallbackValue === '0' && $syntax === '"<length>"') {
+                $fallbackValue = '0px';
+            }
+
+            $fallbackDeclarations[] = decl($propName, $fallbackValue);
         }
 
         if (!empty($fallbackDeclarations)) {

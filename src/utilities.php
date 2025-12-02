@@ -199,10 +199,13 @@ function property(string $ident, ?string $initialValue = null, ?string $syntax =
 
     // initial-value must come after inherits
     if ($initialValue !== null) {
-        // Insert after inherits (index 1), push it at position 1+1 = index 2
-        // Actually, we want: syntax, inherits, initial-value
-        // So just append at end which keeps the order
-        $nodes[] = decl('initial-value', $initialValue);
+        // For <length> syntax, LightningCSS strips units from zero values
+        // e.g., "0px" -> "0"
+        $optimizedValue = $initialValue;
+        if ($syntax === '<length>' && preg_match('/^0(px|rem|em|%)$/', $initialValue)) {
+            $optimizedValue = '0';
+        }
+        $nodes[] = decl('initial-value', $optimizedValue);
     }
 
     return atRule('@property', $ident, $nodes);

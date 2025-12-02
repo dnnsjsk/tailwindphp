@@ -40,11 +40,14 @@ class LightningCss
      */
     public static function optimizeValue(string $value, string $property = ''): string
     {
+        // Check if this is a CSS custom property declaration
+        $isCustomProperty = str_starts_with($property, '--');
+
         $value = self::normalizeWhitespace($value);
         $value = self::simplifyCalcExpressions($value);
         $value = self::normalizeTimeValues($value);
         $value = self::normalizeOpacityPercentages($value, $property);
-        $value = self::normalizeColors($value);
+        $value = self::normalizeColors($value, $isCustomProperty);
         $value = self::normalizeLeadingZeros($value);
         $value = self::normalizeGridValues($value, $property);
         $value = self::normalizeTransformFunctions($value, $property);
@@ -271,7 +274,7 @@ class LightningCss
      * @param string $value The CSS value
      * @return string Normalized value
      */
-    public static function normalizeColors(string $value): string
+    public static function normalizeColors(string $value, bool $isCustomProperty = false): string
     {
         // Map hex to shorter color names
         static $hexToName = [
@@ -295,17 +298,19 @@ class LightningCss
             return $value;
         }
 
-        // Convert hex to names where names are shorter
+        // Convert hex to names where names are shorter (always do this)
         foreach ($hexToName as $hex => $name) {
             // Use negative lookbehind for - to avoid matching in variable names
             $value = preg_replace('/(?<!-)' . preg_quote($hex, '/') . '\b/i', $name, $value);
         }
 
         // Convert names to hex where hex is shorter or same length
-        // Only match standalone color names (not preceded by - which indicates variable names)
-        foreach ($nameToHex as $name => $hex) {
-            // Negative lookbehind for - to avoid matching in variable names like --color-blue-500
-            $value = preg_replace('/(?<!-)\b' . $name . '\b/i', $hex, $value);
+        // Skip this for custom properties to preserve color keywords like 'yellow'
+        if (!$isCustomProperty) {
+            foreach ($nameToHex as $name => $hex) {
+                // Negative lookbehind for - to avoid matching in variable names like --color-blue-500
+                $value = preg_replace('/(?<!-)\b' . $name . '\b/i', $hex, $value);
+            }
         }
 
         return $value;
@@ -768,7 +773,7 @@ class LightningCss
         'mask-repeat' => ['-webkit-mask-repeat', 'mask-repeat'],
         'mask-clip' => ['-webkit-mask-clip', 'mask-clip'],
         'mask-composite' => ['-webkit-mask-composite', 'mask-composite'],
-        'text-decoration-color' => ['-webkit-text-decoration-color', 'text-decoration-color'],
+        'text-decoration-color' => ['-webkit-text-decoration-color', '-webkit-text-decoration-color', 'text-decoration-color'],
     ];
 
     /**
