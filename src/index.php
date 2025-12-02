@@ -1004,16 +1004,37 @@ function extractKeyframeNames(string $value): array
 }
 
 /**
- * Simple entry point for generating CSS from HTML content.
+ * Generate CSS from content containing Tailwind classes.
  *
- * @param string $html HTML content to scan for classes
- * @param string $css Optional CSS with @tailwind directives
+ * Accepts either:
+ * 1. A string (HTML content to scan for classes)
+ * 2. An array with 'content' and optional 'css' keys
+ *
+ * @param string|array $input HTML string or array with 'content' and 'css' keys
+ * @param string $css Optional CSS with @tailwind directives (only used if $input is string)
  * @return string Generated CSS
+ *
+ * @example String input:
+ *   generate('<div class="flex p-4">Hello</div>');
+ *
+ * @example Array input:
+ *   generate([
+ *       'content' => '<div class="flex p-4">Hello</div>',
+ *       'css' => '@tailwind utilities; @theme { --color-brand: #3b82f6; }'
+ *   ]);
  */
-function generate(string $html, string $css = '@tailwind utilities;'): string
+function generate(string|array $input, string $css = '@tailwind utilities;'): string
 {
-    // Extract class names from HTML
-    $candidates = extractCandidates($html);
+    // Handle array input
+    if (is_array($input)) {
+        $content = $input['content'] ?? '';
+        $css = $input['css'] ?? '@tailwind utilities;';
+    } else {
+        $content = $input;
+    }
+
+    // Extract class names from content
+    $candidates = extractCandidates($content);
 
     // Compile
     $compiled = compile($css);
@@ -1068,11 +1089,14 @@ function extractCandidates(string $html): array
 class Tailwind
 {
     /**
-     * Generate CSS from HTML containing Tailwind classes.
+     * Generate CSS from content containing Tailwind classes.
+     *
+     * @param string|array $input HTML string or array with 'content' and 'css' keys
+     * @param string $css Optional CSS (only used if $input is string)
      */
-    public static function generate(string $html, string $css = '@tailwind utilities;'): string
+    public static function generate(string|array $input, string $css = '@tailwind utilities;'): string
     {
-        return generate($html, $css);
+        return generate($input, $css);
     }
 
     /**

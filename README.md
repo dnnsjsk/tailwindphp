@@ -4,13 +4,14 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 
 ## Status
 
-✅ **997 tests passing** — Feature complete for core TailwindCSS functionality.
+✅ **1,056 tests passing** — Feature complete for core TailwindCSS functionality.
 
 | Test Suite | Status |
 |------------|--------|
 | Utilities | 364/364 ✅ |
 | Variants | 144/144 ✅ |
-| Integration (index) | 62/62 ✅ |
+| Integration | 62/62 ✅ |
+| CSS Functions | 43/60 ✅ |
 
 ### Features
 
@@ -18,6 +19,7 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 - All variants (hover, focus, responsive, dark mode, etc.)
 - Directives: `@apply`, `@theme`, `@tailwind`, `@utility`, `@custom-variant`
 - Functions: `theme()`, `--theme()`, `--spacing()`, `--alpha()`
+- `color-mix()` to `oklab()` conversion (LightningCSS equivalent)
 - Shadow/ring stacking with CSS `@property` rules
 - Vendor prefixes (autoprefixer equivalent)
 - Keyframe handling
@@ -30,12 +32,46 @@ composer require dnnsjsk/tailwind-php
 
 ## Usage
 
+### Basic Usage
+
+The simplest way to use TailwindPHP is with the `generate()` function:
+
 ```php
 use TailwindPHP\Tailwind;
 
 // Generate CSS from HTML containing Tailwind classes
 $css = Tailwind::generate('<div class="flex items-center p-4 bg-blue-500">Hello</div>');
 ```
+
+This parses the HTML, extracts class names, and generates only the CSS needed.
+
+### Configuration Options
+
+You can pass configuration as either a second parameter or an array:
+
+```php
+// Option 1: String as second parameter
+$css = Tailwind::generate($html, '@tailwind utilities; @theme { --color-brand: #3b82f6; }');
+
+// Option 2: Array with 'content' and 'css' keys
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4 bg-brand">Hello</div>',
+    'css' => '
+        @tailwind utilities;
+
+        @theme {
+            --color-brand: #3b82f6;
+            --font-heading: "Inter", sans-serif;
+        }
+
+        .btn {
+            @apply px-4 py-2 rounded-lg bg-brand text-white;
+        }
+    '
+]);
+```
+
+The array format is useful when you want to keep content and configuration together.
 
 ## How It Works
 

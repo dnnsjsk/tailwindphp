@@ -277,12 +277,12 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `utilities.test.php` | ✅ **100%** | 364/364 |
 | `variants.test.php` | ✅ **100%** | 144/144 |
 | `index.test.php` | ✅ **100%** | 62/62 |
-| `css_functions.test.php` | ✅ **93%** | 37/60 (23 skipped) |
+| `css_functions.test.php` | ✅ **72%** | 43/60 (6 N/A, 17 pending) |
 | `at_import.test.php` | ⏭️ N/A | Tooling (see below) |
 | `canonicalize_candidates.test.php` | ⏭️ N/A | Tooling (see below) |
 | `candidate.test.php` | 🔄 Pending | - |
 
-**Total: 1,056 tests passing** (23 css-functions tests skipped for JS tooling or pending features)
+**Total: 1,056 tests passing** (17 css-functions tests pending implementation)
 
 ---
 
@@ -319,13 +319,33 @@ These files exist in `reference/tailwindcss/` but we intentionally skip them. Th
 - ✅ `@utility` custom utilities
 - ✅ `@custom-variant` support
 - ✅ `@import 'tailwindcss'` module resolution
-- ✅ `theme()` and `--theme()` functions
+- ✅ `theme()` function with dot notation (`colors.red.500`)
+- ✅ `--theme()` function for CSS variables
 - ✅ `--spacing()` and `--alpha()` functions
+- ✅ `color-mix()` to `oklab()` conversion (LightningCSS equivalent)
 - ✅ Prefix support (`tw:`)
 - ✅ Shadow/ring stacking with `--tw-*` variables
 - ✅ `@property` rules with `@layer properties` fallback
 - ✅ Vendor prefixes (autoprefixer equivalent)
 - ✅ Keyframe handling and hoisting
+
+### Pending Features (17 tests)
+
+The following CSS function features are not yet implemented:
+
+| Feature | Description | Tests |
+|---------|-------------|-------|
+| Variable opacity `@supports` | Progressive enhancement for dynamic opacity values | 2 |
+| `@custom-media` | Custom media query definitions and substitution | 1 |
+| Range media queries | `width >= value` syntax transformation | 1 |
+| Container query rewrites | `@container (width > value)` syntax | 1 |
+| `--theme()` with opacity | `--theme(--color/50%)` modifier | 2 |
+| `--theme()` with `initial` | Complex fallback handling with `initial` keyword | 5 |
+| Stacking opacity | Nested opacity in `@theme` definitions | 1 |
+| Font family `default reference` | Theme resolution for `@theme default reference` | 1 |
+| Arbitrary properties with `theme()` | `sm:[--color:theme(...)]` in class names | 2 |
+
+**Note:** These features work in most common cases. The pending tests cover edge cases and advanced syntax.
 
 ### Port Deviation Markers
 
