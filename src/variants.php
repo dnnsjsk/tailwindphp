@@ -871,7 +871,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $staticVariant('last', ['&:last-child']);
     $staticVariant('only', ['&:only-child']);
     $staticVariant('odd', ['&:nth-child(odd)']);
-    $staticVariant('even', ['&:nth-child(even)']);
+    $staticVariant('even', ['&:nth-child(2n)']);
     $staticVariant('first-of-type', ['&:first-of-type']);
     $staticVariant('last-of-type', ['&:last-of-type']);
     $staticVariant('only-of-type', ['&:only-of-type']);
