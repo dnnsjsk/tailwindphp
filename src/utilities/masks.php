@@ -7,8 +7,11 @@ namespace TailwindPHP\Utilities;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Utilities\resolveThemeColor;
+use function TailwindPHP\Utilities\asColor;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
+use function TailwindPHP\Utils\inferDataType;
 
 /**
  * Mask Utilities
@@ -28,6 +31,113 @@ use function TailwindPHP\Utils\isValidSpacingMultiplier;
  */
 function registerMaskUtilities(UtilityBuilder $builder): void
 {
+    $theme = $builder->getTheme();
+
+    // =========================================================================
+    // Mask Image (base utilities)
+    // =========================================================================
+
+    $builder->staticUtility('mask-none', [['mask-image', 'none']]);
+
+    // mask functional utility (arbitrary values)
+    $builder->getUtilities()->functional('mask', function ($candidate) use ($theme) {
+        if (!isset($candidate['value'])) return null;
+        if (isset($candidate['modifier'])) return null;
+        if ($candidate['value']['kind'] !== 'arbitrary') return null;
+
+        $value = $candidate['value']['value'];
+        $type = $candidate['value']['dataType'] ?? inferDataType($value, ['image', 'percentage', 'position', 'bg-size', 'length', 'url']);
+
+        switch ($type) {
+            case 'percentage':
+            case 'position':
+                return [decl('mask-position', $value)];
+            case 'bg-size':
+            case 'length':
+            case 'size':
+                return [decl('mask-size', $value)];
+            case 'image':
+            case 'url':
+            default:
+                return [decl('mask-image', $value)];
+        }
+    });
+
+    // =========================================================================
+    // Mask Composite
+    // =========================================================================
+
+    $builder->staticUtility('mask-add', [['mask-composite', 'add']]);
+    $builder->staticUtility('mask-subtract', [['mask-composite', 'subtract']]);
+    $builder->staticUtility('mask-intersect', [['mask-composite', 'intersect']]);
+    $builder->staticUtility('mask-exclude', [['mask-composite', 'exclude']]);
+
+    // =========================================================================
+    // Mask Mode
+    // =========================================================================
+
+    $builder->staticUtility('mask-alpha', [['mask-mode', 'alpha']]);
+    $builder->staticUtility('mask-luminance', [['mask-mode', 'luminance']]);
+    $builder->staticUtility('mask-match', [['mask-mode', 'match-source']]);
+
+    // =========================================================================
+    // Mask Type
+    // =========================================================================
+
+    $builder->staticUtility('mask-type-alpha', [['mask-type', 'alpha']]);
+    $builder->staticUtility('mask-type-luminance', [['mask-type', 'luminance']]);
+
+    // =========================================================================
+    // Mask Size
+    // =========================================================================
+
+    $builder->staticUtility('mask-auto', [['mask-size', 'auto']]);
+    $builder->staticUtility('mask-cover', [['mask-size', 'cover']]);
+    $builder->staticUtility('mask-contain', [['mask-size', 'contain']]);
+
+    $builder->functionalUtility('mask-size', [
+        'themeKeys' => [],
+        'defaultValue' => null,
+        'handle' => function ($value) {
+            if ($value === null) return null;
+            return [decl('mask-size', $value)];
+        },
+    ]);
+
+    // =========================================================================
+    // Mask Position
+    // =========================================================================
+
+    $builder->staticUtility('mask-top', [['mask-position', 'top']]);
+    $builder->staticUtility('mask-top-left', [['mask-position', 'left top']]);
+    $builder->staticUtility('mask-top-right', [['mask-position', 'right top']]);
+    $builder->staticUtility('mask-bottom', [['mask-position', 'bottom']]);
+    $builder->staticUtility('mask-bottom-left', [['mask-position', 'left bottom']]);
+    $builder->staticUtility('mask-bottom-right', [['mask-position', 'right bottom']]);
+    $builder->staticUtility('mask-left', [['mask-position', 'left']]);
+    $builder->staticUtility('mask-right', [['mask-position', 'right']]);
+    $builder->staticUtility('mask-center', [['mask-position', 'center']]);
+
+    $builder->functionalUtility('mask-position', [
+        'themeKeys' => [],
+        'defaultValue' => null,
+        'handle' => function ($value) {
+            if ($value === null) return null;
+            return [decl('mask-position', $value)];
+        },
+    ]);
+
+    // =========================================================================
+    // Mask Repeat
+    // =========================================================================
+
+    $builder->staticUtility('mask-repeat', [['mask-repeat', 'repeat']]);
+    $builder->staticUtility('mask-no-repeat', [['mask-repeat', 'no-repeat']]);
+    $builder->staticUtility('mask-repeat-x', [['mask-repeat', 'repeat-x']]);
+    $builder->staticUtility('mask-repeat-y', [['mask-repeat', 'repeat-y']]);
+    $builder->staticUtility('mask-repeat-round', [['mask-repeat', 'round']]);
+    $builder->staticUtility('mask-repeat-space', [['mask-repeat', 'space']]);
+
     // =========================================================================
     // Mask Gradient Properties
     // =========================================================================
@@ -38,6 +148,68 @@ function registerMaskUtilities(UtilityBuilder $builder): void
             property('--tw-mask-radial', 'linear-gradient(#fff, #fff)'),
             property('--tw-mask-conic', 'linear-gradient(#fff, #fff)'),
         ]);
+    };
+
+    // =========================================================================
+    // Mask Stop Utility Helper
+    // =========================================================================
+
+    $maskStopUtility = function (string $classRoot, callable $colorHandler, callable $positionHandler) use ($builder, $theme) {
+        $builder->getUtilities()->functional($classRoot, function ($candidate) use ($theme, $colorHandler, $positionHandler) {
+            if (!isset($candidate['value'])) return null;
+
+            $candidateValue = $candidate['value'];
+            $modifier = $candidate['modifier'] ?? null;
+
+            // Arbitrary values
+            if ($candidateValue['kind'] === 'arbitrary') {
+                $value = $candidateValue['value'];
+                $type = $candidateValue['dataType'] ?? inferDataType($value, ['length', 'percentage', 'color']);
+
+                switch ($type) {
+                    case 'color':
+                        $value = asColor($value, $modifier, $theme);
+                        if ($value === null) return null;
+                        return $colorHandler($value);
+                    case 'percentage':
+                        if ($modifier !== null) return null;
+                        $numPart = substr($value, 0, -1);
+                        if (!isPositiveInteger($numPart)) return null;
+                        return $positionHandler($value);
+                    default:
+                        if ($modifier !== null) return null;
+                        return $positionHandler($value);
+                }
+            }
+
+            $namedValue = $candidateValue['value'] ?? '';
+
+            // Known values: Colors
+            $colorValue = resolveThemeColor($candidate, $theme, ['--background-color', '--color']);
+            if ($colorValue !== null) {
+                return $colorHandler($colorValue);
+            }
+
+            // Known values: Positions
+            if ($modifier !== null) return null;
+
+            $type = inferDataType($namedValue, ['number', 'percentage']);
+            if ($type === null) return null;
+
+            switch ($type) {
+                case 'number':
+                    $multiplier = $theme->resolve(null, ['--spacing']);
+                    if ($multiplier === null) return null;
+                    if (!isValidSpacingMultiplier($namedValue)) return null;
+                    return $positionHandler("calc({$multiplier} * {$namedValue})");
+                case 'percentage':
+                    $numPart = substr($namedValue, 0, -1);
+                    if (!isPositiveInteger($numPart)) return null;
+                    return $positionHandler($namedValue);
+                default:
+                    return null;
+            }
+        });
     };
 
     // =========================================================================
@@ -83,65 +255,49 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // mask-linear-from-{position}% utility
-    $builder->functionalUtility('mask-linear-from', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesLinear) {
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesLinear(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-linear-stops',
-                    'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'
-                ),
-                decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
-                decl('--tw-mask-linear-from-position', $value),
-            ];
-        },
-    ]);
+    // mask-linear-from utility using maskStopUtility
+    $maskStopUtility('mask-linear-from',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesLinear(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-linear-stops', 'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'),
+            decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
+            decl('--tw-mask-linear-from-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesLinear(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-linear-stops', 'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'),
+            decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
+            decl('--tw-mask-linear-from-position', $value),
+        ]
+    );
 
-    // mask-linear-to-{position}% utility
-    $builder->functionalUtility('mask-linear-to', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesLinear) {
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesLinear(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-linear-stops',
-                    'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'
-                ),
-                decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
-                decl('--tw-mask-linear-to-position', $value),
-            ];
-        },
-    ]);
+    // mask-linear-to utility using maskStopUtility
+    $maskStopUtility('mask-linear-to',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesLinear(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-linear-stops', 'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'),
+            decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
+            decl('--tw-mask-linear-to-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesLinear(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-linear-stops', 'var(--tw-mask-linear-position), var(--tw-mask-linear-from-color) var(--tw-mask-linear-from-position), var(--tw-mask-linear-to-color) var(--tw-mask-linear-to-position)'),
+            decl('--tw-mask-linear', 'linear-gradient(var(--tw-mask-linear-stops))'),
+            decl('--tw-mask-linear-to-position', $value),
+        ]
+    );
 
     // =========================================================================
     // Radial Mask Properties
@@ -205,72 +361,49 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // mask-radial-from-{position}% utility
-    $builder->functionalUtility('mask-radial-from', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesRadial) {
-            // Validate percentage values - must be positive
-            if (str_ends_with($value, '%')) {
-                $num = substr($value, 0, -1);
-                if (!isPositiveInteger($num)) {
-                    return null;
-                }
-            }
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesRadial(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-radial-stops',
-                    'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'
-                ),
-                decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
-                decl('--tw-mask-radial-from-position', $value),
-            ];
-        },
-    ]);
+    // mask-radial-from utility using maskStopUtility
+    $maskStopUtility('mask-radial-from',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesRadial(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-radial-stops', 'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'),
+            decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
+            decl('--tw-mask-radial-from-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesRadial(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-radial-stops', 'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'),
+            decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
+            decl('--tw-mask-radial-from-position', $value),
+        ]
+    );
 
-    // mask-radial-to-{position}% utility
-    $builder->functionalUtility('mask-radial-to', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesRadial) {
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesRadial(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-radial-stops',
-                    'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'
-                ),
-                decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
-                decl('--tw-mask-radial-to-position', $value),
-            ];
-        },
-    ]);
+    // mask-radial-to utility using maskStopUtility
+    $maskStopUtility('mask-radial-to',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesRadial(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-radial-stops', 'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'),
+            decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
+            decl('--tw-mask-radial-to-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesRadial(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-radial-stops', 'var(--tw-mask-radial-shape) var(--tw-mask-radial-size) at var(--tw-mask-radial-position), var(--tw-mask-radial-from-color) var(--tw-mask-radial-from-position), var(--tw-mask-radial-to-color) var(--tw-mask-radial-to-position)'),
+            decl('--tw-mask-radial', 'radial-gradient(var(--tw-mask-radial-stops))'),
+            decl('--tw-mask-radial-to-position', $value),
+        ]
+    );
 
     // =========================================================================
     // Conic Mask Properties
@@ -315,65 +448,49 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // mask-conic-from-{position}% utility
-    $builder->functionalUtility('mask-conic-from', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesConic) {
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesConic(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-conic-stops',
-                    'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'
-                ),
-                decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
-                decl('--tw-mask-conic-from-position', $value),
-            ];
-        },
-    ]);
+    // mask-conic-from utility using maskStopUtility
+    $maskStopUtility('mask-conic-from',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesConic(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-conic-stops', 'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'),
+            decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
+            decl('--tw-mask-conic-from-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesConic(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-conic-stops', 'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'),
+            decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
+            decl('--tw-mask-conic-from-position', $value),
+        ]
+    );
 
-    // mask-conic-to-{position}% utility
-    $builder->functionalUtility('mask-conic-to', [
-        'themeKeys' => [],
-        'defaultValue' => null,
-        'handleBareValue' => function ($value) {
-            $val = $value['value'] ?? '';
-            if (str_ends_with($val, '%')) {
-                $num = substr($val, 0, -1);
-                if (isPositiveInteger($num)) {
-                    return $val;
-                }
-            }
-            return null;
-        },
-        'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesConic) {
-            return [
-                $maskPropertiesGradient(),
-                $maskPropertiesConic(),
-                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                decl('mask-composite', 'intersect'),
-                decl(
-                    '--tw-mask-conic-stops',
-                    'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'
-                ),
-                decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
-                decl('--tw-mask-conic-to-position', $value),
-            ];
-        },
-    ]);
+    // mask-conic-to utility using maskStopUtility
+    $maskStopUtility('mask-conic-to',
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesConic(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-conic-stops', 'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'),
+            decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
+            decl('--tw-mask-conic-to-color', $value),
+        ],
+        fn($value) => [
+            $maskPropertiesGradient(),
+            $maskPropertiesConic(),
+            decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+            decl('mask-composite', 'intersect'),
+            decl('--tw-mask-conic-stops', 'from var(--tw-mask-conic-position), var(--tw-mask-conic-from-color) var(--tw-mask-conic-from-position), var(--tw-mask-conic-to-color) var(--tw-mask-conic-to-position)'),
+            decl('--tw-mask-conic', 'conic-gradient(var(--tw-mask-conic-stops))'),
+            decl('--tw-mask-conic-to-position', $value),
+        ]
+    );
 
     // =========================================================================
     // Edge Mask Properties
@@ -389,65 +506,61 @@ function registerMaskUtilities(UtilityBuilder $builder): void
     };
 
     // Helper function to create edge mask utilities
-    $createMaskEdgeUtility = function (string $name, string $stop, array $edges) use ($builder, $maskPropertiesGradient, $maskPropertiesEdge) {
-        $builder->functionalUtility($name, [
-            'themeKeys' => [],
-            'defaultValue' => null,
-            'handleBareValue' => function ($value) {
-                $val = $value['value'] ?? '';
-                if (str_ends_with($val, '%')) {
-                    $num = substr($val, 0, -1);
-                    if (isPositiveInteger($num)) {
-                        return $val;
-                    }
+    $maskEdgeUtility = function (string $name, string $stop, array $edges) use ($maskStopUtility, $maskPropertiesGradient, $maskPropertiesEdge) {
+        $createNodes = function (string $type, string $value) use ($maskPropertiesGradient, $maskPropertiesEdge, $stop, $edges) {
+            $nodes = [
+                $maskPropertiesGradient(),
+                $maskPropertiesEdge(),
+                decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
+                decl('mask-composite', 'intersect'),
+                decl('--tw-mask-linear', 'var(--tw-mask-left), var(--tw-mask-right), var(--tw-mask-bottom), var(--tw-mask-top)'),
+            ];
+
+            foreach (['top', 'right', 'bottom', 'left'] as $edge) {
+                if (!($edges[$edge] ?? false)) {
+                    continue;
                 }
-                return null;
-            },
-            'handle' => function ($value) use ($maskPropertiesGradient, $maskPropertiesEdge, $stop, $edges) {
-                $nodes = [
-                    $maskPropertiesGradient(),
-                    $maskPropertiesEdge(),
-                    decl('mask-image', 'var(--tw-mask-linear), var(--tw-mask-radial), var(--tw-mask-conic)'),
-                    decl('mask-composite', 'intersect'),
-                    decl('--tw-mask-linear', 'var(--tw-mask-left), var(--tw-mask-right), var(--tw-mask-bottom), var(--tw-mask-top)'),
-                ];
 
-                foreach (['top', 'right', 'bottom', 'left'] as $edge) {
-                    if (!($edges[$edge] ?? false)) {
-                        continue;
-                    }
+                $nodes[] = decl(
+                    "--tw-mask-{$edge}",
+                    "linear-gradient(to {$edge}, var(--tw-mask-{$edge}-from-color) var(--tw-mask-{$edge}-from-position), var(--tw-mask-{$edge}-to-color) var(--tw-mask-{$edge}-to-position))"
+                );
 
-                    $nodes[] = decl(
-                        "--tw-mask-{$edge}",
-                        "linear-gradient(to {$edge}, var(--tw-mask-{$edge}-from-color) var(--tw-mask-{$edge}-from-position), var(--tw-mask-{$edge}-to-color) var(--tw-mask-{$edge}-to-position))"
-                    );
+                $nodes[] = atRoot([
+                    property("--tw-mask-{$edge}-from-position", '0%'),
+                    property("--tw-mask-{$edge}-to-position", '100%'),
+                    property("--tw-mask-{$edge}-from-color", 'black'),
+                    property("--tw-mask-{$edge}-to-color", 'transparent'),
+                ]);
 
-                    $nodes[] = atRoot([
-                        property("--tw-mask-{$edge}-from-position", '0%'),
-                        property("--tw-mask-{$edge}-to-position", '100%'),
-                        property("--tw-mask-{$edge}-from-color", 'black'),
-                        property("--tw-mask-{$edge}-to-color", 'transparent'),
-                    ]);
-
+                if ($type === 'color') {
+                    $nodes[] = decl("--tw-mask-{$edge}-{$stop}-color", $value);
+                } else {
                     $nodes[] = decl("--tw-mask-{$edge}-{$stop}-position", $value);
                 }
+            }
 
-                return $nodes;
-            },
-        ]);
+            return $nodes;
+        };
+
+        $maskStopUtility(
+            $name,
+            fn($value) => $createNodes('color', $value),
+            fn($value) => $createNodes('position', $value)
+        );
     };
 
     // Register edge mask utilities
-    $createMaskEdgeUtility('mask-x-from', 'from', ['top' => false, 'right' => true, 'bottom' => false, 'left' => true]);
-    $createMaskEdgeUtility('mask-x-to', 'to', ['top' => false, 'right' => true, 'bottom' => false, 'left' => true]);
-    $createMaskEdgeUtility('mask-y-from', 'from', ['top' => true, 'right' => false, 'bottom' => true, 'left' => false]);
-    $createMaskEdgeUtility('mask-y-to', 'to', ['top' => true, 'right' => false, 'bottom' => true, 'left' => false]);
-    $createMaskEdgeUtility('mask-t-from', 'from', ['top' => true, 'right' => false, 'bottom' => false, 'left' => false]);
-    $createMaskEdgeUtility('mask-t-to', 'to', ['top' => true, 'right' => false, 'bottom' => false, 'left' => false]);
-    $createMaskEdgeUtility('mask-r-from', 'from', ['top' => false, 'right' => true, 'bottom' => false, 'left' => false]);
-    $createMaskEdgeUtility('mask-r-to', 'to', ['top' => false, 'right' => true, 'bottom' => false, 'left' => false]);
-    $createMaskEdgeUtility('mask-b-from', 'from', ['top' => false, 'right' => false, 'bottom' => true, 'left' => false]);
-    $createMaskEdgeUtility('mask-b-to', 'to', ['top' => false, 'right' => false, 'bottom' => true, 'left' => false]);
-    $createMaskEdgeUtility('mask-l-from', 'from', ['top' => false, 'right' => false, 'bottom' => false, 'left' => true]);
-    $createMaskEdgeUtility('mask-l-to', 'to', ['top' => false, 'right' => false, 'bottom' => false, 'left' => true]);
+    $maskEdgeUtility('mask-x-from', 'from', ['top' => false, 'right' => true, 'bottom' => false, 'left' => true]);
+    $maskEdgeUtility('mask-x-to', 'to', ['top' => false, 'right' => true, 'bottom' => false, 'left' => true]);
+    $maskEdgeUtility('mask-y-from', 'from', ['top' => true, 'right' => false, 'bottom' => true, 'left' => false]);
+    $maskEdgeUtility('mask-y-to', 'to', ['top' => true, 'right' => false, 'bottom' => true, 'left' => false]);
+    $maskEdgeUtility('mask-t-from', 'from', ['top' => true, 'right' => false, 'bottom' => false, 'left' => false]);
+    $maskEdgeUtility('mask-t-to', 'to', ['top' => true, 'right' => false, 'bottom' => false, 'left' => false]);
+    $maskEdgeUtility('mask-r-from', 'from', ['top' => false, 'right' => true, 'bottom' => false, 'left' => false]);
+    $maskEdgeUtility('mask-r-to', 'to', ['top' => false, 'right' => true, 'bottom' => false, 'left' => false]);
+    $maskEdgeUtility('mask-b-from', 'from', ['top' => false, 'right' => false, 'bottom' => true, 'left' => false]);
+    $maskEdgeUtility('mask-b-to', 'to', ['top' => false, 'right' => false, 'bottom' => true, 'left' => false]);
+    $maskEdgeUtility('mask-l-from', 'from', ['top' => false, 'right' => false, 'bottom' => false, 'left' => true]);
+    $maskEdgeUtility('mask-l-to', 'to', ['top' => false, 'right' => false, 'bottom' => false, 'left' => true]);
 }

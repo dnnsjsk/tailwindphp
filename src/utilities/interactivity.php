@@ -6,6 +6,8 @@ namespace TailwindPHP\Utilities;
 
 use TailwindPHP\Theme;
 use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Utilities\property;
 
 /**
  * Interactivity Utilities
@@ -259,6 +261,27 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         'defaultValue' => null,
         'handle' => function ($value) {
             return [decl('will-change', $value)];
+        },
+    ]);
+
+    // =========================================================================
+    // Content
+    // =========================================================================
+
+    $builder->staticUtility('content-none', [
+        ['--tw-content', 'none'],
+        ['content', 'none'],
+    ]);
+
+    $builder->functionalUtility('content', [
+        'themeKeys' => ['--content'],
+        'defaultValue' => null,
+        'handle' => function ($value) {
+            return [
+                atRoot([property('--tw-content', '""')]),
+                decl('--tw-content', $value),
+                decl('content', 'var(--tw-content)'),
+            ];
         },
     ]);
 }

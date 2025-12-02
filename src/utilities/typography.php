@@ -6,6 +6,7 @@ namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Utilities\property;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
@@ -728,4 +729,20 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         // No match
         return null;
     });
+
+    // =========================================================================
+    // Placeholder Color
+    // =========================================================================
+
+    $builder->colorUtility('placeholder', [
+        'themeKeys' => ['--background-color', '--color'],
+        'handle' => function ($value) {
+            return [
+                styleRule('&::placeholder', [
+                    decl('--tw-sort', 'placeholder-color'),
+                    decl('color', $value),
+                ]),
+            ];
+        },
+    ]);
 }

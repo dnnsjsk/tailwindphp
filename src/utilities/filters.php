@@ -6,8 +6,18 @@ namespace TailwindPHP\Utilities;
 
 use TailwindPHP\Theme;
 use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidOpacityValue;
+use function TailwindPHP\Utils\inferDataType;
+use function TailwindPHP\Utils\replaceShadowColors;
+use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Utilities\resolveThemeColor;
+use function TailwindPHP\Utilities\withAlpha;
+use function TailwindPHP\Utilities\replaceAlpha;
+use function TailwindPHP\Utilities\asColor;
+use function TailwindPHP\Utilities\colorToHex;
 
 /**
  * Filters Utilities
@@ -466,15 +476,198 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
     // drop-shadow
     // =========================================================================
 
+    // Filter properties for @property rules
+    $filterProperties = function () {
+        return atRoot([
+            property('--tw-blur'),
+            property('--tw-brightness'),
+            property('--tw-contrast'),
+            property('--tw-grayscale'),
+            property('--tw-hue-rotate'),
+            property('--tw-invert'),
+            property('--tw-opacity'),
+            property('--tw-saturate'),
+            property('--tw-sepia'),
+            property('--tw-drop-shadow'),
+            property('--tw-drop-shadow-color'),
+            property('--tw-drop-shadow-alpha', '100%', '<percentage>'),
+            property('--tw-drop-shadow-size'),
+        ]);
+    };
+
+    // Helper for alpha-replaced drop shadow properties
+    $alphaReplacedDropShadowProperties = function (
+        string $property,
+        string $value,
+        ?string $alpha,
+        callable $varInjector
+    ): array {
+        // Parse drop shadow(s) and replace colors
+        // The value is the raw shadow values like "0 1px 1px rgb(0 0 0 / 0.05)"
+        $parts = segment($value, ',');
+        $replacedParts = [];
+
+        foreach ($parts as $part) {
+            $part = trim($part);
+            // Use replaceShadowColors to replace colors in shadow value
+            $replaced = replaceShadowColors($part, function ($color) use ($alpha, $varInjector) {
+                if ($alpha === null) {
+                    // Convert rgb to hex for fallback
+                    return $varInjector(colorToHex($color));
+                }
+
+                // When the input is currentcolor, use color-mix approach
+                if (str_starts_with($color, 'current')) {
+                    return $varInjector(withAlpha($color, $alpha));
+                }
+
+                return $varInjector(replaceAlpha($color, $alpha));
+            });
+            $replacedParts[] = "drop-shadow({$replaced})";
+        }
+
+        return [decl($property, implode(' ', $replacedParts))];
+    };
+
     // drop-shadow-none
     $builder->staticUtility('drop-shadow-none', [
+        fn() => $filterProperties(),
         ['--tw-drop-shadow', ' '],
         ['filter', $cssFilterValue],
     ]);
 
-    // NOTE: drop-shadow with colors and modifiers is very complex
-    // and requires special handling for color resolution, alpha replacement, etc.
-    // For now, implementing basic drop-shadow with theme values
+    // drop-shadow functional utility
+    $builder->getUtilities()->functional('drop-shadow', function ($candidate) use ($theme, $filterProperties, $cssFilterValue, $alphaReplacedDropShadowProperties) {
+        $modifier = $candidate['modifier'] ?? null;
+        $alpha = null;
+
+        // Parse alpha from modifier
+        if ($modifier !== null) {
+            if ($modifier['kind'] === 'arbitrary') {
+                $alpha = $modifier['value'];
+            } elseif (isPositiveInteger($modifier['value'])) {
+                $alpha = "{$modifier['value']}%";
+            }
+        }
+
+        // No value - default drop-shadow
+        if (!isset($candidate['value'])) {
+            $value = $theme->get(['--drop-shadow']);
+            $resolved = $theme->resolve(null, ['--drop-shadow']);
+            if ($value === null || $resolved === null) return null;
+
+            $segments = segment($resolved, ',');
+            $dropShadowParts = array_map(fn($v) => "drop-shadow({$v})", array_map('trim', $segments));
+
+            return array_merge(
+                [$filterProperties()],
+                $alpha !== null ? [decl('--tw-drop-shadow-alpha', $alpha)] : [],
+                $alphaReplacedDropShadowProperties(
+                    '--tw-drop-shadow-size',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                ),
+                [decl('--tw-drop-shadow', implode(' ', $dropShadowParts))],
+                [decl('filter', $cssFilterValue)]
+            );
+        }
+
+        $candidateValue = $candidate['value'];
+
+        // Arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color']);
+
+            if ($type === 'color') {
+                $value = asColor($value, $modifier, $theme);
+                if ($value === null) return null;
+
+                return [
+                    $filterProperties(),
+                    decl('--tw-drop-shadow-color', withAlpha($value, 'var(--tw-drop-shadow-alpha)')),
+                    decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)'),
+                ];
+            }
+
+            // Shadow arbitrary value
+            if ($modifier !== null && $alpha === null) return null;
+
+            return array_merge(
+                [$filterProperties()],
+                $alpha !== null ? [decl('--tw-drop-shadow-alpha', $alpha)] : [],
+                $alphaReplacedDropShadowProperties(
+                    '--tw-drop-shadow-size',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                ),
+                [decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)')],
+                [decl('filter', $cssFilterValue)]
+            );
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // Shadow size (xl, lg, etc.)
+        $shadowValue = $theme->get(["--drop-shadow-{$namedValue}"]);
+        $resolved = $theme->resolve($namedValue, ['--drop-shadow']);
+        if ($shadowValue !== null && $resolved !== null) {
+            if ($modifier !== null && $alpha === null) return null;
+
+            if ($alpha !== null) {
+                return array_merge(
+                    [$filterProperties()],
+                    [decl('--tw-drop-shadow-alpha', $alpha)],
+                    $alphaReplacedDropShadowProperties(
+                        '--tw-drop-shadow-size',
+                        $shadowValue,
+                        $alpha,
+                        fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                    ),
+                    [decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)')],
+                    [decl('filter', $cssFilterValue)]
+                );
+            }
+
+            $segments = segment($resolved, ',');
+            $dropShadowParts = array_map(fn($v) => "drop-shadow({$v})", array_map('trim', $segments));
+
+            return array_merge(
+                [$filterProperties()],
+                $alpha !== null ? [decl('--tw-drop-shadow-alpha', $alpha)] : [],
+                $alphaReplacedDropShadowProperties(
+                    '--tw-drop-shadow-size',
+                    $shadowValue,
+                    $alpha,
+                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                ),
+                [decl('--tw-drop-shadow', implode(' ', $dropShadowParts))],
+                [decl('filter', $cssFilterValue)]
+            );
+        }
+
+        // Shadow color (red-500, current, inherit, transparent, etc.)
+        $colorValue = resolveThemeColor($candidate, $theme, ['--drop-shadow-color', '--color']);
+        if ($colorValue !== null) {
+            if ($colorValue === 'inherit') {
+                return [
+                    $filterProperties(),
+                    decl('--tw-drop-shadow-color', 'inherit'),
+                    decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)'),
+                ];
+            }
+
+            return [
+                $filterProperties(),
+                decl('--tw-drop-shadow-color', withAlpha($colorValue, 'var(--tw-drop-shadow-alpha)')),
+                decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)'),
+            ];
+        }
+
+        return null;
+    });
 
     // =========================================================================
     // backdrop-opacity

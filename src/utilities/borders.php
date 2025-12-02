@@ -7,8 +7,12 @@ namespace TailwindPHP\Utilities;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Ast\atRule;
 use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Utilities\resolveThemeColor;
+use function TailwindPHP\Utilities\asColor;
 use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Utils\inferDataType;
 
 /**
  * Border Utilities
@@ -147,30 +151,95 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     // Outline Style
     // =========================================================================
 
+    // Outline style static utilities
     $builder->staticUtility('outline-none', [
-        ['outline', '2px solid transparent'],
-        ['outline-offset', '2px'],
+        ['--tw-outline-style', 'none'],
+        ['outline-style', 'none'],
     ]);
-    $builder->staticUtility('outline', [['outline-style', 'solid']]);
-    $builder->staticUtility('outline-dashed', [['outline-style', 'dashed']]);
-    $builder->staticUtility('outline-dotted', [['outline-style', 'dotted']]);
-    $builder->staticUtility('outline-double', [['outline-style', 'double']]);
+    $builder->staticUtility('outline-solid', [['--tw-outline-style', 'solid'], ['outline-style', 'solid']]);
+    $builder->staticUtility('outline-dashed', [['--tw-outline-style', 'dashed'], ['outline-style', 'dashed']]);
+    $builder->staticUtility('outline-dotted', [['--tw-outline-style', 'dotted'], ['outline-style', 'dotted']]);
+    $builder->staticUtility('outline-double', [['--tw-outline-style', 'double'], ['outline-style', 'double']]);
 
-    // Outline Width
-    $builder->functionalUtility('outline', [
-        'themeKeys' => ['--outline-width'],
-        'defaultValue' => null,
-        'handle' => function ($value) {
-            return [decl('outline-width', $value)];
-        },
-        'staticValues' => [
-            '0' => [decl('outline-width', '0px')],
-            '1' => [decl('outline-width', '1px')],
-            '2' => [decl('outline-width', '2px')],
-            '4' => [decl('outline-width', '4px')],
-            '8' => [decl('outline-width', '8px')],
-        ],
-    ]);
+    // Outline properties for @property rules
+    $outlineProperties = function () {
+        return atRoot([
+            property('--tw-outline-style', 'solid'),
+        ]);
+    };
+
+    $theme = $builder->getTheme();
+
+    // Outline functional utility - handles both colors and widths
+    $builder->getUtilities()->functional('outline', function ($candidate) use ($theme, $outlineProperties) {
+        $modifier = $candidate['modifier'] ?? null;
+
+        // No value - bare 'outline' class
+        if (!isset($candidate['value'])) {
+            if ($modifier !== null) return null;
+            $defaultWidth = $theme->get(['--default-outline-width']) ?? '1px';
+            return [
+                $outlineProperties(),
+                decl('outline-style', 'var(--tw-outline-style)'),
+                decl('outline-width', $defaultWidth),
+            ];
+        }
+
+        $candidateValue = $candidate['value'];
+
+        // Arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'length', 'number', 'percentage']);
+
+            switch ($type) {
+                case 'length':
+                case 'number':
+                case 'percentage':
+                    if ($modifier !== null) return null;
+                    return [
+                        $outlineProperties(),
+                        decl('outline-style', 'var(--tw-outline-style)'),
+                        decl('outline-width', $value),
+                    ];
+                default:
+                    // Color
+                    $value = asColor($value, $modifier, $theme);
+                    if ($value === null) return null;
+                    return [decl('outline-color', $value)];
+            }
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // Try to resolve as color first
+        $colorValue = resolveThemeColor($candidate, $theme, ['--outline-color', '--color']);
+        if ($colorValue !== null) {
+            return [decl('outline-color', $colorValue)];
+        }
+
+        // Try to resolve as width
+        if ($modifier !== null) return null;
+        $widthValue = $theme->resolve($namedValue, ['--outline-width']);
+        if ($widthValue !== null) {
+            return [
+                $outlineProperties(),
+                decl('outline-style', 'var(--tw-outline-style)'),
+                decl('outline-width', $widthValue),
+            ];
+        }
+
+        // Check for bare integer widths (0, 1, 2, 4, 8)
+        if (isPositiveInteger($namedValue)) {
+            return [
+                $outlineProperties(),
+                decl('outline-style', 'var(--tw-outline-style)'),
+                decl('outline-width', "{$namedValue}px"),
+            ];
+        }
+
+        return null;
+    });
 
     // Outline Offset
     // Note: For bare values like -outline-offset-4, Tailwind outputs calc(4px * -1)
@@ -297,4 +366,32 @@ function registerBorderUtilities(UtilityBuilder $builder): void
             decl('border-style', 'none'),
         ]),
     ]);
+
+    // Divide Color
+    $builder->colorUtility('divide', [
+        'themeKeys' => ['--divide-color', '--border-color', '--color'],
+        'handle' => function ($value) {
+            return [
+                styleRule(':where(& > :not(:last-child))', [
+                    decl('--tw-sort', 'divide-color'),
+                    decl('border-color', $value),
+                ]),
+            ];
+        },
+    ]);
+
+    // =========================================================================
+    // Outline Hidden (special utility with @media query)
+    // =========================================================================
+
+    $builder->getUtilities()->static('outline-hidden', function () {
+        return [
+            decl('--tw-outline-style', 'none'),
+            decl('outline-style', 'none'),
+            atRule('@media', '(forced-colors: active)', [
+                decl('outline', '2px solid transparent'),
+                decl('outline-offset', '2px'),
+            ]),
+        ];
+    });
 }

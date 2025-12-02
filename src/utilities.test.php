@@ -521,14 +521,26 @@ class utilities extends TestCase
             $css = $compiled['build']($testCase['classes']);
 
             // For compileCss tests, verify that:
-            // 1. CSS is generated (not empty)
-            // 2. Each class has a corresponding selector in output
+            // 1. CSS is generated (not empty) - unless expected is also empty
+            // 2. Each class that appears in expected output has a corresponding selector in actual output
+            $expectedOutput = $testCase['expected'] ?? '';
+
+            // If expected output is empty, verify actual is also empty
+            if (trim($expectedOutput) === '') {
+                $this->assertEmpty(trim($css), sprintf(
+                    "Expected empty CSS output for classes: %s\n\nActual CSS:\n%s",
+                    implode(', ', $testCase['classes']),
+                    $css
+                ));
+                return;
+            }
+
             $this->assertNotEmpty(trim($css), sprintf(
                 "Expected CSS output for classes: %s",
                 implode(', ', $testCase['classes'])
             ));
 
-            // Verify each class generates a selector
+            // Verify each class generates a selector - but only if the class appears in expected output
             foreach ($testCase['classes'] as $class) {
                 // Skip invalid/negative test classes
                 if (str_starts_with($class, '-') ||
@@ -553,6 +565,17 @@ class utilities extends TestCase
                     '"' => '\\"',
                     "'" => "\\'",
                 ]);
+
+                // Check if this class is expected to produce output by checking if it's in the expected output
+                // If it's not in expected output, skip checking for it in actual output
+                $inExpected = str_contains($expectedOutput, $expectedSelector . ' ') ||
+                              str_contains($expectedOutput, $expectedSelector . '{') ||
+                              str_contains($expectedOutput, $expectedSelector . ',') ||
+                              str_contains($expectedOutput, $expectedSelector . "\n");
+
+                if (!$inExpected) {
+                    continue; // Class is intentionally not in expected output
+                }
 
                 // Check if the CSS output contains this selector
                 $foundSelector = str_contains($css, $expectedSelector . ' ') ||

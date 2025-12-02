@@ -371,21 +371,46 @@ function asColor(string $value, array $modifier, object $theme): ?string
     $modifierValue = $modifier['value'] ?? null;
     if ($modifierValue === null) return $value;
 
-    // Check if modifier is a valid percentage or decimal
     $alpha = null;
-    if (is_numeric($modifierValue)) {
-        // Numeric values are treated as percentages (e.g., /50 = 50%)
+
+    // Arbitrary modifier - use the value directly
+    if (($modifier['kind'] ?? null) === 'arbitrary') {
+        $alpha = $modifierValue;
+    }
+    // Named modifier - try to resolve from theme first
+    elseif (($modifier['kind'] ?? null) === 'named') {
+        // Check if the modifier exists in the `--opacity` theme configuration
+        $themeAlpha = $theme->resolve($modifierValue, ['--opacity']);
+        if ($themeAlpha !== null) {
+            $alpha = $themeAlpha;
+        }
+        // Check if modifier is a valid percentage or decimal
+        elseif (is_numeric($modifierValue)) {
+            // Numeric values are treated as percentages (e.g., /50 = 50%)
+            $alpha = $modifierValue . '%';
+        } elseif (str_ends_with($modifierValue, '%')) {
+            // Already a percentage
+            $alpha = $modifierValue;
+        } elseif (preg_match('/^0?\.\d+$/', $modifierValue)) {
+            // Decimal like .5 or 0.5
+            $alpha = (floatval($modifierValue) * 100) . '%';
+        } else {
+            // Invalid modifier (e.g., /not-a-percentage)
+            return null;
+        }
+    }
+    // Fallback for other modifier types
+    elseif (is_numeric($modifierValue)) {
         $alpha = $modifierValue . '%';
     } elseif (str_ends_with($modifierValue, '%')) {
-        // Already a percentage
         $alpha = $modifierValue;
     } elseif (preg_match('/^0?\.\d+$/', $modifierValue)) {
-        // Decimal like .5 or 0.5
         $alpha = (floatval($modifierValue) * 100) . '%';
     } else {
-        // Invalid modifier (e.g., /not-a-percentage)
         return null;
     }
+
+    if ($alpha === null) return $value;
 
     // Check if value is a color that can have opacity applied
     // For CSS variables, we use color-mix and let the polyfill handle @supports fallback

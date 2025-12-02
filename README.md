@@ -29,11 +29,11 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ## Status
 
-✅ **1,139 tests passing** — Feature complete for core TailwindCSS functionality.
+✅ **1,322 tests passing** — Feature complete for core TailwindCSS functionality.
 
 | Test Suite | Status |
 |------------|--------|
-| Utilities | 364/364 ✅ |
+| Utilities | 547/547 ✅ |
 | Variants | 139/139 ✅ |
 | Integration | 78/78 ✅ |
 | CSS Functions | 60/60 ✅ |
@@ -41,7 +41,7 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ### Features
 
-- All 364+ utility classes
+- All 547+ utility classes
 - All variants (hover, focus, responsive, dark mode, etc.)
 - Directives: `@apply`, `@theme`, `@tailwind`, `@utility`, `@custom-variant`
 - Functions: `theme()`, `--theme()`, `--spacing()`, `--alpha()`

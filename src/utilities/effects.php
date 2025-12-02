@@ -7,6 +7,10 @@ namespace TailwindPHP\Utilities;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Utilities\resolveThemeColor;
+use function TailwindPHP\Utilities\withAlpha;
+use function TailwindPHP\Utilities\replaceAlpha;
+use function TailwindPHP\Utilities\asColor;
 use function TailwindPHP\Utils\replaceShadowColors;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\inferDataType;
@@ -158,72 +162,261 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     $theme = $builder->getTheme();
 
-    // Shadow color variable (used by shadow utilities)
-    $builder->functionalUtility('shadow', [
-        'themeKeys' => ['--shadow'],
-        'defaultValue' => 'var(--shadow, 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1))',
-        'handle' => function ($value) use ($boxShadowProperties, $cssBoxShadowValue) {
-            return [
-                $boxShadowProperties(),
-                decl('--tw-shadow', $value),
-                decl('box-shadow', $cssBoxShadowValue),
-            ];
-        },
-        'staticValues' => [
-            'none' => [decl('box-shadow', 'none')],
-            'sm' => [decl('box-shadow', 'var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05))')],
-            'md' => [decl('box-shadow', 'var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1))')],
-            'lg' => [decl('box-shadow', 'var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1))')],
-            'xl' => [decl('box-shadow', 'var(--shadow-xl, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1))')],
-            '2xl' => [decl('box-shadow', 'var(--shadow-2xl, 0 25px 50px -12px rgb(0 0 0 / 0.25))')],
-            'inner' => [decl('box-shadow', 'var(--shadow-inner, inset 0 2px 4px 0 rgb(0 0 0 / 0.05))')],
-        ],
+    // Helper to create alpha-replaced shadow properties
+    $alphaReplacedShadowProperties = function (
+        string $property,
+        string $value,
+        ?string $alpha,
+        callable $varInjector,
+        string $prefix = ''
+    ) use ($theme): array {
+        $replacedValue = replaceShadowColors($value, function ($color) use ($alpha, $varInjector, $theme) {
+            if ($alpha === null) {
+                // Convert rgb() colors to hex for the fallback value
+                return $varInjector(colorToHex($color));
+            }
+
+            // When the input is currentcolor, use color-mix approach
+            if (str_starts_with($color, 'current')) {
+                return $varInjector(withAlpha($color, $alpha));
+            }
+
+            return $varInjector(replaceAlpha($color, $alpha));
+        });
+
+        // Apply prefix if needed (for inset shadows)
+        if ($prefix !== '') {
+            $parts = array_map(function ($part) use ($prefix) {
+                return $prefix . trim($part);
+            }, explode(',', $replacedValue));
+            $replacedValue = implode(',', $parts);
+        }
+
+        return [decl($property, $replacedValue)];
+    };
+
+    // shadow-initial static utility
+    $builder->staticUtility('shadow-initial', [
+        fn() => $boxShadowProperties(),
+        ['--tw-shadow-color', 'initial'],
     ]);
 
-    // Inset shadow - functional utility with stacking
-    $builder->getUtilities()->functional('inset-shadow', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue) {
-        if (!isset($candidate['value'])) {
-            // Default value
-            $value = $theme->get(['--inset-shadow']);
-            if ($value === null) {
-                return null;
+    // Shadow utility - handles size with alpha modifiers and colors
+    $builder->getUtilities()->functional('shadow', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue, $alphaReplacedShadowProperties, $nullShadow) {
+        $modifier = $candidate['modifier'] ?? null;
+        $alpha = null;
+
+        // Parse alpha from modifier
+        if ($modifier !== null) {
+            if ($modifier['kind'] === 'arbitrary') {
+                $alpha = $modifier['value'];
+            } elseif (isPositiveInteger($modifier['value'])) {
+                $alpha = "{$modifier['value']}%";
             }
-            // Replace color in shadow with var(--tw-inset-shadow-color, original-color)
-            $transformedValue = replaceShadowColor($value, '--tw-inset-shadow-color');
-            return [
-                $boxShadowProperties(),
-                decl('--tw-inset-shadow', $transformedValue),
-                decl('box-shadow', $cssBoxShadowValue),
-            ];
+        }
+
+        // No value - default shadow
+        if (!isset($candidate['value'])) {
+            $value = $theme->get(['--shadow']);
+            if ($value === null) return null;
+
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-shadow',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-shadow-color, {$color})"
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
         }
 
         $candidateValue = $candidate['value'];
 
-        // Handle arbitrary values
+        // Arbitrary values
         if ($candidateValue['kind'] === 'arbitrary') {
             $value = $candidateValue['value'];
-            return [
-                $boxShadowProperties(),
-                decl('--tw-inset-shadow', $value),
-                decl('box-shadow', $cssBoxShadowValue),
-            ];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color']);
+
+            if ($type === 'color') {
+                $value = asColor($value, $modifier, $theme);
+                if ($value === null) return null;
+
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-shadow-color', withAlpha($value, 'var(--tw-shadow-alpha)')),
+                ];
+            }
+
+            // Shadow arbitrary value
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-shadow',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-shadow-color, {$color})"
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
         }
 
-        // Named values (sm, xs, etc.)
-        $value = $theme->resolveValue($candidateValue['value'] ?? null, ['--inset-shadow']);
-        if ($value !== null) {
-            // Replace color in shadow with var(--tw-inset-shadow-color, original-color)
-            $transformedValue = replaceShadowColor($value, '--tw-inset-shadow-color');
-            return [
-                $boxShadowProperties(),
-                decl('--tw-inset-shadow', $transformedValue),
-                decl('box-shadow', $cssBoxShadowValue),
-            ];
-        }
+        $namedValue = $candidateValue['value'] ?? null;
 
         // Static values
-        if (($candidateValue['value'] ?? null) === 'none') {
-            return [decl('box-shadow', 'none')];
+        switch ($namedValue) {
+            case 'none':
+                if ($modifier !== null) return null;
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-shadow', $nullShadow),
+                    decl('box-shadow', $cssBoxShadowValue),
+                ];
+            case 'inherit':
+                if ($modifier !== null) return null;
+                return [$boxShadowProperties(), decl('--tw-shadow-color', 'inherit')];
+        }
+
+        // Shadow size (sm, md, lg, xl, 2xl)
+        $shadowValue = $theme->get(["--shadow-{$namedValue}"]);
+        if ($shadowValue !== null) {
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-shadow',
+                    $shadowValue,
+                    $alpha,
+                    fn($color) => "var(--tw-shadow-color, {$color})"
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
+        }
+
+        // Shadow color (red-500, current, transparent, etc.)
+        $colorValue = resolveThemeColor($candidate, $theme, ['--box-shadow-color', '--color']);
+        if ($colorValue !== null) {
+            return [
+                $boxShadowProperties(),
+                decl('--tw-shadow-color', withAlpha($colorValue, 'var(--tw-shadow-alpha)')),
+            ];
+        }
+
+        return null;
+    });
+
+    // inset-shadow-initial static utility
+    $builder->staticUtility('inset-shadow-initial', [
+        fn() => $boxShadowProperties(),
+        ['--tw-inset-shadow-color', 'initial'],
+    ]);
+
+    // Inset shadow utility
+    $builder->getUtilities()->functional('inset-shadow', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue, $alphaReplacedShadowProperties, $nullShadow) {
+        $modifier = $candidate['modifier'] ?? null;
+        $alpha = null;
+
+        // Parse alpha from modifier
+        if ($modifier !== null) {
+            if ($modifier['kind'] === 'arbitrary') {
+                $alpha = $modifier['value'];
+            } elseif (isPositiveInteger($modifier['value'])) {
+                $alpha = "{$modifier['value']}%";
+            }
+        }
+
+        // No value - default inset shadow
+        if (!isset($candidate['value'])) {
+            $value = $theme->get(['--inset-shadow']);
+            if ($value === null) return null;
+
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-inset-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-inset-shadow',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-inset-shadow-color, {$color})"
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
+        }
+
+        $candidateValue = $candidate['value'];
+
+        // Arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color']);
+
+            if ($type === 'color') {
+                $value = asColor($value, $modifier, $theme);
+                if ($value === null) return null;
+
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-inset-shadow-color', withAlpha($value, 'var(--tw-inset-shadow-alpha)')),
+                ];
+            }
+
+            // Shadow arbitrary value
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-inset-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-inset-shadow',
+                    $value,
+                    $alpha,
+                    fn($color) => "var(--tw-inset-shadow-color, {$color})",
+                    'inset '
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // Static values
+        switch ($namedValue) {
+            case 'none':
+                if ($modifier !== null) return null;
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-inset-shadow', $nullShadow),
+                    decl('box-shadow', $cssBoxShadowValue),
+                ];
+            case 'inherit':
+                if ($modifier !== null) return null;
+                return [$boxShadowProperties(), decl('--tw-inset-shadow-color', 'inherit')];
+        }
+
+        // Inset shadow size
+        $shadowValue = $theme->get(["--inset-shadow-{$namedValue}"]);
+        if ($shadowValue !== null) {
+            return array_merge(
+                [$boxShadowProperties()],
+                $alpha !== null ? [decl('--tw-inset-shadow-alpha', $alpha)] : [],
+                $alphaReplacedShadowProperties(
+                    '--tw-inset-shadow',
+                    $shadowValue,
+                    $alpha,
+                    fn($color) => "var(--tw-inset-shadow-color, {$color})"
+                ),
+                [decl('box-shadow', $cssBoxShadowValue)]
+            );
+        }
+
+        // Inset shadow color
+        $colorValue = resolveThemeColor($candidate, $theme, ['--box-shadow-color', '--color']);
+        if ($colorValue !== null) {
+            return [
+                $boxShadowProperties(),
+                decl('--tw-inset-shadow-color', withAlpha($colorValue, 'var(--tw-inset-shadow-alpha)')),
+            ];
         }
 
         return null;
@@ -456,22 +649,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         return null;
     });
 
-    // Drop shadow (filter-based)
-    $builder->functionalUtility('drop-shadow', [
-        'themeKeys' => ['--drop-shadow'],
-        'defaultValue' => 'var(--drop-shadow, drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06)))',
-        'handle' => function ($value) {
-            return [decl('filter', $value)];
-        },
-        'staticValues' => [
-            'none' => [decl('filter', 'drop-shadow(0 0 #0000)')],
-            'sm' => [decl('filter', 'var(--drop-shadow-sm, drop-shadow(0 1px 1px rgb(0 0 0 / 0.05)))')],
-            'md' => [decl('filter', 'var(--drop-shadow-md, drop-shadow(0 4px 3px rgb(0 0 0 / 0.07)) drop-shadow(0 2px 2px rgb(0 0 0 / 0.06)))')],
-            'lg' => [decl('filter', 'var(--drop-shadow-lg, drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1)))')],
-            'xl' => [decl('filter', 'var(--drop-shadow-xl, drop-shadow(0 20px 13px rgb(0 0 0 / 0.03)) drop-shadow(0 8px 5px rgb(0 0 0 / 0.08)))')],
-            '2xl' => [decl('filter', 'var(--drop-shadow-2xl, drop-shadow(0 25px 25px rgb(0 0 0 / 0.15)))')],
-        ],
-    ]);
+    // NOTE: drop-shadow utility is implemented in filters.php with full color and modifier support
 
     // =========================================================================
     // Mix Blend Mode

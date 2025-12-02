@@ -275,13 +275,13 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 1,139 tests (all passing)**
+**Total: 1,322 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
 | Test File | Status | Tests |
 |-----------|--------|-------|
-| `utilities.test.php` | ✅ | 364 |
+| `utilities.test.php` | ✅ | 547 (includes 183 compileCss tests) |
 | `variants.test.php` | ✅ | 139 |
 | `index.test.php` | ✅ | 78 (5 N/A - outside scope) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
