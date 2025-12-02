@@ -275,7 +275,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 1,322 tests (all passing)**
+**Total: 3,006 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -286,6 +286,24 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `index.test.php` | ✅ | 78 (5 N/A - outside scope) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 | `ui_spec.test.php` | ✅ | 68 |
+
+### API Coverage Tests (`tests/tailwindphp/`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `UtilitiesTest.php` | ✅ | 904 |
+| `ModifiersTest.php` | ✅ | 338 |
+| `VariantsTest.php` | ✅ | 282 |
+| `DirectivesTest.php` | ✅ | 160 |
+
+These tests provide exhaustive coverage of the TailwindPHP public API including:
+- All utility classes with various values and modifiers
+- Color opacity combinations (5-95 in increments of 5)
+- All responsive, state, and pseudo-class variants
+- Deep variant stacking (3-4 levels)
+- Arbitrary values for all utility types
+- Container queries, aria/data attributes
+- @apply, @theme, @utility directives
 
 ### Unit Tests (ported from TypeScript)
 

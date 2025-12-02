@@ -27,15 +27,15 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ## Status
 
-✅ **1,322 tests passing** — Feature complete for core TailwindCSS functionality.
+✅ **3,006 tests passing** — Feature complete for core TailwindCSS functionality.
 
-| Test Suite | Status |
-|------------|--------|
-| Utilities | 547/547 ✅ |
-| Variants | 139/139 ✅ |
-| Integration | 78/78 ✅ |
-| CSS Functions | 60/60 ✅ |
-| UI Spec | 68/68 ✅ |
+| Test Suite | Tests | Status |
+|------------|-------|--------|
+| Core (utilities, variants, integration) | 1,322 | ✅ |
+| API Coverage (utilities) | 904 | ✅ |
+| API Coverage (modifiers) | 338 | ✅ |
+| API Coverage (variants) | 282 | ✅ |
+| API Coverage (directives) | 160 | ✅ |
 
 ### Not Supported
 
