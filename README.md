@@ -73,6 +73,19 @@ $css = Tailwind::generate([
 
 The array format is useful when you want to keep content and configuration together.
 
+### Extract Class Names
+
+If you need to extract Tailwind class names from content separately:
+
+```php
+use TailwindPHP\Tailwind;
+
+$classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
+// ['flex', 'p-4', 'bg-blue-500']
+```
+
+This is useful when you want to scan multiple files and combine the results before generating CSS.
+
 ## How It Works
 
 This is a 1:1 port of TailwindCSS 4.x's core functionality to PHP. The goal is feature parity with TailwindCSS while eliminating the Node.js dependency.
