@@ -117,9 +117,9 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 
 TailwindPHP includes PHP ports of the two most popular class name libraries in the Tailwind ecosystem. No additional packages required.
 
-### `cn()` — The Ultimate Class Name Utility
+### `cn()`
 
-Combines `clsx` (conditional classes) with `twMerge` (conflict resolution). This is the recommended way to build class strings in PHP — the same pattern popularized by [shadcn/ui](https://ui.shadcn.com/) in React.
+Combines `clsx` (conditional classes) with `twMerge` (conflict resolution). Same pattern as [shadcn/ui](https://ui.shadcn.com/).
 
 ```php
 use function TailwindPHP\cn;
@@ -157,7 +157,7 @@ function Button($variant = 'default', $size = 'md', $disabled = false, $classNam
 }
 ```
 
-### `clsx()` — Conditional Class Names
+### `clsx()`
 
 Port of [lukeed/clsx](https://github.com/lukeed/clsx). Construct class strings from various inputs.
 
@@ -185,7 +185,7 @@ clsx('foo', null, false, 'bar', undefined, 0, '');
 // => 'foo bar'
 ```
 
-### `twMerge()` — Tailwind Class Conflict Resolution
+### `twMerge()`
 
 Port of [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge). Merge Tailwind classes without style conflicts.
 
@@ -209,9 +209,9 @@ twMerge('flex', 'items-center', 'justify-between');
 // => 'flex items-center justify-between'
 ```
 
-### `twJoin()` — Simple Class Joining
+### `twJoin()`
 
-Join classes without conflict resolution. Useful when you know there are no conflicts.
+Join classes without conflict resolution.
 
 ```php
 use function TailwindPHP\twJoin;
@@ -220,15 +220,9 @@ twJoin('foo', 'bar', null, 'baz');
 // => 'foo bar baz'
 ```
 
-### Why Include These?
+### Why include these?
 
-These libraries are essential for building maintainable Tailwind-based UIs:
-
-1. **clsx** solves conditional class application — no more string concatenation
-2. **tailwind-merge** prevents class conflicts — `p-2 p-4` becomes `p-4`
-3. **cn** combines both — the standard pattern used by shadcn/ui and modern React apps
-
-By including PHP ports, we provide a complete Tailwind development experience without requiring Node.js for anything.
+These are common companion libraries in the Tailwind ecosystem. Including PHP ports means no Node.js dependency for anything.
 
 ---
 
