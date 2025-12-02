@@ -402,11 +402,11 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         'supportsNegative' => true,
     ]);
 
-    // Truncate
+    // Truncate - declaration order matches lightningcss output
     $builder->staticUtility('truncate', [
-        ['overflow', 'hidden'],
         ['text-overflow', 'ellipsis'],
         ['white-space', 'nowrap'],
+        ['overflow', 'hidden'],
     ]);
 
     // Text Overflow

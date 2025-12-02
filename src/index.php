@@ -259,7 +259,9 @@ function parseCss(array &$ast, array $options = []): array
             // Process theme declarations and keyframes
             foreach ($node['nodes'] ?? [] as $child) {
                 if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
-                    $theme->add($child['property'], $child['value'] ?? '', $themeOptions);
+                    // Unescape CSS escape sequences in property names (e.g., \* -> *)
+                    $property = preg_replace('/\\\\(.)/', '$1', $child['property']);
+                    $theme->add($property, $child['value'] ?? '', $themeOptions);
                 } elseif ($child['kind'] === 'at-rule' && $child['name'] === '@keyframes') {
                     $theme->addKeyframes($child, $themeOptions);
                 }
@@ -323,7 +325,7 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::Skip;
         }
 
-        // Handle @media important
+        // Handle @media important, @media theme(...), @media prefix(...)
         if ($node['name'] === '@media') {
             $params = \TailwindPHP\Utils\segment($node['params'], ' ');
             $unknownParams = [];
@@ -331,6 +333,35 @@ function parseCss(array &$ast, array $options = []): array
             foreach ($params as $param) {
                 if ($param === 'important') {
                     $important = true;
+                }
+                // Handle @media theme(…)
+                // We support `@import "tailwindcss" theme(reference)` as a way to
+                // import an external theme file as a reference, which becomes `@media
+                // theme(reference) { … }` when the `@import` is processed.
+                elseif (str_starts_with($param, 'theme(')) {
+                    $themeParams = substr($param, 6, -1); // extract from theme(...)
+                    $hasReference = str_contains($themeParams, 'reference');
+
+                    // Walk children and append theme params to @theme blocks
+                    if (isset($node['nodes'])) {
+                        walk($node['nodes'], function (&$child) use ($themeParams, $hasReference) {
+                            if ($child['kind'] === 'context') return WalkAction::Continue;
+                            if ($child['kind'] !== 'at-rule') {
+                                if ($hasReference) {
+                                    throw new \Exception(
+                                        "Files imported with `@import \"…\" theme(reference)` must only contain `@theme` blocks.\nUse `@reference \"…\";` instead."
+                                    );
+                                }
+                                return WalkAction::Continue;
+                            }
+
+                            if ($child['name'] === '@theme') {
+                                $child['params'] = trim($child['params'] . ' ' . $themeParams);
+                                return WalkAction::Skip;
+                            }
+                            return WalkAction::Continue;
+                        });
+                    }
                 } else {
                     $unknownParams[] = $param;
                 }
@@ -497,15 +528,20 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     $usedVariables = [];
     $usedKeyframeNames = [];
     $theme = $designSystem->getTheme();
+    $atRoots = []; // Collect at-root nodes to hoist
+    $seenAtProperties = []; // Track seen @property rules to dedupe
 
     // First pass: collect used variables and keyframe names
     $collectUsed = function (array $node) use (&$collectUsed, &$usedVariables, &$usedKeyframeNames) {
         if ($node['kind'] === 'declaration') {
             $value = $node['value'] ?? '';
             // Extract variables from var() functions
-            if (preg_match_all('/var\(\s*(--[a-zA-Z0-9_-]+)/', $value, $matches)) {
+            // The regex matches CSS custom property names which can contain
+            // any character except whitespace, quotes, or closing parens
+            if (preg_match_all('/var\(\s*(--[^\s\)\'"]+)/', $value, $matches)) {
                 foreach ($matches[1] as $var) {
-                    $usedVariables[$var] = true;
+                    // Unescape the variable name (e.g., --width-1\/2 -> --width-1/2)
+                    $usedVariables[preg_replace('/\\\\(.)/', '$1', $var)] = true;
                 }
             }
             // Extract keyframe names from animation property
@@ -553,7 +589,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
         }
     } while ($changed);
 
-    $transform = function (array $node, array &$parent) use (&$transform, $usedVariables, $usedKeyframeNames, $theme) {
+    $transform = function (array $node, array &$parent) use (&$transform, $usedVariables, $usedKeyframeNames, $theme, &$atRoots, &$seenAtProperties) {
         // Handle context nodes - lift their children to parent
         if ($node['kind'] === 'context') {
             // Skip reference context nodes
@@ -567,18 +603,46 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             return;
         }
 
+        // Handle at-root nodes - hoist their children to top level
+        if ($node['kind'] === 'at-root') {
+            foreach ($node['nodes'] ?? [] as $child) {
+                $newParent = [];
+                $transform($child, $newParent);
+                foreach ($newParent as $hoistedNode) {
+                    // Collect @property rules separately
+                    if ($hoistedNode['kind'] === 'at-rule' && $hoistedNode['name'] === '@property') {
+                        $propName = trim($hoistedNode['params'] ?? '');
+                        if (!isset($seenAtProperties[$propName])) {
+                            $seenAtProperties[$propName] = true;
+                            $atRoots[] = $hoistedNode;
+                        }
+                    } else {
+                        $atRoots[] = $hoistedNode;
+                    }
+                }
+            }
+            return;
+        }
+
+        // Skip --tw-sort declarations (internal sorting only)
+        if ($node['kind'] === 'declaration' && ($node['property'] ?? '') === '--tw-sort') {
+            return;
+        }
+
         // Filter :root, :host declarations to only used variables
         if ($node['kind'] === 'rule' && $node['selector'] === ':root, :host') {
             $filteredNodes = [];
             foreach ($node['nodes'] ?? [] as $child) {
                 if ($child['kind'] === 'declaration') {
                     $prop = $child['property'] ?? '';
+                    // Unescape the property for comparison (AST has escaped names, usedVariables has unescaped)
+                    $unescapedProp = preg_replace('/\\\\(.)/', '$1', $prop);
                     // Check if this variable is used or has STATIC option
-                    if (isset($usedVariables[$prop])) {
+                    if (isset($usedVariables[$unescapedProp])) {
                         $filteredNodes[] = $child;
                     } elseif (str_starts_with($prop, '--')) {
-                        // Check theme options for STATIC
-                        $options = $theme->getOptions($prop);
+                        // Check theme options for STATIC (use unescaped for theme lookup)
+                        $options = $theme->getOptions($unescapedProp);
                         if ($options & Theme::OPTIONS_STATIC) {
                             $filteredNodes[] = $child;
                         }
@@ -649,6 +713,54 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     foreach ($result as &$node) {
         $optimizeValues($node);
     }
+
+    // Process atRoots - separate @property rules from others
+    $atPropertyRules = [];
+    $otherAtRoots = [];
+    foreach ($atRoots as $atRoot) {
+        if ($atRoot['kind'] === 'at-rule' && $atRoot['name'] === '@property') {
+            $atPropertyRules[] = $atRoot;
+        } else {
+            $otherAtRoots[] = $atRoot;
+        }
+    }
+
+    // If we have @property rules, wrap their fallbacks in @layer properties + @supports
+    if (!empty($atPropertyRules) && ($polyfills & POLYFILL_AT_PROPERTY)) {
+        // Extract initial values for fallback declarations
+        $fallbackDeclarations = [];
+        foreach ($atPropertyRules as $property) {
+            $propName = trim($property['params'] ?? '');
+            $initialValue = null;
+            foreach ($property['nodes'] ?? [] as $decl) {
+                if ($decl['kind'] === 'declaration' && $decl['property'] === 'initial-value') {
+                    $initialValue = $decl['value'] ?? '';
+                    break;
+                }
+            }
+            if ($initialValue !== null) {
+                $fallbackDeclarations[] = decl($propName, $initialValue);
+            }
+        }
+
+        if (!empty($fallbackDeclarations)) {
+            // Create @layer properties with @supports fallback
+            // @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b))))
+            // Note: Extra parens around -webkit-hyphens test for specificity
+            $supportsCondition = '(((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b))))';
+            $universalSelector = '*, :before, :after, ::backdrop';
+
+            $fallbackRule = Ast\styleRule($universalSelector, $fallbackDeclarations);
+            $supportsRule = Ast\atRule('@supports', $supportsCondition, [$fallbackRule]);
+            $layerProperties = Ast\atRule('@layer', 'properties', [$supportsRule]);
+
+            // Prepend to result
+            array_unshift($result, $layerProperties);
+        }
+    }
+
+    // Append other atRoots (non-@property) and @property rules
+    $result = array_merge($result, $otherAtRoots, $atPropertyRules);
 
     return $result;
 }

@@ -838,8 +838,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         return \TailwindPHP\Ast\atRoot([
             \TailwindPHP\Ast\atRule('@property', '--tw-content', [
                 \TailwindPHP\Ast\decl('syntax', '"*"'),
-                \TailwindPHP\Ast\decl('initial-value', '""'),
                 \TailwindPHP\Ast\decl('inherits', 'false'),
+                \TailwindPHP\Ast\decl('initial-value', '""'),
             ]),
         ]);
     };

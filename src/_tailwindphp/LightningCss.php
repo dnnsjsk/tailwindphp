@@ -152,19 +152,30 @@ class LightningCss
     }
 
     /**
-     * Normalize named colors to hex.
+     * Normalize colors to shortest representation.
      *
-     * lightningcss converts named colors to their hex equivalents:
-     * - blue -> #00f
-     * - red -> red (already short enough)
+     * lightningcss converts colors to their shortest form:
+     * - #f00 -> red (3 chars vs 4)
+     * - #ff0 -> #ff0 (yellow is same length)
+     * - blue -> #00f (same length, but hex preferred)
+     *
+     * Note: Only converts colors that are standalone values, not part of
+     * CSS variable names (e.g., won't convert "blue" in "--color-blue-500")
+     * or inside var() references.
      *
      * @param string $value The CSS value
      * @return string Normalized value
      */
     public static function normalizeColors(string $value): string
     {
-        // Map of colors that lightningcss shortens
-        static $colorMap = [
+        // Map hex to shorter color names
+        static $hexToName = [
+            '#f00' => 'red',
+            '#ff0000' => 'red',
+        ];
+
+        // Map names to hex when hex is same length or shorter
+        static $nameToHex = [
             'blue' => '#00f',
             'lime' => '#0f0',
             'aqua' => '#0ff',
@@ -174,9 +185,22 @@ class LightningCss
             'yellow' => '#ff0',
         ];
 
-        // Only convert exact matches (word boundaries)
-        foreach ($colorMap as $name => $hex) {
-            $value = preg_replace('/\b' . $name . '\b/i', $hex, $value);
+        // Don't convert colors inside var() references or CSS variable names
+        if (str_contains($value, 'var(') || str_starts_with($value, '--')) {
+            return $value;
+        }
+
+        // Convert hex to names where names are shorter
+        foreach ($hexToName as $hex => $name) {
+            // Use negative lookbehind for - to avoid matching in variable names
+            $value = preg_replace('/(?<!-)' . preg_quote($hex, '/') . '\b/i', $name, $value);
+        }
+
+        // Convert names to hex where hex is shorter or same length
+        // Only match standalone color names (not preceded by - which indicates variable names)
+        foreach ($nameToHex as $name => $hex) {
+            // Negative lookbehind for - to avoid matching in variable names like --color-blue-500
+            $value = preg_replace('/(?<!-)\b' . $name . '\b/i', $hex, $value);
         }
 
         return $value;

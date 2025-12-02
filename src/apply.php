@@ -84,6 +84,9 @@ function substituteAtApply(array &$ast, DesignSystem $designSystem): int
         $visit((string)$pathKey);
     }
 
+    // Track which @utility nodes have been processed
+    $processedUtilities = [];
+
     // Process @apply in sorted order, interleaving substitution and registration
     // For @utility nodes: substitute @apply first (recursively), then register immediately
     // This ensures dependencies are registered before dependents try to use them
@@ -97,10 +100,21 @@ function substituteAtApply(array &$ast, DesignSystem $designSystem): int
             if ($node !== null) {
                 registerCssUtility($node, $designSystem);
             }
+            $processedUtilities[$pathKey] = true;
         } else {
             // For non-@utility nodes: only substitute direct children @apply
             // Nested @apply rules will be handled when their parent path is processed
             substituteApplyInNode($root['nodes'], $pathKey, $designSystem, recursive: false);
+        }
+    }
+
+    // Register any @utility nodes that weren't processed (those without @apply)
+    foreach ($utilityNodes as $pathKey => $name) {
+        if (!isset($processedUtilities[$pathKey])) {
+            $node = getNodeAtPath($root['nodes'], (string)$pathKey);
+            if ($node !== null) {
+                registerCssUtility($node, $designSystem);
+            }
         }
     }
 

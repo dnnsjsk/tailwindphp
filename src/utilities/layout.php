@@ -13,7 +13,6 @@ use function TailwindPHP\Utils\isPositiveInteger;
  * Port of layout utilities from: packages/tailwindcss/src/utilities.ts
  *
  * Includes:
- * - pointer-events
  * - visibility
  * - position
  * - inset (top, right, bottom, left, inset-x, inset-y, start, end)
@@ -33,6 +32,8 @@ use function TailwindPHP\Utils\isPositiveInteger;
  * - scroll-behavior
  * - object-fit
  * - object-position
+ *
+ * Note: pointer-events is in interactivity.php
  */
 
 /**
@@ -43,10 +44,6 @@ use function TailwindPHP\Utils\isPositiveInteger;
  */
 function registerLayoutUtilities(UtilityBuilder $builder): void
 {
-    // Pointer Events
-    $builder->staticUtility('pointer-events-none', [['pointer-events', 'none']]);
-    $builder->staticUtility('pointer-events-auto', [['pointer-events', 'auto']]);
-
     // Visibility
     $builder->staticUtility('visible', [['visibility', 'visible']]);
     $builder->staticUtility('invisible', [['visibility', 'hidden']]);

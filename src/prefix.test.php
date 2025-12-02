@@ -99,7 +99,8 @@ CSS;
         $result = $compiler['build'](['tw:text-red']);
 
         $this->assertStringContainsString(':root, :host', $result);
-        $this->assertStringContainsString('--tw-color-red: #f00', $result);
+        // lightningcss converts #f00 to 'red' since it's shorter
+        $this->assertStringContainsString('--tw-color-red: red', $result);
         $this->assertStringContainsString('.tw\:text-red', $result);
         $this->assertStringContainsString('var(--tw-color-red)', $result);
     }

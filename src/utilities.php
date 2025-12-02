@@ -197,7 +197,11 @@ function property(string $ident, ?string $initialValue = null, ?string $syntax =
         decl('inherits', 'false'),
     ];
 
+    // initial-value must come after inherits
     if ($initialValue !== null) {
+        // Insert after inherits (index 1), push it at position 1+1 = index 2
+        // Actually, we want: syntax, inherits, initial-value
+        // So just append at end which keeps the order
         $nodes[] = decl('initial-value', $initialValue);
     }
 

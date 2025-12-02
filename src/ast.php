@@ -84,11 +84,9 @@ function rule(string $selector, array $nodes = []): array
  */
 function decl(string $property, ?string $value, bool $important = false): array
 {
-    // Optimize the value using lightningcss-equivalent transformations
-    if ($value !== null) {
-        $value = LightningCss::optimizeValue($value, $property);
-    }
-
+    // Note: LightningCSS optimizations are applied later in optimizeAst,
+    // not during AST construction. This preserves the original values
+    // for accurate testing and debugging.
     return [
         'kind' => 'declaration',
         'property' => $property,

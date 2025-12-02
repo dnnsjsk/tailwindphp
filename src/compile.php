@@ -93,7 +93,8 @@ function compileCandidates(
                     $variantOrder |= 1 << $order;
                 }
 
-                $nodeSorting[spl_object_hash((object)$node)] = [
+                // Store sorting info with the node itself so it survives array operations
+                $node['__sorting'] = [
                     'properties' => $propertySort,
                     'variants' => $variantOrder,
                     'candidate' => $rawCandidate,
@@ -107,10 +108,10 @@ function compileCandidates(
         }
     }
 
-    // Sort AST nodes
-    usort($astNodes, function ($a, $z) use (&$nodeSorting) {
-        $aSorting = $nodeSorting[spl_object_hash((object)$a)] ?? null;
-        $zSorting = $nodeSorting[spl_object_hash((object)$z)] ?? null;
+    // Sort AST nodes using embedded sorting info
+    usort($astNodes, function ($a, $z) {
+        $aSorting = $a['__sorting'] ?? null;
+        $zSorting = $z['__sorting'] ?? null;
 
         // If either sorting info is missing, keep original order
         if ($aSorting === null || $zSorting === null) {
@@ -154,6 +155,15 @@ function compileCandidates(
         // Sort alphabetically
         return compare($aSorting['candidate'] ?? '', $zSorting['candidate'] ?? '');
     });
+
+    // Remove sorting info from nodes before returning
+    $nodeSorting = [];
+    foreach ($astNodes as &$node) {
+        if (isset($node['__sorting'])) {
+            $nodeSorting[] = $node['__sorting'];
+            unset($node['__sorting']);
+        }
+    }
 
     return [
         'astNodes' => $astNodes,
@@ -421,8 +431,12 @@ function getPropertySort(array $nodes): array
         }
     }
 
+    // Sort the order array numerically (like TypeScript's Array.from(set).sort())
+    $sortedOrder = array_keys($order);
+    sort($sortedOrder, SORT_NUMERIC);
+
     return [
-        'order' => array_keys($order),
+        'order' => $sortedOrder,
         'count' => $count,
     ];
 }
