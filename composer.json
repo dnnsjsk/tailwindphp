@@ -45,6 +45,7 @@
             "src/selector-parser.php",
             "src/constant-fold-declaration.php",
             "src/property-order.php",
+            "src/expand-declaration.php",
             "src/theme.php",
             "src/utils/decode-arbitrary-value.php",
             "src/candidate.php",
