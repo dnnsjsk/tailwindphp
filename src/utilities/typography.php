@@ -482,13 +482,19 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
 
     // Line Height (leading)
     $builder->functionalUtility('leading', [
-        'themeKeys' => ['--leading', '--line-height'],
+        'themeKeys' => ['--leading', '--spacing'],
         'defaultValue' => null,
         'handle' => function ($value) {
             return [
                 decl('--tw-leading', $value),
                 decl('line-height', $value),
             ];
+        },
+        'handleBareValue' => function ($value) use ($theme) {
+            $multiplier = $theme->resolve(null, ['--spacing']);
+            if ($multiplier === null) return null;
+            if (!isValidSpacingMultiplier($value['value'])) return null;
+            return "calc({$multiplier} * {$value['value']})";
         },
         'staticValues' => [
             'none' => [decl('--tw-leading', '1'), decl('line-height', '1')],

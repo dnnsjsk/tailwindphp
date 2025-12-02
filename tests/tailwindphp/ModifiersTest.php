@@ -55,8 +55,8 @@ class ModifiersTest extends TestCase
 
     public function test_border_color_with_opacity(): void
     {
-        // @todo investigate: border-color utilities produce empty output
-        $this->markTestSkipped('border-color produces empty output - needs investigation');
+        $css = Tailwind::generate('<div class="border-blue-500/50">');
+        $this->assertStringContainsString('border-color:', $css);
     }
 
     public function test_ring_color_with_opacity(): void

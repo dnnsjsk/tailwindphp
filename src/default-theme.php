@@ -479,6 +479,7 @@ class DefaultTheme
         $theme->add('--inset-shadow-2xs', 'inset 0 1px rgb(0 0 0 / 0.05)');
         $theme->add('--inset-shadow-xs', 'inset 0 1px 1px rgb(0 0 0 / 0.05)');
         $theme->add('--inset-shadow-sm', 'inset 0 2px 4px rgb(0 0 0 / 0.05)');
+        $theme->add('--inset-shadow', 'inset 0 2px 4px rgb(0 0 0 / 0.05)');
     }
 
     private static function addDropShadows(Theme $theme): void

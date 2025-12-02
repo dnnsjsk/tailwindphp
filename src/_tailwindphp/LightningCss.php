@@ -593,10 +593,16 @@ class LightningCss
                     $flattenedNodes = array_merge($flattenedNodes, $declarations);
                 }
 
-                // Process nested rules
+                // Process nested rules - use LOCAL atRules collector for nested at-rules
+                // so they stay as children of this at-rule, not siblings
+                $nestedAtRules = [];
                 foreach ($nestedRules as $child) {
-                    self::flattenNode($child, $flattenedNodes, $atRules, $parentSelector);
+                    self::flattenNode($child, $flattenedNodes, $nestedAtRules, $parentSelector);
                 }
+
+                // Merge any nested at-rules and append to flattened nodes
+                $mergedNestedAtRules = self::mergeAtRules($nestedAtRules);
+                $flattenedNodes = array_merge($flattenedNodes, $mergedNestedAtRules);
 
                 if (!empty($flattenedNodes)) {
                     $atRules[] = [

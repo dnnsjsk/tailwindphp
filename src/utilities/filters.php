@@ -131,7 +131,6 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
 
     $builder->functionalUtility('blur', [
         'themeKeys' => ['--blur'],
-        'defaultValue' => null,
         'handle' => function ($value) use ($cssFilterValue) {
             return [
                 decl('--tw-blur', "blur({$value})"),
@@ -152,7 +151,6 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
 
     $builder->functionalUtility('backdrop-blur', [
         'themeKeys' => ['--backdrop-blur', '--blur'],
-        'defaultValue' => null,
         'handle' => function ($value) use ($cssBackdropFilterValue) {
             return [
                 decl('--tw-backdrop-blur', "blur({$value})"),

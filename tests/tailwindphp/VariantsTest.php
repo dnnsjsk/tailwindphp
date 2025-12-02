@@ -40,13 +40,12 @@ class VariantsTest extends TestCase
     public function test_checked(): void { $this->assertVariantGenerates('checked:bg-blue-500', ':checked'); }
     public function test_indeterminate(): void { $this->assertVariantGenerates('indeterminate:bg-blue-500', ':indeterminate'); }
     public function test_default(): void { $this->assertVariantGenerates('default:ring-2', ':default'); }
-    // @todo investigate: border-color utilities produce empty output
-    public function test_required(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
-    public function test_valid(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
-    public function test_invalid(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
-    public function test_in_range(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
-    public function test_out_of_range(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
-    public function test_placeholder_shown(): void { $this->markTestSkipped('border-color produces empty output - needs investigation'); }
+    public function test_required(): void { $this->assertVariantGenerates('required:border-red-500', ':required'); }
+    public function test_valid(): void { $this->assertVariantGenerates('valid:border-green-500', ':valid'); }
+    public function test_invalid(): void { $this->assertVariantGenerates('invalid:border-red-500', ':invalid'); }
+    public function test_in_range(): void { $this->assertVariantGenerates('in-range:border-green-500', ':in-range'); }
+    public function test_out_of_range(): void { $this->assertVariantGenerates('out-of-range:border-red-500', ':out-of-range'); }
+    public function test_placeholder_shown(): void { $this->assertVariantGenerates('placeholder-shown:border-gray-500', ':placeholder-shown'); }
     public function test_autofill(): void { $this->assertVariantGenerates('autofill:bg-yellow-200', ':autofill'); }
     public function test_read_only(): void { $this->assertVariantGenerates('read-only:bg-gray-100', ':read-only'); }
 
@@ -292,14 +291,15 @@ class VariantsTest extends TestCase
 
     public function test_peer_invalid(): void
     {
-        // @todo investigate: border-color produces empty output
-        $this->markTestSkipped('border-color produces empty output - needs investigation');
+        $css = Tailwind::generate('<input class="peer"><span class="peer-invalid:border-red-500">');
+        $this->assertStringContainsString(':invalid', $css);
+        $this->assertStringContainsString('.peer', $css);
     }
 
     public function test_named_peer(): void
     {
-        // @todo investigate: border-color produces empty output
-        $this->markTestSkipped('border-color produces empty output - needs investigation');
+        $css = Tailwind::generate('<input class="peer/email"><span class="peer-invalid/email:border-red-500">');
+        $this->assertStringContainsString(':invalid', $css);
     }
 
     // =========================================================================
@@ -415,8 +415,9 @@ class VariantsTest extends TestCase
 
     public function test_supports_backdrop(): void
     {
-        // @todo investigate: backdrop-blur produces empty output
-        $this->markTestSkipped('backdrop-blur produces empty output - needs investigation');
+        $css = Tailwind::generate('<div class="supports-[backdrop-filter]:backdrop-blur">');
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('backdrop-filter:', $css);
     }
 
     // =========================================================================
@@ -462,14 +463,18 @@ class VariantsTest extends TestCase
 
     public function test_stacked_sm_hover(): void
     {
-        // @todo investigate: sm:hover should combine breakpoint + hover, but only hover media query appears
-        $this->markTestSkipped('Stacked sm:hover variant not generating breakpoint media query - needs investigation');
+        $css = Tailwind::generate('<div class="sm:hover:bg-red-500">');
+        $this->assertStringContainsString('@media (min-width: 40rem)', $css);
+        $this->assertStringContainsString('@media (hover: hover)', $css);
+        $this->assertStringContainsString(':hover', $css);
     }
 
     public function test_stacked_dark_hover(): void
     {
-        // @todo investigate: dark:hover should combine prefers-color-scheme + hover, but only hover media query appears
-        $this->markTestSkipped('Stacked dark:hover variant not generating prefers-color-scheme - needs investigation');
+        $css = Tailwind::generate('<div class="dark:hover:bg-blue-500">');
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+        $this->assertStringContainsString('@media (hover: hover)', $css);
+        $this->assertStringContainsString(':hover', $css);
     }
 
     public function test_stacked_group_hover_first(): void
@@ -481,8 +486,11 @@ class VariantsTest extends TestCase
 
     public function test_triple_stacked_variants(): void
     {
-        // @todo investigate: sm:dark:hover should combine all three, but only hover media query appears
-        $this->markTestSkipped('Triple stacked variant not generating all media queries - needs investigation');
+        $css = Tailwind::generate('<div class="sm:dark:hover:text-green-500">');
+        $this->assertStringContainsString('@media (min-width: 40rem)', $css);
+        $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
+        $this->assertStringContainsString('@media (hover: hover)', $css);
+        $this->assertStringContainsString(':hover', $css);
     }
 
     // =========================================================================

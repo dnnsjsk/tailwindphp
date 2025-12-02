@@ -95,39 +95,116 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     $createRadiusUtility('rounded-bl', ['border-bottom-left-radius'], true);
 
     // =========================================================================
-    // Border Width
+    // Border Width and Color (combined utility like Tailwind 4)
     // =========================================================================
 
-    // Helper for border width utilities
-    $createBorderWidthUtility = function (string $name, array $properties) use ($builder) {
-        $builder->functionalUtility($name, [
-            'themeKeys' => ['--border-width'],
-            'defaultValue' => '1px',
-            'handle' => function ($value) use ($properties) {
-                $decls = [];
-                foreach ($properties as $prop) {
-                    $decls[] = decl($prop, $value);
-                }
-                return $decls;
-            },
-            'staticValues' => [
-                '0' => array_map(fn($p) => decl($p, '0px'), $properties),
-                '2' => array_map(fn($p) => decl($p, '2px'), $properties),
-                '4' => array_map(fn($p) => decl($p, '4px'), $properties),
-                '8' => array_map(fn($p) => decl($p, '8px'), $properties),
-            ],
-        ]);
+    $borderProperties = function () {
+        return atRoot([property('--tw-border-style', 'solid')]);
     };
 
-    $createBorderWidthUtility('border', ['border-width']);
-    $createBorderWidthUtility('border-x', ['border-left-width', 'border-right-width']);
-    $createBorderWidthUtility('border-y', ['border-top-width', 'border-bottom-width']);
-    $createBorderWidthUtility('border-s', ['border-inline-start-width']);
-    $createBorderWidthUtility('border-e', ['border-inline-end-width']);
-    $createBorderWidthUtility('border-t', ['border-top-width']);
-    $createBorderWidthUtility('border-r', ['border-right-width']);
-    $createBorderWidthUtility('border-b', ['border-bottom-width']);
-    $createBorderWidthUtility('border-l', ['border-left-width']);
+    $theme = $builder->getTheme();
+
+    // Helper for border side utilities that handle both width and color
+    $createBorderSideUtility = function (string $name, array $widthProps, array $colorProps, ?string $styleProps = null) use ($builder, $borderProperties, $theme) {
+        $builder->getUtilities()->functional($name, function ($candidate) use ($widthProps, $colorProps, $styleProps, $borderProperties, $theme) {
+            $modifier = $candidate['modifier'] ?? null;
+
+            // No value - bare 'border' class (default width)
+            if (!isset($candidate['value'])) {
+                if ($modifier !== null) return null;
+                $defaultWidth = $theme->get(['--default-border-width']) ?? '1px';
+                $decls = [$borderProperties()];
+                if ($styleProps) {
+                    $decls[] = decl($styleProps, 'var(--tw-border-style)');
+                }
+                foreach ($widthProps as $prop) {
+                    $decls[] = decl($prop, $defaultWidth);
+                }
+                return $decls;
+            }
+
+            $candidateValue = $candidate['value'];
+
+            // Arbitrary values
+            if ($candidateValue['kind'] === 'arbitrary') {
+                $value = $candidateValue['value'];
+                $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'line-width', 'length']);
+
+                switch ($type) {
+                    case 'line-width':
+                    case 'length':
+                        if ($modifier !== null) return null;
+                        $decls = [$borderProperties()];
+                        if ($styleProps) {
+                            $decls[] = decl($styleProps, 'var(--tw-border-style)');
+                        }
+                        foreach ($widthProps as $prop) {
+                            $decls[] = decl($prop, $value);
+                        }
+                        return $decls;
+                    default:
+                        // Color
+                        $colorValue = asColor($value, $modifier, $theme);
+                        if ($colorValue === null) return null;
+                        $decls = [];
+                        foreach ($colorProps as $prop) {
+                            $decls[] = decl($prop, $colorValue);
+                        }
+                        return $decls;
+                }
+            }
+
+            $namedValue = $candidateValue['value'] ?? null;
+
+            // Try to resolve as color first
+            $colorValue = resolveThemeColor($candidate, $theme, ['--border-color', '--color']);
+            if ($colorValue !== null) {
+                $decls = [];
+                foreach ($colorProps as $prop) {
+                    $decls[] = decl($prop, $colorValue);
+                }
+                return $decls;
+            }
+
+            // Try to resolve as width
+            if ($modifier !== null) return null;
+            $widthValue = $theme->resolve($namedValue, ['--border-width']);
+            if ($widthValue !== null) {
+                $decls = [$borderProperties()];
+                if ($styleProps) {
+                    $decls[] = decl($styleProps, 'var(--tw-border-style)');
+                }
+                foreach ($widthProps as $prop) {
+                    $decls[] = decl($prop, $widthValue);
+                }
+                return $decls;
+            }
+
+            // Check for bare integer widths (0, 2, 4, 8)
+            if (isPositiveInteger($namedValue)) {
+                $decls = [$borderProperties()];
+                if ($styleProps) {
+                    $decls[] = decl($styleProps, 'var(--tw-border-style)');
+                }
+                foreach ($widthProps as $prop) {
+                    $decls[] = decl($prop, "{$namedValue}px");
+                }
+                return $decls;
+            }
+
+            return null;
+        });
+    };
+
+    $createBorderSideUtility('border', ['border-width'], ['border-color'], 'border-style');
+    $createBorderSideUtility('border-x', ['border-inline-width'], ['border-inline-color'], 'border-inline-style');
+    $createBorderSideUtility('border-y', ['border-block-width'], ['border-block-color'], 'border-block-style');
+    $createBorderSideUtility('border-s', ['border-inline-start-width'], ['border-inline-start-color'], 'border-inline-start-style');
+    $createBorderSideUtility('border-e', ['border-inline-end-width'], ['border-inline-end-color'], 'border-inline-end-style');
+    $createBorderSideUtility('border-t', ['border-top-width'], ['border-top-color'], 'border-top-style');
+    $createBorderSideUtility('border-r', ['border-right-width'], ['border-right-color'], 'border-right-style');
+    $createBorderSideUtility('border-b', ['border-bottom-width'], ['border-bottom-color'], 'border-bottom-style');
+    $createBorderSideUtility('border-l', ['border-left-width'], ['border-left-color'], 'border-left-style');
 
     // =========================================================================
     // Border Style
@@ -167,8 +244,6 @@ function registerBorderUtilities(UtilityBuilder $builder): void
             property('--tw-outline-style', 'solid'),
         ]);
     };
-
-    $theme = $builder->getTheme();
 
     // Outline functional utility - handles both colors and widths
     $builder->getUtilities()->functional('outline', function ($candidate) use ($theme, $outlineProperties) {

@@ -63,14 +63,23 @@ class DirectivesTest extends TestCase
 
     public function test_theme_custom_font_family(): void
     {
-        // @todo investigate: custom --font-family-* in @theme doesn't generate font-custom utility
-        $this->markTestSkipped('Custom font-family theme variable produces empty output - needs investigation');
+        // In Tailwind 4, font families use --font-* (not --font-family-*)
+        $css = Tailwind::generate([
+            'content' => '<div class="font-custom">',
+            'css' => '@tailwind utilities; @theme { --font-custom: "Comic Sans MS", cursive; }',
+        ]);
+        $this->assertStringContainsString('font-family:', $css);
+        $this->assertStringContainsString('--font-custom', $css);
     }
 
     public function test_theme_custom_font_size(): void
     {
-        // @todo investigate: custom --font-size-* in @theme doesn't generate text-* utility
-        $this->markTestSkipped('Custom font-size theme variable produces empty output - needs investigation');
+        // In Tailwind 4, font sizes use --text-* (not --font-size-*)
+        $css = Tailwind::generate([
+            'content' => '<div class="text-custom">',
+            'css' => '@tailwind utilities; @theme { --text-custom: 18px; }',
+        ]);
+        $this->assertStringContainsString('font-size:', $css);
     }
 
     public function test_theme_custom_breakpoint(): void

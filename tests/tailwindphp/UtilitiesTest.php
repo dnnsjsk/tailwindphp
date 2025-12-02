@@ -390,8 +390,7 @@ class UtilitiesTest extends TestCase
     public function test_leading_tight(): void { $this->assertGenerates('leading-tight', 'line-height: var(--leading-tight)'); }
     public function test_leading_normal(): void { $this->assertGenerates('leading-normal', 'line-height: var(--leading-normal)'); }
     public function test_leading_loose(): void { $this->assertGenerates('leading-loose', 'line-height: var(--leading-loose)'); }
-    // @todo investigate: leading with numeric values produces empty output
-    public function test_leading_3(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    public function test_leading_3(): void { $this->assertGenerates('leading-3', 'line-height: calc(var(--spacing) * 3)'); }
 
     // Letter Spacing
     public function test_tracking_tighter(): void { $this->assertGenerates('tracking-tighter', 'letter-spacing: var(--tracking-tighter)'); }
@@ -585,8 +584,8 @@ class UtilitiesTest extends TestCase
     public function test_border_2(): void { $this->assertGenerates('border-2', 'border-width: 2px'); }
     public function test_border_4(): void { $this->assertGenerates('border-4', 'border-width: 4px'); }
     public function test_border_8(): void { $this->assertGenerates('border-8', 'border-width: 8px'); }
-    public function test_border_x(): void { $this->assertGenerates('border-x', 'border-left-width:'); }
-    public function test_border_y(): void { $this->assertGenerates('border-y', 'border-top-width:'); }
+    public function test_border_x(): void { $this->assertGenerates('border-x', 'border-inline-width:'); }
+    public function test_border_y(): void { $this->assertGenerates('border-y', 'border-block-width:'); }
     public function test_border_t(): void { $this->assertGenerates('border-t', 'border-top-width:'); }
     public function test_border_r(): void { $this->assertGenerates('border-r', 'border-right-width:'); }
     public function test_border_b(): void { $this->assertGenerates('border-b', 'border-bottom-width:'); }
@@ -594,13 +593,12 @@ class UtilitiesTest extends TestCase
     public function test_border_s(): void { $this->assertGenerates('border-s', 'border-inline-start-width:'); }
     public function test_border_e(): void { $this->assertGenerates('border-e', 'border-inline-end-width:'); }
 
-    // Border Color
-    // @todo investigate: these utilities produce empty output
-    public function test_border_inherit(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_border_current(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_border_transparent(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_border_black(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_border_red_500(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    // Border Color (currentcolor is lowercase per CSS spec)
+    public function test_border_inherit(): void { $this->assertGenerates('border-inherit', 'border-color: inherit'); }
+    public function test_border_current(): void { $this->assertGenerates('border-current', 'border-color: currentcolor'); }
+    public function test_border_transparent(): void { $this->assertGenerates('border-transparent', 'border-color: transparent'); }
+    public function test_border_black(): void { $this->assertGenerates('border-black', 'border-color: var(--color-black)'); }
+    public function test_border_red_500(): void { $this->assertGenerates('border-red-500', 'border-color: var(--color-red-500)'); }
 
     // Border Style
     public function test_border_solid(): void { $this->assertGenerates('border-solid', 'border-style: solid'); }
@@ -660,10 +658,9 @@ class UtilitiesTest extends TestCase
     public function test_shadow_red_500(): void { $this->assertGenerates('shadow-red-500', '--tw-shadow-color:'); }
 
     // Inset Shadow
-    // @todo investigate: inset-shadow produces empty output
-    public function test_inset_shadow(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_inset_shadow_sm(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_inset_shadow_none(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    public function test_inset_shadow(): void { $this->assertGenerates('inset-shadow', 'box-shadow:'); }
+    public function test_inset_shadow_sm(): void { $this->assertGenerates('inset-shadow-sm', 'box-shadow:'); }
+    public function test_inset_shadow_none(): void { $this->assertGenerates('inset-shadow-none', 'box-shadow:'); }
 
     // Opacity
     public function test_opacity_0(): void { $this->assertGenerates('opacity-0', 'opacity: 0'); }
@@ -685,13 +682,12 @@ class UtilitiesTest extends TestCase
     // =========================================================================
 
     // Blur
-    // @todo investigate: blur utilities produce empty output
-    public function test_blur(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_blur_none(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_blur_sm(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_blur_md(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_blur_lg(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_blur_xl(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    public function test_blur(): void { $this->assertGenerates('blur', 'filter:'); }
+    public function test_blur_none(): void { $this->assertGenerates('blur-none', 'filter:'); }
+    public function test_blur_sm(): void { $this->assertGenerates('blur-sm', 'filter:'); }
+    public function test_blur_md(): void { $this->assertGenerates('blur-md', 'filter:'); }
+    public function test_blur_lg(): void { $this->assertGenerates('blur-lg', 'filter:'); }
+    public function test_blur_xl(): void { $this->assertGenerates('blur-xl', 'filter:'); }
 
     // Brightness
     public function test_brightness_0(): void { $this->assertGenerates('brightness-0', 'filter:'); }
@@ -736,17 +732,16 @@ class UtilitiesTest extends TestCase
     public function test_sepia_0(): void { $this->assertGenerates('sepia-0', 'filter:'); }
 
     // Backdrop Filter
-    // @todo investigate: backdrop-* utilities produce empty output
-    public function test_backdrop_blur(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_blur_sm(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_brightness_50(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_contrast_50(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_grayscale(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_hue_rotate_90(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_invert(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_opacity_50(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_saturate_50(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
-    public function test_backdrop_sepia(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    public function test_backdrop_blur(): void { $this->assertGenerates('backdrop-blur', 'backdrop-filter:'); }
+    public function test_backdrop_blur_sm(): void { $this->assertGenerates('backdrop-blur-sm', 'backdrop-filter:'); }
+    public function test_backdrop_brightness_50(): void { $this->assertGenerates('backdrop-brightness-50', 'backdrop-filter:'); }
+    public function test_backdrop_contrast_50(): void { $this->assertGenerates('backdrop-contrast-50', 'backdrop-filter:'); }
+    public function test_backdrop_grayscale(): void { $this->assertGenerates('backdrop-grayscale', 'backdrop-filter:'); }
+    public function test_backdrop_hue_rotate_90(): void { $this->assertGenerates('backdrop-hue-rotate-90', 'backdrop-filter:'); }
+    public function test_backdrop_invert(): void { $this->assertGenerates('backdrop-invert', 'backdrop-filter:'); }
+    public function test_backdrop_opacity_50(): void { $this->assertGenerates('backdrop-opacity-50', 'backdrop-filter:'); }
+    public function test_backdrop_saturate_50(): void { $this->assertGenerates('backdrop-saturate-50', 'backdrop-filter:'); }
+    public function test_backdrop_sepia(): void { $this->assertGenerates('backdrop-sepia', 'backdrop-filter:'); }
 
     // =========================================================================
     // TRANSFORMS (transforms.php)
@@ -834,8 +829,7 @@ class UtilitiesTest extends TestCase
     // =========================================================================
 
     // Accent Color (currentcolor is lowercase per CSS spec)
-    // @todo investigate: accent-auto produces empty output
-    public function test_accent_auto(): void { $this->markTestSkipped('Produces empty output - needs investigation'); }
+    public function test_accent_auto(): void { $this->assertGenerates('accent-auto', 'accent-color: auto'); }
     public function test_accent_inherit(): void { $this->assertGenerates('accent-inherit', 'accent-color: inherit'); }
     public function test_accent_current(): void { $this->assertGenerates('accent-current', 'accent-color: currentcolor'); }
     public function test_accent_red_500(): void { $this->assertGenerates('accent-red-500', 'accent-color:'); }

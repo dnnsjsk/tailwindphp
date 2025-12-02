@@ -229,6 +229,8 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
     // Accent Color
     // =========================================================================
 
+    $builder->staticUtility('accent-auto', [['accent-color', 'auto']]);
+
     $builder->colorUtility('accent', [
         'themeKeys' => ['--accent-color', '--color'],
         'handle' => function ($value) {
