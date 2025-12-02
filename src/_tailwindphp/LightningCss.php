@@ -210,9 +210,14 @@ class LightningCss
         if ($node['kind'] === 'rule') {
             $selector = $node['selector'];
 
-            // Resolve & in selector
-            if ($parentSelector !== null && str_contains($selector, '&')) {
-                $selector = str_replace('&', $parentSelector, $selector);
+            // Resolve & in selector, or prepend parent selector if no &
+            if ($parentSelector !== null) {
+                if (str_contains($selector, '&')) {
+                    $selector = str_replace('&', $parentSelector, $selector);
+                } else {
+                    // Nested selector without & - prepend parent (CSS nesting behavior)
+                    $selector = $parentSelector . ' ' . $selector;
+                }
             }
 
             // If this is a nested rule inside a parent rule
