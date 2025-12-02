@@ -37,19 +37,13 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 | CSS Functions | 60/60 ✅ |
 | UI Spec | 68/68 ✅ |
 
-### Features
+### Not Supported
 
-- All 547+ utility classes
-- All variants (hover, focus, responsive, dark mode, etc.)
-- Directives: `@apply`, `@theme`, `@tailwind`, `@utility`, `@custom-variant`
-- Functions: `theme()`, `--theme()`, `--spacing()`, `--alpha()`
-- `--theme()` with `initial` fallback handling
-- Stacking opacity in `@theme` definitions
-- `color-mix()` to `oklab()` conversion (LightningCSS equivalent)
-- Shadow/ring stacking with CSS `@property` rules
-- Vendor prefixes (autoprefixer equivalent)
-- Keyframe handling
-- Invalid `theme()` candidates filtered out
+- `@import` — No file system access, preprocess imports before passing to this library
+- `@plugin` / `@config` — No JavaScript runtime
+- IDE tooling — No IntelliSense, autocomplete, or source maps
+
+Everything else works.
 
 ## Installation
 
