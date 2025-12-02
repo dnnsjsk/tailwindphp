@@ -1029,7 +1029,7 @@ class LightningCss
      * @param float $alpha Alpha value (0-1)
      * @return string OKLab color string (e.g., oklab(62.7955% .224863 .125846))
      */
-    public static function colorToOklabWithOpacity(string $color, float $alpha): string
+    public static function colorToOklabWithOpacity(string $color, float $alpha, bool $includeAlpha = false): string
     {
         // Normalize color to RGB
         $color = strtolower(trim($color));
@@ -1060,24 +1060,36 @@ class LightningCss
         // Convert RGB to OKLab
         $oklab = self::rgbToOklab($r, $g, $b);
 
-        // For inline mode, we output the oklab color WITHOUT an alpha channel
-        // but with full precision. The color itself doesn't change - only the
-        // alpha would if we were using color-mix. Since inline mode "bakes in"
-        // the value, we return the pure color.
-        //
-        // LightningCSS uses higher precision for inline values.
-        $l = round($oklab[0] * 100, 4);
-        $a = $oklab[1];
-        $b = $oklab[2];
-
         // Format L - remove trailing zeros, add %
+        $l = round($oklab[0] * 100, 4);
         $lStr = rtrim(rtrim(number_format($l, 4, '.', ''), '0'), '.') . '%';
 
-        // Format a and b with higher precision for inline mode
-        $aStr = self::formatOklabComponentHighPrecision($a);
-        $bStr = self::formatOklabComponentHighPrecision($b);
+        if ($includeAlpha) {
+            // For stacking opacity - include alpha channel with standard precision
+            // Truncate a and b to 3 decimal places (like floor but toward zero)
+            $a = floor($oklab[1] * 1000) / 1000;
+            $bComp = floor($oklab[2] * 1000) / 1000;
 
-        return "oklab({$lStr} {$aStr} {$bStr})";
+            // Format a and b - remove leading zero for decimals (0.224 -> .224)
+            $aStr = self::formatOklabComponent($a);
+            $bStr = self::formatOklabComponent($bComp);
+
+            // Format alpha
+            $alphaStr = rtrim(rtrim(number_format($alpha, 2, '.', ''), '0'), '.') ?: '0';
+            // Remove leading zero from alpha too if it's a decimal
+            if (strpos($alphaStr, '0.') === 0) {
+                $alphaStr = substr($alphaStr, 1);
+            }
+
+            return "oklab({$lStr} {$aStr} {$bStr} / {$alphaStr})";
+        } else {
+            // For inline mode - no alpha channel, higher precision
+            // LightningCSS uses higher precision for inline values
+            $aStr = self::formatOklabComponentHighPrecision($oklab[1]);
+            $bStr = self::formatOklabComponentHighPrecision($oklab[2]);
+
+            return "oklab({$lStr} {$aStr} {$bStr})";
+        }
     }
 
     /**

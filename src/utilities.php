@@ -225,28 +225,104 @@ function property(string $ident, ?string $initialValue = null, ?string $syntax =
 /**
  * Apply opacity to a color using `color-mix`.
  *
+ * When the color already has an alpha channel (e.g., oklab with / .5),
+ * this function computes the stacked opacity directly.
+ *
  * @param string $value
  * @param string|null $alpha
+ * @param bool $inline If true, compute the oklab value instead of using color-mix
  * @return string
  */
-function withAlpha(string $value, ?string $alpha): string
+function withAlpha(string $value, ?string $alpha, bool $inline = false): string
 {
     if ($alpha === null || $alpha === '') return $value;
 
-    // Convert numeric values to percentages
-    if (is_numeric($alpha)) {
-        $alpha = (floatval($alpha) * 100) . '%';
+    // Check if alpha contains a CSS variable - handle separately
+    if (str_contains($alpha, 'var(')) {
+        // Normalize the color for consistency
+        $normalizedValue = \TailwindPHP\LightningCss\LightningCss::normalizeColors($value);
+        // Return color-mix with the variable opacity
+        return "color-mix(in oklab, {$normalizedValue} {$alpha}, transparent)";
     }
 
+    // Convert alpha to a decimal (0-1 range)
+    $alphaDecimal = parseAlphaToDecimal($alpha);
+
     // No need for color-mix if the alpha is 100%
-    if ($alpha === '100%') {
+    if ($alphaDecimal === 1.0) {
         return $value;
+    }
+
+    // Check if the value is an oklab with an existing alpha
+    // e.g., oklab(62.7955% .224 .125 / .5)
+    if (preg_match('/^oklab\(([^\/]+)\/\s*([\d.]+%?)\s*\)$/i', $value, $match)) {
+        $oklabComponents = trim($match[1]);
+        $existingAlpha = parseAlphaToDecimal($match[2]);
+
+        // Compute stacked opacity
+        $stackedAlpha = $existingAlpha * $alphaDecimal;
+
+        // Format the stacked alpha (keep precision, remove trailing zeros)
+        $stackedAlphaStr = formatAlpha($stackedAlpha);
+
+        return "oklab({$oklabComponents} / {$stackedAlphaStr})";
+    }
+
+    // For inline mode, compute the actual oklab value with alpha
+    if ($inline) {
+        return \TailwindPHP\LightningCss\LightningCss::colorToOklabWithOpacity($value, $alphaDecimal, true);
     }
 
     // Normalize the color (e.g., #f00 -> red) for consistency with TailwindCSS output
     $normalizedValue = \TailwindPHP\LightningCss\LightningCss::normalizeColors($value);
 
-    return "color-mix(in oklab, {$normalizedValue} {$alpha}, transparent)";
+    // Convert alpha back to percentage for color-mix
+    $alphaPercent = ($alphaDecimal * 100) . '%';
+
+    return "color-mix(in oklab, {$normalizedValue} {$alphaPercent}, transparent)";
+}
+
+/**
+ * Parse an alpha value to a decimal (0-1 range).
+ *
+ * @param string $alpha
+ * @return float
+ */
+function parseAlphaToDecimal(string $alpha): float
+{
+    $alpha = trim($alpha);
+
+    if (str_ends_with($alpha, '%')) {
+        return floatval(substr($alpha, 0, -1)) / 100;
+    }
+
+    $val = floatval($alpha);
+
+    // If value > 1, assume it's a percentage
+    if ($val > 1) {
+        return $val / 100;
+    }
+
+    return $val;
+}
+
+/**
+ * Format an alpha value for oklab output.
+ *
+ * @param float $alpha
+ * @return string
+ */
+function formatAlpha(float $alpha): string
+{
+    // Format with enough precision, removing trailing zeros
+    $str = rtrim(rtrim(number_format($alpha, 6, '.', ''), '0'), '.');
+
+    // Ensure we have a leading zero or the decimal point itself
+    if ($str === '' || $str === '.') {
+        return '0';
+    }
+
+    return '.' . ltrim($str, '0.');
 }
 
 /**

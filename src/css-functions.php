@@ -253,6 +253,11 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
     // Resolve the theme value using resolveValue to get the raw value
     $resolvedValue = $theme->resolveValue(null, [$cssVar]);
 
+    // Recursively resolve any nested theme() calls in the resolved value
+    if ($resolvedValue !== null && str_contains($resolvedValue, 'theme(')) {
+        $resolvedValue = resolveNestedThemeCalls($resolvedValue, $designSystem);
+    }
+
     if ($resolvedValue === null) {
         if (!empty($fallback)) {
             // Recursively resolve any nested theme() calls in fallback
@@ -278,7 +283,11 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
 
     // Apply opacity modifier if present
     if ($modifier !== null && $modifier !== '') {
-        return withAlpha($resolvedValue, $modifier);
+        // Check if the modifier is a static value (can be inlined) or dynamic (contains var())
+        // For static values, use inline mode to compute the actual oklab value
+        // This enables proper stacking of opacity (50% on 50% = 25%)
+        $isStaticOpacity = !str_contains($modifier, 'var(');
+        return withAlpha($resolvedValue, $modifier, $isStaticOpacity);
     }
 
     return $resolvedValue;
@@ -476,4 +485,37 @@ function eventuallyUnquote(string $value): string
     }
 
     return $unquoted;
+}
+
+/**
+ * Recursively resolve nested theme() calls in a value.
+ *
+ * @param string $value Value that may contain theme() calls
+ * @param object $designSystem Design system instance
+ * @return string Value with theme() calls resolved
+ */
+function resolveNestedThemeCalls(string $value, object $designSystem): string
+{
+    if (!str_contains($value, 'theme(')) {
+        return $value;
+    }
+
+    $ast = parseValue($value);
+
+    walk($ast, function (&$node) use ($designSystem) {
+        if ($node['kind'] !== 'function') {
+            return WalkAction::Continue;
+        }
+
+        if ($node['value'] === 'theme') {
+            $result = handleLegacyTheme($node, $designSystem);
+            if ($result !== null) {
+                return WalkAction::Replace(parseValue($result));
+            }
+        }
+
+        return WalkAction::Continue;
+    });
+
+    return toCss($ast);
 }
