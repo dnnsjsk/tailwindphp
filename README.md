@@ -1,8 +1,6 @@
 # Tailwind PHP
 
-A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required.
-
-**100% AI-written.** This entire codebase was written by Claude Opus 4.5 — no manual coding. The goal is an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
+A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required. This entire codebase was written by Claude, with the goal of creating an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
 
 ## Scope
 
@@ -116,8 +114,6 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 This is useful when you want to scan multiple files and combine the results before generating CSS.
 
 ## How It Works
-
-This is a 1:1 port of TailwindCSS 4.x's core functionality to PHP. The goal is feature parity with TailwindCSS while eliminating the Node.js dependency.
 
 ### Architecture
 
