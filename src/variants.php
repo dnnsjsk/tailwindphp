@@ -483,29 +483,30 @@ function substituteAtVariant(array &$ast, object $designSystem): void
  */
 function quoteAttributeValue(string $input): string
 {
-    if (strpos($input, '=') !== false) {
-        $parts = explode('=', $input, 2);
-        $attribute = $parts[0];
-        $value = trim($parts[1] ?? '');
+    // Match attribute selector with optional operator and value
+    // Operators: = ^= $= *= ~= |=
+    // Allow spaces around the operator
+    if (preg_match('/^(\S+?)\s*([\^$*~|]?=)\s*(.*)$/', $input, $m)) {
+        $attribute = trim($m[1]);
+        $operator = $m[2];
+        $value = trim($m[3]);
 
-        // If the value is already quoted, skip
+        // Handle case sensitivity flags (i or s at the end after a space)
+        $caseFlag = '';
+        if (preg_match('/^(.+)\s+([iIsS])$/', $value, $flagMatch)) {
+            $value = trim($flagMatch[1]);
+            $caseFlag = ' ' . strtolower($flagMatch[2]);
+        }
+
+        // If the value is already quoted, normalize to double quotes
         if (strlen($value) > 0 && ($value[0] === "'" || $value[0] === '"')) {
-            return $input;
+            $quote = $value[0];
+            $inner = substr($value, 1, -1);
+            return "{$attribute}{$operator}\"{$inner}\"{$caseFlag}";
         }
 
-        // Handle case sensitivity flags on unescaped values
-        if (strlen($value) > 1) {
-            $trailingChar = $value[strlen($value) - 1];
-            if (
-                $value[strlen($value) - 2] === ' ' &&
-                ($trailingChar === 'i' || $trailingChar === 'I' ||
-                 $trailingChar === 's' || $trailingChar === 'S')
-            ) {
-                return "{$attribute}=\"" . substr($value, 0, -2) . "\" {$trailingChar}";
-            }
-        }
-
-        return "{$attribute}=\"{$value}\"";
+        // Quote the value with double quotes
+        return "{$attribute}{$operator}\"{$value}\"{$caseFlag}";
     }
 
     return $input;
@@ -847,7 +848,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         'before',
         function (&$v) use ($contentProperties) {
             $v['nodes'] = [
-                \TailwindPHP\Ast\styleRule('&::before', [
+                \TailwindPHP\Ast\styleRule('&:before', [
                     $contentProperties(),
                     \TailwindPHP\Ast\decl('content', 'var(--tw-content)'),
                     ...$v['nodes'],
@@ -861,7 +862,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         'after',
         function (&$v) use ($contentProperties) {
             $v['nodes'] = [
-                \TailwindPHP\Ast\styleRule('&::after', [
+                \TailwindPHP\Ast\styleRule('&:after', [
                     $contentProperties(),
                     \TailwindPHP\Ast\decl('content', 'var(--tw-content)'),
                     ...$v['nodes'],
@@ -1112,7 +1113,12 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
             // When the value starts with function-like syntax, use as-is
             if (preg_match('/^[\w-]*\s*\(/', $value)) {
-                $query = preg_replace('/\b(and|or|not)\b/', ' $1 ', $value);
+                // Normalize spacing around logical operators (and, or, not) with word boundaries
+                $query = preg_replace('/\s*\b(and|or|not)\b\s*/', ' $1 ', $value);
+                // Normalize spacing after colons in property declarations
+                $query = preg_replace('/:\s*/', ': ', $query);
+                // Collapse multiple spaces
+                $query = preg_replace('/\s+/', ' ', $query);
                 $ruleNode['nodes'] = [\TailwindPHP\Ast\atRule('@supports', $query, $ruleNode['nodes'])];
                 return;
             }
@@ -1120,6 +1126,9 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             // Shorthand: supports-[display] -> @supports (display: var(--tw))
             if (strpos($value, ':') === false) {
                 $value = "{$value}: var(--tw)";
+            } else {
+                // Normalize spacing after colons in property declarations
+                $value = preg_replace('/:\s*/', ': ', $value);
             }
 
             // Wrap in parens if needed
