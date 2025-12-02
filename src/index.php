@@ -69,6 +69,9 @@ function compileAst(array $ast, array $options = []): array
     $features = $result['features'];
     $inlineCandidates = $result['inlineCandidates'];
 
+    // Process @apply directives
+    $features |= substituteAtApply($ast, $designSystem);
+
     $allValidCandidates = [];
     $compiled = null;
     $previousAstNodeCount = 0;
@@ -187,9 +190,10 @@ function parseCss(array &$ast, array $options = []): array
     $root = null;
     $firstThemeRule = null;
     $important = false;
+    $customUtilities = [];
 
-    // Walk AST to find @tailwind utilities, @theme, @source, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, $options) {
+    // Walk AST to find @tailwind utilities, @theme, @source, @utility, @media important
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customUtilities, $options) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -265,6 +269,27 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::ReplaceSkip([]);
         }
 
+        // Handle @utility
+        if ($node['name'] === '@utility') {
+            if ($ctx->parent !== null) {
+                throw new \Exception('`@utility` cannot be nested.');
+            }
+
+            if (empty($node['nodes'])) {
+                throw new \Exception(
+                    "`@utility {$node['params']}` is empty. Utilities should include at least one property."
+                );
+            }
+
+            $utility = createCssUtility($node);
+            if ($utility !== null) {
+                $customUtilities[] = $utility;
+            }
+
+            // Don't remove yet - we'll remove after @apply is processed
+            return WalkAction::Skip;
+        }
+
         // Handle @media important
         if ($node['name'] === '@media') {
             $params = \TailwindPHP\Utils\segment($node['params'], ' ');
@@ -321,6 +346,25 @@ function parseCss(array &$ast, array $options = []): array
         $designSystem->setImportant(true);
     }
 
+    // Register custom utilities with the design system
+    foreach ($customUtilities as $utility) {
+        $utility($designSystem);
+    }
+
+    // Remove @utility at-rules from the AST (after they've been registered)
+    walk($ast, function (&$node) {
+        if ($node['kind'] !== 'at-rule') {
+            return WalkAction::Continue;
+        }
+
+        if ($node['name'] === '@utility') {
+            return WalkAction::Replace([]);
+        }
+
+        // @utility has to be top-level, so we don't need to traverse into nested trees
+        return WalkAction::Skip;
+    });
+
     return [
         'designSystem' => $designSystem,
         'ast' => $ast,
@@ -329,6 +373,7 @@ function parseCss(array &$ast, array $options = []): array
         'utilitiesNodePath' => $utilitiesNodePath,
         'features' => $features,
         'inlineCandidates' => $inlineCandidates,
+        'customUtilities' => $customUtilities,
     ];
 }
 
@@ -360,6 +405,62 @@ function parseThemeOptions(string $params): array
     }
 
     return [$options, $prefix];
+}
+
+// Regex patterns for utility name validation
+const IS_VALID_STATIC_UTILITY_NAME = '/^-?[a-z][a-zA-Z0-9\/%._-]*$/';
+const IS_VALID_FUNCTIONAL_UTILITY_NAME = '/^-?[a-z][a-zA-Z0-9\/%._-]*-\*$/';
+
+/**
+ * Create a CSS utility from an @utility at-rule.
+ *
+ * @param array $node The @utility at-rule node
+ * @return callable|null Returns a callback to register the utility, or null if invalid
+ */
+function createCssUtility(array $node): ?callable
+{
+    $name = $node['params'];
+
+    // Functional utilities. E.g.: `tab-size-*`
+    if (preg_match(IS_VALID_FUNCTIONAL_UTILITY_NAME, $name)) {
+        // For now, just support static functional utilities (no --value/--modifier)
+        return function (DesignSystem $designSystem) use ($name, $node) {
+            $utilityName = substr($name, 0, -2); // Remove trailing -*
+
+            $designSystem->getUtilities()->functional($utilityName, function (array $candidate) use ($node) {
+                // A value is required for functional utilities
+                if (!isset($candidate['value'])) {
+                    return null;
+                }
+
+                // Clone the nodes
+                $declarations = [];
+                foreach ($node['nodes'] as $child) {
+                    if ($child['kind'] === 'declaration') {
+                        $declarations[] = $child;
+                    }
+                }
+
+                return $declarations;
+            });
+        };
+    }
+
+    // Static utilities. E.g.: `my-utility`
+    if (preg_match(IS_VALID_STATIC_UTILITY_NAME, $name)) {
+        return function (DesignSystem $designSystem) use ($name, $node) {
+            $declarations = [];
+            foreach ($node['nodes'] as $child) {
+                if ($child['kind'] === 'declaration') {
+                    $declarations[] = $child;
+                }
+            }
+
+            $designSystem->getUtilities()->static($name, fn() => $declarations);
+        };
+    }
+
+    return null;
 }
 
 /**

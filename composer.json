@@ -53,6 +53,7 @@
             "src/utilities.php",
             "src/variants.php",
             "src/design-system.php",
+            "src/apply.php",
             "src/index.php"
         ]
     },
