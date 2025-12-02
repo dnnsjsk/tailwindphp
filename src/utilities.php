@@ -243,7 +243,10 @@ function withAlpha(string $value, ?string $alpha): string
         return $value;
     }
 
-    return "color-mix(in oklab, {$value} {$alpha}, transparent)";
+    // Normalize the color (e.g., #f00 -> red) for consistency with TailwindCSS output
+    $normalizedValue = \TailwindPHP\LightningCss\LightningCss::normalizeColors($value);
+
+    return "color-mix(in oklab, {$normalizedValue} {$alpha}, transparent)";
 }
 
 /**

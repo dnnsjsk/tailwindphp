@@ -1018,4 +1018,137 @@ class LightningCss
 
         return [$L, $a, $b];
     }
+
+    /**
+     * Convert a color with opacity to a solid oklab color (no alpha channel).
+     *
+     * This is used for --theme(--color/opacity inline) where we need to return
+     * the actual computed color value, not a color-mix expression.
+     *
+     * @param string $color Color value (hex like #f00 or named like red)
+     * @param float $alpha Alpha value (0-1)
+     * @return string OKLab color string (e.g., oklab(62.7955% .224863 .125846))
+     */
+    public static function colorToOklabWithOpacity(string $color, float $alpha): string
+    {
+        // Normalize color to RGB
+        $color = strtolower(trim($color));
+
+        $r = $g = $b = 0;
+
+        // Handle named colors
+        if (isset(self::NAMED_COLORS[$color])) {
+            [$r, $g, $b] = self::NAMED_COLORS[$color];
+        }
+        // Handle 3-digit hex (#f00)
+        elseif (preg_match('/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i', $color, $match)) {
+            $r = hexdec($match[1] . $match[1]);
+            $g = hexdec($match[2] . $match[2]);
+            $b = hexdec($match[3] . $match[3]);
+        }
+        // Handle 6-digit hex (#ff0000)
+        elseif (preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $color, $match)) {
+            $r = hexdec($match[1]);
+            $g = hexdec($match[2]);
+            $b = hexdec($match[3]);
+        }
+        else {
+            // Unknown format, return as-is
+            return $color;
+        }
+
+        // Convert RGB to OKLab
+        $oklab = self::rgbToOklab($r, $g, $b);
+
+        // For inline mode, we output the oklab color WITHOUT an alpha channel
+        // but with full precision. The color itself doesn't change - only the
+        // alpha would if we were using color-mix. Since inline mode "bakes in"
+        // the value, we return the pure color.
+        //
+        // LightningCSS uses higher precision for inline values.
+        $l = round($oklab[0] * 100, 4);
+        $a = $oklab[1];
+        $b = $oklab[2];
+
+        // Format L - remove trailing zeros, add %
+        $lStr = rtrim(rtrim(number_format($l, 4, '.', ''), '0'), '.') . '%';
+
+        // Format a and b with higher precision for inline mode
+        $aStr = self::formatOklabComponentHighPrecision($a);
+        $bStr = self::formatOklabComponentHighPrecision($b);
+
+        return "oklab({$lStr} {$aStr} {$bStr})";
+    }
+
+    /**
+     * Format an OKLab a or b component with higher precision (for inline mode).
+     *
+     * @param float $value The component value
+     * @return string Formatted string
+     */
+    private static function formatOklabComponentHighPrecision(float $value): string
+    {
+        // Format to 6 decimals, remove trailing zeros
+        $str = rtrim(rtrim(number_format($value, 6, '.', ''), '0'), '.');
+
+        // Remove leading zero for positive decimals (0.224 -> .224)
+        if (strpos($str, '0.') === 0) {
+            $str = substr($str, 1);
+        }
+
+        return $str ?: '0';
+    }
+
+    /**
+     * Apply alpha to a color value and return hex with alpha.
+     *
+     * @param string $color Color value (hex like #f00 or named like red)
+     * @param float $alpha Alpha value (0-1)
+     * @return string Hex color with alpha (e.g., #ff000080)
+     */
+    public static function colorWithAlpha(string $color, float $alpha): string
+    {
+        // Normalize color to RGB
+        $color = strtolower(trim($color));
+
+        $r = $g = $b = 0;
+
+        // Handle named colors
+        if (isset(self::NAMED_COLORS[$color])) {
+            [$r, $g, $b] = self::NAMED_COLORS[$color];
+        }
+        // Handle 3-digit hex (#f00)
+        elseif (preg_match('/^#([0-9a-f])([0-9a-f])([0-9a-f])$/i', $color, $match)) {
+            $r = hexdec($match[1] . $match[1]);
+            $g = hexdec($match[2] . $match[2]);
+            $b = hexdec($match[3] . $match[3]);
+        }
+        // Handle 6-digit hex (#ff0000)
+        elseif (preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $color, $match)) {
+            $r = hexdec($match[1]);
+            $g = hexdec($match[2]);
+            $b = hexdec($match[3]);
+        }
+        // Handle 8-digit hex with existing alpha (#ff000080)
+        elseif (preg_match('/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i', $color, $match)) {
+            $r = hexdec($match[1]);
+            $g = hexdec($match[2]);
+            $b = hexdec($match[3]);
+            // Multiply existing alpha with new alpha
+            $existingAlpha = hexdec($match[4]) / 255;
+            $alpha = $alpha * $existingAlpha;
+        }
+        else {
+            // Unknown format, return as-is
+            return $color;
+        }
+
+        // Convert alpha to 2-digit hex
+        $alphaHex = str_pad(dechex((int)round($alpha * 255)), 2, '0', STR_PAD_LEFT);
+
+        return '#' . str_pad(dechex($r), 2, '0', STR_PAD_LEFT)
+                   . str_pad(dechex($g), 2, '0', STR_PAD_LEFT)
+                   . str_pad(dechex($b), 2, '0', STR_PAD_LEFT)
+                   . $alphaHex;
+    }
 }

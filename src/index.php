@@ -895,7 +895,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
 
     // Apply color-mix polyfill - convert color-mix with variables to @supports fallback
     if ($polyfills & POLYFILL_COLOR_MIX) {
-        $result = applyColorMixPolyfill($result);
+        $result = applyColorMixPolyfill($result, $designSystem);
     }
 
     // Process atRoots - separate @property rules from others
@@ -1093,9 +1093,10 @@ function extractCandidates(string $html): array
  * 2. An @supports block with the color-mix version
  *
  * @param array $ast The AST to process
+ * @param DesignSystem $designSystem The design system for theme lookups
  * @return array Modified AST with polyfill applied
  */
-function applyColorMixPolyfill(array $ast): array
+function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
 {
     $result = [];
 
@@ -1109,30 +1110,48 @@ function applyColorMixPolyfill(array $ast): array
                 if ($decl['kind'] === 'declaration' && isset($decl['value'])) {
                     $value = $decl['value'];
 
-                    // Check if this declaration has color-mix with a var()
-                    if (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+var\s*\([^)]+\)\s*,\s*transparent\s*\)/i', $value, $match)) {
-                        // Extract the color from color-mix and normalize it
-                        $color = trim($match[1]);
-                        $color = LightningCss::optimizeValue($color, $decl['property']);
+                    // Check if this declaration has color-mix that needs polyfill
+                    // Pattern 1: color-mix with var() in opacity position
+                    // Pattern 2: color-mix with var() in color position (from --theme)
+                    $needsPolyfill = false;
+                    $fallbackColor = null;
 
-                        // Create fallback with just the color
+                    // Pattern: color-mix(in oklab, COLOR VAR_OPACITY, transparent)
+                    if (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+var\s*\([^)]+\)\s*,\s*transparent\s*\)/i', $value, $match)) {
+                        $needsPolyfill = true;
+                        $fallbackColor = trim($match[1]);
+                        $fallbackColor = LightningCss::optimizeValue($fallbackColor, $decl['property']);
+                    }
+                    // Pattern: color-mix(in oklab, var(--var) OPACITY%, transparent)
+                    elseif (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*var\s*\(\s*([^)]+)\s*\)\s+(\d+(?:\.\d+)?%?)\s*,\s*transparent\s*\)/i', $value, $match)) {
+                        $needsPolyfill = true;
+                        $varName = '--' . ltrim(trim($match[1]), '-');
+                        $opacityStr = $match[2];
+
+                        // Get the color value from theme
+                        $theme = $designSystem->getTheme();
+                        $colorValue = $theme->get([$varName]);
+
+                        if ($colorValue !== null) {
+                            // Calculate hex with alpha
+                            $opacity = floatval(rtrim($opacityStr, '%'));
+                            if ($opacity > 1) $opacity = $opacity / 100;
+                            $fallbackColor = LightningCss::colorWithAlpha($colorValue, $opacity);
+                        }
+                    }
+
+                    if ($needsPolyfill && $fallbackColor !== null) {
+                        // Create fallback with the computed color
                         $fallbackDecl = [
                             'kind' => 'declaration',
                             'property' => $decl['property'],
-                            'value' => $color,
+                            'value' => $fallbackColor,
                             'important' => $decl['important'] ?? false,
                         ];
                         $newNodes[] = $fallbackDecl;
 
-                        // Normalize the color-mix value for @supports
-                        $normalizedColorMix = preg_replace(
-                            '/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+(var\s*\([^)]+\))\s*,\s*transparent\s*\)/i',
-                            'color-mix(in oklab, ' . $color . ' $2, transparent)',
-                            $value
-                        );
-                        $supportsDecl = $decl;
-                        $supportsDecl['value'] = $normalizedColorMix;
-                        $supportsDeclarations[] = $supportsDecl;
+                        // Keep original for @supports
+                        $supportsDeclarations[] = $decl;
                     } else {
                         $newNodes[] = $decl;
                     }
@@ -1160,7 +1179,7 @@ function applyColorMixPolyfill(array $ast): array
             }
         } elseif (isset($node['nodes'])) {
             // Recursively process nested nodes
-            $node['nodes'] = applyColorMixPolyfill($node['nodes']);
+            $node['nodes'] = applyColorMixPolyfill($node['nodes'], $designSystem);
             $result[] = $node;
         } else {
             $result[] = $node;

@@ -326,6 +326,14 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
         $inline = true;
     }
 
+    // Check for opacity modifier: --theme(--color-red-500/0.5) or --theme(--color-red-500/50)
+    $opacity = null;
+    $slashPos = strrpos($path, '/');
+    if ($slashPos !== false) {
+        $opacity = trim(substr($path, $slashPos + 1));
+        $path = trim(substr($path, 0, $slashPos));
+    }
+
     $theme = $designSystem->getTheme();
     $prefix = $theme->getPrefix();
 
@@ -345,6 +353,30 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
             return implode(', ', $fallback);
         }
         return null;
+    }
+
+    // Apply opacity modifier if present
+    if ($opacity !== null && $opacity !== '') {
+        // Normalize opacity to a float (0-1 range)
+        $opacityFloat = floatval($opacity);
+        if ($opacityFloat > 1) {
+            $opacityFloat = $opacityFloat / 100;
+        }
+
+        if ($inline) {
+            // For inline, convert to oklab color without alpha channel
+            return \TailwindPHP\LightningCss\LightningCss::colorToOklabWithOpacity($value, $opacityFloat);
+        } else {
+            // For non-inline, return color-mix with var() reference
+            // Normalize opacity: 0.5 -> 50%, 50 -> 50%
+            $opacityValue = $opacity;
+            if (is_numeric($opacity) && floatval($opacity) <= 1) {
+                $opacityValue = (floatval($opacity) * 100) . '%';
+            } elseif (!str_ends_with($opacity, '%')) {
+                $opacityValue = $opacity . '%';
+            }
+            return "color-mix(in oklab, var({$prefixedPath}) {$opacityValue}, transparent)";
+        }
     }
 
     if ($inline) {

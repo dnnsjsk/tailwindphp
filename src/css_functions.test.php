@@ -92,11 +92,9 @@ class css_functions extends TestCase
      * Tests requiring features not yet implemented in the PHP port.
      *
      * @port-deviation:pending These tests require complex features:
-     * - Variable opacity with @supports fallback pattern
      * - @custom-media at-rule processing
      * - Range media query syntax (width >= value)
      * - Container query rewrites (width > value)
-     * - --theme() with opacity modifier
      * - --theme() with initial fallback handling
      */
     private const PENDING_FEATURE_TESTS = [
@@ -108,10 +106,6 @@ class css_functions extends TestCase
 
         // Container query rewrites
         '@container (width > theme(breakpoint.md))',
-
-        // --theme() with opacity modifier
-        '--theme(--color-red-500/50)',
-        '--theme(--color-red-500/50 inline)',
 
         // --theme() with initial fallback handling (complex resolution)
         '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial`',
