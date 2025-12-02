@@ -724,6 +724,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
+        // Note: We need to modify ruleNode by reference. Since walk() works on array copies,
+        // we wrap in an array and copy back the result.
         $nodes = [$ruleNode];
         walk($nodes, function (&$node, $ctx) use (&$didApply, $variantSelector) {
             if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
@@ -746,6 +748,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $node['selector'] = "&:is({$selector} *)";
             $didApply = true;
         });
+
+        // Copy back the modified node
+        $ruleNode['selector'] = $nodes[0]['selector'];
+        $ruleNode['nodes'] = $nodes[0]['nodes'];
 
         if (!$didApply) return false;
     });
@@ -771,6 +777,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
+        // Note: We need to modify ruleNode by reference. Since walk() works on array copies,
+        // we wrap in an array and copy back the result.
         $nodes = [$ruleNode];
         walk($nodes, function (&$node, $ctx) use (&$didApply, $variantSelector) {
             if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
@@ -791,6 +799,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $node['selector'] = "&:is({$selector} ~ *)";
             $didApply = true;
         });
+
+        // Copy back the modified node
+        $ruleNode['selector'] = $nodes[0]['selector'];
+        $ruleNode['nodes'] = $nodes[0]['nodes'];
 
         if (!$didApply) return false;
     });

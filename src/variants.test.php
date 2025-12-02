@@ -372,44 +372,51 @@ class variants extends TestCase
         $actualRules = self::extractCssRules($css);
 
         foreach ($expectedRules as $selector => $expectedDecls) {
-            // Check selector exists (with possible escaping differences)
-            $selectorFound = false;
-            $matchedSelector = null;
+            // Handle comma-separated selectors - check each part exists
+            $selectorsToCheck = str_contains($selector, ',')
+                ? array_map('trim', explode(',', $selector))
+                : [$selector];
 
-            foreach ($actualRules as $actualSelector => $actualDecls) {
-                if ($this->selectorsMatch($selector, $actualSelector)) {
-                    $selectorFound = true;
-                    $matchedSelector = $actualSelector;
-                    break;
+            foreach ($selectorsToCheck as $singleSelector) {
+                // Check selector exists (with possible escaping differences)
+                $selectorFound = false;
+                $matchedSelector = null;
+
+                foreach ($actualRules as $actualSelector => $actualDecls) {
+                    if ($this->selectorsMatch($singleSelector, $actualSelector)) {
+                        $selectorFound = true;
+                        $matchedSelector = $actualSelector;
+                        break;
+                    }
                 }
-            }
 
-            $this->assertTrue($selectorFound, sprintf(
-                "Missing selector '%s' in output for classes: %s\nActual selectors: %s",
-                $selector,
-                implode(', ', $testCase['classes']),
-                implode(', ', array_keys($actualRules))
-            ));
+                $this->assertTrue($selectorFound, sprintf(
+                    "Missing selector '%s' in output for classes: %s\nActual selectors: %s",
+                    $singleSelector,
+                    implode(', ', $testCase['classes']),
+                    implode(', ', array_keys($actualRules))
+                ));
 
-            if ($matchedSelector) {
-                $actualDecls = $actualRules[$matchedSelector];
+                if ($matchedSelector) {
+                    $actualDecls = $actualRules[$matchedSelector];
 
-                foreach ($expectedDecls as $prop => $expectedValue) {
-                    $this->assertArrayHasKey($prop, $actualDecls, sprintf(
-                        "Missing property '%s' in selector '%s' for classes: %s",
-                        $prop,
-                        $selector,
-                        implode(', ', $testCase['classes'])
-                    ));
-
-                    // Allow theme variable differences
-                    if (!$this->valuesMatch($expectedValue, $actualDecls[$prop])) {
-                        $this->assertEquals($expectedValue, $actualDecls[$prop], sprintf(
-                            "Value mismatch for %s { %s } in classes: %s",
-                            $selector,
+                    foreach ($expectedDecls as $prop => $expectedValue) {
+                        $this->assertArrayHasKey($prop, $actualDecls, sprintf(
+                            "Missing property '%s' in selector '%s' for classes: %s",
                             $prop,
+                            $singleSelector,
                             implode(', ', $testCase['classes'])
                         ));
+
+                        // Allow theme variable differences
+                        if (!$this->valuesMatch($expectedValue, $actualDecls[$prop])) {
+                            $this->assertEquals($expectedValue, $actualDecls[$prop], sprintf(
+                                "Value mismatch for %s { %s } in classes: %s",
+                                $singleSelector,
+                                $prop,
+                                implode(', ', $testCase['classes'])
+                            ));
+                        }
                     }
                 }
             }
