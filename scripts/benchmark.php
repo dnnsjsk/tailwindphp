@@ -221,7 +221,7 @@ if ($listOnly) {
 
 echo "\n";
 echo color("  ┌─────────────────────────────────────────────────────────────────────┐\n", 'dim');
-echo color("  │", 'dim') . color("              Tailwind PHP - Benchmark Comparison                  ", 'bold') . color("│\n", 'dim');
+echo color("  │", 'dim') . color("              TailwindPHP - Benchmark Comparison                   ", 'bold') . color("│\n", 'dim');
 echo color("  └─────────────────────────────────────────────────────────────────────┘\n", 'dim');
 echo "\n";
 

@@ -1,4 +1,4 @@
-# Tailwind PHP
+# TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
 [![Tests](https://img.shields.io/badge/Tests-3,083%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
