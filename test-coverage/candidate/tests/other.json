@@ -1,0 +1,56 @@
+[
+    {
+        "name": "should parse compound group with itself group-group-*",
+        "candidate": "group-group-group-hover\/parent-name:flex",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"static\",\n          \"raw\": \"group-group-group-hover\/parent-name:flex\",\n          \"root\": \"flex\",\n          \"variants\": [\n            {\n              \"kind\": \"compound\",\n              \"modifier\": {\n                \"kind\": \"named\",\n                \"value\": \"parent-name\",\n              },\n              \"root\": \"group\",\n              \"variant\": {\n                \"kind\": \"compound\",\n                \"modifier\": null,\n                \"root\": \"group\",\n                \"variant\": {\n                  \"kind\": \"compound\",\n                  \"modifier\": null,\n                  \"root\": \"group\",\n                  \"variant\": {\n                    \"kind\": \"static\",\n                    \"root\": \"hover\",\n                  },\n                },\n              },\n            },\n          ],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a partial utility",
+        "candidate": "flex-",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a partial utility",
+        "candidate": "bg-",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should replace `_` with ` `",
+        "candidate": "content-[",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"content-[\"hello_world\"]\",\n        \"root\": \"content\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"\"hello world\"\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not replace `\\\\_` with ` ` (when it is escaped)",
+        "candidate": "content-[",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"content-[\"hello\\\\_world\"]\",\n        \"root\": \"content\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"\"hello_world\"\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not replace `_` inside of `url()`",
+        "candidate": "bg-[no-repeat_url(https:\/\/example.com\/some_page)]",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"functional\",\n          \"modifier\": null,\n          \"raw\": \"bg-[no-repeat_url(https:\/\/example.com\/some_page)]\",\n          \"root\": \"bg\",\n          \"value\": {\n            \"dataType\": null,\n            \"kind\": \"arbitrary\",\n            \"value\": \"no-repeat url(https:\/\/example.com\/some_page)\",\n          },\n          \"variants\": [],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not replace `_` in the first argument to `var()`",
+        "candidate": "ml-[var(--spacing-1_5,_var(--spacing-2_5,_1rem))]",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"functional\",\n          \"modifier\": null,\n          \"raw\": \"ml-[var(--spacing-1_5,_var(--spacing-2_5,_1rem))]\",\n          \"root\": \"ml\",\n          \"value\": {\n            \"dataType\": null,\n            \"kind\": \"arbitrary\",\n            \"value\": \"var(--spacing-1_5, var(--spacing-2_5, 1rem))\",\n          },\n          \"variants\": [],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not replace `_` in the first argument to `theme()`",
+        "candidate": "ml-[theme(--spacing-1_5,_theme(--spacing-2_5,_1rem))]",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"functional\",\n          \"modifier\": null,\n          \"raw\": \"ml-[theme(--spacing-1_5,_theme(--spacing-2_5,_1rem))]\",\n          \"root\": \"ml\",\n          \"value\": {\n            \"dataType\": null,\n            \"kind\": \"arbitrary\",\n            \"value\": \"theme(--spacing-1_5, theme(--spacing-2_5, 1rem))\",\n          },\n          \"variants\": [],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "empty data types are invalid",
+        "candidate": "bg-[:foo]",
+        "expected": "[]",
+        "type": "snapshot"
+    }
+]

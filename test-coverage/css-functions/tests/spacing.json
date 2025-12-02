@@ -1,0 +1,37 @@
+[
+    {
+        "name": "--spacing(\u2026)",
+        "type": "output",
+        "inputCss": "@theme {\n          --spacing: 0.25rem;\n        }\n\n        .foo {\n          margin: --spacing(4);\n        }",
+        "classes": [],
+        "expected": "\":root, :host {\n        --spacing: .25rem;\n      }\n\n      .foo {\n        margin: calc(var(--spacing) * 4);\n      }\""
+    },
+    {
+        "name": "--spacing(\u2026) with inline `@theme` value",
+        "type": "output",
+        "inputCss": "@theme inline {\n          --spacing: 0.25rem;\n        }\n\n        .foo {\n          margin: --spacing(4);\n        }",
+        "classes": [],
+        "expected": "\".foo {\n        margin: 1rem;\n      }\""
+    },
+    {
+        "name": "--spacing(\u2026) relies on `--spacing` to be defined",
+        "type": "error",
+        "inputCss": ".foo {\n          margin: --spacing(4);\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --spacing(\u2026) function requires that the \\"
+    },
+    {
+        "name": "--spacing(\u2026) requires a single value",
+        "type": "error",
+        "inputCss": "@theme {\n          --spacing: 0.25rem;\n        }\n\n        .foo {\n          margin: --spacing();\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --spacing(\u2026) function requires an argument, but received none.]"
+    },
+    {
+        "name": "--spacing(\u2026) does not have multiple arguments",
+        "type": "error",
+        "inputCss": ".foo {\n          margin: --spacing(4, 5, 6);\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --spacing(\u2026) function only accepts a single argument, but received 3.]"
+    }
+]

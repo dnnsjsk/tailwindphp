@@ -1,0 +1,14 @@
+{
+    "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/css-functions.test.ts",
+    "sourceLines": 1379,
+    "totalTests": 63,
+    "totalCases": 63,
+    "outputTests": 55,
+    "errorTests": 8,
+    "categories": {
+        "alpha": 4,
+        "spacing": 5,
+        "theme": 12,
+        "other": 42
+    }
+}

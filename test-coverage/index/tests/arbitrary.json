@@ -1,0 +1,9 @@
+[
+    {
+        "name": "unescapes underscores to spaces inside arbitrary values except for `url()` and first argument of `var()` and `theme()`",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@theme {\n            --spacing-1_5: 1.5rem;\n            --spacing-2_5: 2.5rem;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --spacing-1_5: 1.5rem;\n        --spacing-2_5: 2.5rem;\n      }\n\n      .ml-\\\\[theme\\\\(--spacing-1_5\\\\,theme\\\\(--spacing-2_5\\\\,_1rem\\\\)\\\\)\\\\)\\\\] {\n        margin-left: 1.5rem;\n      }\n\n      .ml-\\\\[var\\\\(--spacing-1_5\\\\,_var\\\\(--spacing-2_5\\\\,_1rem\\\\)\\\\)\\\\] {\n        margin-left: var(--spacing-1_5, var(--spacing-2_5, 1rem));\n      }\n\n      .bg-\\\\[no-repeat_url\\\\(\\\\.\\\\\/my_file\\\\.jpg\\\\)\\\\] {\n        background-color: no-repeat url(\".\/my_file.jpg\");\n      }\""
+    }
+]

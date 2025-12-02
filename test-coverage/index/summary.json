@@ -1,0 +1,19 @@
+{
+    "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/index.test.ts",
+    "sourceLines": 6081,
+    "totalTests": 190,
+    "totalCases": 63,
+    "runTests": 5,
+    "compileCssTests": 58,
+    "categories": {
+        "tailwind-directive": 2,
+        "arbitrary": 1,
+        "css-variables": 8,
+        "prefix": 2,
+        "other": 27,
+        "apply": 3,
+        "important": 3,
+        "theme": 15,
+        "import": 2
+    }
+}

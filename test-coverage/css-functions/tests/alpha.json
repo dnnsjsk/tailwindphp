@@ -1,0 +1,30 @@
+[
+    {
+        "name": "--alpha(\u2026)",
+        "type": "output",
+        "inputCss": ".foo {\n          margin: --alpha(red \/ 50%);\n        }",
+        "classes": [],
+        "expected": "\".foo {\n        margin: oklab(62.7955% .224 .125 \/ .5);\n      }\""
+    },
+    {
+        "name": "--alpha(\u2026) errors when no arguments are used",
+        "type": "error",
+        "inputCss": ".foo {\n          margin: --alpha();\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --alpha(\u2026) function requires a color and an alpha value, e.g.: \\"
+    },
+    {
+        "name": "--alpha(\u2026) errors when alpha value is missing",
+        "type": "error",
+        "inputCss": ".foo {\n          margin: --alpha(red);\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --alpha(\u2026) function requires a color and an alpha value, e.g.: \\"
+    },
+    {
+        "name": "--alpha(\u2026) errors multiple arguments are used",
+        "type": "error",
+        "inputCss": ".foo {\n          margin: --alpha(red \/ 50%, blue);\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --alpha(\u2026) function only accepts one argument, e.g.: \\"
+    }
+]

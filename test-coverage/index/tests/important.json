@@ -1,0 +1,29 @@
+[
+    {
+        "name": "should generate an important utility",
+        "type": "run",
+        "classes": [
+            "underline!"
+        ],
+        "css": null,
+        "expected": "\".underline\\\\! {\n        text-decoration-line: underline !important;\n      }\""
+    },
+    {
+        "name": "should generate an important utility with legacy syntax",
+        "type": "run",
+        "classes": [
+            "!underline"
+        ],
+        "css": null,
+        "expected": "\".\\\\!underline {\n        text-decoration-line: underline !important;\n      }\""
+    },
+    {
+        "name": "should not mark declarations inside of @keyframes as important",
+        "type": "compileCss",
+        "classes": [
+            "animate-spin!"
+        ],
+        "css": "@theme {\n            --animate-spin: spin 1s linear infinite;\n\n            @keyframes spin {\n              to {\n                transform: rotate(360deg);\n              }\n            }\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --animate-spin: spin 1s linear infinite;\n      }\n\n      .animate-spin\\\\! {\n        animation: var(--animate-spin) !important;\n      }\n\n      @keyframes spin {\n        to {\n          transform: rotate(360deg);\n        }\n      }\""
+    }
+]

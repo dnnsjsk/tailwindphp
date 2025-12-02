@@ -1,0 +1,158 @@
+[
+    {
+        "name": "should parse a utility with a modifier",
+        "candidate": "bg-red-500\/50",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"named\",\n          \"value\": \"50\",\n        },\n        \"raw\": \"bg-red-500\/50\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": \"red-500\/50\",\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary modifier",
+        "candidate": "bg-red-500\/[50%]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"50%\",\n        },\n        \"raw\": \"bg-red-500\/[50%]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with a modifier that is important",
+        "candidate": "bg-red-500\/50!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"named\",\n          \"value\": \"50\",\n        },\n        \"raw\": \"bg-red-500\/50!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": \"red-500\/50\",\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse static utilities with a modifier",
+        "candidate": "flex\/foo",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse static utilities with multiple modifiers",
+        "candidate": "flex\/foo\/bar",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse functional utilities with multiple modifiers",
+        "candidate": "bg-red-1\/2\/3",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value with a modifier",
+        "candidate": "bg-[#0088cc]\/50",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"named\",\n          \"value\": \"50\",\n        },\n        \"raw\": \"bg-[#0088cc]\/50\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"#0088cc\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value with an arbitrary modifier",
+        "candidate": "bg-[#0088cc]\/[50%]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"50%\",\n        },\n        \"raw\": \"bg-[#0088cc]\/[50%]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"#0088cc\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier",
+        "candidate": "bg-red-500\/[var(--value)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"raw\": \"bg-red-500\/[var(--value)]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier using the shorthand",
+        "candidate": "bg-red-500\/(--value)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"raw\": \"bg-red-500\/(--value)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier using the shorthand",
+        "candidate": "bg-red-500\/(--with_underscore)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--with_underscore)\",\n        },\n        \"raw\": \"bg-red-500\/(--with_underscore)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier using the shorthand",
+        "candidate": "bg-red-500\/(--with_underscore,fallback_value)",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"functional\",\n          \"modifier\": {\n            \"kind\": \"arbitrary\",\n            \"value\": \"var(--with_underscore,fallback value)\",\n          },\n          \"raw\": \"bg-red-500\/(--with_underscore,fallback_value)\",\n          \"root\": \"bg\",\n          \"value\": {\n            \"fraction\": null,\n            \"kind\": \"named\",\n            \"value\": \"red-500\",\n          },\n          \"variants\": [],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier using the shorthand",
+        "candidate": "bg-(--a_b,c_d_var(--e_f,g_h))\/(--i_j,k_l_var(--m_n,o_p))",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--i_j,k l var(--m_n,o p))\",\n        },\n        \"raw\": \"bg-(--a_b,c_d_var(--e_f,g_h))\/(--i_j,k_l_var(--m_n,o_p))\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--a_b,c d var(--e_f,g h))\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/()",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(_--)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(_--x)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(_--)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(_--x)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(--x;--y)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(--x:{foo:bar})",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand modifier",
+        "candidate": "bg-red-500\/(--x)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--x)\",\n        },\n        \"raw\": \"bg-red-500\/(--x)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a utility with an implicit invalid variable as the modifier using the shorthand",
+        "candidate": "bg-red-500\/(value)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the modifier that is important",
+        "candidate": "bg-red-500\/[var(--value)]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"raw\": \"bg-red-500\/[var(--value)]!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an explicit variable as the modifier",
+        "candidate": "bg-red-500\/[var(--value)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"raw\": \"bg-red-500\/[var(--value)]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an explicit variable as the modifier that is important",
+        "candidate": "bg-red-500\/[var(--value)]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"raw\": \"bg-red-500\/[var(--value)]!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties with a modifier",
+        "candidate": "[color:red]\/50",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"arbitrary\",\n        \"modifier\": {\n          \"kind\": \"named\",\n          \"value\": \"50\",\n        },\n        \"property\": \"color\",\n        \"raw\": \"[color:red]\/50\",\n        \"value\": \"red\",\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    }
+]

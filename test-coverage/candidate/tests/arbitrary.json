@@ -1,0 +1,200 @@
+[
+    {
+        "name": "should parse a utility with an arbitrary value",
+        "candidate": "bg-[#0088cc]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[#0088cc]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"#0088cc\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a utility with an incomplete arbitrary value",
+        "candidate": "bg-[#0088cc",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value with parens",
+        "candidate": "bg-(--my-color)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-(--my-color)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--my-color)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a utility with an arbitrary value with parens that does not start with --",
+        "candidate": "bg-(my-color)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value including a typehint",
+        "candidate": "bg-[color:var(--value)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[color:var(--value)]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": \"color\",\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value with parens including a typehint",
+        "candidate": "bg-(color:--my-color)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-(color:--my-color)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": \"color\",\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--my-color)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a utility with an arbitrary value with parens including a typehint that does not start with --",
+        "candidate": "bg-(color:my-color)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value with parens and a fallback",
+        "candidate": "bg-(color:--my-color,#0088cc)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-(color:--my-color,#0088cc)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": \"color\",\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--my-color,#0088cc)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an arbitrary value that is important",
+        "candidate": "bg-[#0088cc]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[#0088cc]!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"#0088cc\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the arbitrary value",
+        "candidate": "bg-[var(--value)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[var(--value)]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an implicit variable as the arbitrary value that is important",
+        "candidate": "bg-[var(--value)]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[var(--value)]!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an explicit variable as the arbitrary value",
+        "candidate": "bg-[var(--value)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[var(--value)]\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with an explicit variable as the arbitrary value that is important",
+        "candidate": "bg-[var(--value)]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-[var(--value)]!\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--value)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-(--\\\\_foo)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-(--\\\\_foo)\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--_foo)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-(--_foo)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-(--_foo)\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--_foo)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[var(--\\\\_foo)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[var(--\\\\_foo)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--_foo)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[var(--_foo)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[var(--_foo)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--_foo)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[calc(var(--\\\\_foo)*0.2)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[calc(var(--\\\\_foo)*0.2)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"calc(var(--_foo) * 0.2)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[calc(var(--_foo)*0.2)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[calc(var(--_foo)*0.2)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"calc(var(--_foo) * 0.2)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[calc(0.2*var(--\\\\_foo)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[calc(0.2*var(--\\\\_foo)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"calc(0.2 * var(--_foo))\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should properly decode escaped underscores but not convert underscores to spaces for CSS variables in arbitrary positions",
+        "candidate": "flex-[calc(0.2*var(--_foo)]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"flex-[calc(0.2*var(--_foo)]\",\n        \"root\": \"flex\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"calc(0.2 * var(-- foo))\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-()",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(_--)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(_--x)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(_--)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(_--x)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(--x;--y)",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(--x:{foo:bar})",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse an invalid arbitrary shorthand value",
+        "candidate": "bg-(--x)",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"bg-(--x)\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"dataType\": null,\n          \"kind\": \"arbitrary\",\n          \"value\": \"var(--x)\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties",
+        "candidate": "[color:red]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"arbitrary\",\n        \"modifier\": null,\n        \"property\": \"color\",\n        \"raw\": \"[color:red]\",\n        \"value\": \"red\",\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should skip arbitrary properties that start with an uppercase letter",
+        "candidate": "[Color:red]",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should skip arbitrary properties that do not have a property and value",
+        "candidate": "[color]",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties that are important",
+        "candidate": "[color:red]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"arbitrary\",\n        \"modifier\": null,\n        \"property\": \"color\",\n        \"raw\": \"[color:red]!\",\n        \"value\": \"red\",\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    }
+]

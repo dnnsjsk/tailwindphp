@@ -1,0 +1,88 @@
+[
+    {
+        "name": "--theme(--color-red-500)",
+        "type": "output",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        .red {\n          color: --theme(--color-red-500);\n        }",
+        "classes": [],
+        "expected": "\":root, :host {\n        --color-red-500: red;\n      }\n\n      .red {\n        color: var(--color-red-500);\n      }\""
+    },
+    {
+        "name": "--theme(--color-red-500 inline)",
+        "type": "output",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        .red {\n          color: --theme(--color-red-500 inline);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        color: red;\n      }\""
+    },
+    {
+        "name": "--theme(--color-red-500\/50)",
+        "type": "output",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        .red {\n          color: --theme(--color-red-500\/0.5);\n        }",
+        "classes": [],
+        "expected": "\":root, :host {\n        --color-red-500: red;\n      }\n\n      .red {\n        color: #ff000080;\n      }\n\n      @supports (color: color-mix(in lab, red, red)) {\n        .red {\n          color: color-mix(in oklab, var(--color-red-500) 50%, transparent);\n        }\n      }\""
+    },
+    {
+        "name": "--theme(--color-red-500\/50 inline)",
+        "type": "output",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        .red {\n          color: --theme(--color-red-500\/50 inline);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        color: oklab(62.7955% .224863 .125846);\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) injects the fallback when the value it refers is set to a `--theme(\u2026)` function with the fallback `initial`",
+        "type": "output",
+        "inputCss": "@theme prefix(tw) {\n          --default-font-family: --theme(--font-family, initial);\n        }\n        .red {\n          font-family: --theme(--default-font-family, Potato Sans, sans-serif);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        font-family: var(--tw-default-font-family, Potato Sans, sans-serif);\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) injects the fallback when the value it refers is set to a `--theme(\u2026)` function with the fallback `initial` in @reference mode",
+        "type": "output",
+        "inputCss": "@theme reference prefix(tw) {\n          --default-font-family: --theme(--font-family, initial);\n        }\n        .red {\n          font-family: --theme(--default-font-family, Potato Sans, sans-serif);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        font-family: var(--tw-default-font-family, Potato Sans, sans-serif);\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) resolves with the fallback when the value it refers is set to a `--theme(\u2026 inline)` function with the fallback `initial`",
+        "type": "output",
+        "inputCss": "@theme prefix(tw) {\n          --default-font-family: --theme(--font-family inline, initial);\n        }\n        .red {\n          font-family: --theme(--default-font-family inline, Potato Sans, sans-serif);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        font-family: Potato Sans, sans-serif;\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) resolves with the fallback when the value it refers is set to a `--theme(\u2026 inline)` function with the fallback `initial` in @reference mode",
+        "type": "output",
+        "inputCss": "@theme reference prefix(tw) {\n          --default-font-family: --theme(--font-family inline, initial);\n        }\n        .red {\n          font-family: --theme(--default-font-family inline, Potato Sans, sans-serif);\n        }",
+        "classes": [],
+        "expected": "\".red {\n        font-family: Potato Sans, sans-serif;\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) does not inject the fallback if the fallback is `initial`",
+        "type": "output",
+        "inputCss": "@theme prefix(tw) {\n            --font-sans:\n              ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',\n              'Segoe UI Symbol', 'Noto Color Emoji';\n            --default-font-family: --theme(--font-sans, initial);\n          }\n          @layer base {\n            html {\n              font-family: --theme(--default-font-family, sans-serif);\n            }\n          }\n          @tailwind utilities;",
+        "classes": [
+            "tw:font-sans"
+        ],
+        "expected": "\":root, :host {\n        --tw-font-sans: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n        --tw-default-font-family: var(--tw-font-sans);\n      }\n\n      @layer base {\n        html {\n          font-family: var(--tw-default-font-family, sans-serif);\n        }\n      }\n\n      .tw\\\\:font-sans {\n        font-family: var(--tw-font-sans);\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) forces the value to be retrieved as inline when used inside an at-rule",
+        "type": "output",
+        "inputCss": "@theme {\n          --breakpoint-md: 48rem;\n          --breakpoint-lg: 64rem;\n        }\n        @custom-media --md (width >= --theme(--breakpoint-md));\n        @media (--md) {\n          .blue {\n            color: blue;\n          }\n        }\n        @media (width >= --theme(--breakpoint-lg)) {\n          .red {\n            color: red;\n          }\n        }",
+        "classes": [],
+        "expected": "\"@media (min-width: 48rem) {\n        .blue {\n          color: #00f;\n        }\n      }\n\n      @media (min-width: 64rem) {\n        .red {\n          color: red;\n        }\n      }\""
+    },
+    {
+        "name": "--theme(\u2026) can only be used with CSS variables from your @theme",
+        "type": "error",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        .red {\n          color: --theme(colors.red.500);\n        }",
+        "classes": [],
+        "expectedError": "[Error: The --theme(\u2026) function can only be used with CSS variables from your theme.]"
+    },
+    {
+        "name": "--theme(\u2026) function still works as expected, even when a plugin is imported",
+        "type": "output",
+        "inputCss": "@layer base {\n            html,\n            :host {\n              font-family: --theme(--default-font-family, system-ui);\n            }\n          }\n          @layer theme {\n            @theme {\n              --font-sans: sans-serif;\n              --default-font-family: --theme(--font-sans, initial);\n            }\n          }\n          @plugin \"my-plugin.js\";",
+        "classes": [],
+        "expected": "\"@layer base {\n        html, :host {\n          font-family: var(--default-font-family, system-ui);\n        }\n      }\n\n      @layer theme {\n        :root, :host {\n          --font-sans: sans-serif;\n          --default-font-family: var(--font-sans);\n        }\n      }\""
+    }
+]

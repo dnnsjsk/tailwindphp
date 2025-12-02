@@ -1,0 +1,8 @@
+[
+    {
+        "name": "should parse a simple utility that should be important",
+        "candidate": "flex!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"static\",\n        \"raw\": \"flex!\",\n        \"root\": \"flex\",\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    }
+]

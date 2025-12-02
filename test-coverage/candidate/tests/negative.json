@@ -1,0 +1,8 @@
+[
+    {
+        "name": "should parse a simple utility that can be negative",
+        "candidate": "-translate-x-4",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": null,\n        \"raw\": \"-translate-x-4\",\n        \"root\": \"-translate-x\",\n        \"value\": {\n          \"fraction\": null,\n          \"kind\": \"named\",\n          \"value\": \"4\",\n        },\n        \"variants\": [],\n      },\n    ]",
+        "type": "snapshot"
+    }
+]

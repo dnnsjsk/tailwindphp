@@ -1,0 +1,31 @@
+[
+    {
+        "name": "should not swallow @utility declarations when @apply is used in nested rules",
+        "type": "compileCss",
+        "classes": [
+            "custom-utility"
+        ],
+        "css": "@tailwind utilities;\n\n          .ignore-me {\n            @apply underline;\n            div {\n              @apply custom-utility;\n            }\n          }\n\n          @utility custom-utility {\n            @apply flex;\n          }",
+        "expected": "\".custom-utility {\n        display: flex;\n      }\n\n      .ignore-me {\n        text-decoration-line: underline;\n      }\n\n      .ignore-me div {\n        display: flex;\n      }\""
+    },
+    {
+        "name": "should correctly apply nested usages of @apply when one @utility applies another",
+        "type": "compileCss",
+        "classes": [
+            "foo",
+            "test",
+            "test2"
+        ],
+        "css": "@theme {\n            --color-green-500: green;\n            --color-red-500: red;\n            --color-indigo-500: indigo;\n          }\n\n          @tailwind utilities;\n\n          @utility test2 {\n            @apply test;\n          }\n\n          @utility test {\n            @apply bg-green-500;\n            &:hover {\n              @apply bg-red-500;\n            }\n            &:disabled {\n              @apply bg-indigo-500;\n            }\n          }\n\n          .foo {\n            @apply test2;\n          }",
+        "expected": "\":root, :host {\n        --color-green-500: green;\n        --color-red-500: red;\n        --color-indigo-500: indigo;\n      }\n\n      .test {\n        background-color: var(--color-green-500);\n      }\n\n      .test:hover {\n        background-color: var(--color-red-500);\n      }\n\n      .test:disabled {\n        background-color: var(--color-indigo-500);\n      }\n\n      .test2 {\n        background-color: var(--color-green-500);\n      }\n\n      .test2:hover {\n        background-color: var(--color-red-500);\n      }\n\n      .test2:disabled {\n        background-color: var(--color-indigo-500);\n      }\n\n      .foo {\n        background-color: var(--color-green-500);\n      }\n\n      .foo:hover {\n        background-color: var(--color-red-500);\n      }\n\n      .foo:disabled {\n        background-color: var(--color-indigo-500);\n      }\""
+    },
+    {
+        "name": "should ignore the design systems `important` flag when using @apply",
+        "type": "compileCss",
+        "classes": [
+            "flex"
+        ],
+        "css": "@import 'tailwindcss\/utilities' important;\n          .flex-explicitly-important {\n            @apply flex!;\n          }\n          .flex-not-important {\n            @apply flex;\n          }",
+        "expected": "\".flex, .flex-explicitly-important {\n        display: flex !important;\n      }\n\n      .flex-not-important {\n        display: flex;\n      }\""
+    }
+]

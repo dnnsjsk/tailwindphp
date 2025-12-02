@@ -1,0 +1,18 @@
+[
+    {
+        "name": "adds vendor prefixes",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@tailwind utilities;",
+        "expected": "\".\\\\[text-size-adjust\\\\:none\\\\] {\n        -webkit-text-size-adjust: none;\n        -moz-text-size-adjust: none;\n        text-size-adjust: none;\n      }\""
+    },
+    {
+        "name": "keyframes are generated when used in an animation within a prefixed setup",
+        "type": "compileCss",
+        "classes": [
+            "tw:animate-foo"
+        ],
+        "css": "@theme prefix(tw) {\n            --animate-foo: used 1s infinite;\n            --animate-bar: unused 1s infinite;\n\n            @keyframes used {\n              to {\n                opacity: 1;\n              }\n            }\n\n            @keyframes unused {\n              to {\n                opacity: 0;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --tw-animate-foo: used 1s infinite;\n      }\n\n      .tw\\\\:animate-foo {\n        animation: var(--tw-animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\""
+    }
+]

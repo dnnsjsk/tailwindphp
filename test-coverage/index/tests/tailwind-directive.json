@@ -1,0 +1,24 @@
+[
+    {
+        "name": "`@tailwind utilities` is replaced with the generated utility classes",
+        "type": "compileCss",
+        "classes": [
+            "flex",
+            "md:grid",
+            "hover:underline",
+            "dark:bg-black"
+        ],
+        "css": "@theme {\n            --color-black: #000;\n            --breakpoint-md: 768px;\n          }\n\n          @layer utilities {\n            @tailwind utilities;\n          }",
+        "expected": "\":root, :host {\n        --color-black: #000;\n      }\n\n      @layer utilities {\n        .flex {\n          display: flex;\n        }\n\n        @media (hover: hover) {\n          .hover\\\\:underline:hover {\n            text-decoration-line: underline;\n          }\n        }\n\n        @media (min-width: 768px) {\n          .md\\\\:grid {\n            display: grid;\n          }\n        }\n\n        @media (prefers-color-scheme: dark) {\n          .dark\\\\:bg-black {\n            background-color: var(--color-black);\n          }\n        }\n      }\""
+    },
+    {
+        "name": "`@tailwind utilities` is only processed once",
+        "type": "compileCss",
+        "classes": [
+            "flex",
+            "grid"
+        ],
+        "css": "@tailwind utilities;\n          @tailwind utilities;",
+        "expected": "\".flex {\n        display: flex;\n      }\n\n      .grid {\n        display: grid;\n      }\""
+    }
+]

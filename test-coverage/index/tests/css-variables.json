@@ -1,0 +1,93 @@
+[
+    {
+        "name": "unescapes theme variables and handles dots as underscore",
+        "type": "compileCss",
+        "classes": [
+            "m-1.5",
+            "m-2.5",
+            "m-2_5",
+            "m-3.5",
+            "m-foo\/bar"
+        ],
+        "css": "@theme {\n            --spacing-*: initial;\n            --spacing-1\\.5: 1.5px;\n            --spacing-2_5: 2.5px;\n            --spacing-3\\.5: 3.5px;\n            --spacing-3_5: 3.5px;\n            --spacing-foo\\\/bar: 3rem;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --spacing-1\\\\.5: 1.5px;\n        --spacing-2_5: 2.5px;\n        --spacing-3\\\\.5: 3.5px;\n        --spacing-foo\\\\\/bar: 3rem;\n      }\n\n      .m-1\\\\.5 {\n        margin: var(--spacing-1\\\\.5);\n      }\n\n      .m-2\\\\.5, .m-2_5 {\n        margin: var(--spacing-2_5);\n      }\n\n      .m-3\\\\.5 {\n        margin: var(--spacing-3\\\\.5);\n      }\n\n      .m-foo\\\\\/bar {\n        margin: var(--spacing-foo\\\\\/bar);\n      }\""
+    },
+    {
+        "name": "should sort utilities with a custom internal --tw-sort correctly",
+        "type": "compileCss",
+        "classes": [
+            "mx-0",
+            "gap-4",
+            "space-x-2"
+        ],
+        "css": "@theme {\n            --spacing-0: 0px;\n            --spacing-2: 0.5rem;\n            --spacing-4: 1rem;\n          }\n          @tailwind utilities;",
+        "expected": "\"@layer properties {\n        @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n          *, :before, :after, ::backdrop {\n            --tw-space-x-reverse: 0;\n          }\n        }\n      }\n\n      :root, :host {\n        --spacing-0: 0px;\n        --spacing-2: .5rem;\n        --spacing-4: 1rem;\n      }\n\n      .mx-0 {\n        margin-inline: var(--spacing-0);\n      }\n\n      .gap-4 {\n        gap: var(--spacing-4);\n      }\n\n      :where(.space-x-2 > :not(:last-child)) {\n        --tw-space-x-reverse: 0;\n        margin-inline-start: calc(var(--spacing-2) * var(--tw-space-x-reverse));\n        margin-inline-end: calc(var(--spacing-2) * calc(1 - var(--tw-space-x-reverse)));\n      }\n\n      @property --tw-space-x-reverse {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0;\n      }\""
+    },
+    {
+        "name": "unsetting `--font-*` does not unset `--font-weight-*`",
+        "type": "compileCss",
+        "classes": [
+            "font-bold",
+            "font-sans",
+            "font-serif",
+            "font-body"
+        ],
+        "css": "@theme {\n            --font-weight-bold: bold;\n            --font-sans: sans-serif;\n            --font-serif: serif;\n          }\n          @theme {\n            --font-*: initial;\n            --font-body: Inter;\n          }\n          @tailwind utilities;",
+        "expected": "\"@layer properties {\n        @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n          *, :before, :after, ::backdrop {\n            --tw-font-weight: initial;\n          }\n        }\n      }\n\n      :root, :host {\n        --font-weight-bold: bold;\n        --font-body: Inter;\n      }\n\n      .font-body {\n        font-family: var(--font-body);\n      }\n\n      .font-bold {\n        --tw-font-weight: var(--font-weight-bold);\n        font-weight: var(--font-weight-bold);\n      }\n\n      @property --tw-font-weight {\n        syntax: \"*\";\n        inherits: false\n      }\""
+    },
+    {
+        "name": "unsetting `--inset-*` does not unset `--inset-shadow-*`",
+        "type": "compileCss",
+        "classes": [
+            "inset-shadow-sm",
+            "inset-ring-thick",
+            "inset-lg",
+            "inset-sm",
+            "inset-md"
+        ],
+        "css": "@theme {\n            --inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 \/ 0.05);\n            --inset-lg: 100px;\n            --inset-sm: 10px;\n          }\n          @theme {\n            --inset-*: initial;\n            --inset-md: 50px;\n          }\n          @tailwind utilities;",
+        "expected": "\"@layer properties {\n        @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n          *, :before, :after, ::backdrop {\n            --tw-shadow: 0 0 #0000;\n            --tw-shadow-color: initial;\n            --tw-shadow-alpha: 100%;\n            --tw-inset-shadow: 0 0 #0000;\n            --tw-inset-shadow-color: initial;\n            --tw-inset-shadow-alpha: 100%;\n            --tw-ring-color: initial;\n            --tw-ring-shadow: 0 0 #0000;\n            --tw-inset-ring-color: initial;\n            --tw-inset-ring-shadow: 0 0 #0000;\n            --tw-ring-inset: initial;\n            --tw-ring-offset-width: 0px;\n            --tw-ring-offset-color: #fff;\n            --tw-ring-offset-shadow: 0 0 #0000;\n          }\n        }\n      }\n\n      :root, :host {\n        --inset-md: 50px;\n      }\n\n      .inset-md {\n        inset: var(--inset-md);\n      }\n\n      .inset-shadow-sm {\n        --tw-inset-shadow: inset 0 2px 4px var(--tw-inset-shadow-color, #0000000d);\n        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);\n      }\n\n      @property --tw-shadow {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0 0 #0000;\n      }\n\n      @property --tw-shadow-color {\n        syntax: \"*\";\n        inherits: false\n      }\n\n      @property --tw-shadow-alpha {\n        syntax: \"<percentage>\";\n        inherits: false;\n        initial-value: 100%;\n      }\n\n      @property --tw-inset-shadow {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0 0 #0000;\n      }\n\n      @property --tw-inset-shadow-color {\n        syntax: \"*\";\n        inherits: false\n      }\n\n      @property --tw-inset-shadow-alpha {\n        syntax: \"<percentage>\";\n        inherits: false;\n        initial-value: 100%;\n      }\n\n      @property --tw-ring-color {\n        syntax: \"*\";\n        inherits: false\n      }\n\n      @property --tw-ring-shadow {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0 0 #0000;\n      }\n\n      @property --tw-inset-ring-color {\n        syntax: \"*\";\n        inherits: false\n      }\n\n      @property --tw-inset-ring-shadow {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0 0 #0000;\n      }\n\n      @property --tw-ring-inset {\n        syntax: \"*\";\n        inherits: false\n      }\n\n      @property --tw-ring-offset-width {\n        syntax: \"<length>\";\n        inherits: false;\n        initial-value: 0;\n      }\n\n      @property --tw-ring-offset-color {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: #fff;\n      }\n\n      @property --tw-ring-offset-shadow {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: 0 0 #0000;\n      }\""
+    },
+    {
+        "name": "unsetting `--text-*` does not unset `--text-color-*`, `--text-underline-offset-*`, `--text-indent-*`, `--text-decoration-thickness-*` or `--text-decoration-color-*`",
+        "type": "compileCss",
+        "classes": [
+            "text-potato",
+            "underline-offset-potato",
+            "indent-potato",
+            "decoration-potato",
+            "decoration-salad",
+            "text-lg"
+        ],
+        "css": "@theme {\n            --text-color-potato: brown;\n            --text-underline-offset-potato: 4px;\n            --text-indent-potato: 6px;\n            --text-decoration-thickness-potato: 8px;\n            --text-decoration-color-salad: yellow;\n            --text-4xl: 60px;\n          }\n          @theme {\n            --text-*: initial;\n            --text-lg: 20px;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --text-color-potato: brown;\n        --text-underline-offset-potato: 4px;\n        --text-indent-potato: 6px;\n        --text-decoration-thickness-potato: 8px;\n        --text-decoration-color-salad: yellow;\n        --text-lg: 20px;\n      }\n\n      .indent-potato {\n        text-indent: var(--text-indent-potato);\n      }\n\n      .text-lg {\n        font-size: var(--text-lg);\n      }\n\n      .text-potato {\n        color: var(--text-color-potato);\n      }\n\n      .decoration-salad {\n        -webkit-text-decoration-color: var(--text-decoration-color-salad);\n        -webkit-text-decoration-color: var(--text-decoration-color-salad);\n        text-decoration-color: var(--text-decoration-color-salad);\n      }\n\n      .decoration-potato {\n        text-decoration-thickness: var(--text-decoration-thickness-potato);\n      }\n\n      .underline-offset-potato {\n        text-underline-offset: var(--text-underline-offset-potato);\n      }\""
+    },
+    {
+        "name": "theme values added as reference are not included in the output as variables but emit fallback values",
+        "type": "compileCss",
+        "classes": [
+            "bg-tomato",
+            "bg-potato"
+        ],
+        "css": "@theme {\n            --color-tomato: #e10c04;\n          }\n          @theme reference {\n            --color-potato: #ac855b;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --color-tomato: #e10c04;\n      }\n\n      .bg-potato {\n        background-color: var(--color-potato, #ac855b);\n      }\n\n      .bg-tomato {\n        background-color: var(--color-tomato);\n      }\""
+    },
+    {
+        "name": "theme values added as reference that override existing theme value suppress the output of the original theme value as a variable",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme {\n            --color-potato: #ac855b;\n          }\n          @theme reference {\n            --color-potato: #c794aa;\n          }\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: var(--color-potato, #c794aa);\n      }\""
+    },
+    {
+        "name": "overriding a reference theme value with a non-reference theme value includes it in the output as a variable",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme reference {\n            --color-potato: #ac855b;\n          }\n          @theme {\n            --color-potato: #c794aa;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --color-potato: #c794aa;\n      }\n\n      .bg-potato {\n        background-color: var(--color-potato);\n      }\""
+    }
+]

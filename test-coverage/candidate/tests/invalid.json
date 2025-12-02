@@ -1,0 +1,8 @@
+[
+    {
+        "name": "should skip unknown utilities",
+        "candidate": "unknown-utility",
+        "expected": "[]",
+        "type": "empty"
+    }
+]

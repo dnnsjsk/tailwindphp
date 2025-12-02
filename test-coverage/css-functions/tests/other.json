@@ -1,0 +1,296 @@
+[
+    {
+        "name": "theme(colors.red.500)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors.red.500);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme('colors.red.500');\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors[red]500)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors[red]500);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors[red].500)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors[red].500);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors[red][500])",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors[red][500]);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors[red].[500])",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors[red].[500]);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors.red.500\/75%)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors.red.500\/75%);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .75);\n          }\""
+    },
+    {
+        "name": "theme(colors.red.500 \/ 75%)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors.red.500 \/ 75%);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .75);\n          }\""
+    },
+    {
+        "name": "theme(",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme('colors.red.500 \/ 75%');\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .75);\n          }\""
+    },
+    {
+        "name": "theme(colors.red.500\/var(--opacity))",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors.red.500\/var(--opacity));\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\n\n          @supports (color: color-mix(in lab, red, red)) {\n            .red {\n              color: color-mix(in oklab, red var(--opacity), transparent);\n            }\n          }\""
+    },
+    {
+        "name": "theme(colors.red.500\/var(--opacity,50%))",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              \/* prettier-ignore *\/\n              color: theme(colors.red.500\/var(--opacity,50%));\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\n\n          @supports (color: color-mix(in lab, red, red)) {\n            .red {\n              color: color-mix(in oklab, red var(--opacity, 50%), transparent);\n            }\n          }\""
+    },
+    {
+        "name": "theme(spacing.12)",
+        "type": "output",
+        "inputCss": "@theme {\n              --spacing-12: 3rem;\n            }\n            .space-on-the-left {\n              margin-left: theme(spacing.12);\n            }",
+        "classes": [],
+        "expected": "\".space-on-the-left {\n            margin-left: 3rem;\n          }\""
+    },
+    {
+        "name": "theme(spacing[2.5])",
+        "type": "output",
+        "inputCss": "@theme {\n              --spacing-2_5: 0.625rem;\n            }\n            .space-on-the-left {\n              margin-left: theme(spacing[2.5]);\n            }",
+        "classes": [],
+        "expected": "\".space-on-the-left {\n            margin-left: .625rem;\n          }\""
+    },
+    {
+        "name": "calc(100vh - theme(spacing[2.5]))",
+        "type": "output",
+        "inputCss": "@theme {\n              --spacing-2_5: 0.625rem;\n            }\n            .space-on-the-left {\n              margin-left: calc(100vh - theme(spacing[2.5]));\n            }",
+        "classes": [],
+        "expected": "\".space-on-the-left {\n            margin-left: calc(100vh - .625rem);\n          }\""
+    },
+    {
+        "name": "theme(borderRadius.lg)",
+        "type": "output",
+        "inputCss": "@theme {\n              --radius-lg: 0.5rem;\n            }\n            .radius {\n              border-radius: theme(borderRadius.lg);\n            }",
+        "classes": [],
+        "expected": "\".radius {\n            border-radius: .5rem;\n          }\""
+    },
+    {
+        "name": "theme(blur.DEFAULT)",
+        "type": "output",
+        "inputCss": "@theme {\n                --blur: 8px;\n              }\n              .default-blur {\n                filter: blur(theme(blur.DEFAULT));\n              }",
+        "classes": [],
+        "expected": "\".default-blur {\n              filter: blur(8px);\n            }\""
+    },
+    {
+        "name": "theme(fontSize.xs[1].lineHeight)",
+        "type": "output",
+        "inputCss": "@theme {\n                --text-xs: 1337.75rem;\n                --text-xs--line-height: 1337rem;\n              }\n              .text {\n                font-size: theme(fontSize.xs);\n                line-height: theme(fontSize.xs[1].lineHeight);\n              }",
+        "classes": [],
+        "expected": "\".text {\n              font-size: 1337.75rem;\n              line-height: 1337rem;\n            }\""
+    },
+    {
+        "name": "theme(fontFamily.sans) (css)",
+        "type": "output",
+        "inputCss": "@theme default reference {\n                --font-family-sans:\n                  ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,\n                  Segoe UI Symbol, Noto Color Emoji;\n              }\n              .fam {\n                font-family: theme(fontFamily.sans);\n              }",
+        "classes": [],
+        "expected": "\".fam {\n              font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;\n            }\""
+    },
+    {
+        "name": "theme(fontFamily.sans) (config)",
+        "type": "output",
+        "inputCss": "@config \".\/my-config.js\";\n              .fam {\n                font-family: theme(fontFamily.sans);\n              }",
+        "classes": [],
+        "expected": "\".fam {\n              font-family: ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;\n            }\""
+    },
+    {
+        "name": "theme(colors.unknown.500)",
+        "type": "error",
+        "inputCss": ".red {\n              color: theme(colors.unknown.500);\n            }",
+        "classes": [],
+        "expectedError": "[Error: Could not resolve value for theme function: \\"
+    },
+    {
+        "name": "theme(colors.red.unknown \/ 50%, #f00)",
+        "type": "output",
+        "inputCss": ".red {\n              color: theme(colors.red.unknown \/ 50%, #f00);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(colors.red.unknown \/ 75%, theme(colors.red.500 \/ 25%))",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(colors.red.unknown \/ 75%, theme(colors.red.500 \/ 25%));\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .25);\n          }\""
+    },
+    {
+        "name": "theme(fontFamily.unknown, Helvetica Neue, Helvetica, sans-serif)",
+        "type": "output",
+        "inputCss": ".fam {\n              font-family: theme(fontFamily.unknown, Helvetica Neue, Helvetica, sans-serif);\n            }",
+        "classes": [],
+        "expected": "\".fam {\n            font-family: Helvetica Neue, Helvetica, sans-serif;\n          }\""
+    },
+    {
+        "name": "theme(\\n\\tfontFamily.unknown,\\n\\tHelvetica Neue,\\n\\tHelvetica,\\n\\tsans-serif\\n)",
+        "type": "output",
+        "inputCss": ".fam {\n              font-family: theme(\n                fontFamily.unknown,\n                Helvetica Neue,\n                Helvetica,\n                sans-serif\n              );\n            }",
+        "classes": [],
+        "expected": "\".fam {\n            font-family: Helvetica Neue, Helvetica, sans-serif;\n          }\""
+    },
+    {
+        "name": "can references theme inside @theme",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n              --color-foo: theme(colors.red.500);\n            }\n            .red {\n              color: theme(colors.foo);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "can references theme inside @theme and stacking opacity",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n              --color-foo: theme(colors.red.500 \/ 50%);\n            }\n            .red {\n              color: theme(colors.foo \/ 50%);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .25);\n          }\""
+    },
+    {
+        "name": "theme(--color-red-500)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(--color-red-500);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(--color-red-500 \/ 50%)",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(--color-red-500 \/ 50%);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: oklab(62.7955% .224 .125 \/ .5);\n          }\""
+    },
+    {
+        "name": "theme(",
+        "type": "output",
+        "inputCss": "@theme {\n              --color-red-500: #f00;\n            }\n            .red {\n              color: theme(--color-red-500);\n            }",
+        "classes": [],
+        "expected": "\".red {\n            color: red;\n          }\""
+    },
+    {
+        "name": "theme(blur.DEFAULT)",
+        "type": "output",
+        "inputCss": "@theme {\n              --blur: 8px;\n            }\n            .blur {\n              filter: blur(theme(blur));\n            }",
+        "classes": [],
+        "expected": "\".blur {\n            filter: blur(8px);\n          }\""
+    },
+    {
+        "name": "sm:[--color:theme(colors.red[500])]",
+        "type": "output",
+        "inputCss": "@tailwind utilities;\n            @theme {\n              --breakpoint-sm: 40rem;\n              --color-red-500: #f00;\n            }",
+        "classes": [],
+        "expected": "\"@media (min-width: 40rem) {\n          .sm\\\\:\\\\[--color\\\\:theme\\\\(colors\\\\.red\\\\[500\\\\]\\\\)\\\\] {\n            --color: red;\n          }\n        }\""
+    },
+    {
+        "name": "values that don",
+        "type": "output",
+        "inputCss": "@tailwind utilities;\n            @theme reference {\n              --radius-sm: 2rem;\n            }",
+        "classes": [],
+        "expected": "\".rounded-\\\\[theme\\\\(--radius-sm\\\\)\\\\] {\n          border-radius: 2rem;\n        }\""
+    },
+    {
+        "name": "@media (min-width:theme(breakpoint.md)) and (max-width: theme(--breakpoint-lg))",
+        "type": "output",
+        "inputCss": "@theme {\n            --breakpoint-md: 48rem;\n            --breakpoint-lg: 64rem;\n          }\n          \/* prettier-ignore *\/\n          @media (min-width:theme(breakpoint.md)) and (max-width: theme(--breakpoint-lg)) {\n            .red {\n              color: red;\n            }\n          }",
+        "classes": [],
+        "expected": "\"@media (min-width: 48rem) and (max-width: 64rem) {\n          .red {\n            color: red;\n          }\n        }\""
+    },
+    {
+        "name": "@media (width >= theme(breakpoint.md)) and (width<theme(--breakpoint-lg))",
+        "type": "output",
+        "inputCss": "@theme {\n            --breakpoint-md: 48rem;\n            --breakpoint-lg: 64rem;\n          }\n          @media (width >= theme(breakpoint.md)) and (width<theme(--breakpoint-lg)) {\n            .red {\n              color: red;\n            }\n          }",
+        "classes": [],
+        "expected": "\"@media (min-width: 48rem) and (not (min-width: 64rem)) {\n          .red {\n            color: red;\n          }\n        }\""
+    },
+    {
+        "name": "@custom-media --my-media (min-width: theme(breakpoint.md))",
+        "type": "output",
+        "inputCss": "@theme {\n          --breakpoint-md: 48rem;\n        }\n        @custom-media --my-media (min-width: theme(breakpoint.md));\n        @media (--my-media) {\n          .red {\n            color: red;\n          }\n        }",
+        "classes": [],
+        "expected": "\"@media (min-width: 48rem) {\n        .red {\n          color: red;\n        }\n      }\""
+    },
+    {
+        "name": "@container (width > theme(breakpoint.md))",
+        "type": "output",
+        "inputCss": "@theme {\n          --breakpoint-md: 48rem;\n        }\n        @container (width > theme(breakpoint.md)) {\n          .red {\n            color: red;\n          }\n        }",
+        "classes": [],
+        "expected": "\"@container not (max-width: 48rem) {\n        .red {\n          color: red;\n        }\n      }\""
+    },
+    {
+        "name": "@supports (text-stroke: theme(--font-size-xs))",
+        "type": "output",
+        "inputCss": "@theme {\n          --font-size-xs: 0.75rem;\n        }\n        @supports (text-stroke: theme(--font-size-xs)) {\n          .red {\n            color: red;\n          }\n        }",
+        "classes": [],
+        "expected": "\"@supports (text-stroke: 0.75rem) {\n        .red {\n          color: red;\n        }\n      }\""
+    },
+    {
+        "name": "CSS theme functions in plugins are properly evaluated",
+        "type": "output",
+        "inputCss": "@layer base, utilities;\n        @plugin \"my-plugin\";\n        @theme reference {\n          --color-red: oklch(62% 0.25 30);\n          --color-orange: oklch(79% 0.17 70);\n          --color-blue: oklch(45% 0.31 264);\n          --color-pink: oklch(87% 0.07 7);\n        }\n        @layer utilities {\n          @tailwind utilities;\n        }",
+        "classes": [],
+        "expected": "\"@layer base {\n        .my-base-rule {\n          color: oklch(62% .25 30);\n          background-color: oklch(45% .31 264);\n          border-color: oklab(87% .069 .008 \/ .1);\n          outline-color: oklab(79% .058 .159 \/ .15);\n        }\n      }\n\n      @layer utilities {\n        .my-utility {\n          color: oklch(62% .25 30);\n        }\n      }\""
+    },
+    {
+        "name": "CSS theme functions in config files are properly evaluated",
+        "type": "output",
+        "inputCss": "@layer base, utilities;\n        @config \".\/my-config.js\";\n        @theme reference {\n          --color-red: red;\n          --color-orange: orange;\n        }\n        @layer utilities {\n          @tailwind utilities;\n        }",
+        "classes": [],
+        "expected": "\"@layer base {\n        .my-base-rule {\n          color: orange;\n          background: red;\n        }\n      }\n\n      @layer utilities {\n        .my-utility {\n          color: red;\n        }\n      }\""
+    },
+    {
+        "name": "replaces CSS theme() function with values inside imported stylesheets",
+        "type": "output",
+        "inputCss": "@theme {\n          --color-red-500: #f00;\n        }\n        @import '.\/bar.css';",
+        "classes": [],
+        "expected": "\".red {\n      color: red;\n    }\""
+    },
+    {
+        "name": "resolves paths ending with a 1",
+        "type": "output",
+        "inputCss": "@theme {\n          --spacing-1: 0.25rem;\n        }\n\n        .foo {\n          margin: theme(spacing.1);\n        }",
+        "classes": [],
+        "expected": "\".foo {\n      margin: .25rem;\n    }\""
+    },
+    {
+        "name": "upgrades to a full JS compat theme lookup if a value can not be mapped to a CSS variable",
+        "type": "output",
+        "inputCss": ".semi {\n          font-weight: theme(fontWeight.semibold);\n        }",
+        "classes": [],
+        "expected": "\".semi {\n      font-weight: 600;\n    }\""
+    }
+]

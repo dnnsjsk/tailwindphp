@@ -1,0 +1,280 @@
+[
+    {
+        "name": "should recursively apply with custom `@utility`, which is used before it is defined",
+        "type": "compileCss",
+        "classes": [
+            "a",
+            "b",
+            "c",
+            "flex",
+            "my-flex"
+        ],
+        "css": "@tailwind utilities;\n\n          @layer base {\n            body {\n              @apply a;\n            }\n          }\n\n          @utility a {\n            @apply b;\n          }\n\n          @utility b {\n            @apply focus:c;\n          }\n\n          @utility c {\n            @apply my-flex!;\n          }\n\n          @utility my-flex {\n            @apply flex;\n          }",
+        "expected": "\".a:focus, .b:focus, .c {\n        display: flex !important;\n      }\n\n      .flex, .my-flex {\n        display: flex;\n      }\n\n      @layer base {\n        body:focus {\n          display: flex !important;\n        }\n      }\""
+    },
+    {
+        "name": "should stack simple variants",
+        "type": "run",
+        "classes": [
+            "focus:hover:flex"
+        ],
+        "css": null,
+        "expected": "\"@media (hover: hover) {\n        .focus\\\\:hover\\\\:flex:focus:hover {\n          display: flex;\n        }\n      }\""
+    },
+    {
+        "name": "pseudo element variants are re-ordered",
+        "type": "run",
+        "classes": [
+            "before:hover:flex",
+            "hover:before:flex"
+        ],
+        "css": null,
+        "expected": "\"@layer properties {\n        @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {\n          *, :before, :after, ::backdrop {\n            --tw-content: \"\";\n          }\n        }\n      }\n\n      .before\\\\:hover\\\\:flex:before {\n        content: var(--tw-content);\n      }\n\n      @media (hover: hover) {\n        .before\\\\:hover\\\\:flex:before:hover {\n          display: flex;\n        }\n\n        .hover\\\\:before\\\\:flex:hover:before {\n          content: var(--tw-content);\n          display: flex;\n        }\n      }\n\n      @property --tw-content {\n        syntax: \"*\";\n        inherits: false;\n        initial-value: \"\";\n      }\""
+    },
+    {
+        "name": "should sort utilities based on their property order",
+        "type": "compileCss",
+        "classes": [
+            "pointer-events-none",
+            "flex",
+            "p-1",
+            "px-1",
+            "pl-1"
+        ],
+        "css": "@theme {\n            --spacing-1: 0.25rem;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --spacing-1: .25rem;\n      }\n\n      .pointer-events-none {\n        pointer-events: none;\n      }\n\n      .flex {\n        display: flex;\n      }\n\n      .p-1 {\n        padding: var(--spacing-1);\n      }\n\n      .px-1 {\n        padding-inline: var(--spacing-1);\n      }\n\n      .pl-1 {\n        padding-left: var(--spacing-1);\n      }\""
+    },
+    {
+        "name": "should sort based on amount of properties",
+        "type": "run",
+        "classes": [
+            "text-clip",
+            "truncate",
+            "overflow-scroll"
+        ],
+        "css": null,
+        "expected": "\".truncate {\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        overflow: hidden;\n      }\n\n      .overflow-scroll {\n        overflow: scroll;\n      }\n\n      .text-clip {\n        text-overflow: clip;\n      }\""
+    },
+    {
+        "name": "should sort individual logical properties later than left\/right pairs",
+        "type": "compileCss",
+        "classes": [
+            "scroll-ms-1",
+            "scroll-me-2",
+            "scroll-mx-3",
+            "scroll-ps-1",
+            "scroll-pe-2",
+            "scroll-px-3",
+            "ms-1",
+            "me-2",
+            "mx-3",
+            "ps-1",
+            "pe-2",
+            "px-3"
+        ],
+        "css": "@theme {\n            --spacing-1: 1px;\n            --spacing-2: 2px;\n            --spacing-3: 3px;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --spacing-1: 1px;\n        --spacing-2: 2px;\n        --spacing-3: 3px;\n      }\n\n      .mx-3 {\n        margin-inline: var(--spacing-3);\n      }\n\n      .ms-1 {\n        margin-inline-start: var(--spacing-1);\n      }\n\n      .me-2 {\n        margin-inline-end: var(--spacing-2);\n      }\n\n      .scroll-mx-3 {\n        scroll-margin-inline: var(--spacing-3);\n      }\n\n      .scroll-ms-1 {\n        scroll-margin-inline-start: var(--spacing-1);\n      }\n\n      .scroll-me-2 {\n        scroll-margin-inline-end: var(--spacing-2);\n      }\n\n      .scroll-px-3 {\n        scroll-padding-inline: var(--spacing-3);\n      }\n\n      .scroll-ps-1 {\n        scroll-padding-inline-start: var(--spacing-1);\n      }\n\n      .scroll-pe-2 {\n        scroll-padding-inline-end: var(--spacing-2);\n      }\n\n      .px-3 {\n        padding-inline: var(--spacing-3);\n      }\n\n      .ps-1 {\n        padding-inline-start: var(--spacing-1);\n      }\n\n      .pe-2 {\n        padding-inline-end: var(--spacing-2);\n      }\""
+    },
+    {
+        "name": "should not take undefined values into account when sorting",
+        "type": "compileCss",
+        "classes": [
+            "fancy-text",
+            "text-sm"
+        ],
+        "css": "@theme {\n            --text-sm: 0.875rem;\n            --text-sm--line-height: calc(1.25 \/ 0.875);\n          }\n          @tailwind utilities;\n          @utility fancy-text {\n            font-size: var(--text-4xl);\n            line-height: var(--text-4xl--line-height);\n            font-weight: var(--font-weight-bold);\n          }",
+        "expected": "\":root, :host {\n        --text-sm: .875rem;\n        --text-sm--line-height: calc(1.25 \/ .875);\n      }\n\n      .fancy-text {\n        font-size: var(--text-4xl);\n        line-height: var(--text-4xl--line-height);\n        font-weight: var(--font-weight-bold);\n      }\n\n      .text-sm {\n        font-size: var(--text-sm);\n        line-height: var(--tw-leading, var(--text-sm--line-height));\n      }\""
+    },
+    {
+        "name": "unused keyframes are removed when an animation is unset",
+        "type": "compileCss",
+        "classes": [
+            "animate-foo",
+            "animate-foobar"
+        ],
+        "css": "@theme {\n            --animate-foo: foo 1s infinite;\n            --animate-foobar: foobar 1s infinite;\n\n            @keyframes foo {\n              to {\n                opacity: 1;\n              }\n            }\n\n            @keyframes foobar {\n              to {\n                opacity: 0;\n              }\n            }\n          }\n          @theme {\n            --animate-foo: initial;\n          }\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --animate-foobar: foobar 1s infinite;\n      }\n\n      .animate-foobar {\n        animation: var(--animate-foobar);\n      }\n\n      @keyframes foobar {\n        to {\n          opacity: 0;\n        }\n      }\""
+    },
+    {
+        "name": "keyframes are generated when used in an animation",
+        "type": "compileCss",
+        "classes": [
+            "animate-foo"
+        ],
+        "css": "@theme {\n            --animate-foo: used 1s infinite;\n            --animate-bar: unused 1s infinite;\n\n            @keyframes used {\n              to {\n                opacity: 1;\n              }\n            }\n\n            @keyframes unused {\n              to {\n                opacity: 0;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --animate-foo: used 1s infinite;\n      }\n\n      .animate-foo {\n        animation: var(--animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\""
+    },
+    {
+        "name": "custom properties in keyframes preserved",
+        "type": "compileCss",
+        "classes": [
+            "animate-foo"
+        ],
+        "css": "@theme {\n            --animate-foo: used 1s infinite;\n\n            @keyframes used {\n              to {\n                --other: var(--angle);\n                --angle: 360deg;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --animate-foo: used 1s infinite;\n      }\n\n      .animate-foo {\n        animation: var(--animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          --other: var(--angle);\n          --angle: 360deg;\n        }\n      }\""
+    },
+    {
+        "name": "extracts keyframe names followed by comma",
+        "type": "compileCss",
+        "classes": [
+            "animate-test"
+        ],
+        "css": "@theme {\n            --animate-test: 500ms both fade-in, 1000ms linear 500ms spin infinite;\n\n            @keyframes fade-in {\n              from {\n                opacity: 0%;\n              }\n              to {\n                opacity: 100%;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --animate-test: .5s both fade-in, 1s linear .5s spin infinite;\n      }\n\n      .animate-test {\n        animation: var(--animate-test);\n      }\n\n      @keyframes fade-in {\n        from {\n          opacity: 0;\n        }\n\n        to {\n          opacity: 1;\n        }\n      }\""
+    },
+    {
+        "name": "theme values added as `inline` are not wrapped in `var(\u2026)` when used as utility values",
+        "type": "compileCss",
+        "classes": [
+            "bg-tomato",
+            "bg-potato",
+            "bg-primary"
+        ],
+        "css": "@theme inline {\n            --color-tomato: #e10c04;\n            --color-potato: #ac855b;\n            --color-primary: var(--primary);\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: #ac855b;\n      }\n\n      .bg-primary {\n        background-color: var(--primary);\n      }\n\n      .bg-tomato {\n        background-color: #e10c04;\n      }\""
+    },
+    {
+        "name": "theme values added as `static` will always be generated, regardless of whether they were used or not",
+        "type": "compileCss",
+        "classes": [
+            "bg-tomato"
+        ],
+        "css": "@theme static {\n            --color-tomato: #e10c04;\n            --color-potato: #ac855b;\n            --color-primary: var(--primary);\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --color-tomato: #e10c04;\n        --color-potato: #ac855b;\n        --color-primary: var(--primary);\n      }\n\n      .bg-tomato {\n        background-color: var(--color-tomato);\n      }\""
+    },
+    {
+        "name": "when no theme values are emitted, empty layers can be removed",
+        "type": "compileCss",
+        "classes": [
+            "underline"
+        ],
+        "css": "@layer theme1 {\n            @layer theme2 {\n              @theme {\n                --color-tomato: #e10c04;\n                --color-potato: #ac855b;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\".underline {\n        text-decoration-line: underline;\n      }\""
+    },
+    {
+        "name": "`inline` and `reference` can be used together",
+        "type": "compileCss",
+        "classes": [
+            "bg-tomato",
+            "bg-potato",
+            "bg-primary"
+        ],
+        "css": "@theme reference inline {\n            --color-tomato: #e10c04;\n            --color-potato: #ac855b;\n            --color-primary: var(--primary);\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: #ac855b;\n      }\n\n      .bg-primary {\n        background-color: var(--primary);\n      }\n\n      .bg-tomato {\n        background-color: #e10c04;\n      }\""
+    },
+    {
+        "name": "`inline` and `reference` can be used together in `media(\u2026)`",
+        "type": "compileCss",
+        "classes": [
+            "bg-tomato",
+            "bg-potato",
+            "bg-primary"
+        ],
+        "css": "@media theme(reference inline) {\n            @theme {\n              --color-tomato: #e10c04;\n              --color-potato: #ac855b;\n              --color-primary: var(--primary);\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: #ac855b;\n      }\n\n      .bg-primary {\n        background-color: var(--primary);\n      }\n\n      .bg-tomato {\n        background-color: #e10c04;\n      }\""
+    },
+    {
+        "name": "`default` theme values can be overridden by regular theme values`",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme {\n            --color-potato: #ac855b;\n          }\n          @theme default {\n            --color-potato: #efb46b;\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --color-potato: #ac855b;\n      }\n\n      .bg-potato {\n        background-color: var(--color-potato);\n      }\""
+    },
+    {
+        "name": "`default` and `inline` can be used together",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme default inline {\n            --color-potato: #efb46b;\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: #efb46b;\n      }\""
+    },
+    {
+        "name": "`default` and `reference` can be used together",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme default reference {\n            --color-potato: #efb46b;\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: var(--color-potato, #efb46b);\n      }\""
+    },
+    {
+        "name": "`default`, `inline`, and `reference` can be used together",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato"
+        ],
+        "css": "@theme default reference inline {\n            --color-potato: #efb46b;\n          }\n\n          @tailwind utilities;",
+        "expected": "\".bg-potato {\n        background-color: #efb46b;\n      }\""
+    },
+    {
+        "name": "`default` can be used in `media(\u2026)`",
+        "type": "compileCss",
+        "classes": [
+            "bg-potato",
+            "bg-tomato"
+        ],
+        "css": "@media theme() {\n            @theme {\n              --color-potato: #ac855b;\n            }\n          }\n          @media theme(default) {\n            @theme {\n              --color-potato: #efb46b;\n              --color-tomato: tomato;\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\":root, :host {\n        --color-potato: #ac855b;\n        --color-tomato: tomato;\n      }\n\n      .bg-potato {\n        background-color: var(--color-potato);\n      }\n\n      .bg-tomato {\n        background-color: var(--color-tomato);\n      }\""
+    },
+    {
+        "name": "built-in variants can be overridden while keeping their order",
+        "type": "compileCss",
+        "classes": [
+            "rtl"
+        ],
+        "css": "@custom-variant dark (&:is([data-theme='dark'] *));\n          @layer utilities {\n            @tailwind utilities;\n          }",
+        "expected": "\"@layer utilities {\n        .rtl\\\\:flex:where(:dir(rtl), [dir=\"rtl\"], [dir=\"rtl\"] *), .dark\\\\:flex:is([data-theme=\"dark\"] *) {\n          display: flex;\n        }\n\n        @starting-style {\n          .starting\\\\:flex {\n            display: flex;\n          }\n        }\n      }\""
+    },
+    {
+        "name": "at-rule-only variants cannot be used with compound variants",
+        "type": "compileCss",
+        "classes": [
+            "foo:flex",
+            "group-foo:flex",
+            "peer-foo:flex",
+            "has-foo:flex",
+            "not-foo:flex"
+        ],
+        "css": "@custom-variant foo (@media foo);\n\n          @layer utilities {\n            @tailwind utilities;\n          }",
+        "expected": "\"@layer utilities {\n        @media not foo {\n          .not-foo\\\\:flex {\n            display: flex;\n          }\n        }\n\n        @media foo {\n          .foo\\\\:flex {\n            display: flex;\n          }\n        }\n      }\""
+    },
+    {
+        "name": "@custom-variant can reuse existing @variant in the definition",
+        "type": "compileCss",
+        "classes": [
+            "hocus:flex"
+        ],
+        "css": "@custom-variant hocus {\n            @variant hover {\n              @variant focus {\n                @slot;\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\"@media (hover: hover) {\n        .hocus\\\\:flex:hover:focus {\n          display: flex;\n        }\n      }\""
+    },
+    {
+        "name": "@custom-variant can reuse @custom-variant that is defined later",
+        "type": "compileCss",
+        "classes": [
+            "hocus:flex"
+        ],
+        "css": "@custom-variant hocus {\n            @variant custom-hover {\n              @variant focus {\n                @slot;\n              }\n            }\n          }\n\n          @custom-variant custom-hover (&:hover);\n\n          @tailwind utilities;",
+        "expected": "\".hocus\\\\:flex:hover:focus {\n        display: flex;\n      }\""
+    },
+    {
+        "name": "@custom-variant can reuse existing @variant that is overwritten later",
+        "type": "compileCss",
+        "classes": [
+            "hocus:flex"
+        ],
+        "css": "@custom-variant hocus {\n            @variant hover {\n              @variant focus {\n                @slot;\n              }\n            }\n          }\n\n          @custom-variant hover (&:hover);\n\n          @tailwind utilities;",
+        "expected": "\".hocus\\\\:flex:hover:focus {\n        display: flex;\n      }\""
+    },
+    {
+        "name": "@custom-variant setup that results in a circular dependency error can be solved",
+        "type": "compileCss",
+        "classes": [
+            "baz:flex"
+        ],
+        "css": "@custom-variant foo {\n            @variant hover {\n              @variant bar {\n                @slot;\n              }\n            }\n          }\n\n          @custom-variant bar {\n            @variant focus {\n              @variant baz {\n                @slot;\n              }\n            }\n          }\n\n          @custom-variant baz {\n            @variant active {\n              @variant foo {\n                @slot;\n              }\n            }\n          }\n\n          \/* Break the circle *\/\n          @custom-variant foo ([data-broken-circle] &);\n\n          @tailwind utilities;",
+        "expected": "\"[data-broken-circle] .baz\\\\:flex:active {\n        display: flex;\n      }\""
+    }
+]

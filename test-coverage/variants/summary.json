@@ -1,0 +1,210 @@
+{
+    "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/variants.test.ts",
+    "sourceLines": 2632,
+    "totalTests": 91,
+    "categories": {
+        "other": {
+            "tests": 30,
+            "lines": 1025,
+            "files": 2,
+            "testNames": [
+                "*",
+                "**",
+                "details-content",
+                "only",
+                "only-of-type",
+                "optional",
+                "user-valid",
+                "user-invalid",
+                "custom breakpoint",
+                "sorting stacked min-* and max-* variants",
+                "stacked min-* and max-* variants should come after unprefixed variants",
+                "sorting `min` and `max` should sort by unit, then by value, then alphabetically",
+                "in",
+                "contrast-more",
+                "contrast-less",
+                "forced-colors",
+                "inverted-colors",
+                "pointer-none",
+                "pointer-coarse",
+                "pointer-fine",
+                "any-pointer-none",
+                "any-pointer-coarse",
+                "any-pointer-fine",
+                "scripting-none",
+                "nth",
+                "container queries",
+                "variant order",
+                "variants with the same root are sorted deterministically",
+                "matchVariant sorts deterministically",
+                "move modifier of compound variant to sub-variant if its also a compound variant"
+            ]
+        },
+        "pseudo-class": {
+            "tests": 36,
+            "lines": 607,
+            "files": 1,
+            "testNames": [
+                "first-letter",
+                "first-line",
+                "first",
+                "last",
+                "odd",
+                "even",
+                "first-of-type",
+                "last-of-type",
+                "visited",
+                "target",
+                "default",
+                "checked",
+                "indeterminate",
+                "placeholder-shown",
+                "autofill",
+                "required",
+                "valid",
+                "invalid",
+                "in-range",
+                "out-of-range",
+                "read-only",
+                "empty",
+                "focus-within",
+                "hover",
+                "focus",
+                "group-hover group-focus sorting",
+                "focus-visible",
+                "active",
+                "enabled",
+                "disabled",
+                "group-[...]",
+                "group-*",
+                "peer-[...]",
+                "peer-*",
+                "default breakpoints",
+                "has"
+            ]
+        },
+        "pseudo-element": {
+            "tests": 7,
+            "lines": 102,
+            "files": 1,
+            "testNames": [
+                "marker",
+                "selection",
+                "file",
+                "placeholder",
+                "backdrop",
+                "before",
+                "after"
+            ]
+        },
+        "open": {
+            "tests": 1,
+            "lines": 9,
+            "files": 1,
+            "testNames": [
+                "open"
+            ]
+        },
+        "inert": {
+            "tests": 1,
+            "lines": 8,
+            "files": 1,
+            "testNames": [
+                "inert"
+            ]
+        },
+        "rtl-ltr": {
+            "tests": 2,
+            "lines": 16,
+            "files": 1,
+            "testNames": [
+                "ltr",
+                "rtl"
+            ]
+        },
+        "reduced-motion": {
+            "tests": 2,
+            "lines": 20,
+            "files": 1,
+            "testNames": [
+                "motion-safe",
+                "motion-reduce"
+            ]
+        },
+        "dark-mode": {
+            "tests": 1,
+            "lines": 10,
+            "files": 1,
+            "testNames": [
+                "dark"
+            ]
+        },
+        "starting": {
+            "tests": 1,
+            "lines": 10,
+            "files": 1,
+            "testNames": [
+                "starting"
+            ]
+        },
+        "print": {
+            "tests": 1,
+            "lines": 10,
+            "files": 1,
+            "testNames": [
+                "print"
+            ]
+        },
+        "breakpoints": {
+            "tests": 3,
+            "lines": 175,
+            "files": 1,
+            "testNames": [
+                "max-*",
+                "min-*",
+                "min, max and unprefixed breakpoints"
+            ]
+        },
+        "supports": {
+            "tests": 1,
+            "lines": 73,
+            "files": 1,
+            "testNames": [
+                "supports"
+            ]
+        },
+        "not": {
+            "tests": 1,
+            "lines": 350,
+            "files": 1,
+            "testNames": [
+                "not"
+            ]
+        },
+        "aria": {
+            "tests": 1,
+            "lines": 29,
+            "files": 1,
+            "testNames": [
+                "aria"
+            ]
+        },
+        "data": {
+            "tests": 1,
+            "lines": 43,
+            "files": 1,
+            "testNames": [
+                "data"
+            ]
+        },
+        "portrait-landscape": {
+            "tests": 2,
+            "lines": 20,
+            "files": 1,
+            "testNames": [
+                "portrait",
+                "landscape"
+            ]
+        }
+    }
+}

@@ -1,0 +1,134 @@
+[
+    {
+        "name": "should skip unknown variants",
+        "candidate": "unknown-variant:flex",
+        "expected": "[]",
+        "type": "empty"
+    },
+    {
+        "name": "should parse a simple utility with a variant",
+        "candidate": "hover:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"hover:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"hover\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a simple utility with stacked variants",
+        "candidate": "focus:hover:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"focus:hover:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"hover\",\n          },\n          {\n            \"kind\": \"static\",\n            \"root\": \"focus\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a simple utility with an arbitrary variant",
+        "candidate": "[&_p]:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"[&_p]:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"arbitrary\",\n            \"relative\": false,\n            \"selector\": \"& p\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse an arbitrary variant using the automatic var shorthand",
+        "candidate": "supports-(--test):flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"supports-(--test):flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": null,\n            \"root\": \"supports\",\n            \"value\": {\n              \"kind\": \"arbitrary\",\n              \"value\": \"var(--test)\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a simple utility with a parameterized variant",
+        "candidate": "data-[disabled]:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"data-[disabled]:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": null,\n            \"root\": \"data\",\n            \"value\": {\n              \"kind\": \"arbitrary\",\n              \"value\": \"disabled\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse compound variants with an arbitrary value as an arbitrary variant",
+        "candidate": "group-[&_p]\/parent-name:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"group-[&_p]\/parent-name:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"compound\",\n            \"modifier\": {\n              \"kind\": \"named\",\n              \"value\": \"parent-name\",\n            },\n            \"root\": \"group\",\n            \"variant\": {\n              \"kind\": \"arbitrary\",\n              \"relative\": false,\n              \"selector\": \"& p\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a simple utility with a parameterized variant and a modifier",
+        "candidate": "group-aria-[disabled]\/parent-name:flex",
+        "expected": "[\n        {\n          \"important\": false,\n          \"kind\": \"static\",\n          \"raw\": \"group-aria-[disabled]\/parent-name:flex\",\n          \"root\": \"flex\",\n          \"variants\": [\n            {\n              \"kind\": \"compound\",\n              \"modifier\": {\n                \"kind\": \"named\",\n                \"value\": \"parent-name\",\n              },\n              \"root\": \"group\",\n              \"variant\": {\n                \"kind\": \"functional\",\n                \"modifier\": null,\n                \"root\": \"aria\",\n                \"value\": {\n                  \"kind\": \"arbitrary\",\n                  \"value\": \"disabled\",\n                },\n              },\n            },\n          ],\n        },\n      ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a simple utility with an arbitrary media variant",
+        "candidate": "[@media(width>=123px)]:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"[@media(width>=123px)]:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"arbitrary\",\n            \"relative\": false,\n            \"selector\": \"@media(width>=123px)\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should skip arbitrary variants where @media and other arbitrary variants are combined",
+        "candidate": "[@media(width>=123px){&:hover}]:flex",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a utility with a modifier and a variant",
+        "candidate": "hover:bg-red-500\/50",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"functional\",\n        \"modifier\": {\n          \"kind\": \"named\",\n          \"value\": \"50\",\n        },\n        \"raw\": \"hover:bg-red-500\/50\",\n        \"root\": \"bg\",\n        \"value\": {\n          \"fraction\": \"red-500\/50\",\n          \"kind\": \"named\",\n          \"value\": \"red-500\",\n        },\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"hover\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a partial variant",
+        "candidate": "open-:flex",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse a partial variant",
+        "candidate": "data-:flex",
+        "expected": "[]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a static variant starting with @",
+        "candidate": "@lg:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"@lg:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"@lg\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a functional variant with a modifier",
+        "candidate": "foo-bar\/50:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"foo-bar\/50:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": {\n              \"kind\": \"named\",\n              \"value\": \"50\",\n            },\n            \"root\": \"foo\",\n            \"value\": {\n              \"kind\": \"named\",\n              \"value\": \"bar\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a functional variant starting with @",
+        "candidate": "@lg:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"@lg:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": null,\n            \"root\": \"@\",\n            \"value\": {\n              \"kind\": \"named\",\n              \"value\": \"lg\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a functional variant starting with @ that has a hyphen",
+        "candidate": "@foo-bar:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"@foo-bar:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": null,\n            \"root\": \"@\",\n            \"value\": {\n              \"kind\": \"named\",\n              \"value\": \"foo-bar\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse a functional variant starting with @ and a modifier",
+        "candidate": "@lg\/name:flex",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"static\",\n        \"raw\": \"@lg\/name:flex\",\n        \"root\": \"flex\",\n        \"variants\": [\n          {\n            \"kind\": \"functional\",\n            \"modifier\": {\n              \"kind\": \"named\",\n              \"value\": \"name\",\n            },\n            \"root\": \"@\",\n            \"value\": {\n              \"kind\": \"named\",\n              \"value\": \"lg\",\n            },\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties with a variant",
+        "candidate": "hover:[color:red]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"arbitrary\",\n        \"modifier\": null,\n        \"property\": \"color\",\n        \"raw\": \"hover:[color:red]\",\n        \"value\": \"red\",\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"hover\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties with stacked variants",
+        "candidate": "focus:hover:[color:red]",
+        "expected": "[\n      {\n        \"important\": false,\n        \"kind\": \"arbitrary\",\n        \"modifier\": null,\n        \"property\": \"color\",\n        \"raw\": \"focus:hover:[color:red]\",\n        \"value\": \"red\",\n        \"variants\": [\n          {\n            \"kind\": \"static\",\n            \"root\": \"hover\",\n          },\n          {\n            \"kind\": \"static\",\n            \"root\": \"focus\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should parse arbitrary properties that are important and using stacked arbitrary variants",
+        "candidate": "[@media(width>=123px)]:[&_p]:[color:red]!",
+        "expected": "[\n      {\n        \"important\": true,\n        \"kind\": \"arbitrary\",\n        \"modifier\": null,\n        \"property\": \"color\",\n        \"raw\": \"[@media(width>=123px)]:[&_p]:[color:red]!\",\n        \"value\": \"red\",\n        \"variants\": [\n          {\n            \"kind\": \"arbitrary\",\n            \"relative\": false,\n            \"selector\": \"& p\",\n          },\n          {\n            \"kind\": \"arbitrary\",\n            \"relative\": false,\n            \"selector\": \"@media(width>=123px)\",\n          },\n        ],\n      },\n    ]",
+        "type": "snapshot"
+    },
+    {
+        "name": "should not parse compound group with a non-compoundable variant",
+        "candidate": "group-*:flex",
+        "expected": "[]",
+        "type": "snapshot"
+    }
+]
