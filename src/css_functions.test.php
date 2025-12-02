@@ -100,10 +100,6 @@ class css_functions extends TestCase
      * - --theme() with initial fallback handling
      */
     private const PENDING_FEATURE_TESTS = [
-        // Variable opacity with @supports progressive enhancement
-        'theme(colors.red.500/var(--opacity))',
-        'theme(colors.red.500/var(--opacity,50%))',
-
         // @custom-media at-rule processing
         '@custom-media --my-media (min-width: theme(breakpoint.md))',
 

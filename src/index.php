@@ -893,6 +893,11 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
         $optimizeValues($node);
     }
 
+    // Apply color-mix polyfill - convert color-mix with variables to @supports fallback
+    if ($polyfills & POLYFILL_COLOR_MIX) {
+        $result = applyColorMixPolyfill($result);
+    }
+
     // Process atRoots - separate @property rules from others
     $atPropertyRules = [];
     $otherAtRoots = [];
@@ -1077,6 +1082,92 @@ function extractCandidates(string $html): array
     }
 
     return array_unique($candidates);
+}
+
+/**
+ * Apply color-mix polyfill to AST.
+ *
+ * When color-mix() contains CSS variables (like var(--opacity)), browsers that don't
+ * support color-mix need a fallback. This creates:
+ * 1. A fallback declaration with just the base color
+ * 2. An @supports block with the color-mix version
+ *
+ * @param array $ast The AST to process
+ * @return array Modified AST with polyfill applied
+ */
+function applyColorMixPolyfill(array $ast): array
+{
+    $result = [];
+
+    foreach ($ast as $node) {
+        if ($node['kind'] === 'rule') {
+            // Process each declaration in the rule
+            $newNodes = [];
+            $supportsDeclarations = [];
+
+            foreach ($node['nodes'] ?? [] as $decl) {
+                if ($decl['kind'] === 'declaration' && isset($decl['value'])) {
+                    $value = $decl['value'];
+
+                    // Check if this declaration has color-mix with a var()
+                    if (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+var\s*\([^)]+\)\s*,\s*transparent\s*\)/i', $value, $match)) {
+                        // Extract the color from color-mix and normalize it
+                        $color = trim($match[1]);
+                        $color = LightningCss::optimizeValue($color, $decl['property']);
+
+                        // Create fallback with just the color
+                        $fallbackDecl = [
+                            'kind' => 'declaration',
+                            'property' => $decl['property'],
+                            'value' => $color,
+                            'important' => $decl['important'] ?? false,
+                        ];
+                        $newNodes[] = $fallbackDecl;
+
+                        // Normalize the color-mix value for @supports
+                        $normalizedColorMix = preg_replace(
+                            '/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+(var\s*\([^)]+\))\s*,\s*transparent\s*\)/i',
+                            'color-mix(in oklab, ' . $color . ' $2, transparent)',
+                            $value
+                        );
+                        $supportsDecl = $decl;
+                        $supportsDecl['value'] = $normalizedColorMix;
+                        $supportsDeclarations[] = $supportsDecl;
+                    } else {
+                        $newNodes[] = $decl;
+                    }
+                } else {
+                    $newNodes[] = $decl;
+                }
+            }
+
+            // Add the rule with fallback declarations
+            if (!empty($newNodes)) {
+                $fallbackRule = $node;
+                $fallbackRule['nodes'] = $newNodes;
+                $result[] = $fallbackRule;
+            }
+
+            // Add @supports block if we have color-mix declarations
+            if (!empty($supportsDeclarations)) {
+                $supportsRule = [
+                    'kind' => 'rule',
+                    'selector' => $node['selector'],
+                    'nodes' => $supportsDeclarations,
+                ];
+                $supports = Ast\atRule('@supports', '(color: color-mix(in lab, red, red))', [$supportsRule]);
+                $result[] = $supports;
+            }
+        } elseif (isset($node['nodes'])) {
+            // Recursively process nested nodes
+            $node['nodes'] = applyColorMixPolyfill($node['nodes']);
+            $result[] = $node;
+        } else {
+            $result[] = $node;
+        }
+    }
+
+    return $result;
 }
 
 /**
