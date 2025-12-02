@@ -373,9 +373,8 @@ class variants extends TestCase
 
         foreach ($expectedRules as $selector => $expectedDecls) {
             // Handle comma-separated selectors - check each part exists
-            $selectorsToCheck = str_contains($selector, ',')
-                ? array_map('trim', explode(',', $selector))
-                : [$selector];
+            // But don't split inside parentheses (e.g., :where(:dir(rtl), [dir="rtl"]))
+            $selectorsToCheck = self::splitSelectorList($selector);
 
             foreach ($selectorsToCheck as $singleSelector) {
                 // Check selector exists (with possible escaping differences)
@@ -421,6 +420,43 @@ class variants extends TestCase
                 }
             }
         }
+    }
+
+    /**
+     * Split a selector list by commas, but not inside parentheses or brackets.
+     */
+    private static function splitSelectorList(string $selector): array
+    {
+        if (!str_contains($selector, ',')) {
+            return [$selector];
+        }
+
+        $parts = [];
+        $current = '';
+        $depth = 0;
+
+        for ($i = 0; $i < strlen($selector); $i++) {
+            $char = $selector[$i];
+
+            if ($char === '(' || $char === '[') {
+                $depth++;
+                $current .= $char;
+            } elseif ($char === ')' || $char === ']') {
+                $depth--;
+                $current .= $char;
+            } elseif ($char === ',' && $depth === 0) {
+                $parts[] = trim($current);
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+
+        if (trim($current) !== '') {
+            $parts[] = trim($current);
+        }
+
+        return $parts;
     }
 
     /**

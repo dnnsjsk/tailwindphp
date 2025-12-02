@@ -813,15 +813,16 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     ));
 
     // Pseudo-element variants
-    $staticVariant('first-letter', ['&::first-letter']);
-    $staticVariant('first-line', ['&::first-line']);
+    // Use single colon for these pseudo-elements (legacy CSS2 syntax, matches lightningcss output)
+    $staticVariant('first-letter', ['&:first-letter']);
+    $staticVariant('first-line', ['&:first-line']);
     $staticVariant('marker', [
-        '& *::marker',
+        '& ::marker',
         '&::marker',
-        '& *::-webkit-details-marker',
+        '& ::-webkit-details-marker',
         '&::-webkit-details-marker',
     ]);
-    $staticVariant('selection', ['& *::selection', '&::selection']);
+    $staticVariant('selection', ['& ::selection', '&::selection']);
     $staticVariant('file', ['&::file-selector-button']);
     $staticVariant('placeholder', ['&::placeholder']);
     $staticVariant('backdrop', ['&::backdrop']);
@@ -920,7 +921,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
     $staticVariant('inert', ['&:is([inert], [inert] *)']);
 
-    // in-* compound variant
+    // in-* compound variant for wrapping other variants
+    // Handles both:
+    // - in-[p]:flex → arbitrary selector as parent context
+    // - in-data-visible:flex → variant as parent context
     $variants->compound('in', COMPOUNDS_STYLE_RULES, function (&$ruleNode, $variant) {
         if (isset($variant['modifier'])) return false;
 
@@ -937,9 +941,39 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                 }
             }
 
-            $node['selector'] = ':where(' . str_replace('&', '*', $node['selector']) . ') &';
+            $selector = $node['selector'];
+
+            // Transform the selector to be a parent context
+            if (str_starts_with($selector, '&:is(')) {
+                // Extract the inner content from &:is(...)
+                // For &:is(p) → :is(p) (keep :is for element selectors)
+                // For &:is(.group) → .group (extract class selectors)
+                $inner = substr($selector, 5, -1); // Extract content inside :is()
+                if (preg_match('/^[.#]/', $inner) || preg_match('/^\[/', $inner)) {
+                    // Class, ID, or attribute selector - use directly
+                    $parentSelector = $inner;
+                } else {
+                    // Element selector - keep the :is() wrapper
+                    $parentSelector = ':is(' . $inner . ')';
+                }
+            } elseif (str_starts_with($selector, '&[')) {
+                // Attribute selector like &[data-visible] → [data-visible]
+                $parentSelector = substr($selector, 1);
+            } elseif (str_starts_with($selector, '&:')) {
+                // Pseudo-class like &:hover → :hover (for future use)
+                $parentSelector = substr($selector, 1);
+            } else {
+                // Other cases - just remove & or replace with empty
+                $parentSelector = str_replace('&', '', $selector);
+            }
+
+            $node['selector'] = ':where(' . $parentSelector . ') &';
             $didApply = true;
         });
+
+        // Copy back the modified node
+        $ruleNode['selector'] = $nodes[0]['selector'];
+        $ruleNode['nodes'] = $nodes[0]['nodes'];
 
         if (!$didApply) return false;
     });
