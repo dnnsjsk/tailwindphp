@@ -85,6 +85,8 @@
         "extract-and-test": [
             "@extract",
             "phpunit"
-        ]
+        ],
+        "update-tailwind": "php scripts/update-tailwind.php",
+        "tailwind-version": "php scripts/update-tailwind.php --check"
     }
 }
