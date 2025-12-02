@@ -1403,3 +1403,88 @@ class Tailwind
         return extractCandidates($html);
     }
 }
+
+// =============================================================================
+// Class Name Utilities (clsx + tailwind-merge)
+// =============================================================================
+// These are the most popular companion libraries for Tailwind CSS.
+// We include PHP ports so users don't need separate packages.
+
+require_once __DIR__ . '/_tailwindphp/lib/clsx/clsx.php';
+require_once __DIR__ . '/_tailwindphp/lib/tailwind-merge/index.php';
+
+/**
+ * Conditionally construct class name strings.
+ *
+ * Port of: https://github.com/lukeed/clsx
+ *
+ * @param mixed ...$args Class values (strings, arrays, conditionals)
+ * @return string Space-separated class string
+ *
+ * @example
+ * clsx('foo', 'bar');                     // => 'foo bar'
+ * clsx('foo', ['bar' => true]);           // => 'foo bar'
+ * clsx(['foo' => true, 'bar' => false]); // => 'foo'
+ * clsx('foo', null, 'bar', undefined);    // => 'foo bar'
+ */
+function clsx(mixed ...$args): string
+{
+    return \TailwindPHP\Lib\Clsx\clsx(...$args);
+}
+
+/**
+ * Merge Tailwind CSS classes without style conflicts.
+ *
+ * Port of: https://github.com/dcastil/tailwind-merge
+ *
+ * @param mixed ...$args Class values to merge
+ * @return string Merged class string with conflicts resolved
+ *
+ * @example
+ * twMerge('px-2 py-1', 'px-4');          // => 'py-1 px-4'
+ * twMerge('text-red-500', 'text-blue-500'); // => 'text-blue-500'
+ * twMerge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
+ */
+function twMerge(mixed ...$args): string
+{
+    return \TailwindPHP\Lib\TailwindMerge\twMerge(...$args);
+}
+
+/**
+ * Join class names without conflict resolution.
+ *
+ * Port of: https://github.com/dcastil/tailwind-merge (twJoin)
+ *
+ * @param mixed ...$args Class values to join
+ * @return string Joined class string
+ *
+ * @example
+ * twJoin('foo', 'bar');       // => 'foo bar'
+ * twJoin('foo', null, 'bar'); // => 'foo bar'
+ */
+function twJoin(mixed ...$args): string
+{
+    return \TailwindPHP\Lib\TailwindMerge\twJoin(...$args);
+}
+
+/**
+ * The ultimate class name utility: clsx + twMerge combined.
+ *
+ * This is the recommended way to conditionally apply Tailwind classes.
+ * First processes conditional classes with clsx, then resolves conflicts with twMerge.
+ *
+ * Inspired by the popular pattern in React/Next.js projects using shadcn/ui.
+ *
+ * @param mixed ...$inputs Class values (strings, arrays, conditionals)
+ * @return string Merged class string with conflicts resolved
+ *
+ * @example
+ * cn('px-2 py-1', 'px-4');                    // => 'py-1 px-4'
+ * cn('text-red-500', ['text-blue-500' => true]); // => 'text-blue-500'
+ * cn('hidden', ['block' => $isVisible]);      // => 'block' (if $isVisible is true)
+ * cn('btn', 'btn-primary', ['btn-lg' => $large, 'btn-disabled' => $disabled]);
+ */
+function cn(mixed ...$inputs): string
+{
+    return \TailwindPHP\Lib\TailwindMerge\cn(...$inputs);
+}

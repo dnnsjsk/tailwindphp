@@ -1,0 +1,171 @@
+{
+    "library": "tailwind-merge",
+    "reference": "https:\/\/github.com\/dcastil\/tailwind-merge",
+    "extracted_at": "2025-12-02 21:55:12",
+    "total_files": 32,
+    "total_tests": 99,
+    "applicable_tests": 67,
+    "not_applicable_tests": 32,
+    "files": [
+        {
+            "file": "arbitrary-properties.test.ts",
+            "tests": 4,
+            "applicable": true
+        },
+        {
+            "file": "arbitrary-values.test.ts",
+            "tests": 5,
+            "applicable": true
+        },
+        {
+            "file": "arbitrary-variants.test.ts",
+            "tests": 7,
+            "applicable": true
+        },
+        {
+            "file": "class-group-conflicts.test.ts",
+            "tests": 2,
+            "applicable": false
+        },
+        {
+            "file": "class-map.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "colors.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "conflicts-across-class-groups.test.ts",
+            "tests": 4,
+            "applicable": true
+        },
+        {
+            "file": "content-utilities.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "create-tailwind-merge.test.ts",
+            "tests": 2,
+            "applicable": false
+        },
+        {
+            "file": "default-config.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "docs-examples.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "experimental-parse-class-name.test.ts",
+            "tests": 3,
+            "applicable": false
+        },
+        {
+            "file": "extend-tailwind-merge.test.ts",
+            "tests": 4,
+            "applicable": false
+        },
+        {
+            "file": "important-modifier.test.ts",
+            "tests": 1,
+            "applicable": true
+        },
+        {
+            "file": "lazy-initialization.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "merge-configs.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "modifiers.test.ts",
+            "tests": 4,
+            "applicable": true
+        },
+        {
+            "file": "negative-values.test.ts",
+            "tests": 3,
+            "applicable": true
+        },
+        {
+            "file": "non-conflicting-classes.test.ts",
+            "tests": 1,
+            "applicable": true
+        },
+        {
+            "file": "non-tailwind-classes.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "per-side-border-colors.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "prefixes.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "pseudo-variants.test.ts",
+            "tests": 2,
+            "applicable": true
+        },
+        {
+            "file": "public-api.test.ts",
+            "tests": 8,
+            "applicable": true
+        },
+        {
+            "file": "standalone-classes.test.ts",
+            "tests": 1,
+            "applicable": false
+        },
+        {
+            "file": "tailwind-css-versions.test.ts",
+            "tests": 5,
+            "applicable": false
+        },
+        {
+            "file": "theme.test.ts",
+            "tests": 2,
+            "applicable": false
+        },
+        {
+            "file": "tw-join.test.ts",
+            "tests": 5,
+            "applicable": true
+        },
+        {
+            "file": "tw-merge.test.ts",
+            "tests": 1,
+            "applicable": true
+        },
+        {
+            "file": "type-generics.test.ts",
+            "tests": 3,
+            "applicable": false
+        },
+        {
+            "file": "validators.test.ts",
+            "tests": 21,
+            "applicable": true
+        },
+        {
+            "file": "wonky-inputs.test.ts",
+            "tests": 1,
+            "applicable": true
+        }
+    ]
+}

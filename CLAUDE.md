@@ -38,8 +38,21 @@ This includes:
 - `LightningCss.php` - CSS optimizations (lightningcss equivalent)
 - `CandidateParser.php` - Candidate parsing helpers
 - `CssFormatter.php` - CSS output formatting
+- `lib/` - Companion library ports (clsx, tailwind-merge)
 
 Everything else in `src/` should mirror TailwindCSS structure.
+
+### 5. Companion Libraries (clsx, tailwind-merge)
+
+We include PHP ports of [clsx](https://github.com/lukeed/clsx) and [tailwind-merge](https://github.com/dcastil/tailwind-merge) because they are essential companion libraries in the Tailwind ecosystem:
+
+- **clsx** - Conditional class name construction (used in virtually every Tailwind project)
+- **tailwind-merge** - Intelligent class conflict resolution (`p-2 p-4` → `p-4`)
+- **cn()** - Combines both (the pattern popularized by [shadcn/ui](https://ui.shadcn.com/))
+
+By including these, TailwindPHP provides a complete Tailwind development experience without requiring Node.js for anything.
+
+**Important for LLMs**: These libraries live in `src/_tailwindphp/lib/` with their own namespace (`TailwindPHP\Lib\*`) to clearly separate them from the core TailwindCSS port. The public API functions (`cn`, `clsx`, `twMerge`, `twJoin`) are exposed in `src/index.php` under the main `TailwindPHP` namespace.
 
 ---
 
@@ -79,14 +92,28 @@ Located in `test-coverage/`:
 - `extract-candidate-tests.php` - Extracts candidate tests
 - `extract-ui-spec-tests.php` - Extracts ui.spec.ts browser tests
 
+#### Library Test Extraction (test-coverage/lib/)
+- `extract-clsx-tests.php` - Extracts clsx tests from reference/clsx/test/
+- `extract-tailwind-merge-tests.php` - Extracts tailwind-merge tests from reference/tailwind-merge/tests/
+- `verify-test-counts.php` - Verifies PHP tests match reference test counts
+
 ### Commands
 
 ```bash
 # Extract tests from TypeScript source
 composer extract
 
+# Extract companion library tests
+composer extract-libs
+
+# Extract all tests (core + libs)
+composer extract-all
+
 # Run all tests
 composer test
+
+# Run library tests only
+composer test-libs
 
 # Extract and run tests
 composer extract-and-test
@@ -96,6 +123,15 @@ composer extract-and-test
 
 # Run tests matching a pattern
 ./vendor/bin/phpunit --filter="hover"
+
+# Check current versions of all references
+composer versions
+
+# Update TailwindCSS reference
+composer update-tailwind
+
+# Update companion library references
+composer update-libs
 ```
 
 ---
@@ -142,7 +178,17 @@ tailwind-php/
 │   ├── _tailwindphp/           # PHP-specific (NOT part of port)
 │   │   ├── LightningCss.php    # CSS transformations
 │   │   ├── CandidateParser.php
-│   │   └── CssFormatter.php
+│   │   ├── CssFormatter.php
+│   │   └── lib/                # Companion library ports
+│   │       ├── clsx/           # clsx port (27 tests)
+│   │       │   ├── clsx.php
+│   │       │   └── clsx.test.php
+│   │       └── tailwind-merge/ # tailwind-merge port (52 tests)
+│   │           ├── index.php   # Main entry, cn(), twMerge(), twJoin()
+│   │           ├── config.php  # Default Tailwind v4 config
+│   │           ├── merger.php  # ClassNameMerger logic
+│   │           ├── lru-cache.php
+│   │           └── tailwind_merge.test.php
 │   │
 │   ├── utilities/              # Split from utilities.ts
 │   │   ├── accessibility.php
@@ -152,6 +198,7 @@ tailwind-php/
 │   │
 │   ├── utils/                  # Helper functions
 │   │
+│   ├── index.php               # Main entry + public API (cn, clsx, twMerge, twJoin)
 │   ├── *.php                   # Core implementation
 │   └── *.test.php              # Unit test files
 │
@@ -161,10 +208,20 @@ tailwind-php/
 │
 ├── test-coverage/
 │   ├── */tests/                # Extracted test data
-│   └── extract-*.php           # Extraction scripts
+│   ├── lib/                    # Library test extraction scripts
+│   │   ├── extract-clsx-tests.php
+│   │   ├── extract-tailwind-merge-tests.php
+│   │   └── verify-test-counts.php
+│   └── extract-*.php           # Core extraction scripts
 │
 ├── reference/
-│   └── tailwindcss/            # Git submodule for reference
+│   ├── tailwindcss/            # Git submodule - TailwindCSS source
+│   ├── clsx/                   # Git submodule - clsx source
+│   └── tailwind-merge/         # Git submodule - tailwind-merge source
+│
+├── scripts/
+│   ├── update-tailwind.php     # Update TailwindCSS reference
+│   └── update-libs.php         # Update companion library references
 │
 └── CLAUDE.md                   # This file
 ```
@@ -175,7 +232,7 @@ tailwind-php/
 
 | File | Purpose |
 |------|---------|
-| `src/index.php` | Main entry point, `compile()` function |
+| `src/index.php` | Main entry point, `compile()`, `cn()`, `clsx()`, `twMerge()` |
 | `src/utilities.php` | Utility registration and compilation |
 | `src/variants.php` | Variant handling (hover, focus, etc.) |
 | `src/compile.php` | Candidate to CSS compilation |
@@ -183,7 +240,63 @@ tailwind-php/
 | `src/theme.php` | Theme value management |
 | `src/ast.php` | AST nodes and `toCss()` |
 | `src/_tailwindphp/LightningCss.php` | CSS optimizations |
+| `src/_tailwindphp/lib/clsx/clsx.php` | clsx implementation |
+| `src/_tailwindphp/lib/tailwind-merge/index.php` | tailwind-merge + cn() implementation |
 | `tests/TestHelper.php` | `TestHelper::run()` for tests |
+| `scripts/update-libs.php` | Update companion library references |
+
+---
+
+## Public API
+
+### Core CSS Compilation
+
+```php
+use TailwindPHP\Tailwind;
+
+// Generate CSS from HTML
+$css = Tailwind::generate('<div class="flex p-4">');
+
+// With custom CSS input
+$css = Tailwind::generate($html, '@tailwind utilities; @theme { --color-brand: #3b82f6; }');
+
+// Extract class candidates from content
+$classes = Tailwind::extractCandidates('<div class="flex p-4">');
+```
+
+### Class Name Utilities
+
+```php
+use function TailwindPHP\cn;
+use function TailwindPHP\clsx;
+use function TailwindPHP\twMerge;
+use function TailwindPHP\twJoin;
+
+// cn() - Recommended: combines clsx + twMerge (shadcn/ui pattern)
+cn('px-2 py-1', 'px-4');                    // => 'py-1 px-4'
+cn('btn', ['btn-primary' => $active]);       // => 'btn btn-primary' (if $active)
+
+// clsx() - Conditional class construction
+clsx('foo', ['bar' => true, 'baz' => false]); // => 'foo bar'
+clsx(['a', 'b'], 'c');                        // => 'a b c'
+
+// twMerge() - Conflict resolution only
+twMerge('px-2 py-1', 'px-4');                // => 'py-1 px-4'
+twMerge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
+
+// twJoin() - Simple joining without conflict resolution
+twJoin('foo', 'bar', null);                  // => 'foo bar'
+```
+
+### Direct Library Access
+
+For advanced use cases, you can access the library implementations directly:
+
+```php
+use function TailwindPHP\Lib\Clsx\clsx;
+use function TailwindPHP\Lib\TailwindMerge\twMerge;
+use function TailwindPHP\Lib\TailwindMerge\cn;
+```
 
 ---
 
@@ -241,6 +354,45 @@ When comparing CSS output:
 3. Handle selector escaping differences
 4. Don't break pseudo-selectors (`:hover`, `:root`)
 
+### Updating Library References
+
+When clsx or tailwind-merge releases a new version:
+
+```bash
+# Check current versions
+composer versions
+
+# Update all libraries to latest
+composer update-libs
+
+# Update specific library
+php scripts/update-libs.php clsx
+php scripts/update-libs.php tailwind-merge
+```
+
+The update script will:
+1. Fetch the latest tag from the reference repo
+2. Checkout that tag
+3. Re-extract tests from the new source
+4. Update README badges automatically
+5. Run tests to verify compatibility
+
+If tests fail after updating, it means the library made breaking changes that require updating the PHP implementation.
+
+### Library Test Extraction
+
+Tests for companion libraries are extracted from their original JavaScript/TypeScript test files:
+
+**clsx**: Tests extracted from `reference/clsx/test/index.js` and `classnames.js`
+- Parser handles JavaScript function call syntax
+- Converts JS truthiness semantics to PHP (empty arrays are truthy in JS)
+- Strips JS comments before parsing
+
+**tailwind-merge**: Tests extracted from `reference/tailwind-merge/tests/*.test.ts`
+- Parser handles TypeScript test syntax (`test()`, `expect().toBe()`)
+- Processes escape sequences in string literals
+- Some tests N/A (require custom config, extendTailwindMerge)
+
 ---
 
 ## Debugging Tips
@@ -275,7 +427,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,006 tests (all passing)**
+**Total: 3,085 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -286,6 +438,25 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `index.test.php` | ✅ | 78 (5 N/A - outside scope) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 | `ui_spec.test.php` | ✅ | 68 |
+
+### Library Tests (`src/_tailwindphp/lib/`)
+
+PHP ports of utility libraries with tests extracted from their reference implementations:
+
+| Library | Test File | Status | Tests | Reference |
+|---------|-----------|--------|-------|-----------|
+| clsx | `clsx.test.php` | ✅ | 27 | 27/27 (100%) |
+| tailwind-merge | `tailwind_merge.test.php` | ✅ | 52 | 52/67 applicable (78%) |
+
+**clsx** - Class name string builder (`TailwindPHP\Lib\Clsx\clsx`)
+- Reference: https://github.com/lukeed/clsx
+- All 27 tests ported from index.js (12) and classnames.js (15)
+
+**tailwind-merge** - Tailwind class conflict resolver (`TailwindPHP\Lib\TailwindMerge\twMerge`)
+- Reference: https://github.com/dcastil/tailwind-merge
+- 52 tests from 14 applicable test files
+- 32 tests N/A (require custom config, extendTailwindMerge, etc.)
+- Includes `cn()` function that combines clsx + twMerge
 
 ### API Coverage Tests (`tests/tailwindphp/`)
 

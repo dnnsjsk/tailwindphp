@@ -81,12 +81,25 @@
             "php test-coverage/extract-candidate-tests.php",
             "php test-coverage/extract-ui-spec-tests.php"
         ],
-        "test": "phpunit",
-        "extract-and-test": [
+        "extract-libs": [
+            "php test-coverage/lib/extract-clsx-tests.php",
+            "php test-coverage/lib/extract-tailwind-merge-tests.php"
+        ],
+        "extract-all": [
             "@extract",
+            "@extract-libs"
+        ],
+        "test": "phpunit",
+        "test-libs": "phpunit src/_tailwindphp/lib/",
+        "extract-and-test": [
+            "@extract-all",
             "phpunit"
         ],
         "update-tailwind": "php scripts/update-tailwind.php",
-        "tailwind-version": "php scripts/update-tailwind.php --check"
+        "update-libs": "php scripts/update-libs.php",
+        "versions": [
+            "php scripts/update-tailwind.php --check",
+            "php scripts/update-libs.php --check"
+        ]
     }
 }

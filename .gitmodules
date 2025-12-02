@@ -1,3 +1,9 @@
 [submodule "tailwindcss"]
 	path = reference/tailwindcss
 	url = https://github.com/tailwindlabs/tailwindcss.git
+[submodule "reference/tailwind-merge"]
+	path = reference/tailwind-merge
+	url = https://github.com/dcastil/tailwind-merge.git
+[submodule "reference/clsx"]
+	path = reference/clsx
+	url = https://github.com/lukeed/clsx.git

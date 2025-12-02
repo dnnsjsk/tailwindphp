@@ -1,10 +1,14 @@
 # Tailwind PHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,006%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
+[![Tests](https://img.shields.io/badge/Tests-3,085%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
 [![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php&logoColor=white)](https://php.net)
+[![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
+[![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
 
 A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required. This entire codebase was written by Claude, with the goal of creating an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
+
+**Includes PHP ports of [clsx](https://github.com/lukeed/clsx) and [tailwind-merge](https://github.com/dcastil/tailwind-merge)** — the most popular companion libraries for Tailwind CSS.
 
 ## Scope
 
@@ -20,6 +24,7 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
+- `cn()`, `clsx()`, `twMerge()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
 **What's NOT included (for now):**
@@ -31,15 +36,14 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ## Status
 
-✅ **3,006 tests passing** — Feature complete for core TailwindCSS functionality.
+✅ **3,085 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
-| API Coverage (utilities) | 904 | ✅ |
-| API Coverage (modifiers) | 338 | ✅ |
-| API Coverage (variants) | 282 | ✅ |
-| API Coverage (directives) | 160 | ✅ |
+| API Coverage (utilities, modifiers, variants, directives) | 1,684 | ✅ |
+| clsx (from reference test suite) | 27 | ✅ |
+| tailwind-merge (from reference test suite) | 52 | ✅ |
 
 ### Not Supported
 
@@ -96,8 +100,6 @@ $css = Tailwind::generate([
 ]);
 ```
 
-The array format is useful when you want to keep content and configuration together.
-
 ### Extract Class Names
 
 If you need to extract Tailwind class names from content separately:
@@ -109,7 +111,126 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 // ['flex', 'p-4', 'bg-blue-500']
 ```
 
-This is useful when you want to scan multiple files and combine the results before generating CSS.
+---
+
+## Class Name Utilities
+
+TailwindPHP includes PHP ports of the two most popular class name libraries in the Tailwind ecosystem. No additional packages required.
+
+### `cn()` — The Ultimate Class Name Utility
+
+Combines `clsx` (conditional classes) with `twMerge` (conflict resolution). This is the recommended way to build class strings in PHP — the same pattern popularized by [shadcn/ui](https://ui.shadcn.com/) in React.
+
+```php
+use function TailwindPHP\cn;
+
+// Basic usage
+cn('px-2 py-1', 'px-4');
+// => 'py-1 px-4' (px-4 overrides px-2)
+
+// Conditional classes
+cn('btn', ['btn-primary' => true, 'btn-disabled' => false]);
+// => 'btn btn-primary'
+
+// Override defaults with conditionals
+cn('text-gray-500', ['text-red-500' => $hasError]);
+// => 'text-red-500' (if $hasError is true)
+
+// Complex component example
+function Button($variant = 'default', $size = 'md', $disabled = false, $className = '') {
+    return cn(
+        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2',
+        [
+            'bg-primary text-white hover:bg-primary/90' => $variant === 'default',
+            'bg-destructive text-white hover:bg-destructive/90' => $variant === 'destructive',
+            'border border-input bg-background hover:bg-accent' => $variant === 'outline',
+        ],
+        [
+            'h-9 px-3 text-sm' => $size === 'sm',
+            'h-10 px-4' => $size === 'md',
+            'h-11 px-8 text-lg' => $size === 'lg',
+        ],
+        ['opacity-50 pointer-events-none' => $disabled],
+        $className // Allow overrides from caller
+    );
+}
+```
+
+### `clsx()` — Conditional Class Names
+
+Port of [lukeed/clsx](https://github.com/lukeed/clsx). Construct class strings from various inputs.
+
+```php
+use function TailwindPHP\clsx;
+
+// Strings
+clsx('foo', 'bar');
+// => 'foo bar'
+
+// Objects (associative arrays) - keys with truthy values are included
+clsx(['foo' => true, 'bar' => false, 'baz' => true]);
+// => 'foo baz'
+
+// Arrays
+clsx(['foo', 'bar']);
+// => 'foo bar'
+
+// Mixed
+clsx('foo', ['bar' => true], ['baz', 'qux']);
+// => 'foo bar baz qux'
+
+// Falsy values are ignored
+clsx('foo', null, false, 'bar', undefined, 0, '');
+// => 'foo bar'
+```
+
+### `twMerge()` — Tailwind Class Conflict Resolution
+
+Port of [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge). Merge Tailwind classes without style conflicts.
+
+```php
+use function TailwindPHP\twMerge;
+
+// Later classes override earlier conflicting ones
+twMerge('px-2 py-1 bg-red-500', 'px-4 bg-blue-500');
+// => 'py-1 px-4 bg-blue-500'
+
+// Works with variants
+twMerge('hover:bg-red-500', 'hover:bg-blue-500');
+// => 'hover:bg-blue-500'
+
+// Handles arbitrary values
+twMerge('text-[14px]', 'text-[16px]');
+// => 'text-[16px]'
+
+// Non-conflicting classes are preserved
+twMerge('flex', 'items-center', 'justify-between');
+// => 'flex items-center justify-between'
+```
+
+### `twJoin()` — Simple Class Joining
+
+Join classes without conflict resolution. Useful when you know there are no conflicts.
+
+```php
+use function TailwindPHP\twJoin;
+
+twJoin('foo', 'bar', null, 'baz');
+// => 'foo bar baz'
+```
+
+### Why Include These?
+
+These libraries are essential for building maintainable Tailwind-based UIs:
+
+1. **clsx** solves conditional class application — no more string concatenation
+2. **tailwind-merge** prevents class conflicts — `p-2 p-4` becomes `p-4`
+3. **cn** combines both — the standard pattern used by shadcn/ui and modern React apps
+
+By including PHP ports, we provide a complete Tailwind development experience without requiring Node.js for anything.
+
+---
 
 ## How It Works
 
@@ -122,7 +243,10 @@ src/
 ├── _tailwindphp/                # PHP-specific helpers (NOT part of the TailwindCSS port)
 │   ├── LightningCss.php         # CSS optimizations (lightningcss Rust library equivalent)
 │   ├── CandidateParser.php      # Candidate parsing for compilation
-│   └── CssFormatter.php         # CSS output formatting
+│   ├── CssFormatter.php         # CSS output formatting
+│   └── lib/                     # Companion library ports
+│       ├── clsx/                # clsx port (27 tests from reference)
+│       └── tailwind-merge/      # tailwind-merge port (52 tests from reference)
 │
 ├── utilities/                   # Utility implementations (split from utilities.ts)
 │   ├── accessibility.php        # sr-only, forced-colors
@@ -143,24 +267,8 @@ src/
 │   └── typography.php           # font-*, text-*, leading-*, tracking-*, text-shadow-*
 │
 ├── utils/                       # Helper functions (ported from utils/)
-│   ├── brace-expansion.php      # Brace expansion parsing
-│   ├── compare.php              # Value comparison
-│   ├── compare-breakpoints.php  # Breakpoint comparison
-│   ├── decode-arbitrary-value.php # Arbitrary value decoding
-│   ├── default-map.php          # Default value mapping
-│   ├── dimensions.php           # Dimension parsing
-│   ├── escape.php               # CSS escaping
-│   ├── infer-data-type.php      # Data type inference
-│   ├── is-color.php             # Color detection
-│   ├── is-valid-arbitrary.php   # Arbitrary value validation
-│   ├── math-operators.php       # Math operation handling
-│   ├── replace-shadow-colors.php # Shadow color replacement
-│   ├── segment.php              # String segmentation
-│   ├── to-key-path.php          # Key path conversion
-│   ├── topological-sort.php     # Dependency sorting
-│   └── variables.php            # CSS variable handling
 │
-├── index.php                    # Main entry point, compile() function
+├── index.php                    # Main entry point, compile(), cn(), clsx(), twMerge()
 ├── ast.php                      # AST nodes and toCss()
 ├── candidate.php                # Candidate parsing (class name → parts)
 ├── compile.php                  # Candidate to CSS compilation
@@ -213,6 +321,9 @@ composer test
 
 # Run tests matching a pattern
 ./vendor/bin/phpunit --filter="translate"
+
+# Run library tests only
+./vendor/bin/phpunit src/_tailwindphp/lib/
 ```
 
 ### How It Works
@@ -220,6 +331,17 @@ composer test
 1. **Extract** — Scripts in `test-coverage/` parse TailwindCSS's `.test.ts` files and extract test cases
 2. **Run** — PHPUnit tests read extracted data and compare PHP output against expected CSS
 3. **Verify** — Any mismatch means the PHP port has drifted from TailwindCSS behavior
+
+### Library Test Coverage
+
+The companion libraries also have tests extracted from their reference implementations:
+
+| Library | Reference | Tests | Coverage |
+|---------|-----------|-------|----------|
+| clsx | [lukeed/clsx](https://github.com/lukeed/clsx) | 27 | 100% |
+| tailwind-merge | [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge) | 52 | 78% of applicable* |
+
+*Some tailwind-merge tests require custom configuration or exports not applicable to PHP.
 
 ### Requirements
 
@@ -236,4 +358,7 @@ MIT
 
 ## Credits
 
-This project ports [TailwindCSS](https://tailwindcss.com) by Tailwind Labs to PHP.
+This project ports:
+- [TailwindCSS](https://tailwindcss.com) by Tailwind Labs
+- [clsx](https://github.com/lukeed/clsx) by Luke Edwards
+- [tailwind-merge](https://github.com/dcastil/tailwind-merge) by Dany Castillo
