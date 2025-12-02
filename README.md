@@ -2,7 +2,7 @@
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
 [![Tests](https://img.shields.io/badge/Tests-3,006%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
-[![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?logo=php&logoColor=white)](https://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required. This entire codebase was written by Claude, with the goal of creating an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
 
@@ -223,7 +223,7 @@ composer test
 
 ### Requirements
 
-- PHP 8.1+
+- PHP 8.0+
 - Composer
 
 ## Development
