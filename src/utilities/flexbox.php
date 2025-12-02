@@ -50,17 +50,17 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
     // Flex (shorthand)
     $builder->functionalUtility('flex', [
         'handleBareValue' => function ($value) {
-            // Handle bare integers like flex-1, flex-99
-            if (isPositiveInteger($value['value'])) {
-                return $value['value'];
-            }
-            // Handle fractions like flex-1/2 -> 50%
+            // Handle fractions like flex-1/2 -> 50% (check first, before bare integers)
             if (isset($value['fraction'])) {
                 $parts = explode('/', $value['fraction']);
                 if (count($parts) === 2 && isPositiveInteger($parts[0]) && isPositiveInteger($parts[1])) {
                     $percent = (int)$parts[0] / (int)$parts[1] * 100;
                     return $percent . '%';
                 }
+            }
+            // Handle bare integers like flex-1, flex-99
+            if (isPositiveInteger($value['value'])) {
+                return $value['value'];
             }
             return null;
         },

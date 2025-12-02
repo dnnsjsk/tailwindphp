@@ -257,25 +257,92 @@ class variants extends TestCase
     private static function extractCssRules(string $css): array
     {
         $rules = [];
-        preg_match_all('/([^\{\}]+)\s*\{([^\}]*)\}/m', $css, $matches, PREG_SET_ORDER);
 
-        foreach ($matches as $match) {
-            $selector = trim($match[1]);
-            $declarationsStr = trim($match[2]);
-            $declarations = [];
+        // Parse CSS by tracking brace nesting level
+        $len = strlen($css);
+        $i = 0;
+        $currentSelector = '';
+        $currentBody = '';
+        $braceLevel = 0;
+        $inRule = false;
+        $atRuleSelector = null;
 
-            $parts = array_filter(array_map('trim', explode(';', $declarationsStr)));
-            foreach ($parts as $part) {
-                if (strpos($part, ':') !== false) {
-                    [$prop, $value] = array_map('trim', explode(':', $part, 2));
-                    $declarations[$prop] = $value;
+        while ($i < $len) {
+            $char = $css[$i];
+
+            if ($char === '{') {
+                $braceLevel++;
+                if ($braceLevel === 1) {
+                    // Starting a rule
+                    $currentSelector = trim($currentSelector);
+                    if (str_starts_with($currentSelector, '@')) {
+                        $atRuleSelector = $currentSelector;
+                    }
+                    $currentBody = '';
+                    $inRule = true;
+                } else {
+                    $currentBody .= $char;
                 }
+            } elseif ($char === '}') {
+                $braceLevel--;
+                if ($braceLevel === 0) {
+                    // Ending a rule
+                    $selector = trim($currentSelector);
+                    $body = trim($currentBody);
+
+                    if (str_starts_with($selector, '@')) {
+                        // At-rule with nested content - extract nested rules
+                        $nestedRules = self::extractCssRules($body);
+                        foreach ($nestedRules as $nestedSelector => $decls) {
+                            // Store with at-rule prefix for matching
+                            $fullKey = $selector . '|||' . $nestedSelector;
+                            $rules[$fullKey] = $decls;
+                            // Also store just the nested selector for simple matching
+                            $rules[$nestedSelector] = $decls;
+                        }
+                    } else {
+                        // Regular rule - parse declarations
+                        $declarations = self::parseDeclarations($body);
+                        if (!empty($declarations)) {
+                            $rules[$selector] = $declarations;
+                        }
+                    }
+
+                    $currentSelector = '';
+                    $currentBody = '';
+                    $inRule = false;
+                    $atRuleSelector = null;
+                } else {
+                    $currentBody .= $char;
+                }
+            } elseif ($inRule) {
+                $currentBody .= $char;
+            } else {
+                $currentSelector .= $char;
             }
 
-            $rules[$selector] = $declarations;
+            $i++;
         }
 
         return $rules;
+    }
+
+    /**
+     * Parse CSS declarations from a block body.
+     */
+    private static function parseDeclarations(string $body): array
+    {
+        $declarations = [];
+        $parts = array_filter(array_map('trim', explode(';', $body)));
+
+        foreach ($parts as $part) {
+            if (strpos($part, ':') !== false) {
+                [$prop, $value] = array_map('trim', explode(':', $part, 2));
+                $declarations[$prop] = $value;
+            }
+        }
+
+        return $declarations;
     }
 
     /**

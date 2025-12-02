@@ -154,6 +154,209 @@ class LightningCss
     }
 
     /**
+     * Transform CSS nesting to flat CSS.
+     *
+     * Handles:
+     * - `&:hover` style selectors → resolved with parent selector
+     * - `@media` hoisting → moved to top level
+     *
+     * @param array $ast The CSS AST
+     * @return array Transformed AST with flat selectors
+     */
+    public static function transformNesting(array $ast): array
+    {
+        $result = [];
+        $atRules = []; // Collected @media and other at-rules
+
+        foreach ($ast as $node) {
+            self::flattenNode($node, $result, $atRules, null);
+        }
+
+        // Merge at-rules with same params
+        $mergedAtRules = self::mergeAtRules($atRules);
+
+        // Append at-rules at the end (they should come after regular rules)
+        return array_merge($result, $mergedAtRules);
+    }
+
+    /**
+     * Flatten a single AST node, resolving nesting.
+     *
+     * @param array $node The node to flatten
+     * @param array &$parent The parent array to add flattened nodes to
+     * @param array &$atRules Collected at-rules to hoist
+     * @param string|null $parentSelector The parent selector for resolving &
+     */
+    private static function flattenNode(array $node, array &$parent, array &$atRules, ?string $parentSelector): void
+    {
+        if ($node['kind'] === 'declaration') {
+            $parent[] = $node;
+            return;
+        }
+
+        if ($node['kind'] === 'comment') {
+            $parent[] = $node;
+            return;
+        }
+
+        if ($node['kind'] === 'context') {
+            // Process context children
+            foreach ($node['nodes'] ?? [] as $child) {
+                self::flattenNode($child, $parent, $atRules, $parentSelector);
+            }
+            return;
+        }
+
+        if ($node['kind'] === 'rule') {
+            $selector = $node['selector'];
+
+            // Resolve & in selector
+            if ($parentSelector !== null && str_contains($selector, '&')) {
+                $selector = str_replace('&', $parentSelector, $selector);
+            }
+
+            // If this is a nested rule inside a parent rule
+            $declarations = [];
+            $nestedRules = [];
+
+            foreach ($node['nodes'] ?? [] as $child) {
+                if ($child['kind'] === 'declaration') {
+                    $declarations[] = $child;
+                } else {
+                    $nestedRules[] = $child;
+                }
+            }
+
+            // Output declarations at this level
+            if (!empty($declarations)) {
+                $parent[] = [
+                    'kind' => 'rule',
+                    'selector' => $selector,
+                    'nodes' => $declarations,
+                ];
+            }
+
+            // Process nested rules with this selector as parent
+            foreach ($nestedRules as $nested) {
+                self::flattenNode($nested, $parent, $atRules, $selector);
+            }
+            return;
+        }
+
+        if ($node['kind'] === 'at-rule') {
+            // For at-rules like @media, @supports
+            if (in_array($node['name'], ['@media', '@supports', '@container', '@layer'])) {
+                // Collect declarations and nested rules from at-rule body
+                $declarations = [];
+                $nestedRules = [];
+
+                foreach ($node['nodes'] ?? [] as $child) {
+                    if ($child['kind'] === 'declaration') {
+                        $declarations[] = $child;
+                    } else {
+                        $nestedRules[] = $child;
+                    }
+                }
+
+                // If we have declarations and a parent selector, wrap them in a rule
+                $flattenedNodes = [];
+                if (!empty($declarations) && $parentSelector !== null) {
+                    $flattenedNodes[] = [
+                        'kind' => 'rule',
+                        'selector' => $parentSelector,
+                        'nodes' => $declarations,
+                    ];
+                } elseif (!empty($declarations)) {
+                    // No parent selector - declarations at root level (shouldn't happen often)
+                    $flattenedNodes = array_merge($flattenedNodes, $declarations);
+                }
+
+                // Process nested rules
+                foreach ($nestedRules as $child) {
+                    self::flattenNode($child, $flattenedNodes, $atRules, $parentSelector);
+                }
+
+                if (!empty($flattenedNodes)) {
+                    $atRules[] = [
+                        'kind' => 'at-rule',
+                        'name' => $node['name'],
+                        'params' => $node['params'],
+                        'nodes' => $flattenedNodes,
+                    ];
+                }
+                return;
+            }
+
+            // Other at-rules pass through
+            $parent[] = $node;
+        }
+    }
+
+    /**
+     * Merge at-rules with the same name and params.
+     *
+     * @param array $atRules
+     * @return array
+     */
+    private static function mergeAtRules(array $atRules): array
+    {
+        $merged = [];
+        $seen = [];
+
+        foreach ($atRules as $rule) {
+            $key = $rule['name'] . '|' . $rule['params'];
+
+            if (isset($seen[$key])) {
+                // Merge nodes into existing rule
+                $seen[$key]['nodes'] = array_merge($seen[$key]['nodes'], $rule['nodes']);
+            } else {
+                $seen[$key] = $rule;
+                $merged[] = &$seen[$key];
+            }
+        }
+
+        // Deduplicate rules within each at-rule
+        foreach ($merged as &$rule) {
+            $rule['nodes'] = self::deduplicateRules($rule['nodes']);
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Deduplicate rules with the same selector by merging their declarations.
+     *
+     * @param array $nodes
+     * @return array
+     */
+    private static function deduplicateRules(array $nodes): array
+    {
+        $bySelector = [];
+        $result = [];
+
+        foreach ($nodes as $node) {
+            if ($node['kind'] === 'rule') {
+                if (!isset($bySelector[$node['selector']])) {
+                    $bySelector[$node['selector']] = [
+                        'kind' => 'rule',
+                        'selector' => $node['selector'],
+                        'nodes' => [],
+                    ];
+                    $result[] = &$bySelector[$node['selector']];
+                }
+                $bySelector[$node['selector']]['nodes'] = array_merge(
+                    $bySelector[$node['selector']]['nodes'],
+                    $node['nodes']
+                );
+            } else {
+                $result[] = $node;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Minify a CSS string (optional, for production builds).
      *
      * @param string $css The CSS to minify

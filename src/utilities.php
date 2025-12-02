@@ -390,7 +390,11 @@ class UtilityBuilder
                 } else {
                     // Reject modifiers for named values (unless explicitly supported)
                     // Most utilities don't support modifiers except colors and special cases like @container
-                    if (isset($candidate['modifier']) && $candidate['modifier'] !== null) {
+                    // Exception: numeric fractions like flex-1/2 have a modifier (the denominator) but it's consumed by the fraction
+                    $hasNumericFraction = isset($candidate['value']['fraction']) &&
+                        isset($candidate['modifier']['value']) &&
+                        ctype_digit($candidate['modifier']['value']);
+                    if (isset($candidate['modifier']) && $candidate['modifier'] !== null && !$hasNumericFraction) {
                         return null;
                     }
 
@@ -422,7 +426,9 @@ class UtilityBuilder
                     // Handle bare values (fallback after theme resolution)
                     if ($value === null && isset($desc['handleBareValue'])) {
                         $value = $desc['handleBareValue']($candidate['value']);
-                        if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier'])) {
+                        // If we got a value but there's an unconsumed modifier, reject it
+                        // Exception: if it was a numeric fraction, the modifier was consumed
+                        if ($value !== null && strpos($value, '/') === false && isset($candidate['modifier']) && !$hasNumericFraction) {
                             return null;
                         }
                     }

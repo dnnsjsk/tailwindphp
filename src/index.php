@@ -14,6 +14,7 @@ use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Walk\walk;
 use TailwindPHP\Walk\WalkAction;
+use TailwindPHP\LightningCss\LightningCss;
 
 /**
  * TailwindPHP - CSS-first Tailwind CSS compiler for PHP.
@@ -399,6 +400,9 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     foreach ($ast as $node) {
         $transform($node, $result);
     }
+
+    // Transform CSS nesting (flatten & selectors, hoist @media)
+    $result = LightningCss::transformNesting($result);
 
     return $result;
 }
