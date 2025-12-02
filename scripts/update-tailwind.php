@@ -109,8 +109,10 @@ echo color("Target version: ", 'yellow') . color($target, 'green') . "\n\n";
 // Confirm
 echo "This will:\n";
 echo "  1. Checkout TailwindCSS reference to {$target}\n";
-echo "  2. Re-extract all tests from TypeScript source\n";
-echo "  3. Run the full test suite\n\n";
+echo "  2. Copy CSS files (theme.css, preflight.css, etc.) to resources/\n";
+echo "  3. Update README badge\n";
+echo "  4. Re-extract all tests from TypeScript source\n";
+echo "  5. Run the full test suite\n\n";
 
 echo "Continue? [y/N] ";
 $handle = fopen("php://stdin", "r");
@@ -141,8 +143,30 @@ if ($result['code'] !== 0) {
 $newVersion = getCurrentVersion($referenceDir);
 echo color("  ✓ ", 'green') . "Checked out {$newVersion['tag']} ({$newVersion['short']})\n\n";
 
-// Step 2: Update README badge
-echo color("Step 2: Updating README badge...\n", 'bold');
+// Step 2: Copy CSS files
+echo color("Step 2: Copying CSS files...\n", 'bold');
+$cssFiles = ['theme.css', 'preflight.css', 'utilities.css', 'index.css'];
+$cssSourceDir = $referenceDir . '/packages/tailwindcss';
+$cssTargetDir = $rootDir . '/resources';
+
+if (!is_dir($cssTargetDir)) {
+    mkdir($cssTargetDir, 0755, true);
+}
+
+foreach ($cssFiles as $file) {
+    $source = $cssSourceDir . '/' . $file;
+    $target = $cssTargetDir . '/' . $file;
+    if (file_exists($source)) {
+        copy($source, $target);
+        echo color("  ✓ ", 'green') . "Copied {$file}\n";
+    } else {
+        echo color("  ⚠ ", 'yellow') . "Source not found: {$file}\n";
+    }
+}
+echo "\n";
+
+// Step 3: Update README badge
+echo color("Step 3: Updating README badge...\n", 'bold');
 $readmePath = $rootDir . '/README.md';
 $readme = file_get_contents($readmePath);
 $readme = preg_replace(
@@ -153,8 +177,8 @@ $readme = preg_replace(
 file_put_contents($readmePath, $readme);
 echo color("  ✓ ", 'green') . "README badge updated to {$newVersion['tag']}\n\n";
 
-// Step 3: Extract tests
-echo color("Step 3: Extracting tests...\n", 'bold');
+// Step 4: Extract tests
+echo color("Step 4: Extracting tests...\n", 'bold');
 $result = run("composer extract", $rootDir);
 if ($result['code'] !== 0) {
     echo color("  Error extracting tests:\n", 'red');
@@ -164,8 +188,8 @@ if ($result['code'] !== 0) {
 }
 echo color("  ✓ ", 'green') . "Tests extracted\n\n";
 
-// Step 4: Run tests
-echo color("Step 4: Running tests...\n", 'bold');
+// Step 5: Run tests
+echo color("Step 5: Running tests...\n", 'bold');
 passthru("cd " . escapeshellarg($rootDir) . " && composer test", $testResult);
 
 echo "\n";

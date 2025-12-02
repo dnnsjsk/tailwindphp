@@ -7,7 +7,6 @@ namespace TailwindPHP;
 use TailwindPHP\Utilities\Utilities;
 use TailwindPHP\Variants\Variants;
 use TailwindPHP\DesignSystem\DesignSystem;
-use TailwindPHP\DefaultTheme\DefaultTheme;
 use function TailwindPHP\DesignSystem\buildDesignSystem;
 use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
@@ -54,6 +53,59 @@ const FEATURE_THEME_FUNCTION = 1 << 3;
 const FEATURE_UTILITIES = 1 << 4;
 const FEATURE_VARIANTS = 1 << 5;
 const FEATURE_AT_THEME = 1 << 6;
+
+/** @var Theme|null Cached default theme instance */
+$_defaultThemeCache = null;
+
+/**
+ * Load and parse the default Tailwind theme from theme.css.
+ *
+ * @return Theme
+ */
+function loadDefaultTheme(): Theme
+{
+    global $_defaultThemeCache;
+
+    if ($_defaultThemeCache !== null) {
+        // Return a clone so modifications don't affect the cached instance
+        return clone $_defaultThemeCache;
+    }
+
+    $themePath = __DIR__ . '/../resources/theme.css';
+    if (!file_exists($themePath)) {
+        throw new \RuntimeException("Default theme file not found: {$themePath}");
+    }
+
+    $css = file_get_contents($themePath);
+    $ast = parse($css);
+    $theme = new Theme();
+
+    // Walk AST to extract @theme declarations
+    walk($ast, function (&$node) use ($theme) {
+        if ($node['kind'] !== 'at-rule' || $node['name'] !== '@theme') {
+            return WalkAction::Continue;
+        }
+
+        // Parse theme options from params (e.g., "default", "default inline reference")
+        [$themeOptions, $themePrefix] = parseThemeOptions($node['params'] ?? '');
+
+        // Process declarations and keyframes
+        foreach ($node['nodes'] ?? [] as $child) {
+            if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
+                $property = preg_replace('/\\\\(.)/', '$1', $child['property']);
+                $value = $child['value'] ?? '';
+                $theme->add($property, $value, $themeOptions);
+            } elseif ($child['kind'] === 'at-rule' && $child['name'] === '@keyframes') {
+                $theme->addKeyframes($child, $themeOptions);
+            }
+        }
+
+        return WalkAction::Continue;
+    });
+
+    $_defaultThemeCache = $theme;
+    return clone $_defaultThemeCache;
+}
 
 /**
  * Compile CSS with Tailwind utilities.
@@ -226,7 +278,7 @@ function parseCss(array &$ast, array $options = []): array
     $features = FEATURE_NONE;
     // Use default theme unless 'loadDefaultTheme' option is explicitly false
     $loadDefaultTheme = $options['loadDefaultTheme'] ?? true;
-    $theme = $loadDefaultTheme ? DefaultTheme::create() : new Theme();
+    $theme = $loadDefaultTheme ? loadDefaultTheme() : new Theme();
     $utilitiesNodePath = null;
     $sources = [];
     $inlineCandidates = [];

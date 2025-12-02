@@ -1,7 +1,7 @@
 # Tailwind PHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,085%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
+[![Tests](https://img.shields.io/badge/Tests-3,083%20passing-brightgreen)](https://github.com/dnnsjsk/tailwind-php)
 [![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -36,7 +36,7 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ## Status
 
-✅ **3,085 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,083 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|

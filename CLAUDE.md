@@ -214,13 +214,19 @@ tailwind-php/
 │   │   └── verify-test-counts.php
 │   └── extract-*.php           # Core extraction scripts
 │
+├── resources/
+│   ├── theme.css               # Default Tailwind theme (copied from reference)
+│   ├── preflight.css           # CSS reset (copied from reference)
+│   ├── utilities.css           # Utilities directive
+│   └── index.css               # Main entry point
+│
 ├── reference/
 │   ├── tailwindcss/            # Git submodule - TailwindCSS source
 │   ├── clsx/                   # Git submodule - clsx source
 │   └── tailwind-merge/         # Git submodule - tailwind-merge source
 │
 ├── scripts/
-│   ├── update-tailwind.php     # Update TailwindCSS reference
+│   ├── update-tailwind.php     # Update TailwindCSS reference + copy CSS files
 │   └── update-libs.php         # Update companion library references
 │
 └── CLAUDE.md                   # This file
@@ -427,7 +433,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,085 tests (all passing)**
+**Total: 3,083 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 

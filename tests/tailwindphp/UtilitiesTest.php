@@ -658,7 +658,8 @@ class UtilitiesTest extends TestCase
     public function test_shadow_red_500(): void { $this->assertGenerates('shadow-red-500', '--tw-shadow-color:'); }
 
     // Inset Shadow
-    public function test_inset_shadow(): void { $this->assertGenerates('inset-shadow', 'box-shadow:'); }
+    public function test_inset_shadow_2xs(): void { $this->assertGenerates('inset-shadow-2xs', 'box-shadow:'); }
+    public function test_inset_shadow_xs(): void { $this->assertGenerates('inset-shadow-xs', 'box-shadow:'); }
     public function test_inset_shadow_sm(): void { $this->assertGenerates('inset-shadow-sm', 'box-shadow:'); }
     public function test_inset_shadow_none(): void { $this->assertGenerates('inset-shadow-none', 'box-shadow:'); }
 
@@ -1423,14 +1424,6 @@ class UtilitiesTest extends TestCase
     public function test_opacity_85(): void { $this->assertGenerates('opacity-85', 'opacity:'); }
     public function test_opacity_90(): void { $this->assertGenerates('opacity-90', 'opacity:'); }
     public function test_opacity_95(): void { $this->assertGenerates('opacity-95', 'opacity:'); }
-
-    // =========================================================================
-    // EXHAUSTIVE SHADOW TESTS
-    // =========================================================================
-
-    public function test_shadow_xs(): void { $this->assertGenerates('shadow-xs', 'box-shadow:'); }
-    public function test_inset_shadow_xs(): void { $this->assertGenerates('inset-shadow-xs', 'box-shadow:'); }
-    public function test_inset_shadow_2xs(): void { $this->assertGenerates('inset-shadow-2xs', 'box-shadow:'); }
 
     // =========================================================================
     // EXHAUSTIVE FILTER TESTS
