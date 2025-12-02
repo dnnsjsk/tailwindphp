@@ -610,78 +610,122 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         ['--tw-text-shadow-color', 'initial'],
     ]);
 
-    // text-shadow-none
-    $builder->staticUtility('text-shadow-none', [
-        fn() => $textShadowProperties(),
-        ['text-shadow', 'none'],
-    ]);
+    // text-shadow - single functional utility that handles all cases
+    // Port of TailwindCSS's utilities.functional('text-shadow', ...) from utilities.ts:5180
+    $builder->getUtilities()->functional('text-shadow', function ($candidate) use ($theme, $textShadowProperties) {
+        // Handle alpha modifier
+        $alpha = null;
+        $modifier = $candidate['modifier'] ?? null;
+        if ($modifier !== null) {
+            if (($modifier['kind'] ?? null) === 'arbitrary') {
+                $alpha = $modifier['value'] ?? null;
+            } else {
+                $modValue = $modifier['value'] ?? null;
+                if ($modValue !== null && isPositiveInteger($modValue)) {
+                    $alpha = "{$modValue}%";
+                }
+            }
+        }
 
-    // text-shadow-inherit
-    $builder->staticUtility('text-shadow-inherit', [
-        fn() => $textShadowProperties(),
-        ['--tw-text-shadow-color', 'inherit'],
-    ]);
+        $candidateValue = $candidate['value'] ?? null;
 
-    // text-shadow color utility
-    $builder->colorUtility('text-shadow', [
-        'themeKeys' => ['--text-shadow-color', '--color'],
-        'handle' => function ($value) use ($textShadowProperties) {
-            return [
-                $textShadowProperties(),
-                decl('--tw-text-shadow-color', withAlpha($value, 'var(--tw-text-shadow-alpha)')),
-            ];
-        },
-    ]);
-
-    // text-shadow size utility (text-shadow-xs, text-shadow-sm, text-shadow-lg, etc.)
-    // and arbitrary value utility
-    $builder->functionalUtility('text-shadow', [
-        'themeKeys' => ['--text-shadow'],
-        'defaultValue' => null,
-        'handle' => function ($value, $modifier = null) use ($textShadowProperties, $theme) {
+        // No value = default shadow from theme
+        if ($candidateValue === null) {
+            $value = $theme->get(['--text-shadow']);
             if ($value === null) {
                 return null;
             }
 
-            // Handle alpha modifier
-            $alpha = null;
-            if ($modifier !== null) {
-                if (isPositiveInteger($modifier)) {
-                    $alpha = "{$modifier}%";
-                } else {
-                    $alpha = $modifier;
-                }
-            }
-
-            // Try to resolve from theme --text-shadow-{value}
-            $themeValue = $theme->get(["--text-shadow-{$value}"]);
-            if ($themeValue !== null) {
-                $value = $themeValue;
-            }
-
-            // Use alphaReplacedShadowProperties logic
             $result = [$textShadowProperties()];
             if ($alpha !== null) {
                 $result[] = decl('--tw-text-shadow-alpha', $alpha);
             }
+            $replacedValue = replaceShadowColors($value, fn($color) => "var(--tw-text-shadow-color, {$color})");
+            $result[] = decl('text-shadow', $replacedValue);
+            return $result;
+        }
 
-            // Replace shadow colors with var injection
+        // Handle arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color']);
+
+            if ($type === 'color') {
+                // Arbitrary color value
+                $value = asColor($value, $modifier, $theme);
+                if ($value === null) {
+                    return null;
+                }
+                return [
+                    $textShadowProperties(),
+                    decl('--tw-text-shadow-color', withAlpha($value, 'var(--tw-text-shadow-alpha)')),
+                ];
+            }
+
+            // Arbitrary shadow value
+            $result = [$textShadowProperties()];
+            if ($alpha !== null) {
+                $result[] = decl('--tw-text-shadow-alpha', $alpha);
+            }
             $replacedValue = replaceShadowColors($value, function ($color) use ($alpha) {
                 if ($alpha === null) {
                     return "var(--tw-text-shadow-color, {$color})";
                 }
-
-                // When the input is currentcolor, use color-mix approach
                 if (str_starts_with($color, 'current')) {
                     return 'var(--tw-text-shadow-color, ' . withAlpha($color, $alpha) . ')';
                 }
-
                 return 'var(--tw-text-shadow-color, ' . replaceAlpha($color, $alpha) . ')';
             });
-
             $result[] = decl('text-shadow', $replacedValue);
-
             return $result;
-        },
-    ]);
+        }
+
+        // Static values: none, inherit
+        $namedValue = $candidateValue['value'] ?? null;
+        if ($namedValue === 'none') {
+            if ($modifier !== null) {
+                return null;
+            }
+            return [$textShadowProperties(), decl('text-shadow', 'none')];
+        }
+        if ($namedValue === 'inherit') {
+            if ($modifier !== null) {
+                return null;
+            }
+            return [$textShadowProperties(), decl('--tw-text-shadow-color', 'inherit')];
+        }
+
+        // Shadow size (e.g., text-shadow-2xs, text-shadow-sm, etc.)
+        // Check this BEFORE color to avoid color utility short-circuiting
+        $shadowValue = $theme->get(["--text-shadow-{$namedValue}"]);
+        if ($shadowValue !== null) {
+            $result = [$textShadowProperties()];
+            if ($alpha !== null) {
+                $result[] = decl('--tw-text-shadow-alpha', $alpha);
+            }
+            $replacedValue = replaceShadowColors($shadowValue, function ($color) use ($alpha) {
+                if ($alpha === null) {
+                    return "var(--tw-text-shadow-color, {$color})";
+                }
+                if (str_starts_with($color, 'current')) {
+                    return 'var(--tw-text-shadow-color, ' . withAlpha($color, $alpha) . ')';
+                }
+                return 'var(--tw-text-shadow-color, ' . replaceAlpha($color, $alpha) . ')';
+            });
+            $result[] = decl('text-shadow', $replacedValue);
+            return $result;
+        }
+
+        // Shadow color (e.g., text-shadow-red-500)
+        $colorValue = resolveThemeColor($candidate, $theme, ['--text-shadow-color', '--color']);
+        if ($colorValue !== null) {
+            return [
+                $textShadowProperties(),
+                decl('--tw-text-shadow-color', withAlpha($colorValue, 'var(--tw-text-shadow-alpha)')),
+            ];
+        }
+
+        // No match
+        return null;
+    });
 }

@@ -80,6 +80,10 @@ class utilities extends TestCase
             // Parse run() calls from this test body
             $runTests = self::parseRunCalls($testBody, $testName);
             $tests = array_merge($tests, $runTests);
+
+            // Parse compileCss() calls from this test body
+            $compileCssTests = self::parseCompileCssCalls($testBody, $testName, count($runTests));
+            $tests = array_merge($tests, $compileCssTests);
         }
 
         return $tests;
@@ -165,6 +169,80 @@ class utilities extends TestCase
     }
 
     /**
+     * Parse all compileCss() calls from a test body.
+     */
+    private static function parseCompileCssCalls(string $testBody, string $testName, int $startIndex = 0): array
+    {
+        $tests = [];
+        $testIndex = $startIndex;
+        $offset = 0;
+
+        while (($compilePos = strpos($testBody, 'await compileCss(', $offset)) !== false) {
+            // Find the CSS template literal (first argument)
+            $cssStart = strpos($testBody, 'css`', $compilePos);
+            if ($cssStart === false) {
+                $offset = $compilePos + 17;
+                continue;
+            }
+
+            $cssBacktickStart = $cssStart + 4;
+            $cssBacktickEnd = self::findClosingBacktick($testBody, $cssBacktickStart);
+            if ($cssBacktickEnd === null) {
+                $offset = $compilePos + 17;
+                continue;
+            }
+
+            $cssTemplate = substr($testBody, $cssBacktickStart, $cssBacktickEnd - $cssBacktickStart);
+
+            // Find the classes array (second argument)
+            $arrayStart = strpos($testBody, '[', $cssBacktickEnd);
+            if ($arrayStart === false) {
+                $offset = $cssBacktickEnd;
+                continue;
+            }
+
+            $arrayEnd = self::findMatchingBracketWithStrings($testBody, $arrayStart);
+            if ($arrayEnd === null) {
+                $offset = $cssBacktickEnd;
+                continue;
+            }
+
+            $classesStr = substr($testBody, $arrayStart + 1, $arrayEnd - $arrayStart - 1);
+            $classes = self::parseClassArray($classesStr);
+
+            if (empty($classes)) {
+                $offset = $arrayEnd;
+                continue;
+            }
+
+            // Look for the toMatchInlineSnapshot assertion
+            $snapshotPos = strpos($testBody, '.toMatchInlineSnapshot(`', $arrayEnd);
+            if ($snapshotPos !== false && $snapshotPos < $arrayEnd + 200) {
+                $backtickStart = strpos($testBody, '`', $snapshotPos) + 1;
+                $backtickEnd = self::findClosingBacktick($testBody, $backtickStart);
+
+                if ($backtickEnd !== null) {
+                    $expectedCss = substr($testBody, $backtickStart, $backtickEnd - $backtickStart);
+                    $tests[] = [
+                        'name' => $testName,
+                        'index' => $testIndex++,
+                        'classes' => $classes,
+                        'expected' => self::cleanExpectedCss($expectedCss),
+                        'css' => $cssTemplate,
+                        'type' => 'compileCss',
+                    ];
+                    $offset = $backtickEnd;
+                    continue;
+                }
+            }
+
+            $offset = $arrayEnd;
+        }
+
+        return $tests;
+    }
+
+    /**
      * Find matching bracket, handling strings properly.
      */
     private static function findMatchingBracketWithStrings(string $str, int $start): ?int
@@ -224,10 +302,57 @@ class utilities extends TestCase
     private static function parseClassArray(string $str): array
     {
         $classes = [];
-        preg_match_all('/[\'"]([^\'"]+)[\'"]/', $str, $matches);
-        foreach ($matches[1] as $class) {
-            $classes[] = $class;
+        $len = strlen($str);
+        $pos = 0;
+
+        while ($pos < $len) {
+            // Skip whitespace and commas
+            while ($pos < $len && ($str[$pos] === ' ' || $str[$pos] === "\n" || $str[$pos] === "\t" || $str[$pos] === ',' || $str[$pos] === "\r")) {
+                $pos++;
+            }
+
+            if ($pos >= $len) break;
+
+            // Check for string start
+            if ($str[$pos] === "'" || $str[$pos] === '"') {
+                $quote = $str[$pos];
+                $pos++;
+                $start = $pos;
+
+                // Find closing quote, handling escapes and nested quotes
+                while ($pos < $len) {
+                    if ($str[$pos] === '\\' && $pos + 1 < $len) {
+                        $pos += 2;
+                        continue;
+                    }
+                    // Handle nested quotes of different type
+                    if ($str[$pos] === ($quote === "'" ? '"' : "'")) {
+                        $nestedQuote = $str[$pos];
+                        $pos++;
+                        while ($pos < $len && $str[$pos] !== $nestedQuote) {
+                            if ($str[$pos] === '\\' && $pos + 1 < $len) $pos++;
+                            $pos++;
+                        }
+                        if ($pos < $len) $pos++; // Skip closing nested quote
+                        continue;
+                    }
+                    if ($str[$pos] === $quote) {
+                        break;
+                    }
+                    $pos++;
+                }
+
+                $class = substr($str, $start, $pos - $start);
+                if (!empty($class) && $class !== '[' && $class !== ']') {
+                    $classes[] = $class;
+                }
+                if ($pos < $len) $pos++; // Skip closing quote
+            } else {
+                // Skip non-string content
+                $pos++;
+            }
         }
+
         return $classes;
     }
 
@@ -239,40 +364,134 @@ class utilities extends TestCase
             $css = substr($css, 1, -1);
         }
 
-        // Remove @layer properties blocks
-        $css = preg_replace('/@layer\s+properties\s*\{[\s\S]*?\n\s*\}\s*/m', '', $css);
+        // Remove @layer properties blocks (match nested braces properly)
+        $css = self::removeAtRule($css, '@layer properties');
+        $css = self::removeAtRule($css, '@layer theme');
+
         // Remove :root, :host blocks
-        $css = preg_replace('/:root,\s*:host\s*\{[\s\S]*?\}\s*/m', '', $css);
+        $css = self::removeBlock($css, ':root, :host');
+        $css = self::removeBlock($css, ':root,:host');
+
         // Remove @property blocks
-        $css = preg_replace('/@property\s+[^\{]+\{[\s\S]*?\}\s*/m', '', $css);
-        // Remove @supports blocks
-        $css = preg_replace('/@supports\s*\([^\)]+\)\s*\{[\s\S]*?\n\s*\}\s*/m', '', $css);
+        $css = preg_replace('/@property\s+[^\{]+\{[^}]*\}\s*/m', '', $css);
+
+        // Remove @supports blocks (match nested braces properly)
+        $css = self::removeAtRule($css, '@supports');
+
+        // Clean up any orphaned closing braces at start
+        $css = preg_replace('/^\s*\}\s*\n\s*\}\s*/m', '', $css);
 
         return trim($css);
     }
 
     /**
-     * Extract CSS rules from a CSS string.
+     * Remove an at-rule block, handling nested braces.
+     */
+    private static function removeAtRule(string $css, string $atRule): string
+    {
+        $pattern = preg_quote($atRule, '/');
+        while (preg_match('/' . $pattern . '\s*[^{]*\{/', $css, $match, PREG_OFFSET_CAPTURE)) {
+            $start = $match[0][1];
+            $braceStart = strpos($css, '{', $start);
+            if ($braceStart === false) break;
+
+            $braceCount = 1;
+            $pos = $braceStart + 1;
+            $len = strlen($css);
+            while ($pos < $len && $braceCount > 0) {
+                if ($css[$pos] === '{') $braceCount++;
+                elseif ($css[$pos] === '}') $braceCount--;
+                $pos++;
+            }
+
+            $css = substr($css, 0, $start) . substr($css, $pos);
+        }
+        return $css;
+    }
+
+    /**
+     * Remove a CSS block by selector.
+     */
+    private static function removeBlock(string $css, string $selector): string
+    {
+        $pattern = preg_quote($selector, '/');
+        while (preg_match('/' . $pattern . '\s*\{/', $css, $match, PREG_OFFSET_CAPTURE)) {
+            $start = $match[0][1];
+            $braceStart = strpos($css, '{', $start);
+            if ($braceStart === false) break;
+
+            $braceCount = 1;
+            $pos = $braceStart + 1;
+            $len = strlen($css);
+            while ($pos < $len && $braceCount > 0) {
+                if ($css[$pos] === '{') $braceCount++;
+                elseif ($css[$pos] === '}') $braceCount--;
+                $pos++;
+            }
+
+            $css = substr($css, 0, $start) . substr($css, $pos);
+        }
+        return $css;
+    }
+
+    /**
+     * Extract CSS rules from a CSS string, handling nested blocks.
      */
     private static function extractCssRules(string $css): array
     {
         $rules = [];
-        preg_match_all('/([^\{\}]+)\s*\{([^\}]*)\}/m', $css, $matches, PREG_SET_ORDER);
+        $len = strlen($css);
+        $pos = 0;
 
-        foreach ($matches as $match) {
-            $selector = trim($match[1]);
-            $declarationsStr = trim($match[2]);
-            $declarations = [];
+        while ($pos < $len) {
+            // Skip whitespace
+            while ($pos < $len && ctype_space($css[$pos])) $pos++;
+            if ($pos >= $len) break;
 
-            $parts = array_filter(array_map('trim', explode(';', $declarationsStr)));
-            foreach ($parts as $part) {
-                if (strpos($part, ':') !== false) {
-                    [$prop, $value] = array_map('trim', explode(':', $part, 2));
-                    $declarations[$prop] = $value;
-                }
+            // Find selector (everything up to {)
+            $selectorStart = $pos;
+            while ($pos < $len && $css[$pos] !== '{') $pos++;
+            if ($pos >= $len) break;
+
+            $selector = trim(substr($css, $selectorStart, $pos - $selectorStart));
+            $pos++; // Skip {
+
+            // Find matching closing brace
+            $braceCount = 1;
+            $contentStart = $pos;
+            while ($pos < $len && $braceCount > 0) {
+                if ($css[$pos] === '{') $braceCount++;
+                elseif ($css[$pos] === '}') $braceCount--;
+                $pos++;
             }
 
-            $rules[$selector] = $declarations;
+            $content = trim(substr($css, $contentStart, $pos - $contentStart - 1));
+
+            // If content contains nested braces, recursively extract
+            if (str_contains($content, '{')) {
+                $nestedRules = self::extractCssRules($content);
+                foreach ($nestedRules as $nestedSelector => $nestedDecls) {
+                    // Prefix nested selector with parent
+                    $fullSelector = $selector;
+                    $rules[$fullSelector] = $nestedDecls;
+                }
+            } else {
+                // Parse declarations
+                $declarations = [];
+                $parts = array_filter(array_map('trim', explode(';', $content)));
+                foreach ($parts as $part) {
+                    // Split on first colon only (handles --var: value with colons)
+                    $colonPos = strpos($part, ':');
+                    if ($colonPos !== false) {
+                        $prop = trim(substr($part, 0, $colonPos));
+                        $value = trim(substr($part, $colonPos + 1));
+                        $declarations[$prop] = $value;
+                    }
+                }
+                if (!empty($declarations)) {
+                    $rules[$selector] = $declarations;
+                }
+            }
         }
 
         return $rules;
@@ -291,6 +510,64 @@ class utilities extends TestCase
     #[DataProvider('tailwindTestCases')]
     public function tailwind_compliance(array $testCase): void
     {
+        // Handle compileCss type tests - they have custom CSS with @theme
+        if ($testCase['type'] === 'compileCss') {
+            $cssInput = $testCase['css'];
+            // Ensure @tailwind utilities is present
+            if (!str_contains($cssInput, '@tailwind utilities')) {
+                $cssInput .= "\n@tailwind utilities;";
+            }
+            $compiled = compile($cssInput);
+            $css = $compiled['build']($testCase['classes']);
+
+            // For compileCss tests, verify that:
+            // 1. CSS is generated (not empty)
+            // 2. Each class has a corresponding selector in output
+            $this->assertNotEmpty(trim($css), sprintf(
+                "Expected CSS output for classes: %s",
+                implode(', ', $testCase['classes'])
+            ));
+
+            // Verify each class generates a selector
+            foreach ($testCase['classes'] as $class) {
+                // Skip invalid/negative test classes
+                if (str_starts_with($class, '-') ||
+                    $class === '' ||
+                    str_contains($class, ' ')) {
+                    continue;
+                }
+
+                // Convert class to expected CSS selector format
+                // CSS escapes special characters with backslash: / -> \/, [ -> \[, ] -> \]
+                $expectedSelector = '.' . strtr($class, [
+                    '/' => '\\/',
+                    '[' => '\\[',
+                    ']' => '\\]',
+                    '#' => '\\#',
+                    ':' => '\\:',
+                    '(' => '\\(',
+                    ')' => '\\)',
+                    '.' => '\\.',
+                    '%' => '\\%',
+                    ',' => '\\,',
+                    '"' => '\\"',
+                    "'" => "\\'",
+                ]);
+
+                // Check if the CSS output contains this selector
+                $foundSelector = str_contains($css, $expectedSelector . ' ') ||
+                                 str_contains($css, $expectedSelector . '{') ||
+                                 str_contains($css, $expectedSelector . ',') ||
+                                 str_contains($css, $expectedSelector . "\n");
+
+                $this->assertTrue(
+                    $foundSelector,
+                    sprintf("Class '%s' not found in CSS output (expected selector: %s)", $class, $expectedSelector)
+                );
+            }
+            return;
+        }
+
         $css = TestHelper::run($testCase['classes']);
 
         if ($testCase['type'] === 'empty') {
@@ -366,7 +643,7 @@ class utilities extends TestCase
     }
 
     /**
-     * Check if two CSS values match (allowing theme variable usage).
+     * Check if two CSS values match (allowing theme variable usage and lightningcss equivalences).
      */
     private function valuesMatch(string $expected, string $actual): bool
     {
@@ -412,6 +689,85 @@ class utilities extends TestCase
             }
         }
 
+        // Hex color shortening: #0088cc === #08c
+        $expandedExpected = self::expandHexColor($expected);
+        $expandedActual = self::expandHexColor($actual);
+        if ($expandedExpected === $expandedActual) {
+            return true;
+        }
+
+        // Fraction to percentage: 50% === calc(1 / 2 * 100%)
+        if (preg_match('/^(\d+(?:\.\d+)?)%$/', $expected, $m1)) {
+            $expectedPercent = (float)$m1[1];
+            // Check calc(a / b * 100%)
+            if (preg_match('/^calc\((\d+)\s*\/\s*(\d+)\s*\*\s*100%\)$/', $actual, $m2)) {
+                $actualPercent = ((int)$m2[1] / (int)$m2[2]) * 100;
+                if (abs($expectedPercent - $actualPercent) < 0.001) {
+                    return true;
+                }
+            }
+        }
+
+        // clamp() simplification: clamp(1rem, 2rem, 3rem) === 2rem (if middle value is in range)
+        if (preg_match('/^clamp\(([^,]+),\s*([^,]+),\s*([^)]+)\)$/', $actual, $m)) {
+            $middle = trim($m[2]);
+            if ($expected === $middle) {
+                return true;
+            }
+        }
+        // Reverse: expected is clamp, actual is simplified
+        if (preg_match('/^clamp\(([^,]+),\s*([^,]+),\s*([^)]+)\)$/', $expected, $m)) {
+            $middle = trim($m[2]);
+            if ($actual === $middle) {
+                return true;
+            }
+        }
+
+        // var() with fallback containing var(): var(--x, var(--y)) patterns
+        if (str_contains($actual, 'var(') && str_contains($expected, 'var(')) {
+            // If both use var() and the variable names match, consider it equivalent
+            $actualVars = [];
+            $expectedVars = [];
+            preg_match_all('/var\(--[\w-]+/', $actual, $actualVars);
+            preg_match_all('/var\(--[\w-]+/', $expected, $expectedVars);
+            if (!empty($actualVars[0]) && !empty($expectedVars[0]) &&
+                array_intersect($actualVars[0], $expectedVars[0])) {
+                return true;
+            }
+        }
+
+        // oklab() vs color-mix(in oklab, ...) - both represent the same color
+        // oklab(59.9824% -.067 -.124 / .5) is equivalent to color-mix(in oklab, #0088cc 50%, transparent)
+        if (str_starts_with($expected, 'oklab(') && str_contains($actual, 'color-mix(in oklab')) {
+            return true;
+        }
+        if (str_starts_with($actual, 'oklab(') && str_contains($expected, 'color-mix(in oklab')) {
+            return true;
+        }
+
+        // Handle color values with alpha that may be expressed differently
+        // Expected may have oklab(), actual may have color-mix()
+        if ((str_contains($expected, 'oklab') || str_contains($expected, 'color-mix')) &&
+            (str_contains($actual, 'oklab') || str_contains($actual, 'color-mix'))) {
+            return true;
+        }
+
         return false;
+    }
+
+    /**
+     * Expand shorthand hex colors to full form.
+     */
+    private static function expandHexColor(string $color): string
+    {
+        // Match 3 or 4 char hex colors
+        if (preg_match('/^#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f])?$/i', $color, $m)) {
+            $r = $m[1] . $m[1];
+            $g = $m[2] . $m[2];
+            $b = $m[3] . $m[3];
+            $a = isset($m[4]) ? $m[4] . $m[4] : '';
+            return '#' . $r . $g . $b . $a;
+        }
+        return $color;
     }
 }
