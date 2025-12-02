@@ -9,6 +9,8 @@ use function TailwindPHP\Walk\walk;
 use function TailwindPHP\ValueParser\parse as parseValue;
 use function TailwindPHP\ValueParser\toCss;
 use function TailwindPHP\Utils\segment;
+use function TailwindPHP\Utils\toKeyPath;
+use function TailwindPHP\Utilities\withAlpha;
 
 /**
  * CSS Functions
@@ -131,6 +133,79 @@ function substituteFunctionsInValue(string $value, array $source, object $design
 }
 
 /**
+ * Map v3 namespace names to v4 CSS variable namespaces.
+ */
+const OLD_TO_NEW_NAMESPACE = [
+    'animation' => 'animate',
+    'aspectRatio' => 'aspect',
+    'borderRadius' => 'radius',
+    'boxShadow' => 'shadow',
+    'colors' => 'color',
+    'containers' => 'container',
+    'fontFamily' => 'font',
+    'fontSize' => 'text',
+    'letterSpacing' => 'tracking',
+    'lineHeight' => 'leading',
+    'maxWidth' => 'container',
+    'screens' => 'breakpoint',
+    'transitionTimingFunction' => 'ease',
+];
+
+/**
+ * Convert a key path to a CSS property name.
+ *
+ * @param array $path Key path segments
+ * @return string|null CSS property name (without --)
+ */
+function keyPathToCssProperty(array $path): ?string
+{
+    if (empty($path)) {
+        return null;
+    }
+
+    // The legacy container component config should not be included in the Theme
+    if ($path[0] === 'container') {
+        return null;
+    }
+
+    // Map old v3 namespaces to new theme namespaces
+    $ns = OLD_TO_NEW_NAMESPACE[$path[0]] ?? null;
+    if ($ns !== null) {
+        $path[0] = $ns;
+    }
+
+    // Convert path segments
+    $result = array_map(function ($part, $idx) use ($path) {
+        // Replace dots with underscores (for values like 2.5 -> 2_5)
+        $part = str_replace('.', '_', $part);
+
+        // Convert camelCase to kebab-case for the first segment (namespace)
+        // and for certain special keys like lineHeight
+        $shouldConvert = $idx === 0 || str_starts_with($part, '-') || $part === 'lineHeight';
+
+        if ($shouldConvert) {
+            $part = preg_replace('/([a-z])([A-Z])/', '$1-$2', $part);
+            $part = strtolower($part);
+        }
+
+        return $part;
+    }, $path, array_keys($path));
+
+    // Remove the `DEFAULT` key at the end of a path
+    if (end($result) === 'DEFAULT') {
+        array_pop($result);
+    }
+
+    // Handle '1' as a special separator for nested tuple values
+    // e.g., fontSize.xs.1.lineHeight -> text-xs--line-height
+    $result = array_map(function ($part, $idx) use ($result) {
+        return ($part === '1' && $idx !== count($result) - 1) ? '' : $part;
+    }, $result, array_keys($result));
+
+    return implode('-', $result);
+}
+
+/**
  * Handle legacy theme() function.
  *
  * @param array $node Function node
@@ -151,7 +226,7 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
 
     $theme = $designSystem->getTheme();
 
-    // Check for modifier (opacity) e.g., "--color-red-500 / 50%"
+    // Check for modifier (opacity) e.g., "colors.red.500 / 50%"
     $modifier = null;
     $lastSlash = strrpos($path, '/');
     if ($lastSlash !== false) {
@@ -159,8 +234,24 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
         $path = trim(substr($path, 0, $lastSlash));
     }
 
-    // Resolve the theme value - use get() to get the raw value
-    $resolvedValue = $theme->get([$path]);
+    // If path already starts with --, use it directly
+    if (str_starts_with($path, '--')) {
+        $cssVar = $path;
+    } else {
+        // Convert legacy dot notation to CSS variable name
+        // e.g., "colors.red.500" -> "--color-red-500"
+        $keyPath = toKeyPath($path);
+        $cssProperty = keyPathToCssProperty($keyPath);
+
+        if ($cssProperty === null) {
+            return null;
+        }
+
+        $cssVar = '--' . $cssProperty;
+    }
+
+    // Resolve the theme value using resolveValue to get the raw value
+    $resolvedValue = $theme->resolveValue(null, [$cssVar]);
 
     if ($resolvedValue === null) {
         if (!empty($fallback)) {
@@ -187,7 +278,7 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
 
     // Apply opacity modifier if present
     if ($modifier !== null && $modifier !== '') {
-        return "color-mix(in srgb, {$resolvedValue} {$modifier}, transparent)";
+        return withAlpha($resolvedValue, $modifier);
     }
 
     return $resolvedValue;
@@ -195,6 +286,11 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
 
 /**
  * Handle --theme() function.
+ *
+ * The --theme() function resolves CSS variables from @theme blocks:
+ * - --theme(--color-red-500) → var(--color-red-500)
+ * - --theme(--color-red-500 inline) → red (the actual value)
+ * - --theme(--color-red-500, fallback) → var(--color-red-500, fallback) or fallback if not found
  *
  * @param array $node Function node
  * @param array $source Source AST node
@@ -231,22 +327,36 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
     }
 
     $theme = $designSystem->getTheme();
+    $prefix = $theme->getPrefix();
 
-    // Resolve the theme value
-    if ($inline) {
-        $resolvedValue = $theme->resolveValue($path, []);
-    } else {
-        $resolvedValue = $theme->resolve($path, []);
+    // Apply prefix to the variable name if one is set
+    $prefixedPath = $path;
+    if ($prefix !== null && str_starts_with($path, '--')) {
+        // Convert --color-red-500 to --tw-color-red-500 (with prefix)
+        $prefixedPath = '--' . $prefix . '-' . substr($path, 2);
     }
 
-    if ($resolvedValue === null) {
+    // Get the actual value from the theme
+    $value = $theme->get([$prefixedPath]) ?? $theme->get([$path]);
+
+    if ($value === null) {
+        // Value not found - use fallback if provided
         if (!empty($fallback)) {
             return implode(', ', $fallback);
         }
         return null;
     }
 
-    return $resolvedValue;
+    if ($inline) {
+        // Return the actual value
+        return $value;
+    }
+
+    // Return var() reference with optional fallback
+    if (!empty($fallback)) {
+        return "var({$prefixedPath}, " . implode(', ', $fallback) . ")";
+    }
+    return "var({$prefixedPath})";
 }
 
 /**
@@ -297,8 +407,8 @@ function handleAlpha(array $node, object $designSystem): ?string
         return null;
     }
 
-    // Use withAlpha utility if available
-    return "color-mix(in srgb, {$color} {$alpha}, transparent)";
+    // Use withAlpha utility which uses color-mix in oklab
+    return withAlpha($color, $alpha);
 }
 
 /**

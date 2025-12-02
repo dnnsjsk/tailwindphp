@@ -49,6 +49,7 @@ class LightningCss
         $value = self::normalizeTimeValues($value);
         $value = self::normalizeOpacityPercentages($value, $property);
         $value = self::normalizeColors($value, $isCustomProperty);
+        $value = self::evaluateColorMix($value);  // Evaluate color-mix AFTER normalizeColors converts hex to named
         $value = self::normalizeLeadingZeros($value);
         $value = self::normalizeGridValues($value, $property);
         $value = self::normalizeTransformFunctions($value, $property);
@@ -343,6 +344,22 @@ class LightningCss
                 return substr($num, 1) . $unit;
             }
             return '-' . $num . $unit;
+        }
+
+        // Match: calc(NUMBER UNIT * INTEGER) - simplify simple multiplication
+        // e.g., calc(.25rem * 4) -> 1rem
+        // e.g., calc(0.25rem * 4) -> 1rem
+        if (preg_match('/^calc\(([+-]?\d*\.?\d+)(rem|em|px|%|vh|vw|vmin|vmax|ch|ex)\s*\*\s*(\d+)\)$/', $value, $m)) {
+            $num = floatval($m[1]);
+            $unit = $m[2];
+            $multiplier = intval($m[3]);
+
+            $result = $num * $multiplier;
+
+            // Format the result - remove trailing zeros and unnecessary decimal
+            $resultStr = rtrim(rtrim(number_format($result, 6, '.', ''), '0'), '.');
+
+            return $resultStr . $unit;
         }
 
         return $value;
@@ -863,5 +880,142 @@ class LightningCss
         }
 
         return $result;
+    }
+
+    /**
+     * CSS named colors to RGB values.
+     */
+    private const NAMED_COLORS = [
+        'red' => [255, 0, 0],
+        'blue' => [0, 0, 255],
+        'green' => [0, 128, 0],
+        'lime' => [0, 255, 0],
+        'yellow' => [255, 255, 0],
+        'cyan' => [0, 255, 255],
+        'aqua' => [0, 255, 255],
+        'magenta' => [255, 0, 255],
+        'fuchsia' => [255, 0, 255],
+        'white' => [255, 255, 255],
+        'black' => [0, 0, 0],
+        'gray' => [128, 128, 128],
+        'grey' => [128, 128, 128],
+        'orange' => [255, 165, 0],
+        'purple' => [128, 0, 128],
+        'pink' => [255, 192, 203],
+        'brown' => [165, 42, 42],
+        'transparent' => [0, 0, 0, 0],
+    ];
+
+    /**
+     * Evaluate color-mix() expressions to oklab format.
+     *
+     * LightningCSS evaluates color-mix() when all values are static.
+     * e.g., color-mix(in oklab, red 50%, transparent) -> oklab(62.7955% .224 .125 / .5)
+     *
+     * @param string $value The CSS value
+     * @return string Evaluated value
+     */
+    public static function evaluateColorMix(string $value): string
+    {
+        // Match color-mix(in oklab, COLOR PERCENTAGE%, transparent)
+        // This is the pattern used by withAlpha()
+        if (!preg_match('/color-mix\(in oklab,\s*([a-z]+)\s+(\d+(?:\.\d+)?)%?,\s*transparent\)/i', $value, $match)) {
+            return $value;
+        }
+
+        $colorName = strtolower($match[1]);
+        $percentage = floatval($match[2]);
+
+        // Only convert if we know the color
+        if (!isset(self::NAMED_COLORS[$colorName])) {
+            return $value;
+        }
+
+        $rgb = self::NAMED_COLORS[$colorName];
+        $alpha = $percentage / 100;
+
+        // Convert RGB to OKLab
+        $oklab = self::rgbToOklab($rgb[0], $rgb[1], $rgb[2]);
+
+        // Format: oklab(L% a b / alpha)
+        // LightningCSS truncates to 3 decimal places (floor toward zero)
+        $l = round($oklab[0] * 100, 4);
+        // Truncate a and b to 3 decimal places (like floor but toward zero)
+        $a = floor($oklab[1] * 1000) / 1000;
+        $b = floor($oklab[2] * 1000) / 1000;
+
+        // Format L - remove trailing zeros, add %
+        $lStr = rtrim(rtrim(number_format($l, 4, '.', ''), '0'), '.') . '%';
+
+        // Format a and b - remove leading zero for decimals (0.224 -> .224)
+        $aStr = self::formatOklabComponent($a);
+        $bStr = self::formatOklabComponent($b);
+
+        // Format alpha
+        $alphaStr = rtrim(rtrim(number_format($alpha, 2, '.', ''), '0'), '.') ?: '0';
+        // Remove leading zero from alpha too if it's a decimal
+        if (strpos($alphaStr, '0.') === 0) {
+            $alphaStr = substr($alphaStr, 1);
+        }
+
+        $oklabValue = "oklab({$lStr} {$aStr} {$bStr} / {$alphaStr})";
+
+        return str_replace($match[0], $oklabValue, $value);
+    }
+
+    /**
+     * Format an OKLab a or b component.
+     *
+     * @param float $value The component value
+     * @return string Formatted string (removes leading zero for decimals)
+     */
+    private static function formatOklabComponent(float $value): string
+    {
+        // Format to 3 decimals, remove trailing zeros
+        $str = rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.');
+
+        // Remove leading zero for positive decimals (0.224 -> .224)
+        if (strpos($str, '0.') === 0) {
+            $str = substr($str, 1);
+        }
+
+        return $str ?: '0';
+    }
+
+    /**
+     * Convert RGB (0-255) to OKLab color space.
+     *
+     * @param int $r Red (0-255)
+     * @param int $g Green (0-255)
+     * @param int $b Blue (0-255)
+     * @return array [L, a, b] where L is 0-1, a and b are roughly -0.4 to 0.4
+     */
+    private static function rgbToOklab(int $r, int $g, int $b): array
+    {
+        // Normalize to 0-1
+        $r = $r / 255;
+        $g = $g / 255;
+        $b = $b / 255;
+
+        // sRGB to linear RGB
+        $r = $r <= 0.04045 ? $r / 12.92 : pow(($r + 0.055) / 1.055, 2.4);
+        $g = $g <= 0.04045 ? $g / 12.92 : pow(($g + 0.055) / 1.055, 2.4);
+        $b = $b <= 0.04045 ? $b / 12.92 : pow(($b + 0.055) / 1.055, 2.4);
+
+        // Linear RGB to LMS
+        $l = 0.4122214708 * $r + 0.5363325363 * $g + 0.0514459929 * $b;
+        $m = 0.2119034982 * $r + 0.6806995451 * $g + 0.1073969566 * $b;
+        $s = 0.0883024619 * $r + 0.2817188376 * $g + 0.6299787005 * $b;
+
+        // LMS to OKLab
+        $l_ = pow($l, 1/3);
+        $m_ = pow($m, 1/3);
+        $s_ = pow($s, 1/3);
+
+        $L = 0.2104542553 * $l_ + 0.7936177850 * $m_ - 0.0040720468 * $s_;
+        $a = 1.9779984951 * $l_ - 2.4285922050 * $m_ + 0.4505937099 * $s_;
+        $b = 0.0259040371 * $l_ + 0.7827717662 * $m_ - 0.8086757660 * $s_;
+
+        return [$L, $a, $b];
     }
 }
