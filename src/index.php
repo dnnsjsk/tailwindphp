@@ -7,6 +7,7 @@ namespace TailwindPHP;
 use TailwindPHP\Utilities\Utilities;
 use TailwindPHP\Variants\Variants;
 use TailwindPHP\DesignSystem\DesignSystem;
+use TailwindPHP\DefaultTheme\DefaultTheme;
 use function TailwindPHP\DesignSystem\buildDesignSystem;
 use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
@@ -223,7 +224,9 @@ function compileAst(array $ast, array $options = []): array
 function parseCss(array &$ast, array $options = []): array
 {
     $features = FEATURE_NONE;
-    $theme = new Theme();
+    // Use default theme unless 'loadDefaultTheme' option is explicitly false
+    $loadDefaultTheme = $options['loadDefaultTheme'] ?? true;
+    $theme = $loadDefaultTheme ? DefaultTheme::create() : new Theme();
     $utilitiesNodePath = null;
     $sources = [];
     $inlineCandidates = [];

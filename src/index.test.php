@@ -135,7 +135,8 @@ class index extends TestCase
             if ($css === null) {
                 $css = '@tailwind utilities;';
             }
-            $compiled = compile($css);
+            // Spec tests provide their own @theme in CSS, so don't load default theme
+            $compiled = compile($css, ['loadDefaultTheme' => false]);
             $actual = $compiled['build']($classes);
         } else {
             $this->markTestSkipped("Unknown test type: $type");

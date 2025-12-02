@@ -35,7 +35,8 @@ class TestHelper
     public static function run(array $candidates): string
     {
         // Compile fresh each time to avoid candidate accumulation
-        $compiled = compile('@tailwind utilities;');
+        // Spec tests provide their own @theme in CSS, so don't load default theme
+        $compiled = compile('@tailwind utilities;', ['loadDefaultTheme' => false]);
         $css = $compiled['build']($candidates);
 
         return trim($css);

@@ -148,8 +148,9 @@ class css_functions extends TestCase
         }
 
         // Compile the CSS
+        // Spec tests provide their own @theme in CSS, so don't load default theme
         try {
-            $compiled = compile($fullCss);
+            $compiled = compile($fullCss, ['loadDefaultTheme' => false]);
             $actual = $compiled['build']($classes);
         } catch (\Exception $e) {
             if ($type === 'error') {

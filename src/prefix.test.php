@@ -10,6 +10,9 @@ use PHPUnit\Framework\TestCase;
  * Tests for prefix functionality.
  *
  * Port of: packages/tailwindcss/src/prefix.test.ts
+ *
+ * All tests in this file provide their own @theme directive,
+ * so we don't load the default theme.
  */
 class prefix extends TestCase
 {
@@ -20,7 +23,8 @@ class prefix extends TestCase
 @tailwind utilities;
 CSS;
 
-        $compiler = compile($input);
+        // Tests provide their own @theme, so don't load default theme
+        $compiler = compile($input, ['loadDefaultTheme' => false]);
 
         // Prefixed utilities are generated
         $result = $compiler['build']([
@@ -39,7 +43,7 @@ CSS;
         $this->assertStringContainsString('display: flex', $result);
 
         // Non-prefixed utilities are ignored
-        $compiler2 = compile($input);
+        $compiler2 = compile($input, ['loadDefaultTheme' => false]);
         $result2 = $compiler2['build'](['underline', 'hover:line-through']);
 
         $this->assertEquals('', $result2);
@@ -57,7 +61,7 @@ CSS;
 }
 CSS;
 
-        $compiler = compile($input);
+        $compiler = compile($input, ['loadDefaultTheme' => false]);
         $result = $compiler['build']([]);
 
         $this->assertStringContainsString('.my-underline', $result);
@@ -76,7 +80,7 @@ CSS;
 @tailwind utilities;
 CSS;
 
-        $compiler = compile($input);
+        $compiler = compile($input, ['loadDefaultTheme' => false]);
 
         // Prefixed utilities are generated
         $result = $compiler['build'](['tw:text-red']);
@@ -101,7 +105,7 @@ CSS;
 @tailwind utilities;
 CSS;
 
-        $compiler = compile($input);
+        $compiler = compile($input, ['loadDefaultTheme' => false]);
 
         // Test that prefixed theme works with arbitrary properties
         $result = $compiler['build'](['tw:text-red']);
@@ -137,7 +141,7 @@ CSS;
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('The prefix "__" is invalid. Prefixes must be lowercase ASCII letters (a-z) only.');
 
-        compile($input);
+        compile($input, ['loadDefaultTheme' => false]);
     }
 
     public function test_a_candidate_matching_the_prefix_does_not_crash(): void
@@ -147,7 +151,7 @@ CSS;
 @tailwind utilities;
 CSS;
 
-        $compiler = compile($input);
+        $compiler = compile($input, ['loadDefaultTheme' => false]);
 
         $result = $compiler['build'](['tomato', 'tomato:flex']);
 
