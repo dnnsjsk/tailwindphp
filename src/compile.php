@@ -258,7 +258,7 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
         walk($isolatedNode['nodes'], function (&$child) use (&$node) {
             if (($child['kind'] === 'rule' || $child['kind'] === 'at-rule') && empty($child['nodes'])) {
                 $child['nodes'] = $node['nodes'];
-                return \TailwindPHP\Walk\WALK_ACTION_SKIP;
+                return \TailwindPHP\Walk\WalkAction::Skip;
             }
         });
 

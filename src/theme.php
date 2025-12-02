@@ -104,6 +104,16 @@ class Theme
     }
 
     /**
+     * Get the prefix.
+     *
+     * @return string|null
+     */
+    public function getPrefix(): ?string
+    {
+        return $this->prefix;
+    }
+
+    /**
      * Add a theme value.
      *
      * @param string $key

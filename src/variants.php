@@ -445,7 +445,7 @@ function substituteAtSlot(array &$ast, array $nodes): void
             $node['selector'] = '&';
             $node['nodes'] = $nodes;
             unset($node['name'], $node['params']);
-            return \TailwindPHP\Walk\WALK_ACTION_SKIP;
+            return \TailwindPHP\Walk\WalkAction::Skip;
         }
     });
 }
@@ -470,7 +470,7 @@ function substituteAtVariant(array &$ast, object $designSystem): void
                 $node['selector'] = '&';
                 unset($node['name'], $node['params']);
             }
-            return \TailwindPHP\Walk\WALK_ACTION_SKIP;
+            return \TailwindPHP\Walk\WalkAction::Skip;
         }
     });
 }
@@ -642,19 +642,20 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
-        walk([$ruleNode], function (&$node, $ctx) use (&$didApply, &$ruleNode) {
+        $nodes = [$ruleNode];
+        walk($nodes, function (&$node, $ctx) use (&$didApply, &$ruleNode) {
             if ($node['kind'] !== 'rule' && $node['kind'] !== 'at-rule') {
-                return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+                return \TailwindPHP\Walk\WalkAction::Continue;
             }
             if (!empty($node['nodes'])) {
-                return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+                return \TailwindPHP\Walk\WalkAction::Continue;
             }
 
             // Collect at-rules and style rules from path
             $atRules = [];
             $styleRules = [];
 
-            $path = $ctx['path']();
+            $path = $ctx->path();
             $path[] = $node;
 
             foreach ($path as $pathNode) {
@@ -665,8 +666,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                 }
             }
 
-            if (count($atRules) > 1) return \TailwindPHP\Walk\WALK_ACTION_STOP;
-            if (count($styleRules) > 1) return \TailwindPHP\Walk\WALK_ACTION_STOP;
+            if (count($atRules) > 1) return \TailwindPHP\Walk\WalkAction::Stop;
+            if (count($styleRules) > 1) return \TailwindPHP\Walk\WalkAction::Stop;
 
             $rules = [];
 
@@ -674,7 +675,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                 $selector = negateSelector($styleNode['selector']);
                 if (!$selector) {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
                 $rules[] = \TailwindPHP\Ast\styleRule($selector, []);
             }
@@ -683,7 +684,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                 $negatedAtRule = negateAtRule($atNode);
                 if (!$negatedAtRule) {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
                 $rules[] = $negatedAtRule;
             }
@@ -691,7 +692,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $ruleNode = \TailwindPHP\Ast\styleRule('&', $rules);
             $didApply = true;
 
-            return \TailwindPHP\Walk\WALK_ACTION_SKIP;
+            return \TailwindPHP\Walk\WalkAction::Skip;
         });
 
         // Simplify if possible
@@ -723,14 +724,15 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
-        walk([$ruleNode], function (&$node, $ctx) use (&$didApply, $variantSelector) {
-            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+        $nodes = [$ruleNode];
+        walk($nodes, function (&$node, $ctx) use (&$didApply, $variantSelector) {
+            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
 
             // Throw out any candidates with variants using nested style rules
-            foreach ($ctx['path']() as $parent) {
+            foreach ($ctx->path() as $parent) {
                 if ($parent['kind'] === 'rule') {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
             }
 
@@ -769,13 +771,14 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
-        walk([$ruleNode], function (&$node, $ctx) use (&$didApply, $variantSelector) {
-            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+        $nodes = [$ruleNode];
+        walk($nodes, function (&$node, $ctx) use (&$didApply, $variantSelector) {
+            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
 
-            foreach ($ctx['path']() as $parent) {
+            foreach ($ctx->path() as $parent) {
                 if ($parent['kind'] === 'rule') {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
             }
 
@@ -911,13 +914,14 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
-        walk([$ruleNode], function (&$node, $ctx) use (&$didApply) {
-            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+        $nodes = [$ruleNode];
+        walk($nodes, function (&$node, $ctx) use (&$didApply) {
+            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
 
-            foreach ($ctx['path']() as $parent) {
+            foreach ($ctx->path() as $parent) {
                 if ($parent['kind'] === 'rule') {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
             }
 
@@ -939,13 +943,14 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
         $didApply = false;
 
-        walk([$ruleNode], function (&$node, $ctx) use (&$didApply) {
-            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WALK_ACTION_CONTINUE;
+        $nodes = [$ruleNode];
+        walk($nodes, function (&$node, $ctx) use (&$didApply) {
+            if ($node['kind'] !== 'rule') return \TailwindPHP\Walk\WalkAction::Continue;
 
-            foreach ($ctx['path']() as $parent) {
+            foreach ($ctx->path() as $parent) {
                 if ($parent['kind'] === 'rule') {
                     $didApply = false;
-                    return \TailwindPHP\Walk\WALK_ACTION_STOP;
+                    return \TailwindPHP\Walk\WalkAction::Stop;
                 }
             }
 

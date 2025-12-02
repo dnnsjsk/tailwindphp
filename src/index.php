@@ -222,7 +222,17 @@ function parseCss(array &$ast, array $options = []): array
         if ($node['name'] === '@theme') {
             $features |= FEATURE_AT_THEME;
 
-            $themeOptions = parseThemeOptions($node['params']);
+            [$themeOptions, $themePrefix] = parseThemeOptions($node['params']);
+
+            // Validate and apply prefix
+            if ($themePrefix !== null) {
+                if (!preg_match(IS_VALID_PREFIX, $themePrefix)) {
+                    throw new \Exception(
+                        "The prefix \"{$themePrefix}\" is invalid. Prefixes must be lowercase ASCII letters (a-z) only."
+                    );
+                }
+                $theme->prefix = $themePrefix;
+            }
 
             // Process theme declarations
             foreach ($node['nodes'] ?? [] as $child) {
@@ -313,34 +323,34 @@ function parseCss(array &$ast, array $options = []): array
     ];
 }
 
+const IS_VALID_PREFIX = '/^[a-z]+$/';
+
 /**
  * Parse @theme options from params string.
  *
  * @param string $params
- * @return int Theme options flags
+ * @return array{0: int, 1: string|null} [options flags, prefix]
  */
-function parseThemeOptions(string $params): int
+function parseThemeOptions(string $params): array
 {
     $options = Theme::OPTIONS_NONE;
+    $prefix = null;
 
     foreach (\TailwindPHP\Utils\segment($params, ' ') as $option) {
-        switch ($option) {
-            case 'reference':
-                $options |= Theme::OPTIONS_REFERENCE;
-                break;
-            case 'inline':
-                $options |= Theme::OPTIONS_INLINE;
-                break;
-            case 'default':
-                $options |= Theme::OPTIONS_DEFAULT;
-                break;
-            case 'static':
-                $options |= Theme::OPTIONS_STATIC;
-                break;
+        if ($option === 'reference') {
+            $options |= Theme::OPTIONS_REFERENCE;
+        } elseif ($option === 'inline') {
+            $options |= Theme::OPTIONS_INLINE;
+        } elseif ($option === 'default') {
+            $options |= Theme::OPTIONS_DEFAULT;
+        } elseif ($option === 'static') {
+            $options |= Theme::OPTIONS_STATIC;
+        } elseif (str_starts_with($option, 'prefix(') && str_ends_with($option, ')')) {
+            $prefix = substr($option, 7, -1);
         }
     }
 
-    return $options;
+    return [$options, $prefix];
 }
 
 /**
@@ -370,12 +380,17 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
         }
 
         // Handle rules with children
-        if (($node['kind'] === 'rule' || $node['kind'] === 'at-rule') && !empty($node['nodes'])) {
+        if (($node['kind'] === 'rule' || $node['kind'] === 'at-rule') && isset($node['nodes'])) {
             $children = [];
             foreach ($node['nodes'] as $child) {
                 $transform($child, $children);
             }
             $node['nodes'] = $children;
+
+            // Skip empty rules (no declarations or nested rules)
+            if (empty($children)) {
+                return;
+            }
         }
 
         $parent[] = $node;

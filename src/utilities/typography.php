@@ -38,6 +38,16 @@ use function TailwindPHP\Utils\isPositiveInteger;
  */
 function registerTypographyUtilities(UtilityBuilder $builder): void
 {
+    // =========================================================================
+    // Text Color
+    // =========================================================================
+    $builder->colorUtility('text', [
+        'themeKeys' => ['--text-color', '--color'],
+        'handle' => function ($value) {
+            return [decl('color', $value)];
+        },
+    ]);
+
     // Font Style
     $builder->staticUtility('italic', [['font-style', 'italic']]);
     $builder->staticUtility('not-italic', [['font-style', 'normal']]);
