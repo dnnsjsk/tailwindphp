@@ -8,6 +8,8 @@ use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Utilities\property;
 use function TailwindPHP\Utils\replaceShadowColors;
+use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Utils\inferDataType;
 
 /**
  * Replace shadow colors with a CSS variable reference.
@@ -222,6 +224,233 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         // Static values
         if (($candidateValue['value'] ?? null) === 'none') {
             return [decl('box-shadow', 'none')];
+        }
+
+        return null;
+    });
+
+    // =========================================================================
+    // Ring utilities
+    // =========================================================================
+
+    // ring-inset static utility
+    $builder->staticUtility('ring-inset', [
+        fn() => $boxShadowProperties(),
+        ['--tw-ring-inset', 'inset'],
+    ]);
+
+    // Ring shadow value generator
+    $defaultRingColor = $theme->get(['--default-ring-color']) ?? 'currentcolor';
+    $ringShadowValue = function (string $value) use ($defaultRingColor) {
+        return "var(--tw-ring-inset,) 0 0 0 calc({$value} + var(--tw-ring-offset-width)) var(--tw-ring-color, {$defaultRingColor})";
+    };
+
+    // ring utility - width and color
+    $builder->getUtilities()->functional('ring', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue, $ringShadowValue) {
+        $candidateValue = $candidate['value'] ?? null;
+        $modifier = $candidate['modifier'] ?? null;
+
+        // No value = default ring width
+        if ($candidateValue === null) {
+            if ($modifier !== null) {
+                return null;
+            }
+            $value = $theme->get(['--default-ring-width']) ?? '1px';
+            return [
+                $boxShadowProperties(),
+                decl('--tw-ring-shadow', $ringShadowValue($value)),
+                decl('box-shadow', $cssBoxShadowValue),
+            ];
+        }
+
+        // Handle arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'length']);
+
+            if ($type === 'length') {
+                if ($modifier !== null) {
+                    return null;
+                }
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-ring-shadow', $ringShadowValue($value)),
+                    decl('box-shadow', $cssBoxShadowValue),
+                ];
+            }
+
+            // Color arbitrary value
+            $value = asColor($value, $modifier, $theme);
+            if ($value === null) {
+                return null;
+            }
+            return [decl('--tw-ring-color', $value)];
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // Ring color
+        $colorValue = resolveThemeColor($candidate, $theme, ['--ring-color', '--color']);
+        if ($colorValue !== null) {
+            return [decl('--tw-ring-color', $colorValue)];
+        }
+
+        // Ring width
+        if ($modifier !== null) {
+            return null;
+        }
+        $widthValue = $theme->resolve($namedValue, ['--ring-width']);
+        if ($widthValue === null && isPositiveInteger($namedValue)) {
+            $widthValue = "{$namedValue}px";
+        }
+        if ($widthValue !== null) {
+            return [
+                $boxShadowProperties(),
+                decl('--tw-ring-shadow', $ringShadowValue($widthValue)),
+                decl('box-shadow', $cssBoxShadowValue),
+            ];
+        }
+
+        return null;
+    });
+
+    // inset-ring utility
+    $insetRingShadowValue = function (string $value) {
+        return "inset 0 0 0 {$value} var(--tw-inset-ring-color, currentcolor)";
+    };
+
+    $builder->getUtilities()->functional('inset-ring', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue, $insetRingShadowValue) {
+        $candidateValue = $candidate['value'] ?? null;
+        $modifier = $candidate['modifier'] ?? null;
+
+        // No value = default 1px
+        if ($candidateValue === null) {
+            if ($modifier !== null) {
+                return null;
+            }
+            return [
+                $boxShadowProperties(),
+                decl('--tw-inset-ring-shadow', $insetRingShadowValue('1px')),
+                decl('box-shadow', $cssBoxShadowValue),
+            ];
+        }
+
+        // Handle arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'length']);
+
+            if ($type === 'length') {
+                if ($modifier !== null) {
+                    return null;
+                }
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-inset-ring-shadow', $insetRingShadowValue($value)),
+                    decl('box-shadow', $cssBoxShadowValue),
+                ];
+            }
+
+            // Color arbitrary value
+            $value = asColor($value, $modifier, $theme);
+            if ($value === null) {
+                return null;
+            }
+            return [decl('--tw-inset-ring-color', $value)];
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // Ring color
+        $colorValue = resolveThemeColor($candidate, $theme, ['--ring-color', '--color']);
+        if ($colorValue !== null) {
+            return [decl('--tw-inset-ring-color', $colorValue)];
+        }
+
+        // Ring width
+        if ($modifier !== null) {
+            return null;
+        }
+        $widthValue = $theme->resolve($namedValue, ['--ring-width']);
+        if ($widthValue === null && isPositiveInteger($namedValue)) {
+            $widthValue = "{$namedValue}px";
+        }
+        if ($widthValue !== null) {
+            return [
+                $boxShadowProperties(),
+                decl('--tw-inset-ring-shadow', $insetRingShadowValue($widthValue)),
+                decl('box-shadow', $cssBoxShadowValue),
+            ];
+        }
+
+        return null;
+    });
+
+    // ring-offset utility
+    $ringOffsetShadowValue = 'var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color)';
+
+    $builder->getUtilities()->functional('ring-offset', function ($candidate) use ($theme, $boxShadowProperties, $cssBoxShadowValue, $ringOffsetShadowValue) {
+        $candidateValue = $candidate['value'] ?? null;
+        $modifier = $candidate['modifier'] ?? null;
+
+        // No value = no match
+        if ($candidateValue === null) {
+            return null;
+        }
+
+        // Handle arbitrary values
+        if ($candidateValue['kind'] === 'arbitrary') {
+            $value = $candidateValue['value'];
+            $type = $candidateValue['dataType'] ?? inferDataType($value, ['color', 'length']);
+
+            if ($type === 'length') {
+                if ($modifier !== null) {
+                    return null;
+                }
+                return [
+                    $boxShadowProperties(),
+                    decl('--tw-ring-offset-width', $value),
+                    decl('--tw-ring-offset-shadow', $ringOffsetShadowValue),
+                    decl('box-shadow', $cssBoxShadowValue),
+                ];
+            }
+
+            // Color arbitrary value
+            $value = asColor($value, $modifier, $theme);
+            if ($value === null) {
+                return null;
+            }
+            return [decl('--tw-ring-offset-color', $value)];
+        }
+
+        $namedValue = $candidateValue['value'] ?? null;
+
+        // ring-offset-inset
+        if ($namedValue === 'inset') {
+            return [decl('--tw-ring-inset', 'inset')];
+        }
+
+        // Offset color
+        $colorValue = resolveThemeColor($candidate, $theme, ['--ring-offset-color', '--color']);
+        if ($colorValue !== null) {
+            return [decl('--tw-ring-offset-color', $colorValue)];
+        }
+
+        // Offset width
+        if ($modifier !== null) {
+            return null;
+        }
+        $widthValue = $theme->resolve($namedValue, ['--ring-offset-width']);
+        if ($widthValue === null && isPositiveInteger($namedValue)) {
+            $widthValue = "{$namedValue}px";
+        }
+        if ($widthValue !== null) {
+            return [
+                $boxShadowProperties(),
+                decl('--tw-ring-offset-width', $widthValue),
+                decl('--tw-ring-offset-shadow', $ringOffsetShadowValue),
+                decl('box-shadow', $cssBoxShadowValue),
+            ];
         }
 
         return null;
