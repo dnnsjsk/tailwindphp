@@ -87,7 +87,10 @@ function compileCandidates(
                 // Track the variant order
                 $variantOrder = 0;
                 foreach ($candidate['variants'] as $variant) {
-                    $variantOrder |= 1 << ($variantOrderMap[$variant] ?? 0);
+                    // Arbitrary variants get order 0, named variants use their root
+                    $root = $variant['root'] ?? null;
+                    $order = $root !== null ? ($variantOrderMap[$root] ?? 0) : 0;
+                    $variantOrder |= 1 << $order;
                 }
 
                 $nodeSorting[spl_object_hash((object)$node)] = [
@@ -106,39 +109,50 @@ function compileCandidates(
 
     // Sort AST nodes
     usort($astNodes, function ($a, $z) use (&$nodeSorting) {
-        $aSorting = $nodeSorting[spl_object_hash((object)$a)];
-        $zSorting = $nodeSorting[spl_object_hash((object)$z)];
+        $aSorting = $nodeSorting[spl_object_hash((object)$a)] ?? null;
+        $zSorting = $nodeSorting[spl_object_hash((object)$z)] ?? null;
+
+        // If either sorting info is missing, keep original order
+        if ($aSorting === null || $zSorting === null) {
+            return 0;
+        }
 
         // Sort by variant order first
         if ($aSorting['variants'] !== $zSorting['variants']) {
             return $aSorting['variants'] - $zSorting['variants'];
         }
 
+        // Get property orders, defaulting to empty arrays
+        $aPropsOrder = $aSorting['properties']['order'] ?? [];
+        $zPropsOrder = $zSorting['properties']['order'] ?? [];
+
         // Find the first property that is different between the two rules
         $offset = 0;
         while (
-            $offset < count($aSorting['properties']['order']) &&
-            $offset < count($zSorting['properties']['order']) &&
-            $aSorting['properties']['order'][$offset] === $zSorting['properties']['order'][$offset]
+            $offset < count($aPropsOrder) &&
+            $offset < count($zPropsOrder) &&
+            $aPropsOrder[$offset] === $zPropsOrder[$offset]
         ) {
             $offset++;
         }
 
         // Sort by lowest property index first
-        $aOrder = $aSorting['properties']['order'][$offset] ?? PHP_INT_MAX;
-        $zOrder = $zSorting['properties']['order'][$offset] ?? PHP_INT_MAX;
+        $aOrder = $aPropsOrder[$offset] ?? PHP_INT_MAX;
+        $zOrder = $zPropsOrder[$offset] ?? PHP_INT_MAX;
 
         if ($aOrder !== $zOrder) {
             return $aOrder - $zOrder;
         }
 
         // Sort by most properties first, then by least properties
-        if ($zSorting['properties']['count'] !== $aSorting['properties']['count']) {
-            return $zSorting['properties']['count'] - $aSorting['properties']['count'];
+        $aCount = $aSorting['properties']['count'] ?? 0;
+        $zCount = $zSorting['properties']['count'] ?? 0;
+        if ($zCount !== $aCount) {
+            return $zCount - $aCount;
         }
 
         // Sort alphabetically
-        return compare($aSorting['candidate'], $zSorting['candidate']);
+        return compare($aSorting['candidate'] ?? '', $zSorting['candidate'] ?? '');
     });
 
     return [
@@ -160,7 +174,7 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
     $asts = compileBaseUtility($candidate, $designSystem);
     if (empty($asts)) return [];
 
-    $respectImportant = $designSystem->important && ($flags & COMPILE_FLAG_RESPECT_IMPORTANT);
+    $respectImportant = $designSystem->isImportant() && ($flags & COMPILE_FLAG_RESPECT_IMPORTANT);
 
     $rules = [];
     $selector = '.' . escape($candidate['raw']);
@@ -181,10 +195,11 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
 
         // Apply variants
         foreach ($candidate['variants'] as $variant) {
-            $result = applyVariant($node, $variant, $designSystem->variants);
+            $result = applyVariant($node, $variant, $designSystem->getVariants());
 
-            // When the variant results in null, the variant cannot be applied
-            if ($result === null) return [];
+            // When the variant results in false, the variant cannot be applied
+            // (null/no return means success - node was modified in place)
+            if ($result === false) return [];
         }
 
         $rules[] = [
@@ -203,13 +218,13 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
  * @param array $variant
  * @param object $variants
  * @param int $depth
- * @return null|void
+ * @return false|void Returns false on failure, nothing on success
  */
 function applyVariant(array &$node, array $variant, object $variants, int $depth = 0)
 {
     if ($variant['kind'] === 'arbitrary') {
         // Relative selectors are not valid at the top level
-        if ($variant['relative'] && $depth === 0) return null;
+        if ($variant['relative'] && $depth === 0) return false;
 
         $node['nodes'] = [rule($variant['selector'], $node['nodes'])];
         return;
@@ -217,7 +232,7 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
 
     // Get the variant's apply function
     $variantData = $variants->get($variant['root']);
-    if (!$variantData) return null;
+    if (!$variantData) return false;
 
     $applyFn = $variantData['applyFn'];
 
@@ -226,17 +241,17 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
         $isolatedNode = atRule('@slot');
 
         $result = applyVariant($isolatedNode, $variant['variant'], $variants, $depth + 1);
-        if ($result === null) return null;
+        if ($result === false) return false;
 
         if ($variant['root'] === 'not' && count($isolatedNode['nodes']) > 1) {
-            return null;
+            return false;
         }
 
         foreach ($isolatedNode['nodes'] as &$child) {
-            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') return null;
+            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') return false;
 
             $result = $applyFn($child, $variant);
-            if ($result === null) return null;
+            if ($result === false) return false;
         }
 
         // Replace placeholder with actual node
@@ -252,8 +267,10 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
     }
 
     // All other variants
+    // Note: applyFn modifies $node by reference and returns nothing on success.
+    // It returns false explicitly to indicate failure.
     $result = $applyFn($node, $variant);
-    if ($result === null) return null;
+    if ($result === false) return false;
 }
 
 /**
@@ -282,7 +299,7 @@ function compileBaseUtility(array $candidate, object $designSystem): array
 
         // Handle opacity modifier for arbitrary properties
         if ($candidate['modifier']) {
-            $value = asColor($value, $candidate['modifier'], $designSystem->theme);
+            $value = asColor($value, $candidate['modifier'], $designSystem->getTheme());
         }
 
         if ($value === null) return [];
@@ -290,7 +307,7 @@ function compileBaseUtility(array $candidate, object $designSystem): array
         return [[decl($candidate['property'], $value)]];
     }
 
-    $utilities = $designSystem->utilities->get($candidate['root']) ?? [];
+    $utilities = $designSystem->getUtilities()->get($candidate['root']) ?? [];
 
     $asts = [];
 

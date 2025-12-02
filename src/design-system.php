@@ -11,7 +11,11 @@ use TailwindPHP\Variants\Variants;
 use TailwindPHP\Utils\DefaultMap;
 
 use function TailwindPHP\Compile\compileCandidates;
+use function TailwindPHP\Compile\compileAstNodes;
 use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Candidate\parseCandidate;
+use function TailwindPHP\Candidate\parseVariant;
+use TailwindPHP\Candidate\DesignSystemInterface as CandidateDesignSystemInterface;
 
 // Load utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
@@ -55,7 +59,7 @@ interface DesignSystemInterface
 /**
  * Design System implementation.
  */
-class DesignSystem implements DesignSystemInterface
+class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterface
 {
     private Theme $theme;
     private Utilities $utilities;
@@ -228,6 +232,20 @@ class DesignSystem implements DesignSystemInterface
     public function setStorage(string $key, $value): void
     {
         $this->storage[$key] = $value;
+    }
+
+    /**
+     * Get variant order map for sorting.
+     *
+     * @return array<string, int>
+     */
+    public function getVariantOrder(): array
+    {
+        $order = [];
+        foreach ($this->variants->variants as $name => $info) {
+            $order[$name] = $info['order'] ?? 0;
+        }
+        return $order;
     }
 }
 

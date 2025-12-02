@@ -13,6 +13,7 @@ use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Utils\isValidOpacityValue;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
+use TailwindPHP\Candidate\UtilitiesInterface;
 
 /**
  * Utilities - Utility registry and core utility functions.
@@ -32,7 +33,7 @@ const DEFAULT_SPACING_SUGGESTIONS = [
 /**
  * Utility class to manage utility registrations.
  */
-class Utilities
+class Utilities implements UtilitiesInterface
 {
     /**
      * @var DefaultMap<string, array<array{kind: string, compileFn: callable, options?: array}>>

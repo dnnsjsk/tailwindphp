@@ -10,7 +10,10 @@ use TailwindPHP\DesignSystem\DesignSystem;
 use function TailwindPHP\DesignSystem\buildDesignSystem;
 use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Walk\walk;
+use TailwindPHP\Walk\WalkAction;
 
 /**
  * TailwindPHP - CSS-first Tailwind CSS compiler for PHP.
@@ -61,7 +64,7 @@ function compileAst(array $ast, array $options = []): array
     $designSystem = $result['designSystem'];
     $sources = $result['sources'];
     $root = $result['root'];
-    $utilitiesNode = $result['utilitiesNode'];
+    $utilitiesNodePath = $result['utilitiesNodePath'];
     $features = $result['features'];
     $inlineCandidates = $result['inlineCandidates'];
 
@@ -75,6 +78,18 @@ function compileAst(array $ast, array $options = []): array
         }
     }
 
+    // Helper to find and update the utilities context node
+    $updateUtilitiesNode = function (array &$ast, array $newNodes) {
+        walk($ast, function (&$node) use ($newNodes) {
+            // Find the context node that was converted from @tailwind utilities
+            if ($node['kind'] === 'context' && isset($node['context']) && is_array($node['context'])) {
+                $node['nodes'] = $newNodes;
+                return WalkAction::Stop;
+            }
+            return WalkAction::Continue;
+        });
+    };
+
     return [
         'sources' => $sources,
         'root' => $root,
@@ -84,16 +99,17 @@ function compileAst(array $ast, array $options = []): array
             &$compiled,
             &$previousAstNodeCount,
             $designSystem,
-            $utilitiesNode,
-            $ast,
+            $utilitiesNodePath,
+            &$ast,
             $features,
-            $options
+            $options,
+            $updateUtilitiesNode
         ) {
             if ($features === FEATURE_NONE) {
                 return toCss($ast);
             }
 
-            if ($utilitiesNode === null) {
+            if ($utilitiesNodePath === null) {
                 if ($compiled === null) {
                     $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
                 }
@@ -143,7 +159,9 @@ function compileAst(array $ast, array $options = []): array
             }
 
             $previousAstNodeCount = count($newNodes);
-            $utilitiesNode['nodes'] = $newNodes;
+
+            // Update the context node with the compiled utilities
+            $updateUtilitiesNode($ast, $newNodes);
 
             $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
             return toCss($compiled);
@@ -158,41 +176,46 @@ function compileAst(array $ast, array $options = []): array
  * @param array $options Parse options
  * @return array
  */
-function parseCss(array $ast, array $options = []): array
+function parseCss(array &$ast, array $options = []): array
 {
     $features = FEATURE_NONE;
     $theme = new Theme();
-    $utilitiesNode = null;
+    $utilitiesNodePath = null;
     $sources = [];
     $inlineCandidates = [];
     $root = null;
     $firstThemeRule = null;
+    $important = false;
 
-    // Walk the AST and process @theme, @tailwind, etc.
-    walk($ast, function (&$node, $context) use (
-        &$features,
-        &$theme,
-        &$utilitiesNode,
-        &$sources,
-        &$inlineCandidates,
-        &$root,
-        &$firstThemeRule
-    ) {
+    // Walk AST to find @tailwind utilities, @theme, @source, @media important
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, $options) {
         if ($node['kind'] !== 'at-rule') {
-            return null;
+            return WalkAction::Continue;
         }
 
-        // Handle @tailwind utilities
+        // Handle @tailwind utilities - can be nested (e.g., inside #app {})
         if ($node['name'] === '@tailwind' &&
             ($node['params'] === 'utilities' || str_starts_with($node['params'], 'utilities'))
         ) {
-            if ($utilitiesNode !== null) {
-                return []; // Remove duplicate
+            // Any additional @tailwind utilities nodes can be removed
+            if ($utilitiesNodePath !== null) {
+                return WalkAction::Replace([]);
             }
 
-            $utilitiesNode = &$node;
+            // Store the path to this node for later modification
+            $utilitiesNodePath = $ctx->path();
+            $utilitiesNodePath[] = $node; // Add current node to path
             $features |= FEATURE_UTILITIES;
-            return null;
+
+            // Convert the @tailwind node to a context node in place
+            // This is how the TypeScript does it - mutate in place
+            $node['kind'] = 'context';
+            $node['context'] = [];
+            $node['nodes'] = [];
+            unset($node['name']);
+            unset($node['params']);
+
+            return WalkAction::Skip;
         }
 
         // Handle @theme
@@ -208,42 +231,75 @@ function parseCss(array $ast, array $options = []): array
                 }
             }
 
-            // Replace first @theme with a style rule for :root
+            // Keep a reference to the first @theme rule to update with the full
+            // theme later, and delete any other @theme rules.
             if ($firstThemeRule === null) {
                 $firstThemeRule = styleRule(':root, :host', []);
-                return $firstThemeRule;
+                return WalkAction::ReplaceSkip($firstThemeRule);
+            } else {
+                return WalkAction::ReplaceSkip([]);
             }
-
-            return []; // Remove subsequent @theme blocks
         }
 
         // Handle @source
         if ($node['name'] === '@source') {
             $path = trim($node['params'], "\"'");
             $sources[] = [
-                'base' => $context['base'] ?? '',
+                'base' => $options['base'] ?? '',
                 'pattern' => $path,
                 'negated' => false,
             ];
-            return [];
+            return WalkAction::ReplaceSkip([]);
         }
 
-        return null;
+        // Handle @media important
+        if ($node['name'] === '@media') {
+            $params = \TailwindPHP\Utils\segment($node['params'], ' ');
+            $unknownParams = [];
+
+            foreach ($params as $param) {
+                if ($param === 'important') {
+                    $important = true;
+                } else {
+                    $unknownParams[] = $param;
+                }
+            }
+
+            if (count($unknownParams) > 0) {
+                $node['params'] = implode(' ', $unknownParams);
+            } elseif (count($params) > 0) {
+                // All params were recognized, replace @media with its children
+                return WalkAction::Replace($node['nodes'] ?? []);
+            }
+        }
+
+        return WalkAction::Continue;
     });
+
+    // Populate the first theme rule with theme values
+    if ($firstThemeRule !== null) {
+        walk($ast, function (&$node) use ($theme) {
+            if ($node['kind'] === 'rule' && $node['selector'] === ':root, :host') {
+                $nodes = [];
+                foreach ($theme->entries() as [$key, $value]) {
+                    if ($value['options'] & Theme::OPTIONS_REFERENCE) {
+                        continue;
+                    }
+                    $nodes[] = decl(\TailwindPHP\Utils\escape($key), $value['value']);
+                }
+                $node['nodes'] = $nodes;
+                return WalkAction::Stop;
+            }
+            return WalkAction::Continue;
+        });
+    }
 
     // Build the design system
     $designSystem = buildDesignSystem($theme);
 
-    // Output theme variables
-    if ($firstThemeRule !== null) {
-        $nodes = [];
-        foreach ($theme->entries() as [$key, $value]) {
-            if ($value['options'] & Theme::OPTIONS_REFERENCE) {
-                continue;
-            }
-            $nodes[] = decl(\TailwindPHP\Utils\escape($key), $value['value']);
-        }
-        $firstThemeRule['nodes'] = $nodes;
+    // Set important flag on design system
+    if ($important) {
+        $designSystem->setImportant(true);
     }
 
     return [
@@ -251,7 +307,7 @@ function parseCss(array $ast, array $options = []): array
         'ast' => $ast,
         'sources' => $sources,
         'root' => $root,
-        'utilitiesNode' => $utilitiesNode,
+        'utilitiesNodePath' => $utilitiesNodePath,
         'features' => $features,
         'inlineCandidates' => $inlineCandidates,
     ];
@@ -288,7 +344,7 @@ function parseThemeOptions(string $params): int
 }
 
 /**
- * Optimize AST by applying polyfills and removing empty nodes.
+ * Optimize AST by flattening context nodes and other optimizations.
  *
  * @param array $ast
  * @param DesignSystem $designSystem
@@ -297,9 +353,39 @@ function parseThemeOptions(string $params): int
  */
 function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = POLYFILL_ALL): array
 {
-    // For now, just return the AST as-is
-    // Full optimization will be implemented later
-    return $ast;
+    $result = [];
+
+    $transform = function (array $node, array &$parent) use (&$transform) {
+        // Handle context nodes - lift their children to parent
+        if ($node['kind'] === 'context') {
+            // Skip reference context nodes
+            if (!empty($node['context']['reference'])) {
+                return;
+            }
+            // Recursively process children
+            foreach ($node['nodes'] ?? [] as $child) {
+                $transform($child, $parent);
+            }
+            return;
+        }
+
+        // Handle rules with children
+        if (($node['kind'] === 'rule' || $node['kind'] === 'at-rule') && !empty($node['nodes'])) {
+            $children = [];
+            foreach ($node['nodes'] as $child) {
+                $transform($child, $children);
+            }
+            $node['nodes'] = $children;
+        }
+
+        $parent[] = $node;
+    };
+
+    foreach ($ast as $node) {
+        $transform($node, $result);
+    }
+
+    return $result;
 }
 
 /**

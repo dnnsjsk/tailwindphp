@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Variants;
 
+use TailwindPHP\Candidate\VariantsInterface;
 use function TailwindPHP\Ast\rule;
 use function TailwindPHP\Ast\atRule;
 use function TailwindPHP\Ast\styleRule;
@@ -27,7 +28,7 @@ const COMPOUNDS_STYLE_RULES = 1 << 1;   // 2
 /**
  * Variants class to manage variant registrations.
  */
-class Variants
+class Variants implements VariantsInterface
 {
     /**
      * @var array<int, callable>
@@ -205,21 +206,17 @@ class Variants
      * Check if a parent variant can compound with a child variant.
      *
      * @param string $parent
-     * @param string|array $child
+     * @param array $variant
      * @return bool
      */
-    public function compoundsWith(string $parent, $child): bool
+    public function compoundsWith(string $parent, array $variant): bool
     {
         $parentInfo = $this->variants[$parent] ?? null;
 
-        if (is_string($child)) {
-            $childInfo = $this->variants[$child] ?? null;
+        if ($variant['kind'] === 'arbitrary') {
+            $childInfo = ['compounds' => compoundsForSelectors([$variant['selector']])];
         } else {
-            if ($child['kind'] === 'arbitrary') {
-                $childInfo = ['compounds' => compoundsForSelectors([$child['selector']])];
-            } else {
-                $childInfo = $this->variants[$child['root']] ?? null;
-            }
+            $childInfo = $this->variants[$variant['root']] ?? null;
         }
 
         // One of the variants doesn't exist
@@ -569,13 +566,13 @@ function negateAtRule(array $rule): ?array
         $conditions = segment($rule['params'], ',');
 
         // We don't support things like `@media screen, print`
-        if (count($conditions) > 1) return null;
+        if (count($conditions) > 1) return false;
 
         $conditions = negateConditions($rule['name'], $conditions);
         return \TailwindPHP\Ast\atRule($rule['name'], implode(', ', $conditions));
     }
 
-    return null;
+    return false;
 }
 
 /**
@@ -586,7 +583,7 @@ function negateAtRule(array $rule): ?array
  */
 function negateSelector(string $selector): ?string
 {
-    if (strpos($selector, '::') !== false) return null;
+    if (strpos($selector, '::') !== false) return false;
 
     $selectors = array_map(function ($sel) {
         // Replace `&` in target variant with `*`
@@ -638,10 +635,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $variants->compound('not', COMPOUNDS_STYLE_RULES | COMPOUNDS_AT_RULES, function (&$ruleNode, $variant) {
         if (isset($variant['variant']['kind']) && $variant['variant']['kind'] === 'arbitrary' &&
             isset($variant['variant']['relative']) && $variant['variant']['relative']) {
-            return null;
+            return false;
         }
 
-        if (isset($variant['modifier'])) return null;
+        if (isset($variant['modifier'])) return false;
 
         $didApply = false;
 
@@ -702,7 +699,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $ruleNode = array_merge($ruleNode, $ruleNode['nodes'][0]);
         }
 
-        if (!$didApply) return null;
+        if (!$didApply) return false;
     });
 
     $variants->suggest('not', fn() => array_filter(
@@ -714,7 +711,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $variants->compound('group', COMPOUNDS_STYLE_RULES, function (&$ruleNode, $variant) use ($theme) {
         if (isset($variant['variant']['kind']) && $variant['variant']['kind'] === 'arbitrary' &&
             isset($variant['variant']['relative']) && $variant['variant']['relative']) {
-            return null;
+            return false;
         }
 
         $prefix = $theme->getPrefix();
@@ -748,7 +745,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $didApply = true;
         });
 
-        if (!$didApply) return null;
+        if (!$didApply) return false;
     });
 
     $variants->suggest('group', fn() => array_filter(
@@ -760,7 +757,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $variants->compound('peer', COMPOUNDS_STYLE_RULES, function (&$ruleNode, $variant) use ($theme) {
         if (isset($variant['variant']['kind']) && $variant['variant']['kind'] === 'arbitrary' &&
             isset($variant['variant']['relative']) && $variant['variant']['relative']) {
-            return null;
+            return false;
         }
 
         $prefix = $theme->getPrefix();
@@ -792,7 +789,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $didApply = true;
         });
 
-        if (!$didApply) return null;
+        if (!$didApply) return false;
     });
 
     $variants->suggest('peer', fn() => array_filter(
@@ -910,7 +907,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
     // in-* compound variant
     $variants->compound('in', COMPOUNDS_STYLE_RULES, function (&$ruleNode, $variant) {
-        if (isset($variant['modifier'])) return null;
+        if (isset($variant['modifier'])) return false;
 
         $didApply = false;
 
@@ -928,7 +925,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $didApply = true;
         });
 
-        if (!$didApply) return null;
+        if (!$didApply) return false;
     });
 
     $variants->suggest('in', fn() => array_filter(
@@ -938,7 +935,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
     // has-* compound variant
     $variants->compound('has', COMPOUNDS_STYLE_RULES, function (&$ruleNode, $variant) {
-        if (isset($variant['modifier'])) return null;
+        if (isset($variant['modifier'])) return false;
 
         $didApply = false;
 
@@ -956,7 +953,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
             $didApply = true;
         });
 
-        if (!$didApply) return null;
+        if (!$didApply) return false;
     });
 
     $variants->suggest('has', fn() => array_filter(
@@ -966,7 +963,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
 
     // Functional variants
     $variants->functional('aria', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
         if ($value['kind'] === 'arbitrary') {
@@ -986,7 +983,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     ]);
 
     $variants->functional('data', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $ruleNode['nodes'] = [
             \TailwindPHP\Ast\styleRule("&[data-" . quoteAttributeValue($variant['value']['value']) . "]", $ruleNode['nodes']),
@@ -994,10 +991,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     });
 
     $variants->functional('nth', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
-        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return null;
+        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
         $ruleNode['nodes'] = [
             \TailwindPHP\Ast\styleRule("&:nth-child({$value['value']})", $ruleNode['nodes']),
@@ -1005,10 +1002,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     });
 
     $variants->functional('nth-last', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
-        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return null;
+        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
         $ruleNode['nodes'] = [
             \TailwindPHP\Ast\styleRule("&:nth-last-child({$value['value']})", $ruleNode['nodes']),
@@ -1016,10 +1013,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     });
 
     $variants->functional('nth-of-type', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
-        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return null;
+        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
         $ruleNode['nodes'] = [
             \TailwindPHP\Ast\styleRule("&:nth-of-type({$value['value']})", $ruleNode['nodes']),
@@ -1027,10 +1024,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     });
 
     $variants->functional('nth-last-of-type', function (&$ruleNode, $variant) {
-        if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+        if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
         $value = $variant['value'];
-        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return null;
+        if ($value['kind'] === 'named' && !ctype_digit($value['value'])) return false;
 
         $ruleNode['nodes'] = [
             \TailwindPHP\Ast\styleRule("&:nth-last-of-type({$value['value']})", $ruleNode['nodes']),
@@ -1040,10 +1037,10 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
     $variants->functional(
         'supports',
         function (&$ruleNode, $variant) {
-            if (!isset($variant['value']) || isset($variant['modifier'])) return null;
+            if (!isset($variant['value']) || isset($variant['modifier'])) return false;
 
             $value = $variant['value']['value'];
-            if ($value === null) return null;
+            if ($value === null) return false;
 
             // When the value starts with function-like syntax, use as-is
             if (preg_match('/^[\w-]*\s*\(/', $value)) {
@@ -1091,8 +1088,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         $variants->functional(
             'max',
             function (&$ruleNode, $variant) use ($theme, $breakpoints) {
-                if (isset($variant['modifier'])) return null;
-                if (!isset($variant['value'])) return null;
+                if (isset($variant['modifier'])) return false;
+                if (!isset($variant['value'])) return false;
 
                 $value = $variant['value'];
                 $breakpointValue = null;
@@ -1104,7 +1101,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                         $theme->resolve(null, ["--breakpoint-{$value['value']}"]);
                 }
 
-                if (!$breakpointValue) return null;
+                if (!$breakpointValue) return false;
 
                 $ruleNode['nodes'] = [\TailwindPHP\Ast\atRule('@media', "(width < {$breakpointValue})", $ruleNode['nodes'])];
             },
@@ -1131,8 +1128,8 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         $variants->functional(
             'min',
             function (&$ruleNode, $variant) use ($theme, $breakpoints) {
-                if (isset($variant['modifier'])) return null;
-                if (!isset($variant['value'])) return null;
+                if (isset($variant['modifier'])) return false;
+                if (!isset($variant['value'])) return false;
 
                 $value = $variant['value'];
                 $breakpointValue = null;
@@ -1144,7 +1141,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                         $theme->resolve(null, ["--breakpoint-{$value['value']}"]);
                 }
 
-                if (!$breakpointValue) return null;
+                if (!$breakpointValue) return false;
 
                 $ruleNode['nodes'] = [\TailwindPHP\Ast\atRule('@media', "(width >= {$breakpointValue})", $ruleNode['nodes'])];
             },
@@ -1162,7 +1159,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         $variants->functional(
             '@max',
             function (&$ruleNode, $variant) use ($theme, $containerWidths) {
-                if (!isset($variant['value'])) return null;
+                if (!isset($variant['value'])) return false;
 
                 $value = $variant['value'];
                 $width = null;
@@ -1174,7 +1171,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                         $theme->resolve(null, ["--container-{$value['value']}"]);
                 }
 
-                if (!$width) return null;
+                if (!$width) return false;
 
                 $containerName = isset($variant['modifier']) ? $variant['modifier']['value'] : null;
                 $params = $containerName ? "{$containerName} (width < {$width})" : "(width < {$width})";
@@ -1192,7 +1189,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         $variants->functional(
             '@',
             function (&$ruleNode, $variant) use ($theme, $containerWidths) {
-                if (!isset($variant['value'])) return null;
+                if (!isset($variant['value'])) return false;
 
                 $value = $variant['value'];
                 $width = null;
@@ -1204,7 +1201,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                         $theme->resolve(null, ["--container-{$value['value']}"]);
                 }
 
-                if (!$width) return null;
+                if (!$width) return false;
 
                 $containerName = isset($variant['modifier']) ? $variant['modifier']['value'] : null;
                 $params = $containerName ? "{$containerName} (width >= {$width})" : "(width >= {$width})";
@@ -1217,7 +1214,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
         $variants->functional(
             '@min',
             function (&$ruleNode, $variant) use ($theme, $containerWidths) {
-                if (!isset($variant['value'])) return null;
+                if (!isset($variant['value'])) return false;
 
                 $value = $variant['value'];
                 $width = null;
@@ -1229,7 +1226,7 @@ function createVariants(\TailwindPHP\Theme $theme): Variants
                         $theme->resolve(null, ["--container-{$value['value']}"]);
                 }
 
-                if (!$width) return null;
+                if (!$width) return false;
 
                 $containerName = isset($variant['modifier']) ? $variant['modifier']['value'] : null;
                 $params = $containerName ? "{$containerName} (width >= {$width})" : "(width >= {$width})";
