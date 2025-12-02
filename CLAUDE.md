@@ -272,17 +272,49 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
+**Total: 1,056 tests passing**
+
+### Core Tests (extracted from TypeScript test suites)
+
 | Test File | Status | Tests |
 |-----------|--------|-------|
-| `utilities.test.php` | ✅ **100%** | 364/364 |
-| `variants.test.php` | ✅ **100%** | 139/139 |
-| `index.test.php` | ✅ **100%** | 62/62 |
-| `css_functions.test.php` | ✅ **100%** | 60/60 (7 N/A for JS tooling) |
-| `at_import.test.php` | ⏭️ N/A | Outside scope (file system) |
-| `canonicalize_candidates.test.php` | ⏭️ N/A | Outside scope (IDE tooling) |
-| `candidate.test.php` | 🔄 Pending | - |
+| `utilities.test.php` | ✅ | 364 |
+| `variants.test.php` | ✅ | 139 |
+| `index.test.php` | ✅ | 62 |
+| `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 
-**Total: 1,056 tests passing**
+### Unit Tests (ported from TypeScript)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `css_parser.test.php` | ✅ | 70 |
+| `candidate.test.php` | ✅ | 66 |
+| `decode_arbitrary_value.test.php` | ✅ | 60 |
+| `constant_fold_declaration.test.php` | ✅ | 57 |
+| `selector_parser.test.php` | ✅ | 22 |
+| `attribute_selector_parser.test.php` | ✅ | 20 |
+| `value_parser.test.php` | ✅ | 19 |
+| `ast.test.php` | ✅ | 18 |
+| `walk.test.php` | ✅ | 15 |
+| `compare.test.php` | ✅ | 14 |
+| `brace_expansion.test.php` | ✅ | 13 |
+| `segment.test.php` | ✅ | 12 |
+| `replace_shadow_colors.test.php` | ✅ | 12 |
+| `escape.test.php` | ✅ | 10 |
+| `prefix.test.php` | ✅ | 9 |
+| `expand_declaration.test.php` | ✅ | 4 |
+| `important.test.php` | ✅ | 4 |
+
+### Outside Scope (0 tests - intentionally empty)
+
+| Test File | Reason |
+|-----------|--------|
+| `at_import.test.php` | File system access |
+| `canonicalize_candidates.test.php` | IDE tooling |
+| `intellisense.test.php` | IDE tooling |
+| `plugin.test.php` | JS runtime |
+| `sort.test.php` | IDE tooling |
+| `to_key_path.test.php` | Not needed |
 
 ---
 

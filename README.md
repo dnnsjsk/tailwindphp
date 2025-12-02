@@ -2,9 +2,11 @@
 
 A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required.
 
+**100% AI-written.** This entire codebase was written by Claude Opus 4.5 — no manual coding. The goal is an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
+
 ## Scope
 
-This port converts TailwindCSS input (CSS with directives) into standard CSS output. It is a **pure string transformation**:
+This port (for now) focuses on **string-to-string CSS compilation**. Full filesystem support with `@import` resolution may come in a later version.
 
 ```php
 // Input: CSS string with Tailwind directives
@@ -18,7 +20,7 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 - All CSS compilation features (utilities, variants, directives, functions)
 - No external dependencies beyond PHP
 
-**What's NOT included (outside scope):**
+**What's NOT included (for now):**
 - File system access — No `@import` file resolution, no reading CSS files
 - JavaScript runtime — No `@plugin` execution, no `tailwind.config.js`
 - IDE tooling — No IntelliSense, autocomplete, or source maps
@@ -122,29 +124,62 @@ The codebase mirrors TailwindCSS's structure — same file names, same organizat
 
 ```
 src/
-├── _tailwindphp/        # PHP-specific helpers (not part of the port)
-├── utilities/           # Utility implementations (layout, spacing, etc.)
-├── utils/               # Helper functions (escape, segment, etc.)
-├── ast.php              # AST node types and CSS generation
-├── candidate.php        # Class name parsing
-├── compile.php          # Candidate to CSS compilation
-├── default-theme.php    # Default Tailwind theme values
-├── theme.php            # Theme value resolution
-├── design-system.php    # Central registry
-└── variants.php         # Variant handling (hover, focus, etc.)
+├── _tailwindphp/                # PHP-specific helpers (NOT part of the TailwindCSS port)
+│   ├── LightningCss.php         # CSS optimizations (lightningcss Rust library equivalent)
+│   ├── CandidateParser.php      # Candidate parsing for compilation
+│   └── CssFormatter.php         # CSS output formatting
+│
+├── utilities/                   # Utility implementations (split from utilities.ts)
+│   ├── accessibility.php        # sr-only, forced-colors
+│   ├── backgrounds.php          # bg-*, gradient-*
+│   ├── borders.php              # border-*, rounded-*, divide-*, outline-*
+│   ├── effects.php              # shadow-*, opacity-*, mix-blend-*
+│   ├── filters.php              # blur-*, brightness-*, contrast-*, etc.
+│   ├── flexbox.php              # flex-*, grid-*, gap-*, justify-*, align-*
+│   ├── interactivity.php        # cursor-*, scroll-*, touch-*, select-*
+│   ├── layout.php               # display, position, z-*, overflow-*, etc.
+│   ├── sizing.php               # w-*, h-*, min-*, max-*, size-*
+│   ├── spacing.php              # m-*, p-*, space-*
+│   ├── svg.php                  # fill-*, stroke-*
+│   ├── tables.php               # border-collapse, table-layout
+│   ├── transforms.php           # translate-*, rotate-*, scale-*, skew-*
+│   ├── transitions.php          # transition-*, duration-*, ease-*, delay-*
+│   └── typography.php           # font-*, text-*, leading-*, tracking-*
+│
+├── utils/                       # Helper functions (ported from utils/)
+│   ├── brace-expansion.php      # Brace expansion parsing
+│   ├── compare.php              # Value comparison
+│   ├── compare-breakpoints.php  # Breakpoint comparison
+│   ├── decode-arbitrary-value.php # Arbitrary value decoding
+│   ├── default-map.php          # Default value mapping
+│   ├── dimensions.php           # Dimension parsing
+│   ├── escape.php               # CSS escaping
+│   ├── infer-data-type.php      # Data type inference
+│   ├── is-color.php             # Color detection
+│   ├── is-valid-arbitrary.php   # Arbitrary value validation
+│   ├── math-operators.php       # Math operation handling
+│   ├── replace-shadow-colors.php # Shadow color replacement
+│   ├── segment.php              # String segmentation
+│   ├── to-key-path.php          # Key path conversion
+│   ├── topological-sort.php     # Dependency sorting
+│   └── variables.php            # CSS variable handling
+│
+├── index.php                    # Main entry point, compile() function
+├── ast.php                      # AST nodes and toCss()
+├── candidate.php                # Candidate parsing (class name → parts)
+├── compile.php                  # Candidate to CSS compilation
+├── css-functions.php            # theme(), --theme(), --spacing(), --alpha()
+├── css-parser.php               # CSS parsing
+├── default-theme.php            # Default Tailwind theme values
+├── design-system.php            # Central registry for utilities/variants
+├── theme.php                    # Theme value resolution
+├── utilities.php                # Utility registration and lookup
+├── value-parser.php             # CSS value parsing
+├── variants.php                 # Variant handling (hover, focus, responsive, etc.)
+└── walk.php                     # AST traversal
 ```
 
 **Note:** TailwindCSS's `utilities.ts` is 6,000+ lines. We split it into `src/utilities/` (one file per category) for maintainability.
-
-### PHP-Specific Code
-
-The `src/_tailwindphp/` folder contains PHP-specific helpers that are NOT part of the TailwindCSS port:
-
-- **LightningCss.php** — CSS optimizations (TailwindCSS uses lightningcss, a Rust library)
-- **CandidateParser.php** — Simplified candidate parsing for compilation
-- **CssFormatter.php** — CSS output formatting
-
-This separation keeps the 1:1 port clean while providing necessary PHP implementations.
 
 ### Port Deviation Markers
 
@@ -157,53 +192,38 @@ All implementation files are documented with `@port-deviation` markers explainin
 | `@port-deviation:storage` | Different data structures (array vs Map/Set) |
 | `@port-deviation:types` | PHPDoc instead of TypeScript types |
 | `@port-deviation:sourcemaps` | Source map tracking omitted |
-| `@port-deviation:replacement` | PHP implementation replacing external library |
-| `@port-deviation:omitted` | Entire module not ported (not needed) |
-
-### Utility Categories
-
-All TailwindCSS utility categories are implemented:
-
-- **Layout** — display, position, z-index, float, clear, overflow, etc.
-- **Flexbox & Grid** — flex, grid, gap, justify, align, place, etc.
-- **Spacing** — margin, padding, space-between
-- **Sizing** — width, height, min/max variants, size
-- **Typography** — font, text, leading, tracking, etc.
-- **Backgrounds** — colors, gradients, images
-- **Borders** — width, radius, style, divide, outline
-- **Effects** — shadow, opacity, blend modes
-- **Filters** — blur, brightness, contrast, etc.
-- **Transforms** — translate, rotate, scale, skew
-- **Transitions** — duration, timing, delay
-- **Interactivity** — cursor, scroll, touch, select
-- **SVG** — fill, stroke
-- **Tables** — border-collapse, table-layout
-- **Accessibility** — sr-only, forced-colors
+| `@port-deviation:omitted` | Entire module/feature not ported (outside scope) |
+| `@port-deviation:errors` | Different error handling approach |
+| `@port-deviation:enum` | PHP constants instead of TypeScript enums |
+| `@port-deviation:dispatch` | Different function dispatch pattern |
+| `@port-deviation:structure` | Different code organization |
+| `@port-deviation:helper` | PHP-specific helper not in original |
 
 ## Testing
 
-We test against TailwindCSS's actual test suite to ensure compatibility.
+Tests are automatically extracted from TailwindCSS's TypeScript test suite and compared against our PHP output. This ensures the port stays in sync with the original.
 
 ### Running Tests
 
 ```bash
-# Run all tests
-./vendor/bin/phpunit
+# Extract tests from TypeScript source
+composer extract
 
-# Run only compliance tests
+# Run all tests
+composer test
+
+# Run specific test file
 ./vendor/bin/phpunit src/utilities.test.php
 
-# Run specific test
+# Run tests matching a pattern
 ./vendor/bin/phpunit --filter="translate"
 ```
 
-### TailwindCSS Compliance Tests
+### How It Works
 
-TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting manually, we:
-
-1. **Pre-extract** — `scripts/extract-tests.php` splits the TypeScript test file into smaller `.ts` files under `src/utilities-test/`
-2. **Parse at runtime** — `src/utilities.test.php` reads those files and parses input classes and expected CSS output
-3. **Compare** — Each test runs through our PHP implementation and compares against TailwindCSS's expected output
+1. **Extract** — Scripts in `test-coverage/` parse TailwindCSS's `.test.ts` files and extract test cases
+2. **Run** — PHPUnit tests read extracted data and compare PHP output against expected CSS
+3. **Verify** — Any mismatch means the PHP port has drifted from TailwindCSS behavior
 
 ### Requirements
 
