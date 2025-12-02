@@ -76,13 +76,14 @@ class index extends TestCase
         $css = $test['css'] ?? null;
         $expected = $test['expected'] ?? '';
 
-        // Parse the expected string (it's JSON-encoded in the file)
-        if (is_string($expected) && strlen($expected) > 0) {
-            // The expected value is a JSON string containing the CSS
-            $expected = json_decode($expected, true);
-            if ($expected === null) {
-                // Try without JSON decode - might already be plain text
-                $expected = $test['expected'];
+        // Parse the expected string
+        // The expected value is stored as a quoted string literal from TypeScript snapshots
+        // e.g., '".selector { ... }"' - we need to strip the outer quotes
+        if (is_string($expected) && strlen($expected) >= 2) {
+            $firstChar = $expected[0];
+            $lastChar = $expected[strlen($expected) - 1];
+            if (($firstChar === '"' && $lastChar === '"') || ($firstChar === "'" && $lastChar === "'")) {
+                $expected = substr($expected, 1, -1);
             }
         }
 
@@ -131,6 +132,9 @@ class index extends TestCase
 
         // Normalize leading zeros
         $css = preg_replace('/\b0+(\.\d+)/', '$1', $css);
+
+        // Normalize CSS escape sequences - double backslash to single
+        $css = str_replace('\\\\', '\\', $css);
 
         // Remove wrapping quotes if present (from JSON encoding)
         $css = trim($css, '"\'');

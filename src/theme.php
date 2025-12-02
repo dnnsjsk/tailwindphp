@@ -79,13 +79,13 @@ class Theme
     private array $values = [];
 
     /**
-     * @var array<array>
+     * @var array<string, array{node: array, options: int}>
      */
     private array $keyframes = [];
 
     /**
      * @param array<string, array{value: string, options: int, src: mixed}> $values
-     * @param array<array> $keyframes
+     * @param array<string, array{node: array, options: int}> $keyframes
      */
     public function __construct(array $values = [], array $keyframes = [])
     {
@@ -504,12 +504,14 @@ class Theme
     /**
      * Add keyframes to the theme.
      *
-     * @param array $value
+     * @param array $node
+     * @param int $options
      * @return void
      */
-    public function addKeyframes(array $value): void
+    public function addKeyframes(array $node, int $options = THEME_OPTION_NONE): void
     {
-        $this->keyframes[] = $value;
+        $name = trim($node['params'] ?? '');
+        $this->keyframes[$name] = ['node' => $node, 'options' => $options];
     }
 
     /**
@@ -519,7 +521,18 @@ class Theme
      */
     public function getKeyframes(): array
     {
-        return $this->keyframes;
+        return array_map(fn($kf) => $kf['node'], $this->keyframes);
+    }
+
+    /**
+     * Get options for a keyframe.
+     *
+     * @param string $name
+     * @return int
+     */
+    public function getKeyframeOptions(string $name): int
+    {
+        return $this->keyframes[$name]['options'] ?? THEME_OPTION_NONE;
     }
 
     /**

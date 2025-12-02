@@ -235,10 +235,12 @@ function parseCss(array &$ast, array $options = []): array
                 $theme->prefix = $themePrefix;
             }
 
-            // Process theme declarations
+            // Process theme declarations and keyframes
             foreach ($node['nodes'] ?? [] as $child) {
                 if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
                     $theme->add($child['property'], $child['value'] ?? '', $themeOptions);
+                } elseif ($child['kind'] === 'at-rule' && $child['name'] === '@keyframes') {
+                    $theme->addKeyframes($child, $themeOptions);
                 }
             }
 
@@ -293,7 +295,8 @@ function parseCss(array &$ast, array $options = []): array
             if ($node['kind'] === 'rule' && $node['selector'] === ':root, :host') {
                 $nodes = [];
                 foreach ($theme->entries() as [$key, $value]) {
-                    if ($value['options'] & Theme::OPTIONS_REFERENCE) {
+                    // Skip REFERENCE and INLINE values - they don't get output as CSS variables
+                    if ($value['options'] & (Theme::OPTIONS_REFERENCE | Theme::OPTIONS_INLINE)) {
                         continue;
                     }
                     $nodes[] = decl(\TailwindPHP\Utils\escape($key), $value['value']);
@@ -303,6 +306,11 @@ function parseCss(array &$ast, array $options = []): array
             }
             return WalkAction::Continue;
         });
+
+        // Add keyframes to the AST (they get hoisted to top level during output)
+        foreach ($theme->getKeyframes() as $keyframes) {
+            $ast[] = $keyframes;
+        }
     }
 
     // Build the design system
@@ -365,8 +373,66 @@ function parseThemeOptions(string $params): array
 function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = POLYFILL_ALL): array
 {
     $result = [];
+    $usedVariables = [];
+    $usedKeyframeNames = [];
+    $theme = $designSystem->getTheme();
 
-    $transform = function (array $node, array &$parent) use (&$transform) {
+    // First pass: collect used variables and keyframe names
+    $collectUsed = function (array $node) use (&$collectUsed, &$usedVariables, &$usedKeyframeNames) {
+        if ($node['kind'] === 'declaration') {
+            $value = $node['value'] ?? '';
+            // Extract variables from var() functions
+            if (preg_match_all('/var\(\s*(--[a-zA-Z0-9_-]+)/', $value, $matches)) {
+                foreach ($matches[1] as $var) {
+                    $usedVariables[$var] = true;
+                }
+            }
+            // Extract keyframe names from animation property
+            if ($node['property'] === 'animation' || $node['property'] === 'animation-name') {
+                foreach (extractKeyframeNames($value) as $name) {
+                    $usedKeyframeNames[$name] = true;
+                }
+            }
+        }
+        foreach ($node['nodes'] ?? [] as $child) {
+            $collectUsed($child);
+        }
+    };
+
+    foreach ($ast as $node) {
+        $collectUsed($node);
+    }
+
+    // Also mark theme variables that reference other variables
+    // Iterate until no new variables are found
+    do {
+        $changed = false;
+        foreach ($theme->entries() as [$key, $value]) {
+            if (isset($usedVariables[$key])) {
+                // Extract variables this value depends on
+                if (preg_match_all('/var\(\s*(--[a-zA-Z0-9_-]+)/', $value['value'], $matches)) {
+                    foreach ($matches[1] as $var) {
+                        if (!isset($usedVariables[$var])) {
+                            $usedVariables[$var] = true;
+                            $changed = true;
+                        }
+                    }
+                }
+                // Extract keyframe names from animation values
+                // Handle both prefixed (--tw-animate-foo) and non-prefixed (--animate-foo)
+                if (preg_match('/^--(?:[a-z]+-)?animate/', $key)) {
+                    foreach (extractKeyframeNames($value['value']) as $name) {
+                        if (!isset($usedKeyframeNames[$name])) {
+                            $usedKeyframeNames[$name] = true;
+                            $changed = true;
+                        }
+                    }
+                }
+            }
+        }
+    } while ($changed);
+
+    $transform = function (array $node, array &$parent) use (&$transform, $usedVariables, $usedKeyframeNames, $theme) {
         // Handle context nodes - lift their children to parent
         if ($node['kind'] === 'context') {
             // Skip reference context nodes
@@ -378,6 +444,49 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
                 $transform($child, $parent);
             }
             return;
+        }
+
+        // Filter :root, :host declarations to only used variables
+        if ($node['kind'] === 'rule' && $node['selector'] === ':root, :host') {
+            $filteredNodes = [];
+            foreach ($node['nodes'] ?? [] as $child) {
+                if ($child['kind'] === 'declaration') {
+                    $prop = $child['property'] ?? '';
+                    // Check if this variable is used or has STATIC option
+                    if (isset($usedVariables[$prop])) {
+                        $filteredNodes[] = $child;
+                    } elseif (str_starts_with($prop, '--')) {
+                        // Check theme options for STATIC
+                        $options = $theme->getOptions($prop);
+                        if ($options & Theme::OPTIONS_STATIC) {
+                            $filteredNodes[] = $child;
+                        }
+                    }
+                } else {
+                    $filteredNodes[] = $child;
+                }
+            }
+            if (empty($filteredNodes)) {
+                return; // Skip empty :root, :host
+            }
+            $node['nodes'] = $filteredNodes;
+            $parent[] = $node;
+            return;
+        }
+
+        // Filter keyframes to only used ones
+        if ($node['kind'] === 'at-rule' && $node['name'] === '@keyframes') {
+            $keyframeName = trim($node['params'] ?? '');
+            // Check if this keyframe is directly used or has STATIC option
+            if (!isset($usedKeyframeNames[$keyframeName])) {
+                // Check if theme has STATIC option for this keyframe
+                $keyframeOptions = $theme->getKeyframeOptions($keyframeName);
+                if ($keyframeOptions & Theme::OPTIONS_STATIC) {
+                    // Keep it - static keyframes are always included
+                } else {
+                    return; // Skip unused keyframes
+                }
+            }
         }
 
         // Handle rules with children
@@ -404,7 +513,69 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     // Transform CSS nesting (flatten & selectors, hoist @media)
     $result = LightningCss::transformNesting($result);
 
+    // Apply LightningCSS value optimizations to all declarations
+    $optimizeValues = function (array &$node) use (&$optimizeValues): void {
+        if ($node['kind'] === 'declaration' && isset($node['value'])) {
+            $node['value'] = LightningCss::optimizeValue($node['value'], $node['property'] ?? '');
+        }
+        if (isset($node['nodes'])) {
+            foreach ($node['nodes'] as &$child) {
+                $optimizeValues($child);
+            }
+        }
+    };
+
+    foreach ($result as &$node) {
+        $optimizeValues($node);
+    }
+
     return $result;
+}
+
+/**
+ * Extract keyframe names from an animation CSS value.
+ *
+ * @param string $value Animation value like "spin 1s infinite, fade 2s"
+ * @return array<string> List of keyframe names
+ */
+function extractKeyframeNames(string $value): array
+{
+    $names = [];
+    // Animation value format: name duration timing-function delay iteration-count direction fill-mode play-state
+    // Keyframe name is a custom identifier (not a keyword)
+    $keywords = ['none', 'infinite', 'normal', 'reverse', 'alternate', 'alternate-reverse',
+        'forwards', 'backwards', 'both', 'running', 'paused', 'ease', 'ease-in', 'ease-out',
+        'ease-in-out', 'linear', 'step-start', 'step-end', 'initial', 'inherit'];
+
+    // Split by comma for multiple animations
+    $animations = preg_split('/\s*,\s*/', $value);
+
+    foreach ($animations as $animation) {
+        // Split by whitespace
+        $parts = preg_split('/\s+/', trim($animation));
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (empty($part)) continue;
+
+            // Skip timing values (numbers, percentages, seconds)
+            if (preg_match('/^[\d.]+/', $part)) continue;
+            if (preg_match('/^-?[\d.]+(?:s|ms|%)$/', $part)) continue;
+
+            // Skip keywords
+            if (in_array(strtolower($part), $keywords)) continue;
+
+            // Skip functions (like cubic-bezier, steps)
+            if (str_contains($part, '(')) continue;
+
+            // Skip var() references - the variable value will be resolved
+            if (str_starts_with($part, 'var(')) continue;
+
+            // This is likely a keyframe name
+            $names[] = $part;
+        }
+    }
+
+    return array_unique($names);
 }
 
 /**

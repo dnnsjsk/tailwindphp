@@ -40,10 +40,144 @@ class LightningCss
      */
     public static function optimizeValue(string $value, string $property = ''): string
     {
+        $value = self::normalizeWhitespace($value);
         $value = self::simplifyCalcExpressions($value);
+        $value = self::normalizeTimeValues($value);
+        $value = self::normalizeOpacityPercentages($value, $property);
+        $value = self::normalizeColors($value);
         $value = self::normalizeLeadingZeros($value);
         $value = self::normalizeGridValues($value, $property);
         $value = self::normalizeTransformFunctions($value, $property);
+
+        return $value;
+    }
+
+    /**
+     * Normalize whitespace in CSS values.
+     *
+     * lightningcss collapses multiple whitespace characters (including newlines)
+     * into single spaces, and removes spaces after ( except for var() with empty fallbacks.
+     *
+     * @param string $value The CSS value
+     * @return string Normalized value
+     */
+    public static function normalizeWhitespace(string $value): string
+    {
+        // Collapse multiple whitespace (including newlines) to single space
+        $value = preg_replace('/\s+/', ' ', trim($value));
+
+        // Remove space after (
+        $value = preg_replace('/\(\s+/', '(', $value);
+
+        // Remove space before ) BUT preserve ", )" (empty var() fallback)
+        // First protect the ", )" pattern with a placeholder
+        $value = str_replace(', )', ",\x00)", $value);
+        // Now remove other spaces before )
+        $value = preg_replace('/\s+\)/', ')', $value);
+        // Restore the protected pattern
+        $value = str_replace(",\x00)", ', )', $value);
+
+        return $value;
+    }
+
+    /**
+     * Normalize time values: ms to s.
+     *
+     * lightningcss converts milliseconds to seconds in a compact format:
+     * - 500ms -> .5s
+     * - 1000ms -> 1s
+     * - 1500ms -> 1.5s
+     *
+     * @param string $value The CSS value
+     * @return string Normalized value
+     */
+    public static function normalizeTimeValues(string $value): string
+    {
+        return preg_replace_callback('/(\d+)ms\b/', function ($m) {
+            $ms = (int)$m[1];
+            $seconds = $ms / 1000;
+            // Format without trailing zeros
+            $formatted = rtrim(rtrim(number_format($seconds, 3, '.', ''), '0'), '.');
+            // If empty after removing zeros, it's 0
+            if ($formatted === '' || $formatted === '0') {
+                return '0s';
+            }
+            // Add leading dot if < 1 and no leading zero (e.g., 0.5 -> .5)
+            if (strpos($formatted, '0.') === 0) {
+                $formatted = substr($formatted, 1);
+            }
+            return $formatted . 's';
+        }, $value);
+    }
+
+    /**
+     * Normalize opacity percentage values to decimals.
+     *
+     * lightningcss converts:
+     * - opacity: 0% -> opacity: 0
+     * - opacity: 100% -> opacity: 1
+     * - opacity: 50% -> opacity: .5
+     *
+     * @param string $value The CSS value
+     * @param string $property The CSS property name
+     * @return string Normalized value
+     */
+    public static function normalizeOpacityPercentages(string $value, string $property = ''): string
+    {
+        // Only apply to opacity property
+        if ($property !== 'opacity') {
+            return $value;
+        }
+
+        // Match percentage values
+        if (preg_match('/^(\d+(?:\.\d+)?)%$/', trim($value), $m)) {
+            $percent = (float)$m[1];
+            $decimal = $percent / 100;
+            // Format: 0 -> 0, 1 -> 1, 0.5 -> .5
+            if ($decimal == 0) {
+                return '0';
+            }
+            if ($decimal == 1) {
+                return '1';
+            }
+            $formatted = rtrim(rtrim(number_format($decimal, 6, '.', ''), '0'), '.');
+            // Remove leading zero: 0.5 -> .5
+            if (strpos($formatted, '0.') === 0) {
+                $formatted = substr($formatted, 1);
+            }
+            return $formatted;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Normalize named colors to hex.
+     *
+     * lightningcss converts named colors to their hex equivalents:
+     * - blue -> #00f
+     * - red -> red (already short enough)
+     *
+     * @param string $value The CSS value
+     * @return string Normalized value
+     */
+    public static function normalizeColors(string $value): string
+    {
+        // Map of colors that lightningcss shortens
+        static $colorMap = [
+            'blue' => '#00f',
+            'lime' => '#0f0',
+            'aqua' => '#0ff',
+            'cyan' => '#0ff',
+            'fuchsia' => '#f0f',
+            'magenta' => '#f0f',
+            'yellow' => '#ff0',
+        ];
+
+        // Only convert exact matches (word boundaries)
+        foreach ($colorMap as $name => $hex) {
+            $value = preg_replace('/\b' . $name . '\b/i', $hex, $value);
+        }
 
         return $value;
     }

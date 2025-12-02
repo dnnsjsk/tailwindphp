@@ -6,6 +6,10 @@ namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Utils\isValidSpacingMultiplier;
+use function TailwindPHP\Utils\inferDataType;
+use function TailwindPHP\Utilities\asColor;
+use function TailwindPHP\Utilities\resolveThemeColor;
 
 /**
  * Typography Utilities
@@ -39,13 +43,132 @@ use function TailwindPHP\Utils\isPositiveInteger;
 function registerTypographyUtilities(UtilityBuilder $builder): void
 {
     // =========================================================================
-    // Text Color
+    // Text (color and font-size)
     // =========================================================================
-    $builder->colorUtility('text', [
-        'themeKeys' => ['--text-color', '--color'],
-        'handle' => function ($value) {
+    $theme = $builder->getTheme();
+    $utilities = $builder->getUtilities();
+
+    $utilities->functional('text', function (array $candidate) use ($theme) {
+        if (!isset($candidate['value'])) {
+            return null;
+        }
+
+        // Handle arbitrary values
+        if ($candidate['value']['kind'] === 'arbitrary') {
+            $value = $candidate['value']['value'];
+            $type = $candidate['value']['dataType'] ??
+                inferDataType($value, ['color', 'length', 'percentage', 'absolute-size', 'relative-size']);
+
+            switch ($type) {
+                case 'size':
+                case 'length':
+                case 'percentage':
+                case 'absolute-size':
+                case 'relative-size':
+                    if (isset($candidate['modifier'])) {
+                        $modifier = null;
+                        if ($candidate['modifier']['kind'] === 'arbitrary') {
+                            $modifier = $candidate['modifier']['value'];
+                        } else {
+                            $modifier = $theme->resolve($candidate['modifier']['value'], ['--leading']);
+                            if (!$modifier && isValidSpacingMultiplier($candidate['modifier']['value'])) {
+                                $multiplier = $theme->resolve(null, ['--spacing']);
+                                if ($multiplier) {
+                                    $modifier = "calc({$multiplier} * {$candidate['modifier']['value']})";
+                                }
+                            }
+                            // Shorthand for leading-none
+                            if (!$modifier && $candidate['modifier']['value'] === 'none') {
+                                $modifier = '1';
+                            }
+                        }
+
+                        if ($modifier) {
+                            return [decl('font-size', $value), decl('line-height', $modifier)];
+                        }
+                        return null;
+                    }
+                    return [decl('font-size', $value)];
+
+                default:
+                    $value = asColor($value, $candidate['modifier'] ?? null, $theme);
+                    if ($value === null) return null;
+                    return [decl('color', $value)];
+            }
+        }
+
+        // Try color first (--text-color, --color)
+        $value = resolveThemeColor($candidate, $theme, ['--text-color', '--color']);
+        if ($value !== null) {
             return [decl('color', $value)];
-        },
+        }
+
+        // Try font-size (--text namespace)
+        $result = $theme->resolveWith($candidate['value']['value'], ['--text'], ['--line-height', '--letter-spacing', '--font-weight']);
+        if ($result !== null) {
+            [$fontSize, $options] = $result;
+
+            if (isset($candidate['modifier'])) {
+                $modifier = null;
+                if ($candidate['modifier']['kind'] === 'arbitrary') {
+                    $modifier = $candidate['modifier']['value'];
+                } else {
+                    $modifier = $theme->resolve($candidate['modifier']['value'], ['--leading']);
+                    if (!$modifier && isValidSpacingMultiplier($candidate['modifier']['value'])) {
+                        $multiplier = $theme->resolve(null, ['--spacing']);
+                        if ($multiplier) {
+                            $modifier = "calc({$multiplier} * {$candidate['modifier']['value']})";
+                        }
+                    }
+                    // Shorthand for leading-none
+                    if (!$modifier && $candidate['modifier']['value'] === 'none') {
+                        $modifier = '1';
+                    }
+                }
+
+                if (!$modifier) {
+                    return null;
+                }
+
+                $declarations = [decl('font-size', $fontSize)];
+                if ($modifier) {
+                    $declarations[] = decl('line-height', $modifier);
+                }
+                return $declarations;
+            }
+
+            if (is_string($options)) {
+                return [decl('font-size', $fontSize), decl('line-height', $options)];
+            }
+
+            $declarations = [decl('font-size', $fontSize)];
+            if (isset($options['--line-height'])) {
+                $declarations[] = decl('line-height', "var(--tw-leading, {$options['--line-height']})");
+            }
+            if (isset($options['--letter-spacing'])) {
+                $declarations[] = decl('letter-spacing', "var(--tw-tracking, {$options['--letter-spacing']})");
+            }
+            if (isset($options['--font-weight'])) {
+                $declarations[] = decl('font-weight', "var(--tw-font-weight, {$options['--font-weight']})");
+            }
+            return $declarations;
+        }
+
+        return null;
+    });
+
+    $builder->suggest('text', fn() => [
+        [
+            'values' => ['current', 'inherit', 'transparent'],
+            'valueThemeKeys' => ['--text-color', '--color'],
+            'modifiers' => array_map(fn($i) => (string)($i * 5), range(0, 20)),
+        ],
+        [
+            'values' => [],
+            'valueThemeKeys' => ['--text'],
+            'modifiers' => [],
+            'modifierThemeKeys' => ['--leading'],
+        ],
     ]);
 
     // Font Style

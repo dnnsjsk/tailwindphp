@@ -46,6 +46,20 @@ function msToSeconds(int $ms): string
  */
 function registerTransitionsUtilities(UtilityBuilder $builder): void
 {
+    // =========================================================================
+    // Animation
+    // =========================================================================
+
+    $builder->functionalUtility('animate', [
+        'themeKeys' => ['--animate'],
+        'defaultValue' => null,
+        'handle' => function ($value) {
+            return [decl('animation', $value)];
+        },
+        'staticValues' => [
+            'none' => [decl('animation', 'none')],
+        ],
+    ]);
     $theme = $builder->getTheme();
 
     // Get default timing function and duration from theme
