@@ -92,21 +92,9 @@ class css_functions extends TestCase
      * Tests requiring features not yet implemented in the PHP port.
      *
      * @port-deviation:pending These tests require complex features:
-     * - @custom-media at-rule processing
-     * - Range media query syntax (width >= value)
-     * - Container query rewrites (width > value)
      * - --theme() with initial fallback handling
      */
     private const PENDING_FEATURE_TESTS = [
-        // @custom-media at-rule processing
-        '@custom-media --my-media (min-width: theme(breakpoint.md))',
-
-        // Range media query syntax transformation
-        '@media (width >= theme(breakpoint.md)) and (width<theme(--breakpoint-lg))',
-
-        // Container query rewrites
-        '@container (width > theme(breakpoint.md))',
-
         // --theme() with initial fallback handling (complex resolution)
         '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial`',
         '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial` in @reference mode',

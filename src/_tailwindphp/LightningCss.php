@@ -1151,4 +1151,228 @@ class LightningCss
                    . str_pad(dechex($b), 2, '0', STR_PAD_LEFT)
                    . $alphaHex;
     }
+
+    /**
+     * Process @custom-media rules and substitute them in @media queries.
+     *
+     * LightningCSS with `customMedia: true` handles:
+     * 1. Collects @custom-media definitions
+     * 2. Substitutes custom media names in @media rules
+     * 3. Removes @custom-media rules from output
+     *
+     * @param array $ast The CSS AST
+     * @return array Transformed AST with custom media substituted
+     */
+    public static function processCustomMedia(array $ast): array
+    {
+        // First pass: collect @custom-media definitions
+        $customMedia = [];
+        foreach ($ast as $node) {
+            if ($node['kind'] === 'at-rule' && $node['name'] === '@custom-media') {
+                // Parse @custom-media --name (query)
+                $params = $node['params'] ?? '';
+                if (preg_match('/^(--[\w-]+)\s+(.+)$/', trim($params), $match)) {
+                    $name = $match[1];
+                    $query = $match[2];
+                    $customMedia[$name] = $query;
+                }
+            }
+        }
+
+        if (empty($customMedia)) {
+            return $ast;
+        }
+
+        // Second pass: substitute and remove @custom-media
+        $result = [];
+        foreach ($ast as $node) {
+            // Remove @custom-media rules
+            if ($node['kind'] === 'at-rule' && $node['name'] === '@custom-media') {
+                continue;
+            }
+
+            // Substitute in @media rules
+            if ($node['kind'] === 'at-rule' && $node['name'] === '@media') {
+                $params = $node['params'] ?? '';
+
+                // Check if params references a custom media query (--name)
+                foreach ($customMedia as $name => $query) {
+                    // Replace (--name) with the query
+                    $params = preg_replace(
+                        '/\(\s*' . preg_quote($name, '/') . '\s*\)/',
+                        $query,
+                        $params
+                    );
+                }
+
+                $node['params'] = $params;
+            }
+
+            // Recursively process nested nodes
+            if (isset($node['nodes'])) {
+                $node['nodes'] = self::processCustomMedia($node['nodes']);
+            }
+
+            $result[] = $node;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Transform media query range syntax to standard syntax.
+     *
+     * LightningCSS transforms Media Queries Level 4 range syntax:
+     * - (width >= 48rem) → (min-width: 48rem)
+     * - (width <= 48rem) → (max-width: 48rem)
+     * - (width > 48rem) → (min-width: 48rem)
+     * - (width < 48rem) → (not (min-width: 48rem))
+     *
+     * @param string $query The media query params
+     * @return string Transformed query with standard syntax
+     */
+    public static function transformMediaQueryRange(string $query): string
+    {
+        // Pattern for (width >= value) or (width <= value)
+        // Also handles height, device-width, device-height, etc.
+
+        // (width >= value) → (min-width: value)
+        $query = preg_replace_callback(
+            '/\(\s*(width|height|device-width|device-height)\s*>=\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(min-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width <= value) → (max-width: value)
+        $query = preg_replace_callback(
+            '/\(\s*(width|height|device-width|device-height)\s*<=\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(max-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width > value) → (min-width: value)
+        $query = preg_replace_callback(
+            '/\(\s*(width|height|device-width|device-height)\s*>\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(min-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width < value) → (not (min-width: value))
+        // LightningCSS uses negation for strict less-than
+        $query = preg_replace_callback(
+            '/\(\s*(width|height|device-width|device-height)\s*<\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(not (min-{$prop}: {$value}))";
+            },
+            $query
+        );
+
+        return $query;
+    }
+
+    /**
+     * Transform container query range syntax to standard syntax.
+     *
+     * Container queries use slightly different transformations:
+     * - (width >= 48rem) → (min-width: 48rem)
+     * - (width <= 48rem) → (max-width: 48rem)
+     * - (width > 48rem) → not (max-width: 48rem)
+     * - (width < 48rem) → (not (min-width: 48rem))
+     *
+     * @param string $query The container query params
+     * @return string Transformed query with standard syntax
+     */
+    public static function transformContainerQueryRange(string $query): string
+    {
+        // (width >= value) → (min-width: value)
+        $query = preg_replace_callback(
+            '/\(\s*(width|height)\s*>=\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(min-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width <= value) → (max-width: value)
+        $query = preg_replace_callback(
+            '/\(\s*(width|height)\s*<=\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(max-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width > value) → not (max-width: value)
+        // Container queries use "not (max-width)" for strict greater-than
+        $query = preg_replace_callback(
+            '/\(\s*(width|height)\s*>\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "not (max-{$prop}: {$value})";
+            },
+            $query
+        );
+
+        // (width < value) → (not (min-width: value))
+        $query = preg_replace_callback(
+            '/\(\s*(width|height)\s*<\s*([^)]+)\s*\)/',
+            function ($match) {
+                $prop = $match[1];
+                $value = trim($match[2]);
+                return "(not (min-{$prop}: {$value}))";
+            },
+            $query
+        );
+
+        return $query;
+    }
+
+    /**
+     * Process media and container query range syntax in the AST.
+     *
+     * @param array $ast The CSS AST
+     * @return array Transformed AST
+     */
+    public static function processQueryRangeSyntax(array $ast): array
+    {
+        $result = [];
+
+        foreach ($ast as $node) {
+            if ($node['kind'] === 'at-rule') {
+                if ($node['name'] === '@media' && isset($node['params'])) {
+                    $node['params'] = self::transformMediaQueryRange($node['params']);
+                } elseif ($node['name'] === '@container' && isset($node['params'])) {
+                    $node['params'] = self::transformContainerQueryRange($node['params']);
+                }
+            }
+
+            // Recursively process nested nodes
+            if (isset($node['nodes'])) {
+                $node['nodes'] = self::processQueryRangeSyntax($node['nodes']);
+            }
+
+            $result[] = $node;
+        }
+
+        return $result;
+    }
 }

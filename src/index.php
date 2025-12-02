@@ -859,7 +859,9 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             $node['nodes'] = $children;
 
             // Skip empty rules (no declarations or nested rules)
-            if (empty($children)) {
+            // But keep @layer, @charset, @custom-media, @namespace, @import (they can be empty)
+            $name = $node['name'] ?? '';
+            if (empty($children) && !in_array($name, ['@layer', '@charset', '@custom-media', '@namespace', '@import'])) {
                 return;
             }
         }
@@ -957,6 +959,12 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
     $result = array_merge($result, $otherAtRoots, $atPropertyRules);
 
     // Merge adjacent rules with same declarations (selector merging)
+    // Process @custom-media definitions and substitute them
+    $result = LightningCss::processCustomMedia($result);
+
+    // Transform media query range syntax (width >= X → min-width: X)
+    $result = LightningCss::processQueryRangeSyntax($result);
+
     $result = LightningCss::mergeRulesWithSameDeclarations($result);
 
     return $result;
