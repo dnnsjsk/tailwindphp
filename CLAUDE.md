@@ -277,10 +277,38 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `utilities.test.php` | ✅ **100%** | 364/364 |
 | `variants.test.php` | ✅ **100%** | 144/144 |
 | `index.test.php` | ✅ **100%** | 62/62 |
-| `css-functions.test.php` | 🔄 Pending | - |
+| `at_import.test.php` | ⏭️ N/A | Tooling (see below) |
+| `canonicalize_candidates.test.php` | ⏭️ N/A | Tooling (see below) |
+| `css-functions.test.php` | 🔄 In Progress | 63 extracted |
 | `candidate.test.php` | 🔄 Pending | - |
 
-**Total: 997 tests passing** (8 skipped for unimplemented features)
+**Total: 1,013 tests passing** (43 css-functions failures due to implementation differences)
+
+---
+
+## Test Files NOT Applicable to PHP Port
+
+Some TypeScript test files are **not applicable** to the PHP port because they test tooling-specific functionality:
+
+| Test File | Reason |
+|-----------|--------|
+| `at-import.test.ts` | Async file resolution (`loadStylesheet`, `loadModule`). PHP handles imports inline. |
+| `canonicalize-candidates.test.ts` | IDE tooling for Prettier plugin (class sorting/migration). |
+| `intellisense.test.ts` | VS Code extension functionality (autocomplete, hover previews). |
+| `source-map.test.ts` | Source map generation for browser dev tools. |
+| `line-table.test.ts` | Source map line tracking. |
+| `translation-map.test.ts` | Source map translation. |
+| `config.test.ts` | JS config file loading (`tailwind.config.js`). |
+| `resolve-config.test.ts` | JS config resolution. |
+| `plugin-api.test.ts` | JS plugin API (requires Node.js runtime). |
+| `container-config.test.ts` | Container queries config (JS-specific). |
+| `screens-config.test.ts` | Screens config from JS. |
+| `flatten-color-palette.test.ts` | JS config helper. |
+| `apply-config-to-theme.test.ts` | JS config merging. |
+| `apply-keyframes-to-theme.test.ts` | JS config keyframes. |
+| `legacy-utilities.test.ts` | v3→v4 migration utilities (tooling). |
+
+These files exist in `reference/tailwindcss/` but we intentionally skip them. The PHP test files for these are marked with `@port-deviation:omitted`.
 
 ### Implemented Features
 
