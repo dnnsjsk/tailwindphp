@@ -53,6 +53,17 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 Everything else works.
 
+### Performance
+
+While this is a 1:1 port focused on correctness and maintainability, PHP-specific optimizations are applied where possible:
+
+- **toCss**: Uses array accumulation + implode instead of string concatenation, pre-computed indent strings
+- **CSS Parser**: Direct character comparison instead of ord() calls, tracked buffer lengths instead of strlen()
+
+These optimizations maintain identical output while improving performance. TypeScript remains faster due to V8's JIT compilation, but this is expected for build-time CSS generation.
+
+See [benchmarks/](benchmarks/) for detailed comparison.
+
 ## Installation
 
 ```bash

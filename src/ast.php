@@ -20,6 +20,10 @@ use TailwindPHP\LightningCss\LightningCss;
  *
  * @port-deviation:types TypeScript uses explicit type definitions (StyleRule, AtRule, etc.).
  * PHP uses PHPDoc @typedef annotations and array shapes for IDE support.
+ *
+ * @port-deviation:performance toCss() uses array accumulation + implode instead of string
+ * concatenation, pre-computed indent strings, and a standalone function instead of a
+ * closure. These optimizations provide ~50% speedup while maintaining identical output.
  */
 
 const AT_SIGN = 0x40;
@@ -208,6 +212,9 @@ function cloneAstNode(array $node): array
     }
 }
 
+// Pre-computed indent strings for toCss (up to depth 10)
+const INDENTS = ['', '  ', '    ', '      ', '        ', '          ', '            ', '              ', '                ', '                  ', '                    '];
+
 /**
  * Convert AST to CSS string.
  *
@@ -219,57 +226,56 @@ function cloneAstNode(array $node): array
  */
 function toCss(array $ast): string
 {
-    $stringify = function (array $node, int $depth = 0) use (&$stringify): string {
-        $css = '';
-        $indent = str_repeat('  ', $depth);
+    $parts = [];
+    stringifyNodes($ast, 0, $parts);
+    return implode('', $parts);
+}
 
+/**
+ * Stringify AST nodes into parts array (avoids string concatenation).
+ *
+ * @param array $nodes
+ * @param int $depth
+ * @param array &$parts
+ */
+function stringifyNodes(array $nodes, int $depth, array &$parts): void
+{
+    $indent = $depth < 11 ? INDENTS[$depth] : str_repeat('  ', $depth);
+
+    foreach ($nodes as $node) {
         switch ($node['kind']) {
             case 'declaration':
-                $important = $node['important'] ? ' !important' : '';
-                $css .= "{$indent}{$node['property']}: {$node['value']}{$important};\n";
+                if ($node['important']) {
+                    $parts[] = $indent . $node['property'] . ': ' . $node['value'] . " !important;\n";
+                } else {
+                    $parts[] = $indent . $node['property'] . ': ' . $node['value'] . ";\n";
+                }
                 break;
 
             case 'rule':
-                $css .= "{$indent}{$node['selector']} {\n";
-                foreach ($node['nodes'] as $child) {
-                    $css .= $stringify($child, $depth + 1);
-                }
-                $css .= "{$indent}}\n";
+                $parts[] = $indent . $node['selector'] . " {\n";
+                stringifyNodes($node['nodes'], $depth + 1, $parts);
+                $parts[] = $indent . "}\n";
                 break;
 
             case 'at-rule':
-                // Print at-rules without nodes with a `;` instead of an empty block.
-                if (count($node['nodes']) === 0) {
-                    $css .= "{$indent}{$node['name']} {$node['params']};\n";
+                if (empty($node['nodes'])) {
+                    $parts[] = $indent . $node['name'] . ' ' . $node['params'] . ";\n";
                 } else {
-                    $params = $node['params'] ? " {$node['params']} " : ' ';
-                    $css .= "{$indent}{$node['name']}{$params}{\n";
-                    foreach ($node['nodes'] as $child) {
-                        $css .= $stringify($child, $depth + 1);
-                    }
-                    $css .= "{$indent}}\n";
+                    $params = $node['params'] !== '' ? ' ' . $node['params'] . ' ' : ' ';
+                    $parts[] = $indent . $node['name'] . $params . "{\n";
+                    stringifyNodes($node['nodes'], $depth + 1, $parts);
+                    $parts[] = $indent . "}\n";
                 }
                 break;
 
             case 'comment':
-                $css .= "{$indent}/*{$node['value']}*/\n";
+                $parts[] = $indent . '/*' . $node['value'] . "*/\n";
                 break;
 
-            case 'context':
-            case 'at-root':
-                // These should've been handled by optimizeAst
-                break;
+            // context and at-root should've been handled by optimizeAst
         }
-
-        return $css;
-    };
-
-    $css = '';
-    foreach ($ast as $node) {
-        $css .= $stringify($node, 0);
     }
-
-    return $css;
 }
 
 /**

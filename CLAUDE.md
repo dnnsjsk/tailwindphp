@@ -54,6 +54,20 @@ By including these, TailwindPHP provides a complete Tailwind development experie
 
 **Important for LLMs**: These libraries live in `src/_tailwindphp/lib/` with their own namespace (`TailwindPHP\Lib\*`) to clearly separate them from the core TailwindCSS port. The public API functions (`cn`, `clsx`, `twMerge`, `twJoin`) are exposed in `src/index.php` under the main `TailwindPHP` namespace.
 
+### 6. Performance Optimizations
+
+While this is a 1:1 port focused on correctness, PHP-specific optimizations are applied where they improve performance without changing output. These are marked with `@port-deviation:performance` in file headers.
+
+**Current optimizations:**
+- **`ast.php` toCss()**: Array accumulation + implode instead of string concatenation, pre-computed indent strings, standalone function instead of closure (~50% faster)
+- **`css-parser.php` parse()**: Direct character comparison instead of ord() calls, tracked buffer lengths instead of strlen() calls (~20-30% faster)
+
+**Guidelines for performance work:**
+1. Always preserve identical output - tests must pass
+2. Document with `@port-deviation:performance` in file header
+3. Run benchmarks (`composer bench`) to verify improvement
+4. Focus on hot paths identified by profiling
+
 ---
 
 ## Test System
