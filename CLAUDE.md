@@ -307,38 +307,18 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ### Outside Scope (0 tests - intentionally empty)
 
-| Test File | Reason |
-|-----------|--------|
-| `at_import.test.php` | File system access |
-| `canonicalize_candidates.test.php` | IDE tooling |
-| `intellisense.test.php` | IDE tooling |
-| `plugin.test.php` | JS runtime |
-| `sort.test.php` | IDE tooling |
-| `to_key_path.test.php` | Not needed |
+These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (file system, JS runtime, IDE tooling):
 
----
+| PHP Test File | TypeScript Original | Reason |
+|---------------|---------------------|--------|
+| `at_import.test.php` | `at-import.test.ts` | File system - async file resolution |
+| `canonicalize_candidates.test.php` | `canonicalize-candidates.test.ts` | IDE tooling - Prettier plugin |
+| `intellisense.test.php` | `intellisense.test.ts` | IDE tooling - VS Code extension |
+| `plugin.test.php` | `plugin-api.test.ts` | JS runtime - Plugin API |
+| `sort.test.php` | `sort.test.ts` | IDE tooling - class sorting |
+| `to_key_path.test.php` | `to-key-path.test.ts` | Not needed |
 
-## Tests Outside Scope
-
-The following TypeScript test files are **outside the scope** of this PHP port because they test features requiring file system access, JavaScript runtime, or IDE tooling:
-
-| Test File | Reason |
-|-----------|--------|
-| `at-import.test.ts` | File system - async file resolution (`loadStylesheet`, `loadModule`) |
-| `config.test.ts` | File system - JS config file loading (`tailwind.config.js`) |
-| `resolve-config.test.ts` | File system - JS config resolution |
-| `plugin-api.test.ts` | JS runtime - Plugin API requires Node.js |
-| `container-config.test.ts` | JS runtime - Container queries from JS config |
-| `screens-config.test.ts` | JS runtime - Screens config from JS |
-| `flatten-color-palette.test.ts` | JS runtime - Config helper function |
-| `apply-config-to-theme.test.ts` | JS runtime - Config merging |
-| `apply-keyframes-to-theme.test.ts` | JS runtime - Config keyframes |
-| `legacy-utilities.test.ts` | Tooling - v3→v4 migration utilities |
-| `canonicalize-candidates.test.ts` | Tooling - Prettier plugin (class sorting) |
-| `intellisense.test.ts` | Tooling - VS Code extension |
-| `source-map.test.ts` | Tooling - Source map generation |
-| `line-table.test.ts` | Tooling - Source map line tracking |
-| `translation-map.test.ts` | Tooling - Source map translation |
+Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.ts`, `container-config.test.ts`, `screens-config.test.ts`, `flatten-color-palette.test.ts`, `apply-config-to-theme.test.ts`, `apply-keyframes-to-theme.test.ts`, `legacy-utilities.test.ts`, `source-map.test.ts`, `line-table.test.ts`, `translation-map.test.ts`.
 
 Within `css_functions.test.php`, tests containing `@plugin`, `@config`, or `@import './file'` are marked as N/A (passed without assertion) since these features are outside scope.
 
