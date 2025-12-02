@@ -69,8 +69,26 @@ function compileAst(array $ast, array $options = []): array
     $features = $result['features'];
     $inlineCandidates = $result['inlineCandidates'];
 
-    // Process @apply directives
+    // Process @apply directives first (this also handles @utility with @apply inside)
+    // substituteAtApply will:
+    // 1. Process @apply inside @utility definitions (topological order)
+    // 2. Register @utility definitions with the design system
+    // 3. Process remaining @apply rules
     $features |= substituteAtApply($ast, $designSystem);
+
+    // Remove @utility nodes from AST (after @apply has processed them)
+    walk($ast, function (&$node) {
+        if ($node['kind'] !== 'at-rule') {
+            return WalkAction::Continue;
+        }
+
+        if ($node['name'] === '@utility') {
+            return WalkAction::Replace([]);
+        }
+
+        // @utility has to be top-level, so we don't need to traverse into nested trees
+        return WalkAction::Skip;
+    });
 
     $allValidCandidates = [];
     $compiled = null;
@@ -190,10 +208,9 @@ function parseCss(array &$ast, array $options = []): array
     $root = null;
     $firstThemeRule = null;
     $important = false;
-    $customUtilities = [];
 
     // Walk AST to find @tailwind utilities, @theme, @source, @utility, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customUtilities, $options) {
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, $options) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -269,7 +286,8 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::ReplaceSkip([]);
         }
 
-        // Handle @utility
+        // Handle @utility - validate name but don't register yet
+        // Registration happens AFTER @apply processing in compileAst
         if ($node['name'] === '@utility') {
             if ($ctx->parent !== null) {
                 throw new \Exception('`@utility` cannot be nested.');
@@ -281,12 +299,27 @@ function parseCss(array &$ast, array $options = []): array
                 );
             }
 
-            $utility = createCssUtility($node);
-            if ($utility !== null) {
-                $customUtilities[] = $utility;
+            // Validate utility name
+            $name = $node['params'];
+            if (!preg_match(IS_VALID_FUNCTIONAL_UTILITY_NAME, $name) && !preg_match(IS_VALID_STATIC_UTILITY_NAME, $name)) {
+                if (str_ends_with($name, '-*')) {
+                    throw new \Exception(
+                        "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter."
+                    );
+                } elseif (str_contains($name, '*')) {
+                    throw new \Exception(
+                        "`@utility {$name}` defines an invalid utility name. The dynamic portion marked by `-*` must appear once at the end."
+                    );
+                }
+                throw new \Exception(
+                    "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter."
+                );
             }
 
-            // Don't remove yet - we'll remove after @apply is processed
+            // Mark as having custom utilities feature
+            $features |= FEATURE_AT_APPLY;
+
+            // Don't remove or register yet - will be done after @apply processing
             return WalkAction::Skip;
         }
 
@@ -346,24 +379,8 @@ function parseCss(array &$ast, array $options = []): array
         $designSystem->setImportant(true);
     }
 
-    // Register custom utilities with the design system
-    foreach ($customUtilities as $utility) {
-        $utility($designSystem);
-    }
-
-    // Remove @utility at-rules from the AST (after they've been registered)
-    walk($ast, function (&$node) {
-        if ($node['kind'] !== 'at-rule') {
-            return WalkAction::Continue;
-        }
-
-        if ($node['name'] === '@utility') {
-            return WalkAction::Replace([]);
-        }
-
-        // @utility has to be top-level, so we don't need to traverse into nested trees
-        return WalkAction::Skip;
-    });
+    // Note: @utility registration and removal is deferred to compileAst
+    // This is because @apply inside @utility needs to be processed first
 
     return [
         'designSystem' => $designSystem,
@@ -373,7 +390,6 @@ function parseCss(array &$ast, array $options = []): array
         'utilitiesNodePath' => $utilitiesNodePath,
         'features' => $features,
         'inlineCandidates' => $inlineCandidates,
-        'customUtilities' => $customUtilities,
     ];
 }
 
@@ -433,15 +449,9 @@ function createCssUtility(array $node): ?callable
                     return null;
                 }
 
-                // Clone the nodes
-                $declarations = [];
-                foreach ($node['nodes'] as $child) {
-                    if ($child['kind'] === 'declaration') {
-                        $declarations[] = $child;
-                    }
-                }
-
-                return $declarations;
+                // Return all nodes (declarations, nested rules, etc.)
+                // Deep clone to avoid mutation
+                return array_map(fn($child) => cloneAstNode($child), $node['nodes'] ?? []);
             });
         };
     }
@@ -449,18 +459,28 @@ function createCssUtility(array $node): ?callable
     // Static utilities. E.g.: `my-utility`
     if (preg_match(IS_VALID_STATIC_UTILITY_NAME, $name)) {
         return function (DesignSystem $designSystem) use ($name, $node) {
-            $declarations = [];
-            foreach ($node['nodes'] as $child) {
-                if ($child['kind'] === 'declaration') {
-                    $declarations[] = $child;
-                }
-            }
-
-            $designSystem->getUtilities()->static($name, fn() => $declarations);
+            // Return all nodes (declarations, nested rules, etc.)
+            // Deep clone to avoid mutation
+            $designSystem->getUtilities()->static($name, fn() => array_map(fn($child) => cloneAstNode($child), $node['nodes'] ?? []));
         };
     }
 
     return null;
+}
+
+/**
+ * Deep clone an AST node.
+ *
+ * @param array $node The node to clone
+ * @return array Cloned node
+ */
+function cloneAstNode(array $node): array
+{
+    $cloned = $node;
+    if (isset($cloned['nodes'])) {
+        $cloned['nodes'] = array_map(fn($child) => cloneAstNode($child), $cloned['nodes']);
+    }
+    return $cloned;
 }
 
 /**
