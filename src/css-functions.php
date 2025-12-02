@@ -206,6 +206,41 @@ function keyPathToCssProperty(array $path): ?string
 }
 
 /**
+ * Convert a key path to a CSS property name using direct kebab-case conversion.
+ *
+ * Unlike keyPathToCssProperty, this does NOT apply namespace remapping.
+ * e.g., "fontFamily.sans" -> "font-family-sans" (not "font-sans")
+ *
+ * @param array $path Key path segments
+ * @return string|null CSS property name (without --)
+ */
+function keyPathToCssPropertyDirect(array $path): ?string
+{
+    if (empty($path)) {
+        return null;
+    }
+
+    // Convert path segments with direct kebab-case (no namespace remapping)
+    $result = array_map(function ($part, $idx) {
+        // Replace dots with underscores (for values like 2.5 -> 2_5)
+        $part = str_replace('.', '_', $part);
+
+        // Convert camelCase to kebab-case for all segments
+        $part = preg_replace('/([a-z])([A-Z])/', '$1-$2', $part);
+        $part = strtolower($part);
+
+        return $part;
+    }, $path, array_keys($path));
+
+    // Remove the `DEFAULT` key at the end of a path
+    if (end($result) === 'DEFAULT') {
+        array_pop($result);
+    }
+
+    return implode('-', $result);
+}
+
+/**
  * Handle legacy theme() function.
  *
  * @param array $node Function node
@@ -237,6 +272,7 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
     // If path already starts with --, use it directly
     if (str_starts_with($path, '--')) {
         $cssVar = $path;
+        $cssVarAlt = null;
     } else {
         // Convert legacy dot notation to CSS variable name
         // e.g., "colors.red.500" -> "--color-red-500"
@@ -248,10 +284,22 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
         }
 
         $cssVar = '--' . $cssProperty;
+
+        // Also try direct kebab-case conversion as fallback
+        // This handles cases like fontFamily.sans -> --font-family-sans
+        // when the theme defines the variable directly without namespace mapping
+        $cssVarAlt = '--' . keyPathToCssPropertyDirect($keyPath);
     }
 
     // Resolve the theme value using resolveValue to get the raw value
+    // Try primary mapping first, then fall back to direct mapping
     $resolvedValue = $theme->resolveValue(null, [$cssVar]);
+    if ($resolvedValue === null && $cssVarAlt !== null && $cssVarAlt !== $cssVar) {
+        $resolvedValue = $theme->resolveValue(null, [$cssVarAlt]);
+        if ($resolvedValue !== null) {
+            $cssVar = $cssVarAlt;
+        }
+    }
 
     // Recursively resolve any nested theme() calls in the resolved value
     if ($resolvedValue !== null && str_contains($resolvedValue, 'theme(')) {
