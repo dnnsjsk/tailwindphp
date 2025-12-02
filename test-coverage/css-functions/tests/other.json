@@ -213,14 +213,20 @@
         "name": "sm:[--color:theme(colors.red[500])]",
         "type": "output",
         "inputCss": "@tailwind utilities;\n            @theme {\n              --breakpoint-sm: 40rem;\n              --color-red-500: #f00;\n            }",
-        "classes": [],
+        "classes": [
+            "sm:[--color:theme(colors.red[500])]"
+        ],
         "expected": "\"@media (min-width: 40rem) {\n          .sm\\\\:\\\\[--color\\\\:theme\\\\(colors\\\\.red\\\\[500\\\\]\\\\)\\\\] {\n            --color: red;\n          }\n        }\""
     },
     {
         "name": "values that don",
         "type": "output",
         "inputCss": "@tailwind utilities;\n            @theme reference {\n              --radius-sm: 2rem;\n            }",
-        "classes": [],
+        "classes": [
+            "rounded-[theme(--radius-sm)]",
+            "rounded-[theme(i.do.not.exist)]",
+            "rounded-[theme(--i-do-not-exist)]"
+        ],
         "expected": "\".rounded-\\\\[theme\\\\(--radius-sm\\\\)\\\\] {\n          border-radius: 2rem;\n        }\""
     },
     {

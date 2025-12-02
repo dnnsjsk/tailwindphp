@@ -13,6 +13,12 @@ use function TailwindPHP\Utils\toKeyPath;
 use function TailwindPHP\Utilities\withAlpha;
 
 /**
+ * Exception thrown when a theme value cannot be resolved.
+ * This is caught during candidate compilation to skip invalid candidates.
+ */
+class ThemeResolutionException extends \Exception {}
+
+/**
  * CSS Functions
  *
  * Port of: packages/tailwindcss/src/css-functions.ts
@@ -41,6 +47,9 @@ const THEME_FUNCTION_INVOCATION = '/(?:--alpha|--spacing|--theme|theme)\(/';
 /**
  * Substitute CSS functions in the AST.
  *
+ * If a theme() call cannot be resolved (no fallback and value doesn't exist),
+ * the containing rule is removed from the AST.
+ *
  * @param array &$ast CSS AST
  * @param object $designSystem Design system instance
  * @return int Features flags
@@ -48,12 +57,18 @@ const THEME_FUNCTION_INVOCATION = '/(?:--alpha|--spacing|--theme|theme)\(/';
 function substituteFunctions(array &$ast, object $designSystem): int
 {
     $features = FEATURE_NONE;
+    $nodesToRemove = [];
 
-    walk($ast, function (&$node) use ($designSystem, &$features) {
+    walk($ast, function (&$node) use ($designSystem, &$features, &$nodesToRemove) {
         // Find all declaration values
         if ($node['kind'] === 'declaration' && isset($node['value']) && preg_match(THEME_FUNCTION_INVOCATION, $node['value'])) {
             $features |= FEATURE_AT_THEME;
-            $node['value'] = substituteFunctionsInValue($node['value'], $node, $designSystem);
+            try {
+                $node['value'] = substituteFunctionsInValue($node['value'], $node, $designSystem);
+            } catch (ThemeResolutionException $e) {
+                // Mark this node's parent rule for removal
+                $node['__invalid'] = true;
+            }
             return WalkAction::Skip;
         }
 
@@ -65,14 +80,62 @@ function substituteFunctions(array &$ast, object $designSystem): int
                 isset($node['params']) && preg_match(THEME_FUNCTION_INVOCATION, $node['params'])
             ) {
                 $features |= FEATURE_AT_THEME;
-                $node['params'] = substituteFunctionsInValue($node['params'], $node, $designSystem);
+                try {
+                    $node['params'] = substituteFunctionsInValue($node['params'], $node, $designSystem);
+                } catch (ThemeResolutionException $e) {
+                    $node['__invalid'] = true;
+                }
             }
         }
 
         return WalkAction::Continue;
     });
 
+    // Remove rules containing invalid declarations
+    $ast = filterInvalidNodes($ast);
+
     return $features;
+}
+
+/**
+ * Recursively filter out nodes marked as invalid and rules containing invalid declarations.
+ *
+ * @param array $ast AST nodes
+ * @return array Filtered AST
+ */
+function filterInvalidNodes(array $ast): array
+{
+    $result = [];
+
+    foreach ($ast as $node) {
+        // Skip nodes marked as invalid
+        if (!empty($node['__invalid'])) {
+            continue;
+        }
+
+        // For rules, check if any declaration is invalid
+        if ($node['kind'] === 'rule' && isset($node['nodes'])) {
+            $hasInvalid = false;
+            foreach ($node['nodes'] as $child) {
+                if (!empty($child['__invalid'])) {
+                    $hasInvalid = true;
+                    break;
+                }
+            }
+            if ($hasInvalid) {
+                continue;
+            }
+        }
+
+        // Recursively filter children
+        if (isset($node['nodes']) && is_array($node['nodes'])) {
+            $node['nodes'] = filterInvalidNodes($node['nodes']);
+        }
+
+        $result[] = $node;
+    }
+
+    return $result;
 }
 
 /**
@@ -325,8 +388,9 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
             }
             return $fallbackStr;
         }
-        // Return null to leave the theme() call as-is (or could throw error)
-        return null;
+        // Throw an exception to indicate unresolvable theme value
+        // This will be caught during candidate compilation to skip invalid candidates
+        throw new ThemeResolutionException("Could not resolve value for theme function: `theme({$path})`. Consider checking if the path is correct or provide a fallback value.");
     }
 
     // Apply opacity modifier if present

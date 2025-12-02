@@ -95,10 +95,15 @@ foreach ($tests as $test) {
     $inputCss = trim(substr($remaining, 0, $cssEnd));
     $afterCss = substr($body, $cssStart + $cssEnd);
 
-    // Check for classes array
+    // Check for classes array - the array can contain brackets like [500] so we need
+    // to find the matching closing bracket properly
     $classes = [];
-    if (preg_match('/,\s*\[([^\]]+)\]/s', $afterCss, $classMatch)) {
-        $classes = parseClassArray($classMatch[1]);
+    if (preg_match('/,\s*\[/s', $afterCss, $arrayStartMatch, PREG_OFFSET_CAPTURE)) {
+        $arrayStart = $arrayStartMatch[0][1] + strlen($arrayStartMatch[0][0]);
+        $arrayContent = extractBracketContent(substr($afterCss, $arrayStart - 1));
+        if ($arrayContent !== null) {
+            $classes = parseClassArray($arrayContent);
+        }
     }
 
     // Check if it's an error test
@@ -143,6 +148,46 @@ function parseClassArray(string $str): array
         $classes[] = $class;
     }
     return $classes;
+}
+
+function extractBracketContent(string $str): ?string
+{
+    // $str should start with '['
+    if ($str[0] !== '[') {
+        return null;
+    }
+
+    $depth = 0;
+    $len = strlen($str);
+
+    for ($i = 0; $i < $len; $i++) {
+        $char = $str[$i];
+
+        // Handle string literals to avoid counting brackets inside strings
+        if ($char === "'" || $char === '"') {
+            $quote = $char;
+            $i++;
+            while ($i < $len && $str[$i] !== $quote) {
+                if ($str[$i] === '\\') {
+                    $i++; // Skip escaped char
+                }
+                $i++;
+            }
+            continue;
+        }
+
+        if ($char === '[') {
+            $depth++;
+        } elseif ($char === ']') {
+            $depth--;
+            if ($depth === 0) {
+                // Return content between brackets (excluding the brackets themselves)
+                return substr($str, 1, $i - 1);
+            }
+        }
+    }
+
+    return null;
 }
 
 function findClosingBacktick(string $str): ?int

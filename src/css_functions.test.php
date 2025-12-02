@@ -106,9 +106,7 @@ class css_functions extends TestCase
 
         // Font family with default reference - IMPLEMENTED
 
-        // Arbitrary properties with theme in class names
-        'sm:[--color:theme(colors.red[500])]',
-        'values that don',
+        // Arbitrary properties with theme in class names - IMPLEMENTED
     ];
 
     /**
