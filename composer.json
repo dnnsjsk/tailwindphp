@@ -99,6 +99,8 @@
         "versions": [
             "php scripts/update-tailwind.php --check",
             "php scripts/update-libs.php --check"
-        ]
+        ],
+        "bench": "php scripts/benchmark.php",
+        "bench:save": "php scripts/benchmark.php --save"
     }
 }

@@ -1,0 +1,33 @@
+{
+    "timestamp": "2025-12-02T22:52:12+00:00",
+    "php_version": "8.4.5",
+    "node_version": "v22.17.0",
+    "benchmarks": [
+        {
+            "category": "CSS Parser",
+            "name": "css-parser on preflight.css",
+            "php": {
+                "hz": 802.8691067056159,
+                "mean": 1.245533041000001
+            },
+            "typescript": {
+                "hz": 16045.648343570714,
+                "mean": 0.06232219344384966
+            },
+            "ratio": 19.98538517618426
+        },
+        {
+            "category": "AST Operations",
+            "name": "toCss",
+            "php": {
+                "hz": 42671.221904947655,
+                "mean": 0.023434997999999894
+            },
+            "typescript": {
+                "hz": 2710779.8373539085,
+                "mean": 0.00036889753502672375
+            },
+            "ratio": 63.527120066828886
+        }
+    ]
+}
