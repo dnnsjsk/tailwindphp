@@ -101,7 +101,6 @@ class css_functions extends TestCase
         '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial`',
         '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial` in @reference mode',
         '--theme(…) does not inject the fallback if the fallback is `initial`',
-        '--theme(…) forces the value to be retrieved as inline when used inside an at-rule',
 
         // Stacking opacity in @theme definitions
         'can references theme inside @theme and stacking opacity',
