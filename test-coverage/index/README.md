@@ -8,23 +8,23 @@ Tests extracted from `tailwindcss/packages/tailwindcss/src/index.test.ts`
 |--------|-------|
 | Source File Lines | 6081 |
 | Original Tests | 190 |
-| Extracted Cases | 63 |
-| run() tests | 5 |
-| compileCss() tests | 58 |
+| Extracted Cases | 78 |
+| run() tests | 14 |
+| compileCss() tests | 64 |
 
 ## Test Categories
 
 | Category | Cases |
 |----------|-------|
-| apply | 3 |
-| arbitrary | 1 |
+| apply | 5 |
+| arbitrary | 10 |
 | css-variables | 8 |
 | import | 2 |
 | important | 3 |
-| other | 27 |
-| prefix | 2 |
-| tailwind-directive | 2 |
-| theme | 15 |
+| other | 28 |
+| prefix | 3 |
+| tailwind-directive | 3 |
+| theme | 16 |
 
 ## Test Patterns
 

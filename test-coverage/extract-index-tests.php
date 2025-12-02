@@ -81,12 +81,25 @@ foreach ($tests as $test) {
     $body = $test['content'];
 
     // Pattern 1: await run([...classes])
-    preg_match_all('/await run\(\[([^\]]+)\]\)/', $body, $runMatches, PREG_OFFSET_CAPTURE);
+    // Find all 'await run([' occurrences and extract bracket content properly
+    $runOffset = 0;
+    $runMatches = [];
+    while (($runPos = strpos($body, 'await run([', $runOffset)) !== false) {
+        $bracketStart = $runPos + strlen('await run(');
+        $bracketContent = extractBracketContent(substr($body, $bracketStart));
+        if ($bracketContent !== null) {
+            $runMatches[] = [
+                'pos' => $runPos,
+                'classes' => $bracketContent,
+            ];
+        }
+        $runOffset = $runPos + 1;
+    }
 
-    foreach ($runMatches[0] as $idx => $match) {
-        $classesStr = $runMatches[1][$idx][0];
+    foreach ($runMatches as $match) {
+        $classesStr = $match['classes'];
         $classes = parseClassArray($classesStr);
-        $matchPos = $match[1];
+        $matchPos = $match['pos'];
 
         // Find toMatchInlineSnapshot after this
         $afterMatch = substr($body, $matchPos);
@@ -123,8 +136,11 @@ foreach ($tests as $test) {
 
                 // Find the classes array after the CSS template
                 $afterCss = substr($body, $cssStart + $cssEnd);
-                if (preg_match('/,\s*\[([^\]]+)\]/s', $afterCss, $classMatch)) {
-                    $classes = parseClassArray($classMatch[1]);
+                // Look for ', [' pattern and extract bracket content properly
+                if (preg_match('/,\s*\[/', $afterCss, $arrayStartMatch, PREG_OFFSET_CAPTURE)) {
+                    $arrayStart = $arrayStartMatch[0][1] + strlen($arrayStartMatch[0][0]) - 1;
+                    $bracketContent = extractBracketContent(substr($afterCss, $arrayStart));
+                    $classes = $bracketContent !== null ? parseClassArray($bracketContent) : [];
 
                     // Find toMatchInlineSnapshot
                     if (preg_match('/\.toMatchInlineSnapshot\s*\(\s*`/s', $afterCss, $snapshotMatch, PREG_OFFSET_CAPTURE)) {
@@ -157,6 +173,55 @@ function parseClassArray(string $str): array
         $classes[] = $class;
     }
     return $classes;
+}
+
+/**
+ * Extract content within brackets, handling nested brackets properly.
+ */
+function extractBracketContent(string $str): ?string
+{
+    if (strlen($str) === 0 || $str[0] !== '[') {
+        return null;
+    }
+
+    $depth = 0;
+    $len = strlen($str);
+    $inString = false;
+    $stringChar = '';
+
+    for ($i = 0; $i < $len; $i++) {
+        $char = $str[$i];
+
+        // Handle string literals to avoid counting brackets inside strings
+        if (!$inString && ($char === "'" || $char === '"')) {
+            $inString = true;
+            $stringChar = $char;
+            continue;
+        }
+
+        if ($inString) {
+            if ($char === '\\' && $i + 1 < $len) {
+                $i++; // Skip escaped char
+                continue;
+            }
+            if ($char === $stringChar) {
+                $inString = false;
+            }
+            continue;
+        }
+
+        if ($char === '[') {
+            $depth++;
+        } elseif ($char === ']') {
+            $depth--;
+            if ($depth === 0) {
+                // Return content between brackets (excluding the brackets themselves)
+                return substr($str, 1, $i - 1);
+            }
+        }
+    }
+
+    return null;
 }
 
 function findClosingBacktick(string $str): ?int

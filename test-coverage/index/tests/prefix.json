@@ -2,7 +2,9 @@
     {
         "name": "adds vendor prefixes",
         "type": "compileCss",
-        "classes": ["[text-size-adjust:none]"],
+        "classes": [
+            "[text-size-adjust:none]"
+        ],
         "css": "@tailwind utilities;",
         "expected": "\".\\\\[text-size-adjust\\\\:none\\\\] {\n        -webkit-text-size-adjust: none;\n        -moz-text-size-adjust: none;\n        text-size-adjust: none;\n      }\""
     },
@@ -14,5 +16,12 @@
         ],
         "css": "@theme prefix(tw) {\n            --animate-foo: used 1s infinite;\n            --animate-bar: unused 1s infinite;\n\n            @keyframes used {\n              to {\n                opacity: 1;\n              }\n            }\n\n            @keyframes unused {\n              to {\n                opacity: 0;\n              }\n            }\n          }\n\n          @tailwind utilities;",
         "expected": "\":root, :host {\n        --tw-animate-foo: used 1s infinite;\n      }\n\n      .tw\\\\:animate-foo {\n        animation: var(--tw-animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\""
+    },
+    {
+        "name": "custom properties are generated when used from a CSS var with a prefixed setup",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@theme prefix(tw) {\n            --color-tomato: #e10c04;\n          }\n          @tailwind utilities;\n          .red {\n            color: var(--tw-color-tomato);\n          }",
+        "expected": "\":root, :host {\n        --tw-color-tomato: #e10c04;\n      }\n\n      .red {\n        color: var(--tw-color-tomato);\n      }\""
     }
 ]

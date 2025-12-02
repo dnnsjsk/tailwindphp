@@ -1,5 +1,19 @@
 [
     {
+        "name": "@apply referencing theme values with `@reference` should work",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@reference \"style.css\";\n\n          .foo {\n            @apply p-2;\n          }",
+        "expected": "\".foo {\n        padding: calc(var(--spacing, .25rem) * 2);\n      }\""
+    },
+    {
+        "name": "should replace @apply with the correct result inside imported stylesheets",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@import '.\/bar.css';\n          @tailwind utilities;",
+        "expected": "\".foo {\n        text-decoration-line: underline;\n      }\""
+    },
+    {
         "name": "should not swallow @utility declarations when @apply is used in nested rules",
         "type": "compileCss",
         "classes": [

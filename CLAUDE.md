@@ -274,7 +274,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 1,124 tests (1,076 passing, 48 skipped for pending utilities)**
+**Total: 1,139 tests (1,082 passing, 57 skipped)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -282,7 +282,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 |-----------|--------|-------|
 | `utilities.test.php` | ✅ | 364 |
 | `variants.test.php` | ✅ | 139 |
-| `index.test.php` | ✅ | 62 |
+| `index.test.php` | ✅ | 78 (9 skipped - outside scope/pending) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 | `ui_spec.test.php` | ✅ | 68 (48 skipped - pending utilities) |
 

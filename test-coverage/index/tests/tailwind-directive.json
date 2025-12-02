@@ -20,5 +20,12 @@
         ],
         "css": "@tailwind utilities;\n          @tailwind utilities;",
         "expected": "\".flex {\n        display: flex;\n      }\n\n      .grid {\n        display: grid;\n      }\""
+    },
+    {
+        "name": "@apply referencing theme values with `@tailwind utilities` should work",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@import 'tailwindcss';\n\n          .foo {\n            @apply p-2;\n          }",
+        "expected": "\":root, :host {\n        --spacing: .25rem;\n      }\n\n      .foo {\n        padding: calc(var(--spacing) * 2);\n      }\""
     }
 ]

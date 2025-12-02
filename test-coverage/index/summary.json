@@ -2,18 +2,18 @@
     "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/index.test.ts",
     "sourceLines": 6081,
     "totalTests": 190,
-    "totalCases": 63,
-    "runTests": 5,
-    "compileCssTests": 58,
+    "totalCases": 78,
+    "runTests": 14,
+    "compileCssTests": 64,
     "categories": {
-        "tailwind-directive": 2,
-        "arbitrary": 1,
+        "tailwind-directive": 3,
+        "arbitrary": 10,
         "css-variables": 8,
-        "prefix": 2,
-        "other": 27,
-        "apply": 3,
+        "prefix": 3,
+        "apply": 5,
+        "other": 28,
         "important": 3,
-        "theme": 15,
+        "theme": 16,
         "import": 2
     }
 }

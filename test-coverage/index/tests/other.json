@@ -114,6 +114,13 @@
         "expected": "\":root, :host {\n        --animate-foo: used 1s infinite;\n      }\n\n      .animate-foo {\n        animation: var(--animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          --other: var(--angle);\n          --angle: 360deg;\n        }\n      }\""
     },
     {
+        "name": "keyframes are generated when used in user CSS",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@theme {\n            @keyframes used {\n              to {\n                opacity: 1;\n              }\n            }\n\n            @keyframes unused {\n              to {\n                opacity: 0;\n              }\n            }\n          }\n\n          .foo {\n            animation: used 1s infinite;\n          }\n\n          @tailwind utilities;",
+        "expected": "\".foo {\n        animation: 1s infinite used;\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\""
+    },
+    {
         "name": "extracts keyframe names followed by comma",
         "type": "compileCss",
         "classes": [
@@ -223,9 +230,7 @@
         "name": "built-in variants can be overridden while keeping their order",
         "type": "compileCss",
         "classes": [
-            "rtl:flex",
-            "dark:flex",
-            "starting:flex"
+            "rtl"
         ],
         "css": "@custom-variant dark (&:is([data-theme='dark'] *));\n          @layer utilities {\n            @tailwind utilities;\n          }",
         "expected": "\"@layer utilities {\n        .rtl\\\\:flex:where(:dir(rtl), [dir=\"rtl\"], [dir=\"rtl\"] *), .dark\\\\:flex:is([data-theme=\"dark\"] *) {\n          display: flex;\n        }\n\n        @starting-style {\n          .starting\\\\:flex {\n            display: flex;\n          }\n        }\n      }\""

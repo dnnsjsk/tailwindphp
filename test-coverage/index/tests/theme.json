@@ -114,6 +114,13 @@
         "expected": "\":root, :host {\n        --animate-foo: used 1s infinite;\n        --animate-bar: unused-but-kept 1s infinite;\n      }\n\n      .animate-foo {\n        animation: var(--animate-foo);\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\n\n      @keyframes unused-but-kept {\n        to {\n          opacity: 0;\n        }\n      }\""
     },
     {
+        "name": "keyframes outside of `@theme are always preserved",
+        "type": "compileCss",
+        "classes": [],
+        "css": "@theme {\n            @keyframes used {\n              to {\n                opacity: 1;\n              }\n            }\n          }\n\n          @keyframes unused {\n            to {\n              opacity: 0;\n            }\n          }\n\n          .foo {\n            animation: used 1s infinite;\n          }\n\n          @tailwind utilities;",
+        "expected": "\"@keyframes unused {\n        to {\n          opacity: 0;\n        }\n      }\n\n      .foo {\n        animation: 1s infinite used;\n      }\n\n      @keyframes used {\n        to {\n          opacity: 1;\n        }\n      }\""
+    },
+    {
         "name": "`@keyframes` added in `@theme reference` should not be emitted",
         "type": "compileCss",
         "classes": [
