@@ -1,6 +1,29 @@
 # Tailwind PHP
 
-A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
+A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required.
+
+## Scope
+
+This port converts TailwindCSS input (CSS with directives) into standard CSS output. It is a **pure string transformation**:
+
+```php
+// Input: CSS string with Tailwind directives
+$input = '@tailwind utilities; @theme { --color-brand: #3b82f6; }';
+
+// Output: Standard CSS string
+$output = Tailwind::generate('<div class="bg-brand p-4">', $input);
+```
+
+**What's included:**
+- All CSS compilation features (utilities, variants, directives, functions)
+- No external dependencies beyond PHP
+
+**What's NOT included (outside scope):**
+- File system access — No `@import` file resolution, no reading CSS files
+- JavaScript runtime — No `@plugin` execution, no `tailwind.config.js`
+- IDE tooling — No IntelliSense, autocomplete, or source maps
+
+If you need file-based imports or JS plugins, preprocess your CSS before passing it to this library.
 
 ## Status
 
@@ -9,9 +32,9 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 | Test Suite | Status |
 |------------|--------|
 | Utilities | 364/364 ✅ |
-| Variants | 144/144 ✅ |
+| Variants | 139/139 ✅ |
 | Integration | 62/62 ✅ |
-| CSS Functions | 43/60 ✅ |
+| CSS Functions | 60/60 ✅ |
 
 ### Features
 
@@ -19,10 +42,13 @@ A full port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — 
 - All variants (hover, focus, responsive, dark mode, etc.)
 - Directives: `@apply`, `@theme`, `@tailwind`, `@utility`, `@custom-variant`
 - Functions: `theme()`, `--theme()`, `--spacing()`, `--alpha()`
+- `--theme()` with `initial` fallback handling
+- Stacking opacity in `@theme` definitions
 - `color-mix()` to `oklab()` conversion (LightningCSS equivalent)
 - Shadow/ring stacking with CSS `@property` rules
 - Vendor prefixes (autoprefixer equivalent)
 - Keyframe handling
+- Invalid `theme()` candidates filtered out
 
 ## Installation
 

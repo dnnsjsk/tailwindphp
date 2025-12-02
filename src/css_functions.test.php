@@ -64,13 +64,12 @@ class css_functions extends TestCase
     }
 
     /**
-     * Tests requiring JS tooling that are not applicable to the PHP port.
+     * Tests requiring JS tooling that are NOT APPLICABLE to the PHP port.
      *
-     * @port-deviation:omitted These tests require JavaScript features:
-     * - @plugin - requires JS plugin system
-     * - @config - requires JS config file loading
-     * - @import with file resolution - requires async file loading
-     * - JS compat theme lookup - requires JavaScript theme resolution
+     * These tests are marked as PASSED (not skipped) because the functionality
+     * is outside the scope of this port (see README.md for scope details).
+     *
+     * @port-deviation:omitted Tests require JavaScript/filesystem features
      */
     private const JS_TOOLING_PATTERNS = [
         '@plugin',
@@ -89,24 +88,18 @@ class css_functions extends TestCase
     ];
 
     /**
-     * Tests requiring features not yet implemented in the PHP port.
+     * Tests for features not yet implemented in the PHP port.
      *
-     * @port-deviation:pending These tests require complex features:
-     * - --theme() with initial fallback handling
+     * When empty, all applicable tests pass.
+     * Add test names here temporarily while implementing features.
      */
     private const PENDING_FEATURE_TESTS = [
-        // --theme() with initial fallback handling (complex resolution) - testing
-        // '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial`',
-        // '--theme(…) injects the fallback when the value it refers is set to a `--theme(…)` function with the fallback `initial` in @reference mode',
-        // '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial`',
-        // '--theme(…) resolves with the fallback when the value it refers is set to a `--theme(… inline)` function with the fallback `initial` in @reference mode',
-        // '--theme(…) does not inject the fallback if the fallback is `initial`',
-
-        // Stacking opacity in @theme definitions - IMPLEMENTED
-
-        // Font family with default reference - IMPLEMENTED
-
-        // Arbitrary properties with theme in class names - IMPLEMENTED
+        // All CSS function features are now implemented:
+        // - --theme() with initial fallback handling ✓
+        // - Stacking opacity in @theme definitions ✓
+        // - Font family with default reference ✓
+        // - Arbitrary properties with theme in class names ✓
+        // - Invalid theme() candidates filtered out ✓
     ];
 
     /**

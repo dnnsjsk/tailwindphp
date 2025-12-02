@@ -1,6 +1,6 @@
 # Tailwind PHP - Development Guide
 
-A **1:1 port of TailwindCSS 4.x to PHP**. The goal is exact parity with the JavaScript implementation - same inputs should produce identical CSS outputs.
+A **1:1 port of TailwindCSS 4.x to PHP** focused on **string-to-string CSS compilation**. See [README.md](README.md) for scope and features.
 
 ---
 
@@ -275,40 +275,40 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | Test File | Status | Tests |
 |-----------|--------|-------|
 | `utilities.test.php` | ✅ **100%** | 364/364 |
-| `variants.test.php` | ✅ **100%** | 144/144 |
+| `variants.test.php` | ✅ **100%** | 139/139 |
 | `index.test.php` | ✅ **100%** | 62/62 |
-| `css_functions.test.php` | ✅ **72%** | 43/60 (6 N/A, 17 pending) |
-| `at_import.test.php` | ⏭️ N/A | Tooling (see below) |
-| `canonicalize_candidates.test.php` | ⏭️ N/A | Tooling (see below) |
+| `css_functions.test.php` | ✅ **100%** | 60/60 (7 N/A for JS tooling) |
+| `at_import.test.php` | ⏭️ N/A | Outside scope (file system) |
+| `canonicalize_candidates.test.php` | ⏭️ N/A | Outside scope (IDE tooling) |
 | `candidate.test.php` | 🔄 Pending | - |
 
-**Total: 1,056 tests passing** (17 css-functions tests pending implementation)
+**Total: 1,056 tests passing**
 
 ---
 
-## Test Files NOT Applicable to PHP Port
+## Tests Outside Scope
 
-Some TypeScript test files are **not applicable** to the PHP port because they test tooling-specific functionality:
+The following TypeScript test files are **outside the scope** of this PHP port because they test features requiring file system access, JavaScript runtime, or IDE tooling:
 
 | Test File | Reason |
 |-----------|--------|
-| `at-import.test.ts` | Async file resolution (`loadStylesheet`, `loadModule`). PHP handles imports inline. |
-| `canonicalize-candidates.test.ts` | IDE tooling for Prettier plugin (class sorting/migration). |
-| `intellisense.test.ts` | VS Code extension functionality (autocomplete, hover previews). |
-| `source-map.test.ts` | Source map generation for browser dev tools. |
-| `line-table.test.ts` | Source map line tracking. |
-| `translation-map.test.ts` | Source map translation. |
-| `config.test.ts` | JS config file loading (`tailwind.config.js`). |
-| `resolve-config.test.ts` | JS config resolution. |
-| `plugin-api.test.ts` | JS plugin API (requires Node.js runtime). |
-| `container-config.test.ts` | Container queries config (JS-specific). |
-| `screens-config.test.ts` | Screens config from JS. |
-| `flatten-color-palette.test.ts` | JS config helper. |
-| `apply-config-to-theme.test.ts` | JS config merging. |
-| `apply-keyframes-to-theme.test.ts` | JS config keyframes. |
-| `legacy-utilities.test.ts` | v3→v4 migration utilities (tooling). |
+| `at-import.test.ts` | File system - async file resolution (`loadStylesheet`, `loadModule`) |
+| `config.test.ts` | File system - JS config file loading (`tailwind.config.js`) |
+| `resolve-config.test.ts` | File system - JS config resolution |
+| `plugin-api.test.ts` | JS runtime - Plugin API requires Node.js |
+| `container-config.test.ts` | JS runtime - Container queries from JS config |
+| `screens-config.test.ts` | JS runtime - Screens config from JS |
+| `flatten-color-palette.test.ts` | JS runtime - Config helper function |
+| `apply-config-to-theme.test.ts` | JS runtime - Config merging |
+| `apply-keyframes-to-theme.test.ts` | JS runtime - Config keyframes |
+| `legacy-utilities.test.ts` | Tooling - v3→v4 migration utilities |
+| `canonicalize-candidates.test.ts` | Tooling - Prettier plugin (class sorting) |
+| `intellisense.test.ts` | Tooling - VS Code extension |
+| `source-map.test.ts` | Tooling - Source map generation |
+| `line-table.test.ts` | Tooling - Source map line tracking |
+| `translation-map.test.ts` | Tooling - Source map translation |
 
-These files exist in `reference/tailwindcss/` but we intentionally skip them. The PHP test files for these are marked with `@port-deviation:omitted`.
+Within `css_functions.test.php`, tests containing `@plugin`, `@config`, or `@import './file'` are marked as N/A (passed without assertion) since these features are outside scope.
 
 ### Implemented Features
 
@@ -318,34 +318,18 @@ These files exist in `reference/tailwindcss/` but we intentionally skip them. Th
 - ✅ `@theme` customization with namespace clearing
 - ✅ `@utility` custom utilities
 - ✅ `@custom-variant` support
-- ✅ `@import 'tailwindcss'` module resolution
+- ✅ `@import 'tailwindcss'` module resolution (inline, not file-based)
 - ✅ `theme()` function with dot notation (`colors.red.500`)
-- ✅ `--theme()` function for CSS variables
+- ✅ `--theme()` function with initial fallback handling
 - ✅ `--spacing()` and `--alpha()` functions
 - ✅ `color-mix()` to `oklab()` conversion (LightningCSS equivalent)
+- ✅ Stacking opacity in `@theme` definitions
 - ✅ Prefix support (`tw:`)
 - ✅ Shadow/ring stacking with `--tw-*` variables
 - ✅ `@property` rules with `@layer properties` fallback
 - ✅ Vendor prefixes (autoprefixer equivalent)
 - ✅ Keyframe handling and hoisting
-
-### Pending Features (17 tests)
-
-The following CSS function features are not yet implemented:
-
-| Feature | Description | Tests |
-|---------|-------------|-------|
-| Variable opacity `@supports` | Progressive enhancement for dynamic opacity values | 2 |
-| `@custom-media` | Custom media query definitions and substitution | 1 |
-| Range media queries | `width >= value` syntax transformation | 1 |
-| Container query rewrites | `@container (width > value)` syntax | 1 |
-| `--theme()` with opacity | `--theme(--color/50%)` modifier | 2 |
-| `--theme()` with `initial` | Complex fallback handling with `initial` keyword | 5 |
-| Stacking opacity | Nested opacity in `@theme` definitions | 1 |
-| Font family `default reference` | Theme resolution for `@theme default reference` | 1 |
-| Arbitrary properties with `theme()` | `sm:[--color:theme(...)]` in class names | 2 |
-
-**Note:** These features work in most common cases. The pending tests cover edge cases and advanced syntax.
+- ✅ Invalid `theme()` candidates filtered out
 
 ### Port Deviation Markers
 

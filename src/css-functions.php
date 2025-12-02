@@ -23,20 +23,26 @@ class ThemeResolutionException extends \Exception {}
  *
  * Port of: packages/tailwindcss/src/css-functions.ts
  *
- * @port-deviation:errors TypeScript throws descriptive errors for invalid function usage.
- * PHP returns null to skip invalid functions silently (more lenient behavior).
- *
  * @port-deviation:dispatch TypeScript uses CSS_FUNCTIONS object with dynamic dispatch.
  * PHP uses individual function handlers (handleAlpha, handleSpacing, etc.) for clarity.
  *
- * @port-deviation:fallback-injection TypeScript has injectFallbackForInitialFallback().
- * PHP omits this complexity - fallbacks are joined directly.
+ * @port-deviation:errors TypeScript throws errors for invalid theme() usage.
+ * PHP throws ThemeResolutionException which is caught during candidate compilation
+ * to filter out invalid candidates (matching TypeScript behavior).
+ *
+ * @port-deviation:fallback-injection Implemented injectFallbackForInitialFallback() and
+ * resolveNestedThemeCallsForInitial() to handle --theme(--var, initial) patterns.
+ * When a theme value resolves to 'initial', caller's fallback is injected into var().
+ *
+ * @port-deviation:namespace-fallback Added keyPathToCssPropertyDirect() as fallback
+ * for theme() lookups. When OLD_TO_NEW_NAMESPACE mapping fails (e.g., --font-sans),
+ * tries direct kebab-case conversion (e.g., --font-family-sans).
  *
  * Handles CSS function substitution for:
  * - --alpha(color / opacity)
  * - --spacing(multiplier)
- * - --theme(path)
- * - theme(path) (legacy)
+ * - --theme(path) with initial fallback handling
+ * - theme(path) (legacy) with namespace mapping and fallback
  */
 
 /**
