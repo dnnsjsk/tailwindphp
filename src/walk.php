@@ -8,6 +8,9 @@ namespace TailwindPHP\Walk;
  * AST Walk - Traversal utilities for the CSS AST.
  *
  * Port of: packages/tailwindcss/src/walk.ts
+ *
+ * @port-deviation:actions TypeScript uses enum for WalkAction.
+ * PHP uses constants and WalkAction class with static helper methods.
  */
 
 // Walk action kinds

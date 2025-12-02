@@ -16,6 +16,17 @@ use function TailwindPHP\Walk\walk;
  * Variants - Variant registry and core variant functions.
  *
  * Port of: packages/tailwindcss/src/variants.ts
+ *
+ * @port-deviation:storage TypeScript uses Map<string, ...> for variants and completions.
+ * PHP uses associative arrays since PHP doesn't have native Map type.
+ *
+ * @port-deviation:enum TypeScript uses enum Compounds { Never, AtRules, StyleRules }.
+ * PHP uses constants (COMPOUNDS_NEVER, COMPOUNDS_AT_RULES, COMPOUNDS_STYLE_RULES).
+ *
+ * @port-deviation:suggestions TypeScript includes completions for IDE tooling.
+ * PHP omits IDE completion infrastructure since it's not the primary use case.
+ *
+ * @port-deviation:types PHP uses VariantsInterface for candidate.php integration.
  */
 
 const IS_VALID_VARIANT_NAME = '/^@?[a-z0-9][a-zA-Z0-9_-]*(?<![_-])$/';

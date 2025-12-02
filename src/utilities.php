@@ -19,6 +19,17 @@ use TailwindPHP\Candidate\UtilitiesInterface;
  * Utilities - Utility registry and core utility functions.
  *
  * Port of: packages/tailwindcss/src/utilities.ts
+ *
+ * @port-deviation:structure TypeScript's utilities.ts is 6000+ lines with all utilities inline.
+ * PHP splits utilities into separate files under src/utilities/ for maintainability.
+ *
+ * @port-deviation:suggestions TypeScript includes IDE suggestion infrastructure (SuggestionGroup,
+ * SuggestionDefinition, completions). PHP omits these since IDE tooling isn't the primary use case.
+ *
+ * @port-deviation:featureFlags TypeScript uses enableContainerSizeUtility feature flag.
+ * PHP implements utilities directly without feature flag gating.
+ *
+ * @port-deviation:types PHP uses UtilitiesInterface for candidate.php integration.
  */
 
 const IS_VALID_STATIC_UTILITY_NAME = '/^-?[a-z][a-zA-Z0-9\/%._-]*$/';

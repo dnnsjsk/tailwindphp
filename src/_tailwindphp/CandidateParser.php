@@ -9,8 +9,8 @@ use TailwindPHP\Utilities\Utilities;
 /**
  * Candidate Parser - Parse Tailwind class names into structured data.
  *
- * This is NOT part of the TailwindCSS port. It's a simplified candidate parser
- * that works with the Utilities registry to parse class names.
+ * @port-deviation:helper This is NOT part of the TailwindCSS port.
+ * It's a simplified candidate parser that works with the Utilities registry.
  *
  * The full candidate.php port handles more complex cases (variants, etc.).
  * This parser handles the core utility parsing needed for compilation.

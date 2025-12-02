@@ -8,6 +8,9 @@ namespace TailwindPHP\AttributeSelectorParser;
  * Attribute Selector Parser
  *
  * Port of: packages/tailwindcss/src/attribute-selector-parser.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ * PHP adds an explicit minimum length check (strlen < 3) for safety.
  */
 
 const TAB = 9;

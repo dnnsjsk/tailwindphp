@@ -7,6 +7,10 @@ namespace TailwindPHP\Utils;
 /**
  * Compare two breakpoint values.
  *
+ * Port of: packages/tailwindcss/src/utils/compare-breakpoints.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * @param string $a
  * @param string $z
  * @param string $direction 'asc' or 'desc'

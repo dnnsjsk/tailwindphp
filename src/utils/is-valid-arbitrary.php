@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Arbitrary value validation utilities.
+ *
+ * Port of: packages/tailwindcss/src/utils/is-valid-arbitrary.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ */
+
 const BACKSLASH_ARB = 0x5c;
 const OPEN_CURLY_ARB = 0x7b;
 const CLOSE_CURLY_ARB = 0x7d;

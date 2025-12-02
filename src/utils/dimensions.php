@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Dimension parsing utilities.
+ *
+ * Port of: packages/tailwindcss/src/utils/dimensions.ts
+ *
+ * @port-deviation:cache TypeScript uses DefaultMap for caching parsed dimensions.
+ * PHP uses simple static variable caching for equivalent behavior.
+ */
+
 const DIMENSION_REGEX = '/^(?<value>[-+]?(?:\d*\.)?\d+)(?<unit>[a-z]+|%)?$/i';
 
 /**

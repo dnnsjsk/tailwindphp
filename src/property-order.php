@@ -8,6 +8,8 @@ namespace TailwindPHP\PropertyOrder;
  * Property Order - CSS property ordering for consistent output.
  *
  * Port of: packages/tailwindcss/src/property-order.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
  */
 
 const PROPERTY_ORDER = [

@@ -8,6 +8,8 @@ namespace TailwindPHP\ValueParser;
  * Value Parser - Parses CSS values into an AST.
  *
  * Port of: packages/tailwindcss/src/value-parser.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
  */
 
 const VP_BACKSLASH = 0x5c;

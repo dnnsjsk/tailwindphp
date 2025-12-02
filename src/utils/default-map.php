@@ -8,6 +8,14 @@ namespace TailwindPHP\Utils;
  * A Map that can generate default values for keys that don't exist.
  * Generated default values are added to the map to avoid recomputation.
  *
+ * Port of: packages/tailwindcss/src/utils/default-map.ts
+ *
+ * @port-deviation:extends TypeScript DefaultMap extends native Map.
+ * PHP uses composition with internal array since PHP doesn't have Map class.
+ *
+ * @port-deviation:keys TypeScript Map supports any type as key.
+ * PHP normalizes array keys via serialize() since PHP arrays only accept string|int keys.
+ *
  * @template TKey
  * @template TValue
  */

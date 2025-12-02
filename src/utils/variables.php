@@ -9,6 +9,8 @@ namespace TailwindPHP\Utils;
  *
  * Port of: packages/tailwindcss/src/utils/variables.ts
  *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * Extracts CSS custom property (variable) names from values.
  */
 

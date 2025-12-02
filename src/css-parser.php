@@ -13,6 +13,16 @@ use function TailwindPHP\Ast\parseAtRule;
  * CSS Parser - Character-by-character CSS tokenizer.
  *
  * Port of: packages/tailwindcss/src/css-parser.ts
+ *
+ * @port-deviation:sourcemaps TypeScript tracks source locations (src/dst) on every node
+ * for source map generation. PHP omits source tracking since source maps aren't implemented.
+ *
+ * @port-deviation:stack TypeScript uses simple array push/pop for stack.
+ * PHP uses associative array with 'parent' and 'index' to track position because
+ * PHP arrays are value types, requiring explicit index tracking for modifications.
+ *
+ * @port-deviation:bom TypeScript checks for UTF-16 BOM (\uFEFF).
+ * PHP checks for UTF-8 BOM (EF BB BF) which is more common in PHP environments.
  */
 
 const BACKSLASH_CSS = 0x5c;

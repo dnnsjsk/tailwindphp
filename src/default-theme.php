@@ -11,6 +11,13 @@ use TailwindPHP\Theme;
  *
  * Port of: packages/tailwindcss/theme.css
  *
+ * @port-deviation:source TypeScript version is in compat/default-theme.ts and handles
+ * v3 config compatibility with dynamic bareValues. PHP ports the actual theme.css file
+ * directly as PHP code, providing static default values without v3 compatibility layer.
+ *
+ * @port-deviation:format TypeScript uses dynamic theme callbacks and bareValues functions.
+ * PHP uses explicit static values added via Theme::add() for simplicity.
+ *
  * This provides the default theme values that Tailwind ships with.
  * The original is defined in CSS, we provide it as PHP for programmatic use.
  */

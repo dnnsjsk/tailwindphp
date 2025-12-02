@@ -11,6 +11,10 @@ const NINE_CHAR = 57;
  * Compare two strings alphanumerically, where numbers are compared as numbers
  * instead of strings.
  *
+ * Port of: packages/tailwindcss/src/utils/compare.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * @param string $a
  * @param string $z
  * @return int

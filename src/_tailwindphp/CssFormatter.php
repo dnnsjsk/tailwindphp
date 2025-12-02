@@ -7,8 +7,8 @@ namespace TailwindPHP\CssFormatter;
 /**
  * CSS Formatter - Format AST nodes into CSS strings.
  *
- * This is NOT part of the TailwindCSS port. It's a simplified CSS formatter
- * that handles the test output format.
+ * @port-deviation:helper This is NOT part of the TailwindCSS port.
+ * It's a simplified CSS formatter that handles the test output format.
  *
  * The full ast.php has toCss() which is more complete. This formatter
  * specifically handles the nested rules expansion needed for test comparison.

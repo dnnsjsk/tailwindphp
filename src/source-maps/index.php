@@ -9,7 +9,7 @@ namespace TailwindPHP\SourceMaps;
  *
  * Port of: packages/tailwindcss/src/source-maps/
  *
- * NOT NEEDED FOR PHP PORT.
+ * @port-deviation:omitted NOT NEEDED FOR PHP PORT.
  *
  * This module handles source map generation for CSS output, which is primarily
  * useful for browser dev tools debugging. The PHP port generates CSS server-side

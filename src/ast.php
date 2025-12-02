@@ -10,6 +10,16 @@ use TailwindPHP\LightningCss\LightningCss;
  * AST node types and builder functions for TailwindPHP.
  *
  * Port of: packages/tailwindcss/src/ast.ts
+ *
+ * @port-deviation:structure The TypeScript version includes `optimizeAst()` in this file,
+ * but in PHP it's implemented in `index.php` as part of the compilation pipeline.
+ * This keeps the PHP version simpler and avoids circular dependencies.
+ *
+ * @port-deviation:sourcemaps The TypeScript AST nodes include `src` and `dst` properties
+ * for source map tracking. PHP version omits these as source maps are not implemented.
+ *
+ * @port-deviation:types TypeScript uses explicit type definitions (StyleRule, AtRule, etc.).
+ * PHP uses PHPDoc @typedef annotations and array shapes for IDE support.
  */
 
 const AT_SIGN = 0x40;
@@ -142,6 +152,9 @@ function atRoot(array $nodes): array
 /**
  * Deep clone an AST node.
  *
+ * @port-deviation:sourcemaps TypeScript version copies src/dst properties for source map tracking.
+ * PHP version omits these as source maps are not implemented.
+ *
  * @param array $node
  * @return array
  */
@@ -197,6 +210,9 @@ function cloneAstNode(array $node): array
 
 /**
  * Convert AST to CSS string.
+ *
+ * @port-deviation:sourcemaps TypeScript version accepts a `track` parameter for source map tracking.
+ * PHP version omits this as source maps are not implemented.
  *
  * @param array<AstNode> $ast
  * @return string
@@ -258,6 +274,9 @@ function toCss(array $ast): string
 
 /**
  * Parse an at-rule from a buffer string.
+ *
+ * @port-deviation:location TypeScript version imports parseAtRule from css-parser.ts.
+ * PHP version defines it here to avoid circular dependencies.
  *
  * @param string $buffer
  * @param array<AstNode> $nodes

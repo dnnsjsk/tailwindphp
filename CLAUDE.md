@@ -301,18 +301,42 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ### Port Deviation Markers
 
-When implementing features that differ from the TypeScript source, use the `@port-deviation` marker:
+All 44 implementation files are documented with `@port-deviation` markers explaining where and why the PHP implementation differs from TypeScript.
 
+#### Deviation Types
+
+| Marker | Meaning |
+|--------|---------|
+| `@port-deviation:none` | Direct 1:1 port with no significant deviations |
+| `@port-deviation:async` | PHP uses synchronous code instead of async/await |
+| `@port-deviation:storage` | Different data structures (PHP array vs JS Map/Set) |
+| `@port-deviation:types` | PHPDoc annotations instead of TypeScript types |
+| `@port-deviation:sourcemaps` | Source map tracking omitted |
+| `@port-deviation:enum` | PHP constants instead of TypeScript enums |
+| `@port-deviation:caching` | Different caching strategy |
+| `@port-deviation:errors` | Different error handling approach |
+| `@port-deviation:stub` | Placeholder for unneeded functionality |
+| `@port-deviation:replacement` | PHP implementation replacing external library (e.g., lightningcss) |
+| `@port-deviation:helper` | PHP-specific helper not in original |
+| `@port-deviation:omitted` | Entire module not ported (not needed for PHP) |
+
+#### Usage Examples
+
+File header deviation:
 ```php
 /**
- * @port-deviation LightningCSS replacement
- * PHP cannot use the Rust-based lightningcss library. This method implements
- * equivalent CSS transformation logic in pure PHP.
+ * Port of: packages/tailwindcss/src/compile.ts
+ *
+ * @port-deviation:bigint TypeScript uses BigInt for variant order bitmask.
+ * PHP uses regular integers (sufficient for current variant count).
+ *
+ * @port-deviation:sorting TypeScript uses Map<AstNode, ...> for nodeSorting.
+ * PHP embeds sorting info directly in nodes via '__sorting' key.
  */
-public static function flattenNesting(array &$ast): void
 ```
 
-For inline deviations:
+Inline deviation:
 ```php
 // @port-deviation: PHP regex syntax differs from JS
 $pattern = '/.../';
+```

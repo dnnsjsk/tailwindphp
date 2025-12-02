@@ -11,6 +11,12 @@ use TailwindPHP\Utils\Dimensions;
  *
  * Port of: packages/tailwindcss/src/constant-fold-declaration.ts
  *
+ * @port-deviation:isLength TypeScript imports isLength from infer-data-type.ts.
+ * PHP inlines a simplified version to avoid circular dependencies.
+ *
+ * @port-deviation:float PHP uses == for float comparisons (e.g., $value == 0.0)
+ * instead of === since PHP floating point comparison needs loose equality.
+ *
  * This module performs constant folding on CSS calc() expressions,
  * simplifying expressions with two operands and one operator.
  */

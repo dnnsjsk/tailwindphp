@@ -11,6 +11,15 @@ use function TailwindPHP\Utils\unescape;
  * Theme - Theme value management and resolution.
  *
  * Port of: packages/tailwindcss/src/theme.ts
+ *
+ * @port-deviation:storage TypeScript uses Map<string, ...> for values and Set<AtRule> for keyframes.
+ * PHP uses associative arrays for both since PHP doesn't have native Map/Set types.
+ *
+ * @port-deviation:sourcemaps TypeScript stores Declaration['src'] for source map tracking.
+ * PHP omits source tracking as source maps aren't implemented.
+ *
+ * @port-deviation:enum TypeScript uses enum ThemeOptions.
+ * PHP uses constants (THEME_OPTION_*) for PHP 8.1 compatibility.
  */
 
 // Theme option flags (using constants instead of enum for PHP 8.1 compatibility)

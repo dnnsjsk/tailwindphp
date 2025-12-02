@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Color detection utilities.
+ *
+ * Port of: packages/tailwindcss/src/utils/color-parser.ts (partial)
+ *
+ * @port-deviation:scope TypeScript color-parser.ts includes full color parsing.
+ * PHP isColor() is a simplified check for color detection only.
+ */
+
 const HASH_CHAR = 0x23;
 
 const NAMED_COLORS = [

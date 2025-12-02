@@ -17,6 +17,18 @@ use function TailwindPHP\Compile\compileCandidates;
  *
  * Port of: packages/tailwindcss/src/apply.ts
  *
+ * @port-deviation:tracking TypeScript uses Set<AstNode> for direct object references.
+ * PHP uses string path keys (e.g., "0.1.2") since PHP arrays are value types.
+ *
+ * @port-deviation:sourcemaps TypeScript tracks source locations for @apply candidates
+ * to enable accurate source map generation. PHP omits this.
+ *
+ * @port-deviation:errors TypeScript has detailed error messages for circular dependencies,
+ * unknown utilities, missing variants, and missing @reference. PHP uses simpler error handling.
+ *
+ * @port-deviation:registration PHP registers @utility definitions inline during @apply processing
+ * to ensure dependencies are resolved before dependents use them.
+ *
  * This function handles @apply in two phases:
  * 1. Process @apply within @utility definitions (in topological order)
  * 2. Register the processed @utility definitions with the design system
@@ -425,6 +437,10 @@ function compileApplyAtRule(array $node, DesignSystem $designSystem): array
 
 /**
  * Resolve dependencies from an @apply at-rule.
+ *
+ * @port-deviation:parsing TypeScript uses designSystem.parseCandidate() which handles
+ * all candidate formats. PHP manually parses candidates to avoid caching issues when
+ * utilities aren't registered yet.
  *
  * This extracts the base utility name from each candidate in the @apply params.
  * We don't use designSystem->parseCandidate here because that would cache results

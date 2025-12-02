@@ -8,6 +8,10 @@ namespace TailwindPHP\Utils;
  * Escape a CSS identifier.
  * https://drafts.csswg.org/cssom/#serialize-an-identifier
  *
+ * Port of: packages/tailwindcss/src/utils/escape.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * @param string $value
  * @return string
  */

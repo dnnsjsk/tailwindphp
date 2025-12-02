@@ -30,6 +30,18 @@ require_once __DIR__ . '/utilities/borders.php';
  * Design System - Combines theme, utilities, and variants.
  *
  * Port of: packages/tailwindcss/src/design-system.ts
+ *
+ * @port-deviation:structure TypeScript uses object literal with methods.
+ * PHP uses class-based implementation with interfaces for type safety.
+ *
+ * @port-deviation:invalidCandidates TypeScript uses Set<string>.
+ * PHP uses array as property since PHP doesn't have native Set.
+ *
+ * @port-deviation:intellisense TypeScript includes getClassList(), getVariants(), getClassOrder()
+ * for IDE integration. PHP stubs these methods since IDE tooling is not primary use case.
+ *
+ * @port-deviation:substitution TypeScript calls substituteFunctions() and substituteAtVariant()
+ * in compiledAstNodes cache callback. PHP handles these in the main compilation pipeline.
  */
 
 const COMPILE_AST_FLAGS_NONE = 0;

@@ -12,6 +12,8 @@ use function TailwindPHP\Utils\segment;
  *
  * Port of: packages/tailwindcss/src/expand-declaration.ts
  *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * Expands shorthand CSS declarations into their longhand equivalents.
  * Used for canonicalization of utility classes.
  */

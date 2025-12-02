@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Shadow color replacement utilities.
+ *
+ * Port of: packages/tailwindcss/src/utils/replace-shadow-colors.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ */
+
 const SHADOW_KEYWORDS = ['inset', 'inherit', 'initial', 'revert', 'unset'];
 const SHADOW_LENGTH_PATTERN = '/^-?(\d+|\.\d+)(.*?)$/';
 

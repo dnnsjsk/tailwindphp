@@ -15,6 +15,15 @@ use function TailwindPHP\Utils\segment;
  *
  * Port of: packages/tailwindcss/src/css-functions.ts
  *
+ * @port-deviation:errors TypeScript throws descriptive errors for invalid function usage.
+ * PHP returns null to skip invalid functions silently (more lenient behavior).
+ *
+ * @port-deviation:dispatch TypeScript uses CSS_FUNCTIONS object with dynamic dispatch.
+ * PHP uses individual function handlers (handleAlpha, handleSpacing, etc.) for clarity.
+ *
+ * @port-deviation:fallback-injection TypeScript has injectFallbackForInitialFallback().
+ * PHP omits this complexity - fallbacks are joined directly.
+ *
  * Handles CSS function substitution for:
  * - --alpha(color / opacity)
  * - --spacing(multiplier)

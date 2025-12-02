@@ -8,6 +8,12 @@ namespace TailwindPHP;
  * @import directive handling
  *
  * Port of: packages/tailwindcss/src/at-import.ts
+ *
+ * @port-deviation:async TypeScript uses async/await with Promise.all() for concurrent
+ * stylesheet loading. PHP uses synchronous loading since PHP doesn't have native async.
+ *
+ * @port-deviation:sourcemaps TypeScript passes `track` parameter to CSS.parse() for
+ * source map generation. PHP omits source map tracking.
  */
 
 const FEATURES_AT_IMPORT = 1 << 1;

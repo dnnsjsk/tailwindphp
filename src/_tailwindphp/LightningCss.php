@@ -7,8 +7,9 @@ namespace TailwindPHP\LightningCss;
 /**
  * CSS Optimizer - PHP implementation of lightningcss transformations.
  *
- * This is NOT part of the TailwindCSS port. It's a PHP implementation of
- * the CSS optimizations that lightningcss performs in the original Tailwind.
+ * @port-deviation:replacement This is NOT part of the TailwindCSS port.
+ * It's a PHP implementation of the CSS optimizations that lightningcss
+ * (Rust library) performs in the original Tailwind.
  *
  * lightningcss is a fast CSS parser, transformer, and minifier written in Rust.
  * TailwindCSS uses it to post-process generated CSS. Since we can't use the

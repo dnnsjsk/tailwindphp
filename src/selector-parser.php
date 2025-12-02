@@ -8,6 +8,8 @@ namespace TailwindPHP\SelectorParser;
  * Selector Parser - Parses CSS selectors into an AST.
  *
  * Port of: packages/tailwindcss/src/selector-parser.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
  */
 
 const SP_AMPERSAND = 0x26;

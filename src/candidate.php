@@ -16,6 +16,16 @@ use function TailwindPHP\Walk\walk;
  * Candidate - Class name parsing for Tailwind utilities.
  *
  * Port of: packages/tailwindcss/src/candidate.ts
+ *
+ * @port-deviation:caching TypeScript uses DefaultMap for automatic lazy caching.
+ * PHP uses global arrays with manual cache checks (e.g., $printArbitraryValueCache).
+ *
+ * @port-deviation:node-filtering TypeScript uses Set<node> + WalkAction.ReplaceSkip to filter AST.
+ * PHP uses spl_object_hash() workaround since PHP arrays are value types, not references.
+ *
+ * @port-deviation:types TypeScript has full type definitions for Candidate, Variant, etc.
+ * PHP uses interfaces (DesignSystemInterface, UtilitiesInterface, VariantsInterface)
+ * and PHPDoc annotations for IDE support.
  */
 
 const COLON = 0x3a;      // ':'

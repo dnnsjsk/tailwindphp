@@ -12,6 +12,8 @@ use function TailwindPHP\Utils\addWhitespaceAroundMathOperators;
  * Decode Arbitrary Value - Convert Tailwind arbitrary value syntax to CSS.
  *
  * Port of: packages/tailwindcss/src/utils/decode-arbitrary-value.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
  */
 
 /**

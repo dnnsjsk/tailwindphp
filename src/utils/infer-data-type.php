@@ -4,6 +4,17 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Data type inference for CSS values.
+ *
+ * Port of: packages/tailwindcss/src/utils/infer-data-type.ts
+ *
+ * @port-deviation:dispatch TypeScript uses callback functions directly in type checking.
+ * PHP uses match expression with fully-qualified function names for clarity.
+ *
+ * @port-deviation:none Otherwise this is a direct 1:1 port.
+ */
+
 const HAS_NUMBER_PATTERN = '[+-]?\\d*\\.?\\d+(?:[eE][+-]?\\d+)?';
 
 const LENGTH_UNITS = [

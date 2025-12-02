@@ -11,6 +11,10 @@ use TailwindPHP\DesignSystem\DesignSystem;
  *
  * Port of: packages/tailwindcss/src/canonicalize-candidates.ts
  *
+ * @port-deviation:stub This file is a placeholder stub. The TypeScript version is ~2500 lines
+ * implementing complex candidate canonicalization for IDE tooling (Prettier, class sorting).
+ * PHP version returns candidates unchanged since IDE tooling is not the primary use case.
+ *
  * This module handles candidate canonicalization for IDE tooling purposes
  * (Prettier plugin, class sorting, etc.). It normalizes utility classes
  * to their canonical forms.

@@ -7,6 +7,10 @@ namespace TailwindPHP\Utils;
 /**
  * Parse a path string into an array of path segments
  *
+ * Port of: packages/tailwindcss/src/utils/to-key-path.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * Square bracket notation `a[b]` may be used to "escape" dots that would
  * otherwise be interpreted as path separators.
  *

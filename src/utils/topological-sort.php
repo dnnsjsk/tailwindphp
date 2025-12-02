@@ -7,6 +7,10 @@ namespace TailwindPHP\Utils;
 /**
  * Topologically sort a dependency graph.
  *
+ * Port of: packages/tailwindcss/src/utils/topological-sort.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * @template TKey
  * @param array<TKey, array<TKey>> $graph Map of node to its dependencies
  * @param callable(array<TKey>, TKey): void $onCircularDependency Callback for circular dependencies

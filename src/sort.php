@@ -11,6 +11,9 @@ use TailwindPHP\DesignSystem\DesignSystem;
  *
  * Port of: packages/tailwindcss/src/sort.ts
  *
+ * @port-deviation:bigint TypeScript uses BigInt for sort order calculations.
+ * PHP uses regular integers which is sufficient for current use cases.
+ *
  * Provides class ordering functionality for tools like Prettier plugin.
  */
 

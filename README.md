@@ -71,6 +71,20 @@ The `src/_tailwindphp/` folder contains PHP-specific helpers that are NOT part o
 
 This separation keeps the 1:1 port clean while providing necessary PHP implementations.
 
+### Port Deviation Markers
+
+All implementation files are documented with `@port-deviation` markers explaining where and why the PHP implementation differs from TypeScript:
+
+| Marker | Meaning |
+|--------|---------|
+| `@port-deviation:none` | Direct 1:1 port with no deviations |
+| `@port-deviation:async` | PHP uses synchronous code (no async/await) |
+| `@port-deviation:storage` | Different data structures (array vs Map/Set) |
+| `@port-deviation:types` | PHPDoc instead of TypeScript types |
+| `@port-deviation:sourcemaps` | Source map tracking omitted |
+| `@port-deviation:replacement` | PHP implementation replacing external library |
+| `@port-deviation:omitted` | Entire module not ported (not needed) |
+
 ### Utility Categories
 
 All TailwindCSS utility categories are implemented:
@@ -121,24 +135,9 @@ TailwindCSS's `utilities.test.ts` is 28,000+ lines. Instead of porting manually,
 - PHP 8.1+
 - Composer
 
-## Roadmap
-
-- [x] All utility classes (364/364 tests passing)
-- [x] Variants (hover, focus, responsive, dark mode, etc.)
-- [x] `@apply` directive with nested selectors
-- [x] `@theme` customization with namespace clearing
-- [x] `@utility` custom utilities
-- [x] `@custom-variant` support
-- [x] `theme()`, `--theme()`, `--spacing()`, `--alpha()` functions
-- [x] Shadow/ring stacking system (`--tw-*` variables)
-- [x] `@property` rules with `@layer properties` fallback
-- [x] Vendor prefixes (autoprefixer equivalent)
-- [ ] `css-functions.test.php` test coverage
-- [ ] `candidate.test.php` test coverage
-
 ## Development
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed development guide, project structure, and porting phases.
+See [CLAUDE.md](CLAUDE.md) for detailed development guide, project structure, and porting phases.
 
 ## License
 

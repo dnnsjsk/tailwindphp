@@ -9,7 +9,7 @@ namespace TailwindPHP\Compat;
  *
  * Port of: packages/tailwindcss/src/compat/
  *
- * NOT NEEDED FOR PHP PORT.
+ * @port-deviation:omitted NOT NEEDED FOR PHP PORT.
  *
  * This module provides backward compatibility with Tailwind CSS v3 configuration
  * (tailwind.config.js). It handles:

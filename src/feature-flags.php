@@ -9,6 +9,9 @@ namespace TailwindPHP;
  *
  * Port of: packages/tailwindcss/src/feature-flags.ts
  *
+ * @port-deviation:env TypeScript reads from process.env for feature flags.
+ * PHP uses constants since PHP's environment handling is different.
+ *
  * Controls experimental/preview features.
  * In the original TypeScript, this checks environment variables.
  */

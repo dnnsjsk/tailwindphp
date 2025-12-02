@@ -17,6 +17,10 @@ const SINGLE_QUOTE = 0x27;
 /**
  * This splits a string on a top-level character.
  *
+ * Port of: packages/tailwindcss/src/utils/segment.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ *
  * Regex doesn't support recursion (at least not the JS-flavored version),
  * so we have to use a tiny state machine to keep track of paren placement.
  *

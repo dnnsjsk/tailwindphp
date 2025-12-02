@@ -21,6 +21,21 @@ use TailwindPHP\LightningCss\LightningCss;
  * TailwindPHP - CSS-first Tailwind CSS compiler for PHP.
  *
  * Port of: packages/tailwindcss/src/index.ts
+ *
+ * @port-deviation:async TypeScript uses async/await throughout (parseCss, compile).
+ * PHP uses synchronous execution since PHP doesn't have native async support.
+ *
+ * @port-deviation:sourcemaps TypeScript creates source maps via createSourceMap().
+ * PHP omits source map generation entirely.
+ *
+ * @port-deviation:modules TypeScript has loadModule/loadStylesheet for dynamic imports.
+ * PHP uses inline file loading via file_get_contents() or requires.
+ *
+ * @port-deviation:plugins TypeScript supports JS plugins via @plugin/@config directives.
+ * PHP does not support JS plugins - all utilities are implemented in PHP directly.
+ *
+ * @port-deviation:lightningcss TypeScript uses lightningcss (Rust) for CSS transforms.
+ * PHP uses LightningCss.php class for equivalent transformations in pure PHP.
  */
 
 // Polyfill flags

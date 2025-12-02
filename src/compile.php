@@ -17,6 +17,16 @@ use const TailwindPHP\PropertyOrder\PROPERTY_ORDER;
  * Compile - Candidate compilation to CSS AST.
  *
  * Port of: packages/tailwindcss/src/compile.ts
+ *
+ * @port-deviation:bigint TypeScript uses BigInt for variant order bitmask allowing >64 variants.
+ * PHP uses regular integers (limited to 64 bits but sufficient for current variant count).
+ *
+ * @port-deviation:sorting TypeScript uses Map<AstNode, ...> for nodeSorting.
+ * PHP embeds sorting info directly in nodes via '__sorting' key (removed after sorting)
+ * since PHP arrays are value types and Map equivalents have reference limitations.
+ *
+ * @port-deviation:variant-result TypeScript returns null for failed variants.
+ * PHP returns false to distinguish from void/no-return success cases.
  */
 
 // CompileAstFlags

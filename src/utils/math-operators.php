@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
+/**
+ * Math operator utilities for CSS calc() expressions.
+ *
+ * Port of: packages/tailwindcss/src/utils/math-operators.ts
+ *
+ * @port-deviation:none This is a direct 1:1 port with no significant deviations.
+ */
+
 const LOWER_A_CHAR = 0x61;
 const LOWER_Z_CHAR = 0x7a;
 const UPPER_A_CHAR = 0x41;
