@@ -10,8 +10,11 @@ use function TailwindPHP\Utilities\property;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
 use function TailwindPHP\Utils\inferDataType;
+use function TailwindPHP\Utils\replaceShadowColors;
 use function TailwindPHP\Utilities\asColor;
 use function TailwindPHP\Utilities\resolveThemeColor;
+use function TailwindPHP\Utilities\withAlpha;
+use function TailwindPHP\Utilities\replaceAlpha;
 
 /**
  * Typography Utilities
@@ -588,5 +591,97 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('subpixel-antialiased', [
         ['-webkit-font-smoothing', 'auto'],
         ['-moz-osx-font-smoothing', 'auto'],
+    ]);
+
+    // =========================================================================
+    // Text Shadow
+    // =========================================================================
+
+    $textShadowProperties = function () {
+        return atRoot([
+            property('--tw-text-shadow-color'),
+            property('--tw-text-shadow-alpha', '100%', '<percentage>'),
+        ]);
+    };
+
+    // text-shadow-initial
+    $builder->staticUtility('text-shadow-initial', [
+        fn() => $textShadowProperties(),
+        ['--tw-text-shadow-color', 'initial'],
+    ]);
+
+    // text-shadow-none
+    $builder->staticUtility('text-shadow-none', [
+        fn() => $textShadowProperties(),
+        ['text-shadow', 'none'],
+    ]);
+
+    // text-shadow-inherit
+    $builder->staticUtility('text-shadow-inherit', [
+        fn() => $textShadowProperties(),
+        ['--tw-text-shadow-color', 'inherit'],
+    ]);
+
+    // text-shadow color utility
+    $builder->colorUtility('text-shadow', [
+        'themeKeys' => ['--text-shadow-color', '--color'],
+        'handle' => function ($value) use ($textShadowProperties) {
+            return [
+                $textShadowProperties(),
+                decl('--tw-text-shadow-color', withAlpha($value, 'var(--tw-text-shadow-alpha)')),
+            ];
+        },
+    ]);
+
+    // text-shadow size utility (text-shadow-xs, text-shadow-sm, text-shadow-lg, etc.)
+    // and arbitrary value utility
+    $builder->functionalUtility('text-shadow', [
+        'themeKeys' => ['--text-shadow'],
+        'defaultValue' => null,
+        'handle' => function ($value, $modifier = null) use ($textShadowProperties, $theme) {
+            if ($value === null) {
+                return null;
+            }
+
+            // Handle alpha modifier
+            $alpha = null;
+            if ($modifier !== null) {
+                if (isPositiveInteger($modifier)) {
+                    $alpha = "{$modifier}%";
+                } else {
+                    $alpha = $modifier;
+                }
+            }
+
+            // Try to resolve from theme --text-shadow-{value}
+            $themeValue = $theme->get(["--text-shadow-{$value}"]);
+            if ($themeValue !== null) {
+                $value = $themeValue;
+            }
+
+            // Use alphaReplacedShadowProperties logic
+            $result = [$textShadowProperties()];
+            if ($alpha !== null) {
+                $result[] = decl('--tw-text-shadow-alpha', $alpha);
+            }
+
+            // Replace shadow colors with var injection
+            $replacedValue = replaceShadowColors($value, function ($color) use ($alpha) {
+                if ($alpha === null) {
+                    return "var(--tw-text-shadow-color, {$color})";
+                }
+
+                // When the input is currentcolor, use color-mix approach
+                if (str_starts_with($color, 'current')) {
+                    return 'var(--tw-text-shadow-color, ' . withAlpha($color, $alpha) . ')';
+                }
+
+                return 'var(--tw-text-shadow-color, ' . replaceAlpha($color, $alpha) . ')';
+            });
+
+            $result[] = decl('text-shadow', $replacedValue);
+
+            return $result;
+        },
     ]);
 }

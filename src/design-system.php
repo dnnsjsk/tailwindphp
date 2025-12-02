@@ -400,6 +400,9 @@ function createUtilities(Theme $theme): Utilities
     // Register background utilities
     \TailwindPHP\Utilities\registerBackgroundUtilities($builder);
 
+    // Register mask utilities
+    \TailwindPHP\Utilities\registerMaskUtilities($builder);
+
     return $utilities;
 }
 

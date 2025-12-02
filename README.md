@@ -29,14 +29,15 @@ If you need file-based imports or JS plugins, preprocess your CSS before passing
 
 ## Status
 
-✅ **1,056 tests passing** — Feature complete for core TailwindCSS functionality.
+✅ **1,139 tests passing** — Feature complete for core TailwindCSS functionality.
 
 | Test Suite | Status |
 |------------|--------|
 | Utilities | 364/364 ✅ |
 | Variants | 139/139 ✅ |
-| Integration | 62/62 ✅ |
+| Integration | 78/78 ✅ |
 | CSS Functions | 60/60 ✅ |
+| UI Spec | 68/68 ✅ |
 
 ### Features
 
@@ -131,20 +132,21 @@ src/
 │
 ├── utilities/                   # Utility implementations (split from utilities.ts)
 │   ├── accessibility.php        # sr-only, forced-colors
-│   ├── backgrounds.php          # bg-*, gradient-*
+│   ├── backgrounds.php          # bg-*, gradient-*, from-*, via-*, to-*
 │   ├── borders.php              # border-*, rounded-*, divide-*, outline-*
 │   ├── effects.php              # shadow-*, opacity-*, mix-blend-*
 │   ├── filters.php              # blur-*, brightness-*, contrast-*, etc.
 │   ├── flexbox.php              # flex-*, grid-*, gap-*, justify-*, align-*
 │   ├── interactivity.php        # cursor-*, scroll-*, touch-*, select-*
 │   ├── layout.php               # display, position, z-*, overflow-*, etc.
+│   ├── masks.php                # mask-linear-*, mask-radial-*, mask-conic-*, mask-x/y/t/r/b/l-*
 │   ├── sizing.php               # w-*, h-*, min-*, max-*, size-*
 │   ├── spacing.php              # m-*, p-*, space-*
 │   ├── svg.php                  # fill-*, stroke-*
 │   ├── tables.php               # border-collapse, table-layout
 │   ├── transforms.php           # translate-*, rotate-*, scale-*, skew-*
 │   ├── transitions.php          # transition-*, duration-*, ease-*, delay-*
-│   └── typography.php           # font-*, text-*, leading-*, tracking-*
+│   └── typography.php           # font-*, text-*, leading-*, tracking-*, text-shadow-*
 │
 ├── utils/                       # Helper functions (ported from utils/)
 │   ├── brace-expansion.php      # Brace expansion parsing

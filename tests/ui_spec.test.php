@@ -86,44 +86,6 @@ class ui_spec extends TestCase
 CSS;
 
     /**
-     * Utility prefixes that are not yet implemented.
-     * Tests for these are marked as skipped (pending implementation).
-     */
-    private const PENDING_UTILITIES = [
-        'bg-conic',        // Conic gradients not implemented
-        'bg-radial',       // Radial gradients not implemented
-        'mask-linear',     // Mask linear gradients not implemented
-        'mask-radial',     // Mask radial gradients not implemented
-        'mask-conic',      // Mask conic gradients not implemented
-        'mask-circle',     // Mask shape not implemented
-        'mask-ellipse',    // Mask shape not implemented
-        'mask-x-',         // Mask edge utilities not implemented
-        'mask-y-',         // Mask edge utilities not implemented
-        'mask-t-',         // Mask edge utilities not implemented
-        'mask-r-',         // Mask edge utilities not implemented
-        'mask-b-',         // Mask edge utilities not implemented
-        'mask-l-',         // Mask edge utilities not implemented
-        'divide-y',        // Divide utilities not generating expected CSS
-        'divide-x',        // Divide utilities not generating expected CSS
-        'text-shadow',     // Text shadow utilities not implemented
-    ];
-
-    /**
-     * Check if any class uses a pending utility.
-     */
-    private function usesPendingUtility(array $classes): ?string
-    {
-        foreach ($classes as $class) {
-            foreach (self::PENDING_UTILITIES as $pending) {
-                if (str_starts_with($class, $pending)) {
-                    return $pending;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Run a single UI spec test case.
      */
     #[DataProvider('uiSpecTestProvider')]
@@ -136,12 +98,6 @@ CSS;
         // Skip empty class lists
         if (empty($classes)) {
             $this->markTestSkipped("Test '$name' has no classes to test");
-        }
-
-        // Check for pending utilities
-        $pending = $this->usesPendingUtility($classes);
-        if ($pending !== null) {
-            $this->markTestSkipped("Test '$name' uses pending utility '$pending' - not yet implemented");
         }
 
         // Compile the CSS

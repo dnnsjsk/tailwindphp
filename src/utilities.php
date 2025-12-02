@@ -703,6 +703,7 @@ function createUtilities(Theme $theme): Utilities
     registerTransformsUtilities($builder);
     registerInteractivityUtilities($builder);
     registerSvgUtilities($builder);
+    registerMaskUtilities($builder);
 
     return $utilities;
 }
@@ -723,3 +724,4 @@ require_once __DIR__ . '/utilities/filters.php';
 require_once __DIR__ . '/utilities/interactivity.php';
 require_once __DIR__ . '/utilities/svg.php';
 require_once __DIR__ . '/utilities/backgrounds.php';
+require_once __DIR__ . '/utilities/masks.php';

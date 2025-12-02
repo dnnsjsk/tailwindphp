@@ -6,6 +6,8 @@ namespace TailwindPHP\Utilities;
 
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Utilities\property;
 use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
@@ -202,26 +204,53 @@ function registerBorderUtilities(UtilityBuilder $builder): void
 
     // divide-x
     $builder->functionalUtility('divide-x', [
-        'themeKeys' => ['--divide-width'],
+        'themeKeys' => ['--divide-width', '--border-width'],
         'defaultValue' => '1px',
+        'handleBareValue' => function ($value) {
+            // Only positive integers are treated as pixel widths
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+            return $value['value'] . 'px';
+        },
         'handle' => function ($value) {
             return [
-                decl('--tw-divide-x-reverse', '0'),
-                decl('border-inline-end-width', "calc({$value} * var(--tw-divide-x-reverse))"),
-                decl('border-inline-start-width', "calc({$value} * calc(1 - var(--tw-divide-x-reverse)))"),
+                atRoot([property('--tw-divide-x-reverse', '0')]),
+                styleRule(':where(& > :not(:last-child))', [
+                    decl('--tw-sort', 'divide-x-width'),
+                    atRoot([property('--tw-border-style', 'solid')]),
+                    decl('--tw-divide-x-reverse', '0'),
+                    decl('border-inline-style', 'var(--tw-border-style)'),
+                    decl('border-inline-start-width', "calc({$value} * var(--tw-divide-x-reverse))"),
+                    decl('border-inline-end-width', "calc({$value} * calc(1 - var(--tw-divide-x-reverse)))"),
+                ]),
             ];
         },
     ]);
 
     // divide-y
     $builder->functionalUtility('divide-y', [
-        'themeKeys' => ['--divide-width'],
+        'themeKeys' => ['--divide-width', '--border-width'],
         'defaultValue' => '1px',
+        'handleBareValue' => function ($value) {
+            // Only positive integers are treated as pixel widths
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+            return $value['value'] . 'px';
+        },
         'handle' => function ($value) {
             return [
-                decl('--tw-divide-y-reverse', '0'),
-                decl('border-block-end-width', "calc({$value} * var(--tw-divide-y-reverse))"),
-                decl('border-block-start-width', "calc({$value} * calc(1 - var(--tw-divide-y-reverse)))"),
+                atRoot([property('--tw-divide-y-reverse', '0')]),
+                styleRule(':where(& > :not(:last-child))', [
+                    decl('--tw-sort', 'divide-y-width'),
+                    atRoot([property('--tw-border-style', 'solid')]),
+                    decl('--tw-divide-y-reverse', '0'),
+                    decl('border-bottom-style', 'var(--tw-border-style)'),
+                    decl('border-top-style', 'var(--tw-border-style)'),
+                    decl('border-top-width', "calc({$value} * var(--tw-divide-y-reverse))"),
+                    decl('border-bottom-width', "calc({$value} * calc(1 - var(--tw-divide-y-reverse)))"),
+                ]),
             ];
         },
     ]);
@@ -229,9 +258,11 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     // divide-x-reverse, divide-y-reverse
     // These use :where(& > :not(:last-child)) selector
     $builder->staticUtility('divide-x-reverse', [
+        fn() => atRoot([property('--tw-divide-x-reverse', '0')]),
         fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-x-reverse', '1')]),
     ]);
     $builder->staticUtility('divide-y-reverse', [
+        fn() => atRoot([property('--tw-divide-y-reverse', '0')]),
         fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-y-reverse', '1')]),
     ]);
 

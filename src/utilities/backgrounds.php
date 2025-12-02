@@ -6,6 +6,8 @@ namespace TailwindPHP\Utilities;
 
 use TailwindPHP\Theme;
 use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Utilities\property;
 
 /**
  * Background Utilities
@@ -171,6 +173,12 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
     // =========================================================================
 
     registerRadialGradientUtilities($builder);
+
+    // =========================================================================
+    // Gradient Color Stops (from-*, via-*, to-*)
+    // =========================================================================
+
+    registerGradientColorStopUtilities($builder);
 }
 
 /**
@@ -381,4 +389,146 @@ function getGradientInterpolationMode(?string $modifier): ?string
         'decreasing' => 'oklch decreasing hue',
         default => $modifier, // For arbitrary values like [in_hsl_longer_hue]
     };
+}
+
+/**
+ * Register gradient color stop utilities (from-*, via-*, to-*).
+ */
+function registerGradientColorStopUtilities(UtilityBuilder $builder): void
+{
+    // Helper function to create gradient stop @property declarations
+    $gradientStopProperties = function () {
+        return atRoot([
+            property('--tw-gradient-position'),
+            property('--tw-gradient-from', '#0000', '<color>'),
+            property('--tw-gradient-via', '#0000', '<color>'),
+            property('--tw-gradient-to', '#0000', '<color>'),
+            property('--tw-gradient-stops'),
+            property('--tw-gradient-via-stops'),
+            property('--tw-gradient-from-position', '0%', '<length-percentage>'),
+            property('--tw-gradient-via-position', '50%', '<length-percentage>'),
+            property('--tw-gradient-to-position', '100%', '<length-percentage>'),
+        ]);
+    };
+
+    // from-* utility (color and position)
+    $builder->colorUtility('from', [
+        'themeKeys' => ['--background-color', '--color'],
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-sort', '--tw-gradient-from'),
+                decl('--tw-gradient-from', $value),
+                decl(
+                    '--tw-gradient-stops',
+                    'var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))'
+                ),
+            ];
+        },
+    ]);
+
+    // from-{position}% utility
+    $builder->functionalUtility('from', [
+        'themeKeys' => ['--gradient-color-stop-positions'],
+        'defaultValue' => null,
+        'handleBareValue' => function ($value) {
+            // Handle percentage values like from-20%
+            $val = $value['value'] ?? '';
+            if (str_ends_with($val, '%')) {
+                $num = substr($val, 0, -1);
+                if (is_numeric($num) && (float) $num >= 0) {
+                    return $val;
+                }
+            }
+            return null;
+        },
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-gradient-from-position', $value),
+            ];
+        },
+    ]);
+
+    // via-none utility
+    $builder->staticUtility('via-none', [['--tw-gradient-via-stops', 'initial']]);
+
+    // via-* utility (color and position)
+    $builder->colorUtility('via', [
+        'themeKeys' => ['--background-color', '--color'],
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-sort', '--tw-gradient-via'),
+                decl('--tw-gradient-via', $value),
+                decl(
+                    '--tw-gradient-via-stops',
+                    'var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)'
+                ),
+                decl('--tw-gradient-stops', 'var(--tw-gradient-via-stops)'),
+            ];
+        },
+    ]);
+
+    // via-{position}% utility
+    $builder->functionalUtility('via', [
+        'themeKeys' => ['--gradient-color-stop-positions'],
+        'defaultValue' => null,
+        'handleBareValue' => function ($value) {
+            // Handle percentage values like via-50%
+            $val = $value['value'] ?? '';
+            if (str_ends_with($val, '%')) {
+                $num = substr($val, 0, -1);
+                if (is_numeric($num) && (float) $num >= 0) {
+                    return $val;
+                }
+            }
+            return null;
+        },
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-gradient-via-position', $value),
+            ];
+        },
+    ]);
+
+    // to-* utility (color and position)
+    $builder->colorUtility('to', [
+        'themeKeys' => ['--background-color', '--color'],
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-sort', '--tw-gradient-to'),
+                decl('--tw-gradient-to', $value),
+                decl(
+                    '--tw-gradient-stops',
+                    'var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))'
+                ),
+            ];
+        },
+    ]);
+
+    // to-{position}% utility
+    $builder->functionalUtility('to', [
+        'themeKeys' => ['--gradient-color-stop-positions'],
+        'defaultValue' => null,
+        'handleBareValue' => function ($value) {
+            // Handle percentage values like to-80%
+            $val = $value['value'] ?? '';
+            if (str_ends_with($val, '%')) {
+                $num = substr($val, 0, -1);
+                if (is_numeric($num) && (float) $num >= 0) {
+                    return $val;
+                }
+            }
+            return null;
+        },
+        'handle' => function ($value) use ($gradientStopProperties) {
+            return [
+                $gradientStopProperties(),
+                decl('--tw-gradient-to-position', $value),
+            ];
+        },
+    ]);
 }
