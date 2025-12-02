@@ -72,16 +72,16 @@
         ]
     },
     "scripts": {
-        "extract-tests": [
+        "extract": [
             "php test-coverage/extract-run-tests.php",
             "php test-coverage/extract-index-tests.php",
             "php test-coverage/extract-css-functions-tests.php",
             "php test-coverage/extract-candidate-tests.php"
         ],
-        "test": [
-            "@extract-tests",
+        "test": "phpunit",
+        "extract-and-test": [
+            "@extract",
             "phpunit"
-        ],
-        "test-only": "phpunit"
+        ]
     }
 }
