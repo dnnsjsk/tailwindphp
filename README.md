@@ -7,18 +7,31 @@
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
 [![cva](https://img.shields.io/badge/cva-v1.0.0--beta.4-blue)](https://github.com/joe-bell/cva)
 
-A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required. This entire codebase was written by Claude, with the goal of creating an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
+A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required.
+
+## Why This Exists
+
+For most projects, the standard Node.js-based Tailwind workflow works great. But there are scenarios where server-side CSS processing in PHP makes more sense:
+
+- **WordPress plugins/themes** — Plugin authors who want users to write Tailwind classes without requiring Node.js. Similar to how [scssphp](https://github.com/scssphp/scssphp) enables SCSS compilation in PHP environments.
+- **PHP-only hosting** — Shared hosting or environments where Node.js isn't available.
+- **Dynamic CSS generation** — Generate utility CSS on-the-fly based on user input or database content.
+- **Avoiding the CDN hack** — The [Tailwind Play CDN](https://tailwindcss.com/docs/installation/play-cdn) works but has limitations. This library provides proper server-side compilation.
+
+Previously, the only options were the Tailwind CDN (client-side, not ideal for production) or complex build pipelines. TailwindPHP enables true server-side Tailwind compilation in pure PHP.
+
+---
 
 **Includes PHP ports of [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge), and [CVA](https://github.com/joe-bell/cva)** — the most popular companion libraries for Tailwind CSS.
 
 ## Table of Contents
 
+- [Why This Exists](#why-this-exists)
 - [Scope](#scope)
 - [Status](#status)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Preflight (CSS Reset)](#preflight-css-reset)
-  - [Full Tailwind Setup](#full-tailwind-setup)
+  - [Preflight](#preflight)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [merge()](#merge)
@@ -143,42 +156,36 @@ $css = Tailwind::generate([
 ]);
 ```
 
-### Preflight (CSS Reset)
+### Preflight
 
-Preflight is Tailwind's base CSS reset. There are several ways to include it:
+Preflight is Tailwind's opinionated set of base styles, built on top of [modern-normalize](https://github.com/sindresorhus/modern-normalize). It smooths over cross-browser inconsistencies and makes it easier to work within the constraints of the design system.
+
+For full details on what Preflight does and why, see the [official Tailwind Preflight documentation](https://tailwindcss.com/docs/preflight).
+
+**Key resets include:**
+
+- **Default margins removed** — Headings, paragraphs, lists, etc. have zero margin
+- **Headings unstyled** — All headings have the same font-size and font-weight as normal text
+- **Lists unstyled** — `ul` and `ol` have no bullets/numbers or padding
+- **Images are block-level** — No more phantom space below images
+- **Border styles reset** — Empty borders so you can add borders just by setting `border-width`
+- **Buttons inherit fonts** — Buttons use the parent's font family, size, and line-height
 
 ```php
-// Option 1: Full import (includes theme + preflight + utilities)
+// Full import (includes theme + preflight + utilities)
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'css' => '@import "tailwindcss";',
 ]);
 
-// Option 2: Granular imports with layers
-$css = Tailwind::generate([
-    'content' => '<div class="flex p-4">Hello</div>',
-    'css' => '
-        @layer theme, base, components, utilities;
-        @import "tailwindcss/theme.css" layer(theme);
-        @import "tailwindcss/preflight.css" layer(base);
-        @import "tailwindcss/utilities.css" layer(utilities);
-    ',
-]);
-
-// Option 3: Utilities only (no preflight)
+// Without preflight (utilities only)
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'css' => '@import "tailwindcss/utilities.css";',
 ]);
 ```
 
-Preflight includes:
-- Box-sizing reset (`box-sizing: border-box` on all elements)
-- Margin/padding removal
-- Border reset for easier utility usage
-- Sensible defaults for typography, forms, images
-
-You can extend preflight with custom base styles using `@layer base`:
+You can extend preflight with your own base styles using `@layer base`:
 
 ```php
 $css = Tailwind::generate([
@@ -187,45 +194,8 @@ $css = Tailwind::generate([
         @import "tailwindcss";
         @layer base {
             h1 { font-size: 2rem; font-weight: bold; }
-            a { color: blue; text-decoration: underline; }
+            a { color: theme(colors.blue.500); text-decoration: underline; }
         }
-    ',
-]);
-```
-
-To skip preflight, import only utilities: `@import "tailwindcss/utilities.css";`
-
-### Full Tailwind Setup
-
-For complete control over cascade layers (like the official Tailwind docs), use the explicit import syntax:
-
-```php
-$css = Tailwind::generate([
-    'content' => '<div class="flex p-4">Hello</div>',
-    'css' => '
-        @layer theme, base, components, utilities;
-        @import "tailwindcss/theme.css" layer(theme);
-        @import "tailwindcss/preflight.css" layer(base);
-        @import "tailwindcss/utilities.css" layer(utilities);
-    ',
-]);
-```
-
-This gives you:
-- **`@layer` order declaration** — Controls CSS cascade priority
-- **`tailwindcss/theme.css`** — Theme variables (colors, fonts, spacing)
-- **`tailwindcss/preflight.css`** — CSS reset/base styles
-- **`tailwindcss/utilities.css`** — Utility class generation
-
-You can omit any of these. For example, to disable preflight:
-
-```php
-$css = Tailwind::generate([
-    'content' => '<div class="flex">',
-    'css' => '
-        @layer theme, base, components, utilities;
-        @import "tailwindcss/theme.css" layer(theme);
-        @import "tailwindcss/utilities.css" layer(utilities);
     ',
 ]);
 ```
