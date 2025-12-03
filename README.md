@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,179%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,189%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -17,6 +17,7 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
 - [Installation](#installation)
 - [Usage](#usage)
   - [Preflight (CSS Reset)](#preflight-css-reset)
+  - [Full Tailwind Setup](#full-tailwind-setup)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [clsx()](#clsx)
@@ -62,7 +63,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 
 ## Status
 
-✅ **3,179 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,189 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -182,6 +183,41 @@ $css = Tailwind::generate([
 ```
 
 To disable preflight, simply don't include it (it's off by default).
+
+### Full Tailwind Setup
+
+For complete control over cascade layers (like the official Tailwind docs), use the explicit import syntax:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'css' => '
+        @layer theme, base, components, utilities;
+        @import "tailwindcss/theme.css" layer(theme);
+        @import "tailwindcss/preflight.css" layer(base);
+        @import "tailwindcss/utilities.css" layer(utilities);
+    ',
+]);
+```
+
+This gives you:
+- **`@layer` order declaration** — Controls CSS cascade priority
+- **`tailwindcss/theme.css`** — Theme variables (colors, fonts, spacing)
+- **`tailwindcss/preflight.css`** — CSS reset/base styles
+- **`tailwindcss/utilities.css`** — Utility class generation
+
+You can omit any of these. For example, to disable preflight:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<div class="flex">',
+    'css' => '
+        @layer theme, base, components, utilities;
+        @import "tailwindcss/theme.css" layer(theme);
+        @import "tailwindcss/utilities.css" layer(utilities);
+    ',
+]);
+```
 
 ### Extract Class Names
 

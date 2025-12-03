@@ -563,7 +563,13 @@ class LightningCss
                 // Combine regular nodes with merged at-rules (at-rules go at end)
                 $allLayerNodes = array_merge($layerNodes, $mergedLayerAtRules);
 
-                if (!empty($allLayerNodes)) {
+                // Keep @layer if:
+                // 1. It has content (non-empty children), OR
+                // 2. It's a layer order declaration (has params with comma-separated names and no children)
+                //    e.g., @layer theme, base, components, utilities;
+                $isLayerOrderDeclaration = empty($node['nodes']) && str_contains($node['params'] ?? '', ',');
+
+                if (!empty($allLayerNodes) || $isLayerOrderDeclaration) {
                     $parent[] = [
                         'kind' => 'at-rule',
                         'name' => '@layer',

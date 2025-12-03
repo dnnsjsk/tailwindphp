@@ -699,4 +699,138 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('.custom', $css);
         $this->assertStringContainsString('display: flex', $css);
     }
+
+    // =========================================================================
+    // @layer ORDER DECLARATIONS
+    // =========================================================================
+
+    public function test_layer_order_declaration_passthrough(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@layer theme, base, components, utilities; @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_layer_order_with_two_layers(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@layer base, utilities; @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer base, utilities;', $css);
+    }
+
+    // =========================================================================
+    // @import 'tailwindcss/utilities.css' VARIANTS
+    // =========================================================================
+
+    public function test_import_utilities_css(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_import_utilities_css_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities);',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_import_utilities_with_important(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities" important;',
+        ]);
+        $this->assertStringContainsString('!important', $css);
+    }
+
+    // =========================================================================
+    // @import 'tailwindcss/theme.css' VARIANTS
+    // =========================================================================
+
+    public function test_import_theme_css(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css"; @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('--font-sans:', $css);
+    }
+
+    public function test_import_theme_css_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme); @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('--font-sans:', $css);
+    }
+
+    // =========================================================================
+    // FULL TAILWIND SETUP (like docs)
+    // =========================================================================
+
+    public function test_full_tailwind_setup(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex p-4">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/theme.css" layer(theme);
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_full_setup_without_preflight(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/theme.css" layer(theme);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringNotContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_extend_base_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities);
+                @layer base {
+                    h1 { font-size: 2rem; }
+                }
+            ',
+        ]);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('font-size: 2rem', $css);
+    }
 }

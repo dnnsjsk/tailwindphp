@@ -418,14 +418,49 @@ function parseCss(array &$ast, array $options = []): array
                     return WalkAction::Replace($themeContent);
                 }
 
-                // Handle 'tailwindcss/utilities' - just provides utilities directive
-                if ($importPath === 'tailwindcss/utilities') {
+                // Handle 'tailwindcss/theme' or 'tailwindcss/theme.css' - theme variables
+                if ($importPath === 'tailwindcss/theme' || $importPath === 'tailwindcss/theme.css') {
+                    $themeCss = file_get_contents(__DIR__.'/../resources/theme.css');
+                    $themeAst = parse($themeCss);
+
+                    // Check for prefix() modifier
+                    if (preg_match('/prefix\(([^)]+)\)/', $modifiers, $prefixMatch)) {
+                        $themeAst = [atRule('@media', 'prefix('.$prefixMatch[1].')', $themeAst)];
+                    }
+
+                    // Check for theme(static) modifier - theme values always included
+                    if (str_contains($modifiers, 'theme(static)')) {
+                        $themeAst = [atRule('@media', 'theme(static)', $themeAst)];
+                    }
+
+                    // Check for layer() modifier
+                    if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
+                        return WalkAction::Replace([
+                            atRule('@layer', $layerMatch[1], $themeAst),
+                        ]);
+                    }
+
+                    return WalkAction::Replace($themeAst);
+                }
+
+                // Handle 'tailwindcss/utilities' or 'tailwindcss/utilities.css'
+                if ($importPath === 'tailwindcss/utilities' || $importPath === 'tailwindcss/utilities.css') {
                     $utilityNode = atRule('@tailwind', 'utilities', []);
 
                     // If there's an 'important' modifier
                     if (str_contains($modifiers, 'important')) {
+                        $utilityNode = atRule('@media', 'important', [$utilityNode]);
+                    }
+
+                    // If there's a prefix() modifier, wrap in @media prefix()
+                    if (preg_match('/prefix\(([^)]+)\)/', $modifiers, $prefixMatch)) {
+                        $utilityNode = atRule('@media', 'prefix('.$prefixMatch[1].')', [$utilityNode]);
+                    }
+
+                    // If there's a layer() modifier, wrap in @layer
+                    if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
                         return WalkAction::Replace([
-                            atRule('@media', 'important', [$utilityNode]),
+                            atRule('@layer', $layerMatch[1], [$utilityNode]),
                         ]);
                     }
 
