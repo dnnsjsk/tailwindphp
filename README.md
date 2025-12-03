@@ -7,7 +7,7 @@
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
 [![cva](https://img.shields.io/badge/cva-v1.0.0--beta.4-blue)](https://github.com/joe-bell/cva)
 
-A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required.
+A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
 ## Why This Exists
 
@@ -92,10 +92,6 @@ $css = Tailwind::generate([
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
 | CVA (from reference test suite) | 50 | ✅ |
-
-### Not Supported
-
-- IDE tooling — No IntelliSense, autocomplete, or source maps (these are editor features)
 
 ### Performance
 

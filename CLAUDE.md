@@ -1,6 +1,6 @@
 # TailwindPHP - Development Guide
 
-A **1:1 port of TailwindCSS 4.x to PHP** focused on **string-to-string CSS compilation**. See [README.md](README.md) for scope and features.
+A **1:1 port of TailwindCSS 4.x to PHP**. See [README.md](README.md) for scope and features.
 
 ## Table of Contents
 
