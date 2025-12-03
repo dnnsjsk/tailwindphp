@@ -11,14 +11,13 @@ A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — n
 
 ## Why This Exists
 
-For most projects, the standard Node.js-based Tailwind workflow works great. But there are scenarios where server-side CSS processing in PHP makes more sense:
+TailwindCSS is written in TypeScript and requires Node.js. TailwindPHP is a complete rewrite in PHP, giving you the same functionality without the Node.js dependency.
 
-- **WordPress plugins/themes** — Plugin authors who want users to write Tailwind classes without requiring Node.js. Similar to how [scssphp](https://github.com/scssphp/scssphp) enables SCSS compilation in PHP environments.
-- **PHP-only hosting** — Shared hosting or environments where Node.js isn't available.
-- **Dynamic CSS generation** — Generate utility CSS on-the-fly based on user input or database content.
-- **Avoiding the CDN hack** — The [Tailwind Play CDN](https://tailwindcss.com/docs/installation/play-cdn) works but has limitations. This library provides proper server-side compilation.
+- **WordPress & PHP frameworks** — Ship Tailwind-powered plugins and themes without requiring users to install Node.js or run build tools. Just `composer require` and go.
+- **Dynamic CSS** — Generate utility CSS at runtime based on user input, database content, or template variables.
+- **Simpler deployment** — No Node.js in your production stack, no build step in CI, no npm in your Docker image.
 
-Previously, the only options were the Tailwind CDN (client-side, not ideal for production) or complex build pipelines. TailwindPHP enables true server-side Tailwind compilation in pure PHP.
+Similar to how [scssphp](https://github.com/scssphp/scssphp) brought SCSS compilation to PHP, TailwindPHP brings the full Tailwind 4.x feature set to any PHP environment.
 
 ---
 
