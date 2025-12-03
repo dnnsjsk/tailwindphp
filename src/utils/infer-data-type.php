@@ -68,11 +68,17 @@ function inferDataType(string $value, array $types): ?string
     return null;
 }
 
+/**
+ * Check if value is a CSS url() function.
+ */
 function isUrl(string $value): bool
 {
     return (bool) preg_match('/^url\(.*\)$/', $value);
 }
 
+/**
+ * Check if value is a valid CSS line-width (thin, medium, thick, or length).
+ */
 function isLineWidth(string $value): bool
 {
     foreach (segment($value, ' ') as $part) {
@@ -85,6 +91,9 @@ function isLineWidth(string $value): bool
     return true;
 }
 
+/**
+ * Check if value is a CSS image (url, gradient, or image function).
+ */
 function isImage(string $value): bool
 {
     $count = 0;
@@ -115,6 +124,9 @@ function isImage(string $value): bool
     return $count > 0;
 }
 
+/**
+ * Check if value is a generic font family name.
+ */
 function isGenericName(string $value): bool
 {
     return in_array($value, [
@@ -123,6 +135,9 @@ function isGenericName(string $value): bool
     ], true);
 }
 
+/**
+ * Check if value is a valid font family name.
+ */
 function isFamilyName(string $value): bool
 {
     $count = 0;
@@ -143,6 +158,9 @@ function isFamilyName(string $value): bool
     return $count > 0;
 }
 
+/**
+ * Check if value is an absolute font size keyword.
+ */
 function isAbsoluteSize(string $value): bool
 {
     return in_array($value, [
@@ -150,11 +168,17 @@ function isAbsoluteSize(string $value): bool
     ], true);
 }
 
+/**
+ * Check if value is a relative font size keyword.
+ */
 function isRelativeSize(string $value): bool
 {
     return $value === 'larger' || $value === 'smaller';
 }
 
+/**
+ * Check if value is a CSS number.
+ */
 function isNumberValue(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '$/';
@@ -162,6 +186,9 @@ function isNumberValue(string $value): bool
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
+/**
+ * Check if value is a CSS percentage.
+ */
 function isPercentage(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '%$/';
@@ -169,6 +196,9 @@ function isPercentage(string $value): bool
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
+/**
+ * Check if value is a CSS fraction (ratio).
+ */
 function isFraction(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '\\s*\\/\\s*' . HAS_NUMBER_PATTERN . '$/';
@@ -176,6 +206,9 @@ function isFraction(string $value): bool
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
+/**
+ * Check if value is a CSS length with units.
+ */
 function isLengthValue(string $value): bool
 {
     $unitsPattern = implode('|', LENGTH_UNITS);
@@ -184,6 +217,9 @@ function isLengthValue(string $value): bool
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
+/**
+ * Check if value is a valid CSS background-position.
+ */
 function isBackgroundPosition(string $value): bool
 {
     $count = 0;
@@ -209,6 +245,9 @@ function isBackgroundPosition(string $value): bool
     return $count > 0;
 }
 
+/**
+ * Check if value is a valid CSS background-size.
+ */
 function isBackgroundSize(string $value): bool
 {
     $count = 0;
@@ -242,6 +281,9 @@ function isBackgroundSize(string $value): bool
     return $count > 0;
 }
 
+/**
+ * Check if value is a CSS angle with units.
+ */
 function isAngle(string $value): bool
 {
     $unitsPattern = implode('|', ANGLE_UNITS);
@@ -250,6 +292,9 @@ function isAngle(string $value): bool
     return (bool) preg_match($pattern, $value);
 }
 
+/**
+ * Check if value is a 3D vector (three space-separated numbers).
+ */
 function isVector(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . ' +' . HAS_NUMBER_PATTERN . ' +' . HAS_NUMBER_PATTERN . '$/';
@@ -257,6 +302,9 @@ function isVector(string $value): bool
     return (bool) preg_match($pattern, $value);
 }
 
+/**
+ * Check if value is a non-negative integer (0 or positive).
+ */
 function isPositiveInteger(mixed $value): bool
 {
     $num = is_numeric($value) ? (int) $value : null;
@@ -264,6 +312,9 @@ function isPositiveInteger(mixed $value): bool
     return $num !== null && $num >= 0 && (string) $num === (string) $value;
 }
 
+/**
+ * Check if value is a strictly positive integer (> 0).
+ */
 function isStrictPositiveInteger(mixed $value): bool
 {
     $num = is_numeric($value) ? (int) $value : null;
@@ -271,11 +322,17 @@ function isStrictPositiveInteger(mixed $value): bool
     return $num !== null && $num > 0 && (string) $num === (string) $value;
 }
 
+/**
+ * Check if value is a valid spacing multiplier (multiple of 0.25).
+ */
 function isValidSpacingMultiplier(mixed $value): bool
 {
     return isMultipleOf($value, 0.25);
 }
 
+/**
+ * Check if value is a valid opacity (0-100, multiple of 0.25).
+ */
 function isValidOpacityValue(mixed $value): bool
 {
     if (!is_numeric($value)) {
@@ -287,6 +344,9 @@ function isValidOpacityValue(mixed $value): bool
     return $num >= 0 && $num <= 100 && fmod($num, 0.25) === 0.0 && (string) $num === (string) $value;
 }
 
+/**
+ * Check if value is a multiple of a given divisor.
+ */
 function isMultipleOf(mixed $value, float $divisor): bool
 {
     if (!is_numeric($value)) {
