@@ -61,6 +61,27 @@ const FEATURE_AT_THEME = 1 << 6;
 $_defaultThemeCache = null;
 
 /**
+ * Read a resource file with error checking.
+ *
+ * @param string $filename The filename relative to resources directory
+ * @return string The file contents
+ * @throws \RuntimeException If file cannot be read
+ */
+function readResourceFile(string $filename): string
+{
+    $path = __DIR__ . '/../resources/' . $filename;
+    if (!file_exists($path)) {
+        throw new \RuntimeException("Resource file not found: {$path}");
+    }
+    $contents = file_get_contents($path);
+    if ($contents === false) {
+        throw new \RuntimeException("Failed to read resource file: {$path}");
+    }
+
+    return $contents;
+}
+
+/**
  * Load and parse the default Tailwind theme from theme.css.
  *
  * @return Theme
@@ -74,12 +95,7 @@ function loadDefaultTheme(): Theme
         return clone $_defaultThemeCache;
     }
 
-    $themePath = __DIR__ . '/../resources/theme.css';
-    if (!file_exists($themePath)) {
-        throw new \RuntimeException("Default theme file not found: {$themePath}");
-    }
-
-    $css = file_get_contents($themePath);
+    $css = readResourceFile('theme.css');
     $ast = parse($css);
     $theme = new Theme();
 
@@ -398,11 +414,11 @@ function parseCss(array &$ast, array $options = []): array
                 // Handle 'tailwindcss' virtual module - full Tailwind CSS (theme + preflight + utilities)
                 if ($importPath === 'tailwindcss') {
                     // Load theme.css
-                    $themeCss = file_get_contents(__DIR__.'/../resources/theme.css');
+                    $themeCss = readResourceFile('theme.css');
                     $themeAst = parse($themeCss);
 
                     // Load preflight.css
-                    $preflightCss = file_get_contents(__DIR__.'/../resources/preflight.css');
+                    $preflightCss = readResourceFile('preflight.css');
                     $preflightAst = parse($preflightCss);
 
                     // Create utilities node
@@ -421,7 +437,7 @@ function parseCss(array &$ast, array $options = []): array
 
                 // Handle 'tailwindcss/theme' or 'tailwindcss/theme.css' - theme variables
                 if ($importPath === 'tailwindcss/theme' || $importPath === 'tailwindcss/theme.css') {
-                    $themeCss = file_get_contents(__DIR__.'/../resources/theme.css');
+                    $themeCss = readResourceFile('theme.css');
                     $themeAst = parse($themeCss);
 
                     // Check for prefix() modifier
@@ -478,7 +494,7 @@ function parseCss(array &$ast, array $options = []): array
 
                 // Handle 'tailwindcss/preflight' - CSS reset/base styles
                 if ($importPath === 'tailwindcss/preflight' || $importPath === 'tailwindcss/preflight.css') {
-                    $preflightCss = file_get_contents(__DIR__.'/../resources/preflight.css');
+                    $preflightCss = readResourceFile('preflight.css');
                     $preflightAst = parse($preflightCss);
 
                     // Check for layer(base) modifier
@@ -754,7 +770,8 @@ function parseCss(array &$ast, array $options = []): array
             // The actual plugin functionality comes from addComponents/addUtilities
             $themeExtensions = $pluginManager->getThemeExtensions($pluginName, $pluginOptions);
             foreach ($themeExtensions as $namespace => $values) {
-                if (!is_array($values)) {
+                // Skip non-string namespaces (numeric array indices) and non-array values
+                if (!is_string($namespace) || !is_array($values)) {
                     continue;
                 }
                 $themeNamespace = '--' . strtolower(preg_replace('/([A-Z])/', '-$1', $namespace));

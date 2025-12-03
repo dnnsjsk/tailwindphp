@@ -94,6 +94,10 @@ function compileCandidates(
             $found = true;
 
             foreach ($rules as $ruleInfo) {
+                // Validate rule info structure
+                if (!isset($ruleInfo['node']) || !isset($ruleInfo['propertySort'])) {
+                    continue;
+                }
                 $node = $ruleInfo['node'];
                 $propertySort = $ruleInfo['propertySort'];
 
@@ -262,7 +266,7 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
 
     // Get the variant's apply function
     $variantData = $variants->get($variant['root']);
-    if (!$variantData) {
+    if (!$variantData || !isset($variantData['applyFn'])) {
         return false;
     }
 

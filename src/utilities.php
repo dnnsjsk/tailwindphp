@@ -12,6 +12,7 @@ use TailwindPHP\Theme;
 use TailwindPHP\Utils\DefaultMap;
 
 use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Utils\isStrictPositiveInteger;
 use function TailwindPHP\Utils\isValidOpacityValue;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
 use function TailwindPHP\Utils\segment;
@@ -622,7 +623,8 @@ class UtilityBuilder
                     // Handle fractions like w-1/2
                     if ($value === null && ($desc['supportsFractions'] ?? false) && isset($candidate['value']['fraction'])) {
                         $parts = segment($candidate['value']['fraction'], '/');
-                        if (count($parts) === 2 && isPositiveInteger($parts[0]) && isPositiveInteger($parts[1])) {
+                        // Numerator can be 0+, but denominator must be > 0 to avoid division by zero
+                        if (count($parts) === 2 && isPositiveInteger($parts[0]) && isStrictPositiveInteger($parts[1])) {
                             // Format as "calc(1 / 2 * 100%)" with spaces around /
                             $value = "calc({$parts[0]} / {$parts[1]} * 100%)";
                         }
