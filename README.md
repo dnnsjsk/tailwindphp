@@ -19,9 +19,15 @@ TailwindCSS is written in TypeScript and requires Node.js. TailwindPHP is a comp
 
 Similar to how [scssphp](https://github.com/scssphp/scssphp) brought SCSS compilation to PHP, TailwindPHP brings the full Tailwind 4.x feature set to any PHP environment.
 
----
+### Batteries Included
 
-**Includes PHP ports of [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge), and [CVA](https://github.com/joe-bell/cva)** — the most popular companion libraries for Tailwind CSS.
+Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's best tools into a single package. The JavaScript world relies on several companion libraries that are essential to any serious Tailwind project — so we ported them too:
+
+- **[clsx](https://github.com/lukeed/clsx)** — Conditionally construct class strings (`cn('btn', isActive && 'btn-active')`)
+- **[tailwind-merge](https://github.com/dcastil/tailwind-merge)** — Intelligently merge classes without conflicts (`merge('p-2', 'p-4')` → `'p-4'`)
+- **[CVA](https://github.com/joe-bell/cva)** — Create component variants with type-safe props (`variants({ size: { sm, md, lg } })`)
+
+One `composer require`, everything you need.
 
 ## Table of Contents
 
