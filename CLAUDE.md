@@ -607,7 +607,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,168 tests (all passing)**
+**Total: 3,179 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -659,7 +659,7 @@ PHP ports of utility libraries with tests extracted from their reference impleme
 | `UtilitiesTest.php` | ✅ | 904 |
 | `ModifiersTest.php` | ✅ | 338 |
 | `VariantsTest.php` | ✅ | 282 |
-| `DirectivesTest.php` | ✅ | 160 |
+| `DirectivesTest.php` | ✅ | 171 |
 | `PluginsTest.php` | ✅ | 61 |
 
 These tests provide exhaustive coverage of the TailwindPHP public API including:
@@ -669,7 +669,8 @@ These tests provide exhaustive coverage of the TailwindPHP public API including:
 - Deep variant stacking (3-4 levels)
 - Arbitrary values for all utility types
 - Container queries, aria/data attributes
-- @apply, @theme, @utility directives
+- @apply, @theme, @utility, @layer directives
+- @import 'tailwindcss/preflight' and preflight option
 - @plugin directive and plugin system (typography, forms)
 
 ### Unit Tests (ported from TypeScript)

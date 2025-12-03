@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,168%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,179%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -16,6 +16,7 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
 - [Status](#status)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Preflight (CSS Reset)](#preflight-css-reset)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [clsx()](#clsx)
@@ -47,12 +48,13 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
+- Preflight CSS reset via `@import 'tailwindcss/preflight'` or `preflight: true`
 - Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
 - `cn()`, `clsx()`, `twMerge()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
 **What's NOT included (for now):**
-- File system access — No `@import` file resolution, no reading CSS files
+- File-based `@import` — No file system access. Virtual modules (`tailwindcss/preflight`, etc.) work
 - Custom JS plugins — Built-in plugins work, but custom `tailwind.config.js` plugins don't
 - IDE tooling — No IntelliSense, autocomplete, or source maps
 
@@ -60,7 +62,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 
 ## Status
 
-✅ **3,168 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,179 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -72,7 +74,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 
 ### Not Supported
 
-- `@import` — No file system access, preprocess imports before passing to this library
+- `@import` with file paths — No file system access (e.g., `@import './styles.css'`). Virtual modules work: `tailwindcss`, `tailwindcss/preflight`, `tailwindcss/utilities`
 - Custom JS plugins — Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`) work via PHP ports
 - IDE tooling — No IntelliSense, autocomplete, or source maps
 
@@ -135,6 +137,51 @@ $css = Tailwind::generate([
     '
 ]);
 ```
+
+### Preflight (CSS Reset)
+
+Preflight is Tailwind's base CSS reset. Include it using the `preflight` option or `@import`:
+
+```php
+// Option 1: Using preflight option (recommended)
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'preflight' => true,
+]);
+
+// Option 2: Using @import directive
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'css' => "
+        @import 'tailwindcss/preflight' layer(base);
+        @tailwind utilities;
+    ",
+]);
+```
+
+Preflight includes:
+- Box-sizing reset (`box-sizing: border-box` on all elements)
+- Margin/padding removal
+- Border reset for easier utility usage
+- Sensible defaults for typography, forms, images
+
+You can extend preflight with custom base styles using `@layer base`:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<div class="flex">',
+    'css' => "
+        @import 'tailwindcss/preflight' layer(base);
+        @tailwind utilities;
+        @layer base {
+            h1 { font-size: 2rem; font-weight: bold; }
+            a { color: blue; text-decoration: underline; }
+        }
+    ",
+]);
+```
+
+To disable preflight, simply don't include it (it's off by default).
 
 ### Extract Class Names
 

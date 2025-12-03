@@ -431,6 +431,21 @@ function parseCss(array &$ast, array $options = []): array
 
                     return WalkAction::Replace([$utilityNode]);
                 }
+
+                // Handle 'tailwindcss/preflight' - CSS reset/base styles
+                if ($importPath === 'tailwindcss/preflight' || $importPath === 'tailwindcss/preflight.css') {
+                    $preflightCss = file_get_contents(__DIR__.'/../resources/preflight.css');
+                    $preflightAst = parse($preflightCss);
+
+                    // Check for layer(base) modifier
+                    if (str_contains($modifiers, 'layer(base)')) {
+                        return WalkAction::Replace([
+                            atRule('@layer', 'base', $preflightAst),
+                        ]);
+                    }
+
+                    return WalkAction::Replace($preflightAst);
+                }
             }
 
             // For other imports, leave as-is (will be output in final CSS)
@@ -1206,9 +1221,9 @@ function extractKeyframeNames(string $value): array
  *
  * Accepts either:
  * 1. A string (HTML content to scan for classes)
- * 2. An array with 'content' and optional 'css' keys
+ * 2. An array with 'content' and optional 'css' and 'preflight' keys
  *
- * @param string|array $input HTML string or array with 'content' and 'css' keys
+ * @param string|array $input HTML string or array with 'content', 'css', and 'preflight' keys
  * @param string $css Optional CSS with @tailwind directives (only used if $input is string)
  * @return string Generated CSS
  *
@@ -1220,15 +1235,28 @@ function extractKeyframeNames(string $value): array
  *       'content' => '<div class="flex p-4">Hello</div>',
  *       'css' => '@tailwind utilities; @theme { --color-brand: #3b82f6; }'
  *   ]);
+ *
+ * @example With preflight (CSS reset):
+ *   generate([
+ *       'content' => '<div class="flex p-4">Hello</div>',
+ *       'preflight' => true
+ *   ]);
  */
 function generate(string|array $input, string $css = '@tailwind utilities;'): string
 {
     // Handle array input
+    $preflight = false;
     if (is_array($input)) {
         $content = $input['content'] ?? '';
         $css = $input['css'] ?? '@tailwind utilities;';
+        $preflight = $input['preflight'] ?? false;
     } else {
         $content = $input;
+    }
+
+    // Prepend preflight import if requested
+    if ($preflight) {
+        $css = "@import 'tailwindcss/preflight' layer(base);\n".$css;
     }
 
     // Extract class names from content

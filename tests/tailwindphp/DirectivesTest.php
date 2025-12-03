@@ -572,4 +572,131 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString(':focus', $css);
         $this->assertStringContainsString('.card', $css);
     }
+
+    // =========================================================================
+    // @import 'tailwindcss/preflight' - CSS RESET
+    // =========================================================================
+
+    public function test_preflight_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('margin: 0', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_preflight_import_with_css_extension(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "@import 'tailwindcss/preflight.css'; @tailwind utilities;",
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_preflight_import_with_layer_base(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "@import 'tailwindcss/preflight' layer(base); @tailwind utilities;",
+        ]);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_preflight_option_true(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_preflight_option_false(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => false,
+        ]);
+        $this->assertStringNotContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_preflight_includes_html_styles(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
+        ]);
+        $this->assertStringContainsString('line-height: 1.5', $css);
+        $this->assertStringContainsString('tab-size: 4', $css);
+    }
+
+    public function test_preflight_includes_form_resets(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
+        ]);
+        // Preflight includes form element resets
+        $this->assertStringContainsString('button', $css);
+        $this->assertStringContainsString('input', $css);
+    }
+
+    public function test_preflight_includes_image_resets(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<img class="flex">',
+            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
+        ]);
+        $this->assertStringContainsString('img', $css);
+        $this->assertStringContainsString('max-width: 100%', $css);
+    }
+
+    public function test_preflight_with_theme(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="bg-brand">',
+            'css' => "
+                @import 'tailwindcss/preflight';
+                @tailwind utilities;
+                @theme { --color-brand: #ff0000; }
+            ",
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('--color-brand', $css);
+    }
+
+    public function test_preflight_with_custom_css(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "
+                @import 'tailwindcss/preflight';
+                @tailwind utilities;
+                .custom { color: red; }
+            ",
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('.custom', $css);
+        $this->assertStringContainsString('color: red', $css);
+    }
+
+    public function test_preflight_option_with_custom_css(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@tailwind utilities; .custom { color: blue; }',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('.custom', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
 }
