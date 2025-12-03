@@ -833,4 +833,109 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('@layer base', $css);
         $this->assertStringContainsString('font-size: 2rem', $css);
     }
+
+    // =========================================================================
+    // IMPORT EDGE CASES
+    // =========================================================================
+
+    public function test_import_without_layer_modifier(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities";',
+        ]);
+        // Should work without layer() modifier
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringNotContainsString('@layer', $css);
+    }
+
+    public function test_import_theme_without_utilities(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme);',
+        ]);
+        // Theme should load but no utilities generated
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringNotContainsString('display: flex', $css);
+    }
+
+    public function test_import_with_single_quotes(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => "@import 'tailwindcss/utilities.css' layer(utilities);",
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_multiple_layer_declarations(): void
+    {
+        // Multiple @layer declarations should all pass through
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @layer reset, base;
+                @layer components, utilities;
+                @tailwind utilities;
+            ',
+        ]);
+        $this->assertStringContainsString('@layer reset, base;', $css);
+        $this->assertStringContainsString('@layer components, utilities;', $css);
+    }
+
+    public function test_layer_with_content_preserved(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @layer components {
+                    .btn { padding: 1rem; }
+                }
+                @tailwind utilities;
+            ',
+        ]);
+        $this->assertStringContainsString('@layer components', $css);
+        $this->assertStringContainsString('.btn', $css);
+        $this->assertStringContainsString('padding: 1rem', $css);
+    }
+
+    public function test_import_utilities_with_layer_and_important(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities) important;',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('!important', $css);
+    }
+
+    public function test_theme_variables_available_in_utilities(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="font-sans">',
+            'css' => '
+                @import "tailwindcss/theme.css" layer(theme);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        $this->assertStringContainsString('--font-sans', $css);
+        $this->assertStringContainsString('font-family:', $css);
+    }
+
+    public function test_preflight_before_utilities_order(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        // Preflight should appear before utilities in output
+        $preflightPos = strpos($css, 'box-sizing: border-box');
+        $utilitiesPos = strpos($css, 'display: flex');
+        $this->assertLessThan($utilitiesPos, $preflightPos);
+    }
 }
