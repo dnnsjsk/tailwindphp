@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.1', '8.2', '8.3', '8.4']
+        php: ['8.2', '8.3', '8.4']
 
     name: PHP ${{ matrix.php }}
 
@@ -27,10 +27,6 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: mbstring
           coverage: none
-
-      - name: Remove Pint for PHP 8.1
-        if: matrix.php == '8.1'
-        run: composer remove laravel/pint --dev --no-update
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress

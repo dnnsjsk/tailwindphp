@@ -2,7 +2,7 @@
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
 [![Tests](https://img.shields.io/badge/Tests-3,083%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
-[![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?logo=php&logoColor=white)](https://php.net)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
 
@@ -350,7 +350,7 @@ The companion libraries also have tests extracted from their reference implement
 
 ### Requirements
 
-- PHP 8.1+
+- PHP 8.2+
 - Composer
 
 ## Development
