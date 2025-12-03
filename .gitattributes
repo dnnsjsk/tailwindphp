@@ -1,0 +1,26 @@
+# Exclude development files from distribution archives
+# These are not included when users install via composer require
+
+# Test files
+/tests export-ignore
+/test-coverage export-ignore
+/benchmarks export-ignore
+*.test.php export-ignore
+phpunit.xml export-ignore
+.phpunit.cache export-ignore
+
+# Static analysis and linting
+phpstan.neon export-ignore
+pint.json export-ignore
+
+# CI/CD and development
+/.github export-ignore
+/scripts export-ignore
+/reference export-ignore
+
+# Documentation (keep README.md and LICENSE)
+CLAUDE.md export-ignore
+
+# Git files
+.gitignore export-ignore
+.gitmodules export-ignore
