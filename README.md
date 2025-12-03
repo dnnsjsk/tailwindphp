@@ -494,7 +494,13 @@ All implementation files are documented with `@port-deviation` markers explainin
 
 ## Testing
 
-Tests are automatically extracted from TailwindCSS's TypeScript test suite and compared against our PHP output. This ensures the port stays in sync with the original.
+Tests ensure the PHP port stays in sync with TailwindCSS's TypeScript implementation. We use two approaches:
+
+### Test Types
+
+1. **Extraction-based tests** — Tests automatically extracted from TailwindCSS's `.test.ts` files using scripts in `test-coverage/`. These cover complex utilities, variants, and integration tests.
+
+2. **Unit test ports** — Direct PHP ports of simpler TypeScript test files (AST, parsing, escaping, etc.). These live alongside their source files as `*.test.php`.
 
 ### Running Tests
 
@@ -515,22 +521,34 @@ composer test
 ./vendor/bin/phpunit src/_tailwindphp/lib/
 ```
 
-### How It Works
+### How Extraction Works
 
-1. **Extract** — Scripts in `test-coverage/` parse TailwindCSS's `.test.ts` files and extract test cases
+1. **Extract** — Scripts in `test-coverage/` parse TailwindCSS's `.test.ts` files and extract test cases to JSON
 2. **Run** — PHPUnit tests read extracted data and compare PHP output against expected CSS
 3. **Verify** — Any mismatch means the PHP port has drifted from TailwindCSS behavior
 
-### Library Test Coverage
+### Test Coverage
 
-The companion libraries also have tests extracted from their reference implementations:
-
-| Library | Reference | Tests | Coverage |
-|---------|-----------|-------|----------|
-| clsx | [lukeed/clsx](https://github.com/lukeed/clsx) | 27 | 100% |
-| tailwind-merge | [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge) | 52 | 78% of applicable* |
-
-*Some tailwind-merge tests require custom configuration or exports not applicable to PHP.
+| Category | Tests | Source |
+|----------|-------|--------|
+| **Extraction-based** | | |
+| utilities.test.php | 547 | utilities.test.ts |
+| variants.test.php | 139 | variants.test.ts |
+| index.test.php | 78 | index.test.ts |
+| css_functions.test.php | 60 | css-functions.test.ts |
+| ui_spec.test.php | 68 | ui.spec.ts |
+| **Unit test ports** | | |
+| css_parser.test.php | 70 | css-parser.test.ts |
+| candidate.test.php | 66 | candidate.test.ts |
+| decode_arbitrary_value.test.php | 60 | decode-arbitrary-value.test.ts |
+| ast.test.php | 18 | ast.test.ts |
+| escape.test.php | 10 | escape.test.ts |
+| + 12 more unit test files | ~180 | Various .test.ts files |
+| **Library tests** | | |
+| clsx.test.php | 27 | clsx/test/*.js |
+| tailwind_merge.test.php | 52 | tailwind-merge/tests/*.ts |
+| **API coverage tests** | 1,684 | Custom exhaustive tests |
+| **Plugin tests** | 25 | Plugin functionality |
 
 ### Requirements
 

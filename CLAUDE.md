@@ -185,14 +185,18 @@ composer quality   # Run both lint + analyse
 ### Test Types
 
 1. **Extraction-based tests** (`test-coverage/` directory)
-   - Tests extracted from TailwindCSS TypeScript source
-   - Stored as `.ts` or `.json` files
-   - PHP test files parse these at runtime
+   - Tests extracted from TailwindCSS TypeScript source using extraction scripts
+   - Stored as `.json` files in `test-coverage/*/tests/`
+   - PHP test files load these via DataProvider at runtime
+   - Used for complex tests (utilities, variants, integration, css-functions, ui.spec)
    - **Must pass completely** - no exceptions
 
-2. **Unit tests** (`src/*.test.php`)
-   - PHPUnit tests for individual components
-   - Some load from `test-coverage/`, some are standalone
+2. **Unit test ports** (`src/*.test.php`)
+   - Direct PHP ports of simpler TypeScript test files
+   - NOT extracted - manually ported from corresponding `.test.ts` files
+   - Used for: AST, parsing, escaping, candidate parsing, value parsing, etc.
+   - Examples: `ast.test.php` ← `ast.test.ts`, `escape.test.php` ← `escape.test.ts`
+   - Test structure and assertions mirror the TypeScript originals
 
 ### Test Coverage Structure
 
