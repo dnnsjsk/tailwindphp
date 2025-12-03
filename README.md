@@ -27,8 +27,6 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
 - **[tailwind-merge](https://github.com/dcastil/tailwind-merge)** — Intelligently merge classes without conflicts (`merge('p-2', 'p-4')` → `'p-4'`)
 - **[CVA](https://github.com/joe-bell/cva)** — Create component variants with type-safe props (`variants({ size: { sm, md, lg } })`)
 
-No extra packages required — it's all included.
-
 ## Table of Contents
 
 - [Why This Exists](#why-this-exists)
