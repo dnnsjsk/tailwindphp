@@ -448,35 +448,27 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4">');
 
 ```php
 use function TailwindPHP\cn;
-use function TailwindPHP\clsx;
-use function TailwindPHP\twMerge;
-use function TailwindPHP\twJoin;
+use function TailwindPHP\merge;
+use function TailwindPHP\join;
 
-// cn() - Recommended: combines clsx + twMerge (shadcn/ui pattern)
+// cn() - Recommended: conditional classes + conflict resolution
 cn('px-2 py-1', 'px-4');                    // => 'py-1 px-4'
-cn('btn', ['btn-primary' => $active]);       // => 'btn btn-primary' (if $active)
+cn('btn', ['btn-primary' => $active]);      // => 'btn btn-primary' (if $active)
 
-// clsx() - Conditional class construction
-clsx('foo', ['bar' => true, 'baz' => false]); // => 'foo bar'
-clsx(['a', 'b'], 'c');                        // => 'a b c'
+// merge() - Conflict resolution only
+merge('px-2 py-1', 'px-4');                 // => 'py-1 px-4'
+merge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
 
-// twMerge() - Conflict resolution only
-twMerge('px-2 py-1', 'px-4');                // => 'py-1 px-4'
-twMerge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
-
-// twJoin() - Simple joining without conflict resolution
-twJoin('foo', 'bar', null);                  // => 'foo bar'
+// join() - Simple joining without conflict resolution
+join('foo', 'bar', null);                   // => 'foo bar'
 ```
 
-### Direct Library Access
+### Deprecated Aliases
 
-For advanced use cases, you can access the library implementations directly:
-
-```php
-use function TailwindPHP\Lib\Clsx\clsx;
-use function TailwindPHP\Lib\TailwindMerge\twMerge;
-use function TailwindPHP\Lib\TailwindMerge\cn;
-```
+The old function names are still available but deprecated:
+- `clsx()` → use `cn()` instead
+- `twMerge()` → use `merge()` instead
+- `twJoin()` → use `join()` instead
 
 ---
 

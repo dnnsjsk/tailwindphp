@@ -241,16 +241,16 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 
 ## Classname Utilities
 
-TailwindPHP includes PHP ports of the two most popular class name libraries in the Tailwind ecosystem. No additional packages required.
+TailwindPHP includes PHP ports of the popular Tailwind companion libraries. No additional packages required.
 
 ### `cn()`
 
-Combines `clsx` (conditional classes) with `twMerge` (conflict resolution). Same pattern as [shadcn/ui](https://ui.shadcn.com/).
+The recommended utility. Combines conditional class construction with intelligent conflict resolution.
 
 ```php
 use function TailwindPHP\cn;
 
-// Basic usage
+// Basic usage - conflicts are resolved
 cn('px-2 py-1', 'px-4');
 // => 'py-1 px-4' (px-4 overrides px-2)
 
@@ -283,72 +283,44 @@ function Button($variant = 'default', $size = 'md', $disabled = false, $classNam
 }
 ```
 
-### `clsx()`
+### `merge()`
 
-Port of [lukeed/clsx](https://github.com/lukeed/clsx). Construct class strings from various inputs.
-
-```php
-use function TailwindPHP\clsx;
-
-// Strings
-clsx('foo', 'bar');
-// => 'foo bar'
-
-// Objects (associative arrays) - keys with truthy values are included
-clsx(['foo' => true, 'bar' => false, 'baz' => true]);
-// => 'foo baz'
-
-// Arrays
-clsx(['foo', 'bar']);
-// => 'foo bar'
-
-// Mixed
-clsx('foo', ['bar' => true], ['baz', 'qux']);
-// => 'foo bar baz qux'
-
-// Falsy values are ignored
-clsx('foo', null, false, 'bar', undefined, 0, '');
-// => 'foo bar'
-```
-
-### `twMerge()`
-
-Port of [dcastil/tailwind-merge](https://github.com/dcastil/tailwind-merge). Merge Tailwind classes without style conflicts.
+Merge Tailwind classes, resolving conflicts. Later classes override earlier ones.
 
 ```php
-use function TailwindPHP\twMerge;
+use function TailwindPHP\merge;
 
 // Later classes override earlier conflicting ones
-twMerge('px-2 py-1 bg-red-500', 'px-4 bg-blue-500');
+merge('px-2 py-1 bg-red-500', 'px-4 bg-blue-500');
 // => 'py-1 px-4 bg-blue-500'
 
 // Works with variants
-twMerge('hover:bg-red-500', 'hover:bg-blue-500');
+merge('hover:bg-red-500', 'hover:bg-blue-500');
 // => 'hover:bg-blue-500'
 
 // Handles arbitrary values
-twMerge('text-[14px]', 'text-[16px]');
+merge('text-[14px]', 'text-[16px]');
 // => 'text-[16px]'
 
 // Non-conflicting classes are preserved
-twMerge('flex', 'items-center', 'justify-between');
+merge('flex', 'items-center', 'justify-between');
 // => 'flex items-center justify-between'
 ```
 
-### `twJoin()`
+### `join()`
 
-Join classes without conflict resolution.
+Join classes without conflict resolution. Use when you know there are no conflicts.
 
 ```php
-use function TailwindPHP\twJoin;
+use function TailwindPHP\join;
 
-twJoin('foo', 'bar', null, 'baz');
+join('foo', 'bar', null, 'baz');
 // => 'foo bar baz'
 ```
 
 ### Why include these?
 
-These are common companion libraries in the Tailwind ecosystem. Including PHP ports means no Node.js dependency for anything.
+These are essential companion utilities in the Tailwind ecosystem. Including PHP ports means no Node.js dependency for anything.
 
 ---
 
