@@ -170,6 +170,7 @@ For full details on what Preflight does and why, see the [official Tailwind Pref
 - **Images are block-level** — No more phantom space below images
 - **Border styles reset** — Empty borders so you can add borders just by setting `border-width`
 - **Buttons inherit fonts** — Buttons use the parent's font family, size, and line-height
+- **Hidden elements stay hidden** — Elements with a `hidden` attribute are invisible unless using `hidden="until-found"`
 
 ```php
 // Full import (includes theme + preflight + utilities)
@@ -177,27 +178,66 @@ $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'css' => '@import "tailwindcss";',
 ]);
-
-// Without preflight (utilities only)
-$css = Tailwind::generate([
-    'content' => '<div class="flex p-4">Hello</div>',
-    'css' => '@import "tailwindcss/utilities.css";',
-]);
 ```
 
-You can extend preflight with your own base styles using `@layer base`:
+#### Extending Preflight
+
+Add your own base styles on top of Preflight using `@layer base`:
 
 ```php
 $css = Tailwind::generate([
-    'content' => '<div class="flex">',
+    'content' => '<article><h1>Title</h1><p>Content</p></article>',
     'css' => '
         @import "tailwindcss";
         @layer base {
-            h1 { font-size: 2rem; font-weight: bold; }
-            a { color: theme(colors.blue.500); text-decoration: underline; }
+            h1 { font-size: var(--text-2xl); }
+            h2 { font-size: var(--text-xl); }
+            a { color: var(--color-blue-600); text-decoration-line: underline; }
         }
     ',
 ]);
+```
+
+#### Disabling Preflight
+
+To disable Preflight — for example when integrating into an existing project or defining your own base styles — import only the parts of Tailwind you need.
+
+By default, `@import "tailwindcss"` is equivalent to:
+
+```css
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+```
+
+To skip Preflight, simply omit its import:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'css' => '
+        @layer theme, base, components, utilities;
+        @import "tailwindcss/theme.css" layer(theme);
+        @import "tailwindcss/utilities.css" layer(utilities);
+    ',
+]);
+```
+
+#### Import Modifiers
+
+When importing Tailwind's files individually, modifiers like `prefix()`, `theme()`, and `important` should go on their respective imports:
+
+```css
+/* Prefix affects both theme variables and utilities */
+@import "tailwindcss/theme.css" layer(theme) prefix(tw);
+@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
+
+/* important affects utilities */
+@import "tailwindcss/utilities.css" layer(utilities) important;
+
+/* theme(static) or theme(inline) affects theme variables */
+@import "tailwindcss/theme.css" layer(theme) theme(static);
 ```
 
 ### Extract Class Names
