@@ -36,7 +36,7 @@ class TestHelper
     {
         // Compile fresh each time to avoid candidate accumulation
         // Spec tests provide their own @theme in CSS, so don't load default theme
-        $compiled = compile('@tailwind utilities;', ['loadDefaultTheme' => false]);
+        $compiled = compile('@import "tailwindcss/utilities.css";', ['loadDefaultTheme' => false]);
         $css = $compiled['build']($candidates);
 
         return trim($css);

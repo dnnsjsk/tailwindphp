@@ -41,7 +41,7 @@ This port (for now) focuses on **string-to-string CSS compilation**. Full filesy
 
 ```php
 // Input: CSS string with Tailwind directives
-$input = '@tailwind utilities; @theme { --color-brand: #3b82f6; }';
+$input = '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }';
 
 // Output: Standard CSS string
 $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
@@ -49,7 +49,7 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
-- Preflight CSS reset via `@import 'tailwindcss/preflight'` or `preflight: true`
+- Preflight CSS reset via `@import "tailwindcss"` or `@import "tailwindcss/preflight.css"`
 - Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
 - `cn()`, `clsx()`, `twMerge()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
@@ -119,13 +119,13 @@ You can pass configuration as either a second parameter or an array:
 
 ```php
 // Option 1: String as second parameter
-$css = Tailwind::generate($html, '@tailwind utilities; @theme { --color-brand: #3b82f6; }');
+$css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // Option 2: Array with 'content' and 'css' keys
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4 bg-brand">Hello</div>',
     'css' => '
-        @tailwind utilities;
+        @import "tailwindcss";
 
         @theme {
             --color-brand: #3b82f6;
@@ -141,22 +141,30 @@ $css = Tailwind::generate([
 
 ### Preflight (CSS Reset)
 
-Preflight is Tailwind's base CSS reset. Include it using the `preflight` option or `@import`:
+Preflight is Tailwind's base CSS reset. There are several ways to include it:
 
 ```php
-// Option 1: Using preflight option (recommended)
+// Option 1: Full import (includes theme + preflight + utilities)
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
-    'preflight' => true,
+    'css' => '@import "tailwindcss";',
 ]);
 
-// Option 2: Using @import directive
+// Option 2: Granular imports with layers
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
-    'css' => "
-        @import 'tailwindcss/preflight' layer(base);
-        @tailwind utilities;
-    ",
+    'css' => '
+        @layer theme, base, components, utilities;
+        @import "tailwindcss/theme.css" layer(theme);
+        @import "tailwindcss/preflight.css" layer(base);
+        @import "tailwindcss/utilities.css" layer(utilities);
+    ',
+]);
+
+// Option 3: Utilities only (no preflight)
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'css' => '@import "tailwindcss/utilities.css";',
 ]);
 ```
 
@@ -171,18 +179,17 @@ You can extend preflight with custom base styles using `@layer base`:
 ```php
 $css = Tailwind::generate([
     'content' => '<div class="flex">',
-    'css' => "
-        @import 'tailwindcss/preflight' layer(base);
-        @tailwind utilities;
+    'css' => '
+        @import "tailwindcss";
         @layer base {
             h1 { font-size: 2rem; font-weight: bold; }
             a { color: blue; text-decoration: underline; }
         }
-    ",
+    ',
 ]);
 ```
 
-To disable preflight, simply don't include it (it's off by default).
+To skip preflight, import only utilities: `@import "tailwindcss/utilities.css";`
 
 ### Full Tailwind Setup
 
@@ -365,7 +372,7 @@ $css = Tailwind::generate([
     'content' => '<article class="prose prose-lg"><h1>Hello</h1><p>Content here</p></article>',
     'css' => '
         @plugin "@tailwindcss/typography";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
     '
 ]);
 ```
@@ -380,7 +387,7 @@ $css = '
     @plugin "@tailwindcss/typography" {
         className: "markdown";
     }
-    @tailwind utilities;
+    @import "tailwindcss/utilities.css";
 ';
 
 // Forms with class strategy (no base styles)
@@ -388,7 +395,7 @@ $css = '
     @plugin "@tailwindcss/forms" {
         strategy: "class";
     }
-    @tailwind utilities;
+    @import "tailwindcss/utilities.css";
 ';
 ```
 
@@ -398,7 +405,7 @@ Generates the `.prose` class with beautiful typographic defaults:
 
 ```php
 // Basic usage
-$css = Tailwind::generate('<div class="prose">...</div>', '@plugin "@tailwindcss/typography"; @tailwind utilities;');
+$css = Tailwind::generate('<div class="prose">...</div>', '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
 
 // Available classes: prose, prose-sm, prose-lg, prose-xl, prose-2xl
 // Modifiers: prose-invert (dark mode), prose-slate, prose-gray, etc.
@@ -412,7 +419,7 @@ Provides form element utilities:
 // Class strategy - explicit form classes
 $css = Tailwind::generate(
     '<input class="form-input" /><select class="form-select">...</select>',
-    '@plugin "@tailwindcss/forms" { strategy: "class"; } @tailwind utilities;'
+    '@plugin "@tailwindcss/forms" { strategy: "class"; } @import "tailwindcss/utilities.css";'
 );
 
 // Available classes: form-input, form-textarea, form-select, form-multiselect,
@@ -495,7 +502,7 @@ registerPlugin(new MyCustomPlugin());
 // Use it in CSS
 $css = Tailwind::generate(
     '<div class="btn btn-primary card tab-4">...</div>',
-    '@plugin "my-custom-plugin"; @tailwind utilities;'
+    '@plugin "my-custom-plugin"; @import "tailwindcss/utilities.css";'
 );
 ```
 

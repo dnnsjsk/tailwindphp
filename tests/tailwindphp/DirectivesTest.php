@@ -8,33 +8,183 @@ use PHPUnit\Framework\TestCase;
 use TailwindPHP\Tailwind;
 
 /**
- * Comprehensive tests for Tailwind CSS directives.
+ * Comprehensive tests for Tailwind CSS v4 directives and imports.
  */
 class DirectivesTest extends TestCase
 {
     // =========================================================================
-    // @tailwind DIRECTIVE
+    // @import "tailwindcss" - FULL IMPORT
     // =========================================================================
 
-    public function test_tailwind_utilities_directive(): void
+    public function test_full_import(): void
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex p-4">',
-            'css' => '@tailwind utilities;',
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('display: flex', $css);
         $this->assertStringContainsString('padding:', $css);
     }
 
-    public function test_tailwind_utilities_with_content_classes(): void
+    public function test_full_import_includes_preflight(): void
     {
         $css = Tailwind::generate([
-            'content' => '<div class="flex grid hidden">',
-            'css' => '@tailwind utilities;',
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss";',
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_full_import_includes_theme(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="font-sans">',
+            'css' => '@import "tailwindcss";',
+        ]);
+        $this->assertStringContainsString('--font-sans', $css);
+    }
+
+    public function test_default_generate_uses_full_import(): void
+    {
+        // Default generate() should use @import "tailwindcss"
+        $css = Tailwind::generate('<div class="flex p-4">');
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    // =========================================================================
+    // @import "tailwindcss/utilities.css"
+    // =========================================================================
+
+    public function test_utilities_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex p-4">',
+            'css' => '@import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('display: flex', $css);
-        $this->assertStringContainsString('display: grid', $css);
-        $this->assertStringContainsString('display: none', $css);
+        $this->assertStringContainsString('padding:', $css);
+    }
+
+    public function test_utilities_import_with_css_extension(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_utilities_import_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities);',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_utilities_import_with_important(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" important;',
+        ]);
+        $this->assertStringContainsString('!important', $css);
+    }
+
+    public function test_utilities_import_with_layer_and_important(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities) important;',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('!important', $css);
+    }
+
+    // =========================================================================
+    // @import "tailwindcss/theme"
+    // =========================================================================
+
+    public function test_theme_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('--font-sans:', $css);
+    }
+
+    public function test_theme_import_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme); @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('--font-sans:', $css);
+    }
+
+    public function test_theme_import_without_utilities(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme);',
+        ]);
+        // Theme should load but no utilities generated
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringNotContainsString('display: flex', $css);
+    }
+
+    // =========================================================================
+    // @import "tailwindcss/preflight"
+    // =========================================================================
+
+    public function test_preflight_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/preflight"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('margin: 0', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_preflight_import_with_css_extension(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/preflight.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_preflight_import_with_layer_base(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/preflight" layer(base); @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    // =========================================================================
+    // GRANULAR IMPORTS (without preflight)
+    // =========================================================================
+
+    public function test_granular_imports_without_preflight(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringNotContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('display: flex', $css);
     }
 
     // =========================================================================
@@ -45,7 +195,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand text-brand">',
-            'css' => '@tailwind utilities; @theme { --color-brand: #3b82f6; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --color-brand: #3b82f6; }',
         ]);
         $this->assertStringContainsString('--color-brand:', $css);
         $this->assertStringContainsString('background-color:', $css);
@@ -56,17 +206,16 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="p-huge m-huge">',
-            'css' => '@tailwind utilities; @theme { --spacing-huge: 100px; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --spacing-huge: 100px; }',
         ]);
         $this->assertStringContainsString('--spacing-huge:', $css);
     }
 
     public function test_theme_custom_font_family(): void
     {
-        // In Tailwind 4, font families use --font-* (not --font-family-*)
         $css = Tailwind::generate([
             'content' => '<div class="font-custom">',
-            'css' => '@tailwind utilities; @theme { --font-custom: "Comic Sans MS", cursive; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --font-custom: "Comic Sans MS", cursive; }',
         ]);
         $this->assertStringContainsString('font-family:', $css);
         $this->assertStringContainsString('--font-custom', $css);
@@ -74,10 +223,9 @@ class DirectivesTest extends TestCase
 
     public function test_theme_custom_font_size(): void
     {
-        // In Tailwind 4, font sizes use --text-* (not --font-size-*)
         $css = Tailwind::generate([
             'content' => '<div class="text-custom">',
-            'css' => '@tailwind utilities; @theme { --text-custom: 18px; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --text-custom: 18px; }',
         ]);
         $this->assertStringContainsString('font-size:', $css);
     }
@@ -86,7 +234,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="custom:flex">',
-            'css' => '@tailwind utilities; @theme { --breakpoint-custom: 900px; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --breakpoint-custom: 900px; }',
         ]);
         $this->assertStringContainsString('@media', $css);
         $this->assertStringContainsString('900px', $css);
@@ -97,7 +245,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-primary text-secondary p-custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --color-primary: #ff0000;
                     --color-secondary: #00ff00;
@@ -114,14 +262,12 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-primary">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme reference {
                     --color-primary: #ff0000;
                 }
             ',
         ]);
-        // Reference theme values should generate utility with fallback but not add to :root theme block
-        // Note: default theme fonts still appear in :root output
         $this->assertStringContainsString('bg-primary', $css);
         $this->assertStringContainsString('var(--color-primary', $css);
     }
@@ -131,14 +277,12 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme inline {
                     --color-brand: #ff0000;
                 }
             ',
         ]);
-        // Inline theme values should not appear as CSS variables in :root
-        // but the utility should still work
         $this->assertStringContainsString('background-color:', $css);
     }
 
@@ -147,7 +291,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="animate-custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --animate-custom: custom 1s ease-in-out infinite;
                     @keyframes custom {
@@ -166,7 +310,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="tw:bg-brand tw:p-4">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme prefix(tw) {
                     --color-brand: #ff0000;
                 }
@@ -180,13 +324,12 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme static {
                     --color-always-present: #ff0000;
                 }
             ',
         ]);
-        // Static theme values should always be present
         $this->assertStringContainsString('--color-always-present:', $css);
     }
 
@@ -199,14 +342,13 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .btn {
                     @apply px-4 py-2 bg-blue-500;
                 }
             ',
         ]);
         $this->assertStringContainsString('.btn', $css);
-        // Tailwind 4 uses logical properties for padding
         $this->assertStringContainsString('padding-inline:', $css);
         $this->assertStringContainsString('padding-block:', $css);
     }
@@ -216,7 +358,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="card">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .card {
                     @apply rounded-lg shadow-md p-6 bg-white;
                 }
@@ -232,7 +374,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .btn {
                     @apply bg-blue-500 hover:bg-blue-600;
                 }
@@ -246,7 +388,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .btn {
                     @apply !flex;
                 }
@@ -260,7 +402,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #ff0000; }
                 .btn {
                     @apply bg-brand text-white;
@@ -275,7 +417,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="container">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .container {
                     @apply px-4 md:px-6 lg:px-8;
                 }
@@ -289,7 +431,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="card">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .card {
                     h2 {
                         @apply text-xl font-bold;
@@ -306,7 +448,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="container">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @media (min-width: 768px) {
                     .container {
                         @apply flex;
@@ -328,7 +470,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="content-auto">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility content-auto {
                     content-visibility: auto;
                 }
@@ -342,7 +484,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn-primary">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility btn-primary {
                     @apply px-4 py-2 bg-blue-500 text-white rounded;
                 }
@@ -357,13 +499,12 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="tab-4">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility tab-* {
                     tab-size: --value(--tab-size, integer);
                 }
             ',
         ]);
-        // Functional utilities need --value support - may or may not work depending on implementation
         $this->assertIsString($css);
     }
 
@@ -372,7 +513,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="hover:content-auto">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility content-auto {
                     content-visibility: auto;
                 }
@@ -387,7 +528,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="my-utility">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility my-utility {
                     color: red;
                     &:hover {
@@ -409,7 +550,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="hocus:bg-blue-500">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant hocus (&:hover, &:focus);
             ',
         ]);
@@ -422,7 +563,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="child:mt-4">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant child {
                     & > * {
                         @slot;
@@ -438,7 +579,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="tablet:flex">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant tablet (@media (min-width: 600px));
             ',
         ]);
@@ -451,7 +592,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="sm:hocus:bg-blue-500">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant hocus (&:hover, &:focus);
             ',
         ]);
@@ -464,7 +605,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="loading:opacity-50">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant loading (&[data-loading="true"]);
             ',
         ]);
@@ -476,7 +617,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="sidebar-open:translate-x-0">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @custom-variant sidebar-open {
                     .sidebar-open & {
                         @slot;
@@ -493,13 +634,11 @@ class DirectivesTest extends TestCase
 
     public function test_source_directive_is_parsed(): void
     {
-        // @source directive is parsed but file system access is not supported
-        // This test just ensures it doesn't throw an error
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
             'css' => '
                 @source "./src/**/*.html";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('display: flex', $css);
@@ -514,7 +653,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand content-auto">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #ff0000; }
                 @utility content-auto { content-visibility: auto; }
             ',
@@ -528,7 +667,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="hocus:bg-brand">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #ff0000; }
                 @custom-variant hocus (&:hover, &:focus);
             ',
@@ -542,7 +681,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="card">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @utility content-auto { content-visibility: auto; }
                 .card {
                     @apply content-auto p-4;
@@ -558,7 +697,7 @@ class DirectivesTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="card hocus:bg-brand">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #ff0000; }
                 @custom-variant hocus (&:hover, &:focus);
                 @utility content-auto { content-visibility: auto; }
@@ -574,133 +713,6 @@ class DirectivesTest extends TestCase
     }
 
     // =========================================================================
-    // @import 'tailwindcss/preflight' - CSS RESET
-    // =========================================================================
-
-    public function test_preflight_import(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('margin: 0', $css);
-        $this->assertStringContainsString('display: flex', $css);
-    }
-
-    public function test_preflight_import_with_css_extension(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => "@import 'tailwindcss/preflight.css'; @tailwind utilities;",
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-    }
-
-    public function test_preflight_import_with_layer_base(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => "@import 'tailwindcss/preflight' layer(base); @tailwind utilities;",
-        ]);
-        $this->assertStringContainsString('@layer base', $css);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-    }
-
-    public function test_preflight_option_true(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'preflight' => true,
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('@layer base', $css);
-        $this->assertStringContainsString('display: flex', $css);
-    }
-
-    public function test_preflight_option_false(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'preflight' => false,
-        ]);
-        $this->assertStringNotContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('display: flex', $css);
-    }
-
-    public function test_preflight_includes_html_styles(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
-        ]);
-        $this->assertStringContainsString('line-height: 1.5', $css);
-        $this->assertStringContainsString('tab-size: 4', $css);
-    }
-
-    public function test_preflight_includes_form_resets(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<input class="flex">',
-            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
-        ]);
-        // Preflight includes form element resets
-        $this->assertStringContainsString('button', $css);
-        $this->assertStringContainsString('input', $css);
-    }
-
-    public function test_preflight_includes_image_resets(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<img class="flex">',
-            'css' => "@import 'tailwindcss/preflight'; @tailwind utilities;",
-        ]);
-        $this->assertStringContainsString('img', $css);
-        $this->assertStringContainsString('max-width: 100%', $css);
-    }
-
-    public function test_preflight_with_theme(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="bg-brand">',
-            'css' => "
-                @import 'tailwindcss/preflight';
-                @tailwind utilities;
-                @theme { --color-brand: #ff0000; }
-            ",
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('--color-brand', $css);
-    }
-
-    public function test_preflight_with_custom_css(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => "
-                @import 'tailwindcss/preflight';
-                @tailwind utilities;
-                .custom { color: red; }
-            ",
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('.custom', $css);
-        $this->assertStringContainsString('color: red', $css);
-    }
-
-    public function test_preflight_option_with_custom_css(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@tailwind utilities; .custom { color: blue; }',
-            'preflight' => true,
-        ]);
-        $this->assertStringContainsString('box-sizing: border-box', $css);
-        $this->assertStringContainsString('.custom', $css);
-        $this->assertStringContainsString('display: flex', $css);
-    }
-
-    // =========================================================================
     // @layer ORDER DECLARATIONS
     // =========================================================================
 
@@ -708,7 +720,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@layer theme, base, components, utilities; @tailwind utilities;',
+            'css' => '@layer theme, base, components, utilities; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
         $this->assertStringContainsString('display: flex', $css);
@@ -718,64 +730,39 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@layer base, utilities; @tailwind utilities;',
+            'css' => '@layer base, utilities; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@layer base, utilities;', $css);
     }
 
-    // =========================================================================
-    // @import 'tailwindcss/utilities.css' VARIANTS
-    // =========================================================================
-
-    public function test_import_utilities_css(): void
+    public function test_multiple_layer_declarations(): void
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/utilities.css";',
+            'css' => '
+                @layer reset, base;
+                @layer components, utilities;
+                @import "tailwindcss/utilities.css";
+            ',
         ]);
-        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringContainsString('@layer reset, base;', $css);
+        $this->assertStringContainsString('@layer components, utilities;', $css);
     }
 
-    public function test_import_utilities_css_with_layer(): void
+    public function test_layer_with_content_preserved(): void
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/utilities.css" layer(utilities);',
+            'css' => '
+                @layer components {
+                    .btn { padding: 1rem; }
+                }
+                @import "tailwindcss/utilities.css";
+            ',
         ]);
-        $this->assertStringContainsString('@layer utilities', $css);
-        $this->assertStringContainsString('display: flex', $css);
-    }
-
-    public function test_import_utilities_with_important(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/utilities" important;',
-        ]);
-        $this->assertStringContainsString('!important', $css);
-    }
-
-    // =========================================================================
-    // @import 'tailwindcss/theme.css' VARIANTS
-    // =========================================================================
-
-    public function test_import_theme_css(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css"; @tailwind utilities;',
-        ]);
-        $this->assertStringContainsString('--font-sans:', $css);
-    }
-
-    public function test_import_theme_css_with_layer(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" layer(theme); @tailwind utilities;',
-        ]);
-        $this->assertStringContainsString('@layer theme', $css);
-        $this->assertStringContainsString('--font-sans:', $css);
+        $this->assertStringContainsString('@layer components', $css);
+        $this->assertStringContainsString('.btn', $css);
+        $this->assertStringContainsString('padding: 1rem', $css);
     }
 
     // =========================================================================
@@ -842,22 +829,10 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/utilities";',
+            'css' => '@import "tailwindcss/utilities.css";',
         ]);
-        // Should work without layer() modifier
         $this->assertStringContainsString('display: flex', $css);
         $this->assertStringNotContainsString('@layer', $css);
-    }
-
-    public function test_import_theme_without_utilities(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" layer(theme);',
-        ]);
-        // Theme should load but no utilities generated
-        $this->assertStringContainsString('@layer theme', $css);
-        $this->assertStringNotContainsString('display: flex', $css);
     }
 
     public function test_import_with_single_quotes(): void
@@ -868,47 +843,6 @@ class DirectivesTest extends TestCase
         ]);
         $this->assertStringContainsString('@layer utilities', $css);
         $this->assertStringContainsString('display: flex', $css);
-    }
-
-    public function test_multiple_layer_declarations(): void
-    {
-        // Multiple @layer declarations should all pass through
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '
-                @layer reset, base;
-                @layer components, utilities;
-                @tailwind utilities;
-            ',
-        ]);
-        $this->assertStringContainsString('@layer reset, base;', $css);
-        $this->assertStringContainsString('@layer components, utilities;', $css);
-    }
-
-    public function test_layer_with_content_preserved(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '
-                @layer components {
-                    .btn { padding: 1rem; }
-                }
-                @tailwind utilities;
-            ',
-        ]);
-        $this->assertStringContainsString('@layer components', $css);
-        $this->assertStringContainsString('.btn', $css);
-        $this->assertStringContainsString('padding: 1rem', $css);
-    }
-
-    public function test_import_utilities_with_layer_and_important(): void
-    {
-        $css = Tailwind::generate([
-            'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/utilities.css" layer(utilities) important;',
-        ]);
-        $this->assertStringContainsString('@layer utilities', $css);
-        $this->assertStringContainsString('!important', $css);
     }
 
     public function test_theme_variables_available_in_utilities(): void
@@ -933,7 +867,6 @@ class DirectivesTest extends TestCase
                 @import "tailwindcss/utilities.css" layer(utilities);
             ',
         ]);
-        // Preflight should appear before utilities in output
         $preflightPos = strpos($css, 'box-sizing: border-box');
         $utilitiesPos = strpos($css, 'display: flex');
         $this->assertLessThan($utilitiesPos, $preflightPos);
@@ -945,12 +878,9 @@ class DirectivesTest extends TestCase
 
     public function test_source_none_on_theme_import(): void
     {
-        // source(none) tells Tailwind not to scan files for candidates
-        // In TailwindPHP this is a no-op since we don't do file scanning
-        // but we should accept the syntax without errors
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" source(none); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" source(none); @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('display: flex', $css);
     }
@@ -978,7 +908,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/preflight.css" layer(base) source(none); @tailwind utilities;',
+            'css' => '@import "tailwindcss/preflight.css" layer(base) source(none); @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@layer base', $css);
         $this->assertStringContainsString('box-sizing: border-box', $css);
@@ -1008,14 +938,10 @@ class DirectivesTest extends TestCase
 
     public function test_theme_static_modifier_on_import(): void
     {
-        // theme(static) makes all theme values always included in output
-        // even if they're not used by any utility
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" theme(static); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" theme(static); @import "tailwindcss/utilities.css";',
         ]);
-        // With theme(static), theme variables should be in output
-        // even though we're only using "flex" which doesn't need them
         $this->assertStringContainsString('--color-red-500', $css);
         $this->assertStringContainsString('--color-blue-500', $css);
     }
@@ -1024,7 +950,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static); @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@layer theme', $css);
         $this->assertStringContainsString('--color-red-500', $css);
@@ -1032,17 +958,15 @@ class DirectivesTest extends TestCase
 
     public function test_theme_static_directive_already_works(): void
     {
-        // Verify @theme static directive already works (it does)
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme static {
                     --color-always-here: #ff0000;
                 }
             ',
         ]);
-        // Static values should be in output even if unused
         $this->assertStringContainsString('--color-always-here:', $css);
     }
 
@@ -1052,44 +976,34 @@ class DirectivesTest extends TestCase
 
     public function test_theme_inline_modifier_on_import(): void
     {
-        // theme(inline) makes theme values be inlined directly rather than via CSS variables
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" theme(inline); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" theme(inline); @import "tailwindcss/utilities.css";',
         ]);
-        // With theme(inline), theme values are inlined - no CSS variables in :root
-        // This is a complex feature - for now just verify it doesn't error
         $this->assertStringContainsString('display: flex', $css);
     }
 
     public function test_theme_inline_with_layer(): void
     {
-        // With theme(inline), values are inlined directly into utilities
-        // rather than being CSS variables in :root. This means the @layer theme
-        // block will be empty and removed, since there are no CSS variables to output.
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(inline); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(inline); @import "tailwindcss/utilities.css";',
         ]);
-        // The utility should still work
         $this->assertStringContainsString('display: flex', $css);
-        // No @layer theme since all values are inlined (no CSS variables)
         $this->assertStringNotContainsString('@layer theme', $css);
     }
 
     public function test_theme_inline_directive_already_works(): void
     {
-        // Verify @theme inline directive already works
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme inline {
                     --color-brand: #ff0000;
                 }
             ',
         ]);
-        // Inline theme values should not appear as CSS variables
         $this->assertStringContainsString('background-color:', $css);
     }
 
@@ -1101,9 +1015,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="tw:flex tw:p-4">',
-            'css' => '@import "tailwindcss/theme.css" prefix(tw); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" prefix(tw); @import "tailwindcss/utilities.css";',
         ]);
-        // Prefix should apply to theme variables
         $this->assertStringContainsString('--tw-', $css);
     }
 
@@ -1113,7 +1026,6 @@ class DirectivesTest extends TestCase
             'content' => '<div class="tw:flex">',
             'css' => '@import "tailwindcss/utilities.css" prefix(tw);',
         ]);
-        // Utilities should work with prefix
         $this->assertStringContainsString('display: flex', $css);
     }
 
@@ -1161,7 +1073,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static) source(none); @tailwind utilities;',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static) source(none); @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@layer theme', $css);
         $this->assertStringContainsString('--color-red-500', $css);
@@ -1178,9 +1090,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Universal selector should have box-sizing: border-box
         $this->assertStringContainsString('box-sizing: border-box', $css);
     }
 
@@ -1188,9 +1099,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Universal selector should reset margins
         $this->assertStringContainsString('margin: 0', $css);
     }
 
@@ -1198,9 +1108,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Universal selector should reset padding
         $this->assertStringContainsString('padding: 0', $css);
     }
 
@@ -1208,9 +1117,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Universal selector should reset borders
         $this->assertStringContainsString('border: 0 solid', $css);
     }
 
@@ -1218,9 +1126,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Pseudo-elements should be included in reset
         $this->assertStringContainsString('::after', $css);
         $this->assertStringContainsString('::before', $css);
         $this->assertStringContainsString('::backdrop', $css);
@@ -1233,7 +1140,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('line-height: 1.5', $css);
     }
@@ -1242,7 +1149,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('-webkit-text-size-adjust: 100%', $css);
     }
@@ -1251,7 +1158,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('tab-size: 4', $css);
     }
@@ -1260,9 +1167,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Should include system font stack
         $this->assertStringContainsString('font-family:', $css);
         $this->assertStringContainsString('ui-sans-serif', $css);
         $this->assertStringContainsString('system-ui', $css);
@@ -1272,7 +1178,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('-webkit-tap-highlight-color: transparent', $css);
     }
@@ -1283,9 +1189,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<h1 class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Headings should inherit font-size and font-weight
         $this->assertMatchesRegularExpression('/h1.*font-size:\s*inherit/s', $css);
         $this->assertMatchesRegularExpression('/h1.*font-weight:\s*inherit/s', $css);
     }
@@ -1294,9 +1199,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // All heading levels should be included
         $this->assertMatchesRegularExpression('/h1,\s*h2,\s*h3,\s*h4,\s*h5,\s*h6/', $css);
     }
 
@@ -1304,7 +1208,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<ul class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('list-style: none', $css);
     }
@@ -1313,9 +1217,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // ol, ul, menu should all be unstyled
         $this->assertMatchesRegularExpression('/ol,\s*ul,\s*menu/', $css);
     }
 
@@ -1325,7 +1228,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<a class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/\ba\s*\{[^}]*color:\s*inherit/s', $css);
     }
@@ -1334,7 +1237,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<a class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('text-decoration: inherit', $css);
     }
@@ -1345,9 +1248,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<img class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Images should be display: block
         $this->assertMatchesRegularExpression('/img[^{]*\{[^}]*display:\s*block/s', $css);
     }
 
@@ -1355,7 +1257,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<img class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('max-width: 100%', $css);
     }
@@ -1364,7 +1266,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<img class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('height: auto', $css);
     }
@@ -1373,9 +1275,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Various media elements should be display: block
         $this->assertStringContainsString('svg', $css);
         $this->assertStringContainsString('video', $css);
         $this->assertStringContainsString('canvas', $css);
@@ -1387,7 +1288,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('vertical-align: middle', $css);
     }
@@ -1398,7 +1299,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('font: inherit', $css);
     }
@@ -1407,7 +1308,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('border-radius: 0', $css);
     }
@@ -1416,7 +1317,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('background-color: transparent', $css);
     }
@@ -1425,9 +1326,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // All form elements should be included
         $this->assertStringContainsString('button', $css);
         $this->assertStringContainsString('input', $css);
         $this->assertStringContainsString('select', $css);
@@ -1438,7 +1338,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<textarea class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('resize: vertical', $css);
     }
@@ -1447,7 +1347,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('::placeholder', $css);
         $this->assertStringContainsString('opacity: 1', $css);
@@ -1457,7 +1357,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<button class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('appearance: button', $css);
     }
@@ -1468,7 +1368,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<table class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('border-collapse: collapse', $css);
     }
@@ -1477,7 +1377,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<table class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/table\s*\{[^}]*border-color:\s*inherit/s', $css);
     }
@@ -1486,7 +1386,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<table class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/table\s*\{[^}]*text-indent:\s*0/s', $css);
     }
@@ -1497,7 +1397,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<hr class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/hr\s*\{[^}]*height:\s*0/s', $css);
         $this->assertStringContainsString('border-top-width: 1px', $css);
@@ -1507,7 +1407,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<abbr class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('abbr:where([title])', $css);
         $this->assertStringContainsString('underline dotted', $css);
@@ -1517,7 +1417,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<strong class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('font-weight: bolder', $css);
     }
@@ -1526,9 +1426,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<code class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Code elements should use mono font stack
         $this->assertStringContainsString('ui-monospace', $css);
         $this->assertStringContainsString('monospace', $css);
     }
@@ -1537,7 +1436,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<small class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/small\s*\{[^}]*font-size:\s*80%/s', $css);
     }
@@ -1546,7 +1445,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<sub class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('font-size: 75%', $css);
         $this->assertStringContainsString('line-height: 0', $css);
@@ -1557,7 +1456,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<summary class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/summary\s*\{[^}]*display:\s*list-item/s', $css);
     }
@@ -1566,7 +1465,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<progress class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertMatchesRegularExpression('/progress\s*\{[^}]*vertical-align:\s*baseline/s', $css);
     }
@@ -1577,9 +1476,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Hidden elements should be display: none !important
         $this->assertStringContainsString('[hidden]', $css);
         $this->assertStringContainsString('display: none !important', $css);
     }
@@ -1588,9 +1486,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Should exclude hidden="until-found"
         $this->assertStringContainsString("hidden='until-found'", $css);
     }
 
@@ -1600,7 +1497,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('::-webkit-search-decoration', $css);
         $this->assertStringContainsString('-webkit-appearance: none', $css);
@@ -1610,7 +1507,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('::-webkit-datetime-edit', $css);
         $this->assertStringContainsString('::-webkit-date-and-time-value', $css);
@@ -1620,7 +1517,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString(':-moz-focusring', $css);
         $this->assertStringContainsString('outline: auto', $css);
@@ -1630,7 +1527,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString(':-moz-ui-invalid', $css);
         $this->assertStringContainsString('box-shadow: none', $css);
@@ -1640,7 +1537,7 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
         $this->assertStringContainsString('::-webkit-inner-spin-button', $css);
         $this->assertStringContainsString('::-webkit-outer-spin-button', $css);
@@ -1652,9 +1549,8 @@ class DirectivesTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="flex">',
-            'preflight' => true,
+            'css' => '@import "tailwindcss";',
         ]);
-        // Should have @supports block for placeholder color
         $this->assertStringContainsString('@supports', $css);
         $this->assertStringContainsString('color-mix', $css);
     }
@@ -1663,7 +1559,6 @@ class DirectivesTest extends TestCase
 
     public function test_preflight_disabled_via_import(): void
     {
-        // Preflight can be disabled by not importing it
         $css = Tailwind::generate([
             'content' => '<div class="flex">',
             'css' => '
@@ -1671,7 +1566,6 @@ class DirectivesTest extends TestCase
                 @import "tailwindcss/utilities.css" layer(utilities);
             ',
         ]);
-        // Should have utilities but no preflight
         $this->assertStringContainsString('display: flex', $css);
         $this->assertStringNotContainsString('box-sizing: border-box', $css);
     }
@@ -1682,13 +1576,12 @@ class DirectivesTest extends TestCase
             'content' => '<div class="flex">',
             'css' => '
                 @import "tailwindcss/preflight.css" layer(base);
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @layer base {
                     body { background-color: white; }
                 }
             ',
         ]);
-        // Should have both preflight and custom base styles
         $this->assertStringContainsString('box-sizing: border-box', $css);
         $this->assertStringContainsString('background-color: white', $css);
     }
@@ -1703,9 +1596,7 @@ class DirectivesTest extends TestCase
                 @import "tailwindcss/utilities.css" layer(utilities);
             ',
         ]);
-        // Layer order should be preserved
         $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
-        // Preflight in base, utilities in utilities
         $this->assertStringContainsString('@layer base', $css);
         $this->assertStringContainsString('@layer utilities', $css);
     }
@@ -1718,7 +1609,7 @@ class DirectivesTest extends TestCase
             'content' => '<div class="font-custom">',
             'css' => '
                 @import "tailwindcss/preflight.css" layer(base);
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --font-custom: "Custom Font", sans-serif;
                 }
@@ -1737,9 +1628,7 @@ class DirectivesTest extends TestCase
                 @import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
             ',
         ]);
-        // Preflight should still work
         $this->assertStringContainsString('box-sizing: border-box', $css);
-        // Utilities should work with prefix
         $this->assertStringContainsString('display: flex', $css);
     }
 
@@ -1752,9 +1641,7 @@ class DirectivesTest extends TestCase
                 @import "tailwindcss/utilities.css" layer(utilities) important;
             ',
         ]);
-        // Preflight should NOT be !important
         $this->assertStringContainsString('box-sizing: border-box', $css);
-        // Utilities should be !important
         $this->assertStringContainsString('display: flex !important', $css);
     }
 }

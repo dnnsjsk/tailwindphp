@@ -140,7 +140,7 @@ class ModifiersTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="bg-blue-500/half">',
-            'css' => '@tailwind utilities; @theme { --opacity-half: 50%; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --opacity-half: 50%; }',
         ]);
         $this->assertStringContainsString('background-color:', $css);
     }
@@ -149,7 +149,7 @@ class ModifiersTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="text-red-500/muted">',
-            'css' => '@tailwind utilities; @theme { --opacity-muted: 60%; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --opacity-muted: 60%; }',
         ]);
         $this->assertStringContainsString('color:', $css);
     }

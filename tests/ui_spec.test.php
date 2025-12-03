@@ -74,7 +74,7 @@ class ui_spec extends TestCase
      * CSS with custom colors used in ui.spec.ts render() function
      */
     private const BASE_CSS = <<<'CSS'
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 
 @theme {
     --color-red: rgb(255, 0, 0);

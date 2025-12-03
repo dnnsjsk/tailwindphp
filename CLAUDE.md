@@ -130,7 +130,7 @@ test-coverage/plugins/
 @plugin "@tailwindcss/forms" {
     strategy: "class";
 }
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 ```
 
 **Important for LLMs**: The plugin implementations are PHP ports, not JavaScript execution. They follow the same logic and produce the same output, but are implemented natively in PHP. Tests are extracted from the reference JavaScript test files where available.
@@ -179,7 +179,7 @@ class MyPlugin implements PluginInterface
 
 // Register and use
 registerPlugin(new MyPlugin());
-$css = Tailwind::generate($html, '@plugin "my-plugin"; @tailwind utilities;');
+$css = Tailwind::generate($html, '@plugin "my-plugin"; @import "tailwindcss/utilities.css";');
 ```
 
 ### 7. Performance Optimizations
@@ -438,7 +438,7 @@ use TailwindPHP\Tailwind;
 $css = Tailwind::generate('<div class="flex p-4">');
 
 // With custom CSS input
-$css = Tailwind::generate($html, '@tailwind utilities; @theme { --color-brand: #3b82f6; }');
+$css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // Extract class candidates from content
 $classes = Tailwind::extractCandidates('<div class="flex p-4">');

@@ -32,7 +32,7 @@ class ApiTest extends TestCase
 
     public function test_generate_with_custom_css(): void
     {
-        $css = Tailwind::generate('<div class="flex">', '@tailwind utilities;');
+        $css = Tailwind::generate('<div class="flex">', '@import "tailwindcss/utilities.css";');
         $this->assertStringContainsString('display: flex', $css);
     }
 
@@ -40,7 +40,7 @@ class ApiTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand">',
-            'css' => '@tailwind utilities; @theme { --color-brand: #ff0000; }',
+            'css' => '@import "tailwindcss/utilities.css"; @theme { --color-brand: #ff0000; }',
         ]);
         $this->assertStringContainsString('--color-brand', $css);
         $this->assertStringContainsString('background-color:', $css);
@@ -152,7 +152,7 @@ class ApiTest extends TestCase
 
     public function test_compile_returns_build_function(): void
     {
-        $result = Tailwind::compile('@tailwind utilities;');
+        $result = Tailwind::compile('@import "tailwindcss/utilities.css";');
         $this->assertIsArray($result);
         $this->assertArrayHasKey('build', $result);
         $this->assertIsCallable($result['build']);
@@ -160,7 +160,7 @@ class ApiTest extends TestCase
 
     public function test_compile_build_generates_css(): void
     {
-        $result = Tailwind::compile('@tailwind utilities;');
+        $result = Tailwind::compile('@import "tailwindcss/utilities.css";');
         $css = $result['build'](['flex', 'p-4']);
         $this->assertStringContainsString('display: flex', $css);
         $this->assertStringContainsString('padding:', $css);
@@ -168,7 +168,7 @@ class ApiTest extends TestCase
 
     public function test_compile_incremental_builds(): void
     {
-        $result = Tailwind::compile('@tailwind utilities;');
+        $result = Tailwind::compile('@import "tailwindcss/utilities.css";');
 
         // First build
         $css1 = $result['build'](['flex']);
@@ -183,7 +183,7 @@ class ApiTest extends TestCase
 
     public function test_compile_with_theme(): void
     {
-        $result = Tailwind::compile('@tailwind utilities; @theme { --color-brand: #3b82f6; }');
+        $result = Tailwind::compile('@import "tailwindcss/utilities.css"; @theme { --color-brand: #3b82f6; }');
         $css = $result['build'](['bg-brand']);
         $this->assertStringContainsString('--color-brand', $css);
         $this->assertStringContainsString('background-color:', $css);

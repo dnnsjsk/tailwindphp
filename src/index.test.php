@@ -135,7 +135,7 @@ class index extends TestCase
         } elseif ($type === 'compileCss') {
             // Compile with custom CSS
             if ($css === null) {
-                $css = '@tailwind utilities;';
+                $css = '@import "tailwindcss/utilities.css";';
             }
             // Spec tests provide their own @theme in CSS, so don't load default theme
             $compiled = compile($css, ['loadDefaultTheme' => false]);

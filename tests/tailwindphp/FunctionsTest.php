@@ -21,7 +21,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     color: theme(--color-brand);
@@ -38,7 +38,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --spacing-huge: 100px; }
                 .custom {
                     padding: theme(--spacing-huge);
@@ -54,7 +54,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     color: theme(--color-nonexistent, #ff0000);
                 }
@@ -70,7 +70,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     background-color: theme(--color-brand / 50%);
@@ -86,7 +86,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --color-primary: #3b82f6;
                     --color-accent: var(--color-primary);
@@ -104,7 +104,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="btn">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .btn {
                     @apply p-4;
@@ -124,7 +124,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     color: --theme(--color-brand);
@@ -139,7 +139,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     color: --theme(--color-nonexistent, #ff0000);
                 }
@@ -155,7 +155,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     font-family: --theme(--font-family-custom, initial);
                 }
@@ -170,7 +170,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --spacing-large: 2rem; }
                 .custom {
                     padding: --theme(--spacing-large inline);
@@ -190,7 +190,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     padding: --spacing(4);
                 }
@@ -205,7 +205,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     margin: calc(--spacing(4) * 2);
                 }
@@ -220,7 +220,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     padding: --spacing(2) --spacing(4);
                 }
@@ -238,7 +238,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     background-color: --alpha(var(--color-brand) / 50%);
@@ -254,7 +254,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     background-color: --alpha(var(--color-brand) / 0.5);
@@ -269,7 +269,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --color-brand: #3b82f6;
                     --opacity-half: 50%;
@@ -291,7 +291,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-brand">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: theme(--color-blue-500, #3b82f6); }
             ',
         ]);
@@ -302,7 +302,7 @@ class FunctionsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="p-[--spacing(4)]">',
-            'css' => '@tailwind utilities;',
+            'css' => '@import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('padding:', $css);
     }
@@ -316,7 +316,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="bg-primary">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --color-base: #3b82f6;
                     --color-primary: theme(--color-base);
@@ -332,7 +332,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="p-custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --spacing-custom: calc(--spacing(4) * 2);
                 }
@@ -350,7 +350,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #3b82f6; }
                 .custom {
                     background-color: --alpha(theme(--color-brand) / 50%);
@@ -365,7 +365,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     padding: calc(--spacing(4) + --spacing(2));
                 }
@@ -380,7 +380,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme {
                     --color-brand: #3b82f6;
                     --spacing-large: 2rem;
@@ -407,7 +407,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     color: theme(--color-nonexistent, );
                 }
@@ -421,7 +421,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     font-family: theme(--font-family-custom, system-ui, -apple-system, sans-serif);
                 }
@@ -436,7 +436,7 @@ class FunctionsTest extends TestCase
         $css = Tailwind::generate([
             'content' => '<div class="custom">',
             'css' => '
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .custom {
                     box-shadow: 0 4px 6px -1px theme(--color-shadow, rgba(0, 0, 0, 0.1));
                 }

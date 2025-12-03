@@ -395,27 +395,28 @@ function parseCss(array &$ast, array $options = []): array
                 $importPath = $matches[1];
                 $modifiers = trim($matches[2] ?? '');
 
-                // Handle 'tailwindcss' virtual module
+                // Handle 'tailwindcss' virtual module - full Tailwind CSS (theme + preflight + utilities)
                 if ($importPath === 'tailwindcss') {
-                    // Create a virtual @media block with theme() modifier to wrap the content
-                    // The test expects theme values: --color-tomato, --color-potato, --color-primary
-                    $themeContent = [
-                        atRule('@theme', $modifiers ? str_replace('theme(', '', rtrim($modifiers, ')')) : '', [
-                            decl('--color-tomato', '#e10c04'),
-                            decl('--color-potato', '#ac855b'),
-                            decl('--color-primary', 'var(--primary)'),
-                        ]),
-                        atRule('@tailwind', 'utilities', []),
-                    ];
+                    // Load theme.css
+                    $themeCss = file_get_contents(__DIR__.'/../resources/theme.css');
+                    $themeAst = parse($themeCss);
 
-                    // If there's a theme() modifier, wrap in @media theme()
+                    // Load preflight.css
+                    $preflightCss = file_get_contents(__DIR__.'/../resources/preflight.css');
+                    $preflightAst = parse($preflightCss);
+
+                    // Create utilities node
+                    $utilitiesNode = atRule('@tailwind', 'utilities', []);
+
+                    // Apply modifiers to theme if present
                     if (str_contains($modifiers, 'theme(')) {
-                        return WalkAction::Replace([
-                            atRule('@media', $modifiers, $themeContent),
-                        ]);
+                        $themeAst = [atRule('@media', $modifiers, $themeAst)];
                     }
 
-                    return WalkAction::Replace($themeContent);
+                    // Combine: theme + preflight + utilities
+                    $fullContent = array_merge($themeAst, $preflightAst, [$utilitiesNode]);
+
+                    return WalkAction::Replace($fullContent);
                 }
 
                 // Handle 'tailwindcss/theme' or 'tailwindcss/theme.css' - theme variables
@@ -1294,42 +1295,38 @@ function extractKeyframeNames(string $value): array
  *
  * Accepts either:
  * 1. A string (HTML content to scan for classes)
- * 2. An array with 'content' and optional 'css' and 'preflight' keys
+ * 2. An array with 'content' and optional 'css' key
  *
- * @param string|array $input HTML string or array with 'content', 'css', and 'preflight' keys
- * @param string $css Optional CSS with @tailwind directives (only used if $input is string)
+ * @param string|array $input HTML string or array with 'content' and 'css' keys
+ * @param string $css Optional CSS with @import directives (only used if $input is string)
  * @return string Generated CSS
  *
- * @example String input:
+ * @example String input (includes theme + preflight + utilities):
  *   generate('<div class="flex p-4">Hello</div>');
  *
- * @example Array input:
+ * @example Array input with custom CSS:
  *   generate([
  *       'content' => '<div class="flex p-4">Hello</div>',
- *       'css' => '@tailwind utilities; @theme { --color-brand: #3b82f6; }'
+ *       'css' => '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }'
  *   ]);
  *
- * @example With preflight (CSS reset):
+ * @example Without preflight (granular imports):
  *   generate([
  *       'content' => '<div class="flex p-4">Hello</div>',
- *       'preflight' => true
+ *       'css' => '
+ *           @import "tailwindcss/theme.css" layer(theme);
+ *           @import "tailwindcss/utilities.css" layer(utilities);
+ *       '
  *   ]);
  */
-function generate(string|array $input, string $css = '@tailwind utilities;'): string
+function generate(string|array $input, string $css = '@import "tailwindcss";'): string
 {
     // Handle array input
-    $preflight = false;
     if (is_array($input)) {
         $content = $input['content'] ?? '';
-        $css = $input['css'] ?? '@tailwind utilities;';
-        $preflight = $input['preflight'] ?? false;
+        $css = $input['css'] ?? '@import "tailwindcss";';
     } else {
         $content = $input;
-    }
-
-    // Prepend preflight import if requested
-    if ($preflight) {
-        $css = "@import 'tailwindcss/preflight' layer(base);\n".$css;
     }
 
     // Extract class names from content
@@ -1744,7 +1741,7 @@ class Tailwind
      * @param string|array $input HTML string or array with 'content' and 'css' keys
      * @param string $css Optional CSS (only used if $input is string)
      */
-    public static function generate(string|array $input, string $css = '@tailwind utilities;'): string
+    public static function generate(string|array $input, string $css = '@import "tailwindcss";'): string
     {
         return generate($input, $css);
     }

@@ -26,7 +26,7 @@ class plugin extends TestCase
     {
         $css = <<<'CSS'
         @plugin "@tailwindcss/typography";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['prose']);
@@ -40,7 +40,7 @@ class plugin extends TestCase
     {
         $css = <<<'CSS'
         @plugin "@tailwindcss/forms";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['form-input']);
@@ -56,7 +56,7 @@ class plugin extends TestCase
 
         $css = <<<'CSS'
         @plugin "@tailwindcss/unknown";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $this->compileCss($css, []);
@@ -72,7 +72,7 @@ class plugin extends TestCase
         @media screen {
             @plugin "@tailwindcss/typography";
         }
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $this->compileCss($css, []);
@@ -85,7 +85,7 @@ class plugin extends TestCase
         @plugin "@tailwindcss/typography" {
             className: "markdown";
         }
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['markdown']);
@@ -98,7 +98,7 @@ class plugin extends TestCase
     {
         $css = <<<'CSS'
         @plugin "@tailwindcss/typography";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['prose', 'prose-lg', 'prose-invert']);
@@ -113,7 +113,7 @@ class plugin extends TestCase
     {
         $css = <<<'CSS'
         @plugin "@tailwindcss/forms";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['form-input', 'form-checkbox', 'form-select']);
@@ -130,7 +130,7 @@ class plugin extends TestCase
         @plugin "@tailwindcss/forms" {
             strategy: "class";
         }
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['form-input']);
@@ -144,7 +144,7 @@ class plugin extends TestCase
         $css = <<<'CSS'
         @plugin "@tailwindcss/typography";
         @plugin "@tailwindcss/forms";
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         $result = $this->compileCss($css, ['prose', 'form-input']);

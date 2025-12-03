@@ -136,10 +136,10 @@ class css_functions extends TestCase
             $this->markTestSkipped("Test '$name' requires features not yet implemented in PHP port");
         }
 
-        // Build full CSS - only add @tailwind utilities if not already present
+        // Build full CSS - only add @import "tailwindcss/utilities.css" if not already present
         $fullCss = $inputCss;
-        if (!str_contains($inputCss, '@tailwind utilities')) {
-            $fullCss = "@tailwind utilities;\n" . $inputCss;
+        if (!str_contains($inputCss, '@import') && !str_contains($inputCss, '@tailwind utilities')) {
+            $fullCss = "@import \"tailwindcss/utilities\";\n" . $inputCss;
         }
 
         if ($type === 'error') {

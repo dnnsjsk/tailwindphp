@@ -23,7 +23,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="prose">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose', $css);
     }
@@ -32,7 +32,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="form-input">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-input', $css);
     }
@@ -41,7 +41,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="prose">',
-            'css' => "@plugin '@tailwindcss/typography'; @tailwind utilities;",
+            'css' => "@plugin '@tailwindcss/typography'; @import 'tailwindcss/utilities';",
         ]);
         $this->assertStringContainsString('.prose', $css);
     }
@@ -52,7 +52,7 @@ class PluginsTest extends TestCase
         // or may throw - depends on CSS parser implementation
         $css = Tailwind::generate([
             'content' => '<div class="prose">',
-            'css' => '@plugin @tailwindcss/typography; @tailwind utilities;',
+            'css' => '@plugin @tailwindcss/typography; @import "tailwindcss/utilities.css";',
         ]);
         // If it doesn't throw, just verify we get a string back
         $this->assertIsString($css);
@@ -64,7 +64,7 @@ class PluginsTest extends TestCase
         $this->expectExceptionMessage('not registered');
         Tailwind::generate([
             'content' => '<div class="something">',
-            'css' => '@plugin "@tailwindcss/unknown"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/unknown"; @import "tailwindcss/utilities.css";',
         ]);
     }
 
@@ -74,7 +74,7 @@ class PluginsTest extends TestCase
         $this->expectExceptionMessage('cannot be nested');
         Tailwind::generate([
             'content' => '<div class="prose">',
-            'css' => '@media screen { @plugin "@tailwindcss/typography"; } @tailwind utilities;',
+            'css' => '@media screen { @plugin "@tailwindcss/typography"; } @import "tailwindcss/utilities.css";',
         ]);
     }
 
@@ -86,7 +86,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose">Content</article>',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('--tw-prose-body', $css);
@@ -96,7 +96,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-sm">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-sm', $css);
     }
@@ -105,7 +105,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-base">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-base', $css);
     }
@@ -114,7 +114,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-lg">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-lg', $css);
     }
@@ -123,7 +123,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-xl">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-xl', $css);
     }
@@ -132,7 +132,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-2xl">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-2xl', $css);
     }
@@ -145,7 +145,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-invert">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-invert', $css);
     }
@@ -154,7 +154,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-gray">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-gray', $css);
     }
@@ -163,7 +163,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-slate">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-slate', $css);
     }
@@ -172,7 +172,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-zinc">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-zinc', $css);
     }
@@ -181,7 +181,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-neutral">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-neutral', $css);
     }
@@ -190,7 +190,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose-stone">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose-stone', $css);
     }
@@ -203,7 +203,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('--tw-prose-body', $css);
         $this->assertStringContainsString('--tw-prose-headings', $css);
@@ -214,7 +214,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // Should include styles for headings, paragraphs, lists, etc.
         $this->assertStringContainsString('h1', $css);
@@ -234,7 +234,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/typography" {
                     className: "markdown";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.markdown', $css);
@@ -250,7 +250,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/typography" {
                     className: "markdown";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.markdown', $css);
@@ -265,7 +265,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/typography" {
                     className: "markdown";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.markdown', $css);
@@ -280,7 +280,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose prose-lg prose-invert">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('.prose-lg', $css);
@@ -291,7 +291,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose prose-xl prose-slate">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('.prose-xl', $css);
@@ -306,7 +306,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="form-input">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-input', $css);
     }
@@ -315,7 +315,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<textarea class="form-textarea">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-textarea', $css);
     }
@@ -324,7 +324,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<select class="form-select">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-select', $css);
     }
@@ -333,7 +333,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<select class="form-multiselect" multiple>',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-multiselect', $css);
     }
@@ -342,7 +342,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input type="checkbox" class="form-checkbox">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-checkbox', $css);
     }
@@ -351,7 +351,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input type="radio" class="form-radio">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-radio', $css);
     }
@@ -371,7 +371,7 @@ class PluginsTest extends TestCase
                 <input type="checkbox" class="form-checkbox">
                 <input type="radio" class="form-radio">
             ',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-input', $css);
         $this->assertStringContainsString('.form-textarea', $css);
@@ -393,7 +393,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/forms" {
                     strategy: "class";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         // With class strategy, only .form-* classes are styled, not base elements
@@ -408,7 +408,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/forms" {
                     strategy: "base";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         // With base strategy, form elements get styled by default
@@ -427,7 +427,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/typography";
                 @plugin "@tailwindcss/forms";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.prose', $css);
@@ -445,7 +445,7 @@ class PluginsTest extends TestCase
                 @plugin "@tailwindcss/forms" {
                     strategy: "class";
                 }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.markdown', $css);
@@ -460,7 +460,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/typography";
                 @plugin "@tailwindcss/forms";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
 
@@ -469,7 +469,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/forms";
                 @plugin "@tailwindcss/typography";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
 
@@ -490,7 +490,7 @@ class PluginsTest extends TestCase
             'content' => '<article class="prose bg-brand">',
             'css' => '
                 @plugin "@tailwindcss/typography";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 @theme { --color-brand: #ff0000; }
             ',
         ]);
@@ -505,7 +505,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/typography";
                 @custom-variant hocus (&:hover, &:focus);
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         // Custom variant should work with plugin classes
@@ -520,7 +520,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/typography";
                 @utility content-auto { content-visibility: auto; }
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.prose', $css);
@@ -533,7 +533,7 @@ class PluginsTest extends TestCase
             'content' => '<article class="article">',
             'css' => '
                 @plugin "@tailwindcss/typography";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
                 .article {
                     @apply prose prose-lg;
                 }
@@ -550,7 +550,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="hover:prose-invert">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString(':hover', $css);
     }
@@ -559,7 +559,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="md:prose-lg">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('@media', $css);
     }
@@ -568,7 +568,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="dark:prose-invert">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // dark variant uses @media (prefers-color-scheme: dark) in v4
         $this->assertStringContainsString('@media', $css);
@@ -578,7 +578,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="focus:form-input">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString(':focus', $css);
     }
@@ -587,7 +587,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="disabled:form-input">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString(':disabled', $css);
     }
@@ -601,7 +601,7 @@ class PluginsTest extends TestCase
         // Typography may or may not support arbitrary values
         $css = Tailwind::generate([
             'content' => '<article class="prose">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // Just ensure no errors
         $this->assertIsString($css);
@@ -626,7 +626,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // Should not error
         $this->assertIsString($css);
@@ -636,7 +636,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<div class="flex p-4">',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // No prose classes, so plugin CSS shouldn't be in output
         $this->assertStringNotContainsString('.prose', $css);
@@ -652,7 +652,7 @@ class PluginsTest extends TestCase
             'css' => '
                 @plugin "@tailwindcss/typography";
                 @plugin "@tailwindcss/typography";
-                @tailwind utilities;
+                @import "tailwindcss/utilities.css";
             ',
         ]);
         $this->assertStringContainsString('.prose', $css);
@@ -666,7 +666,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose"><h1>Title</h1></article>',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         // Check that heading styles are included
         $this->assertMatchesRegularExpression('/\.prose\s+.*h1|\.prose\s*>\s*.*h1|h1/', $css);
@@ -676,7 +676,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose"><a href="#">Link</a></article>',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('--tw-prose-links', $css);
     }
@@ -685,7 +685,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose"><code>code</code></article>',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('--tw-prose-code', $css);
     }
@@ -694,7 +694,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<article class="prose"><blockquote>Quote</blockquote></article>',
-            'css' => '@plugin "@tailwindcss/typography"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('--tw-prose-quotes', $css);
     }
@@ -707,7 +707,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="form-input">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         // Form elements typically reset appearance
         $this->assertStringContainsString('.form-input', $css);
@@ -717,7 +717,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<input class="form-checkbox">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         $this->assertStringContainsString('.form-checkbox', $css);
     }
@@ -726,7 +726,7 @@ class PluginsTest extends TestCase
     {
         $css = Tailwind::generate([
             'content' => '<select class="form-select">',
-            'css' => '@plugin "@tailwindcss/forms"; @tailwind utilities;',
+            'css' => '@plugin "@tailwindcss/forms"; @import "tailwindcss/utilities.css";',
         ]);
         // Select elements typically have a dropdown arrow background
         $this->assertStringContainsString('.form-select', $css);
@@ -738,7 +738,7 @@ class PluginsTest extends TestCase
 
     public function test_plugin_with_compile_api(): void
     {
-        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @tailwind utilities;');
+        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
         $css = $result['build'](['prose', 'prose-lg']);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('.prose-lg', $css);
@@ -746,7 +746,7 @@ class PluginsTest extends TestCase
 
     public function test_plugin_incremental_build(): void
     {
-        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @tailwind utilities;');
+        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
 
         // First build
         $css1 = $result['build'](['prose']);
@@ -764,7 +764,7 @@ class PluginsTest extends TestCase
         $result = Tailwind::compile('
             @plugin "@tailwindcss/typography";
             @plugin "@tailwindcss/forms";
-            @tailwind utilities;
+            @import "tailwindcss/utilities.css";
         ');
         $css = $result['build'](['prose', 'form-input']);
         $this->assertStringContainsString('.prose', $css);

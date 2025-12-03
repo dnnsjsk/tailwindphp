@@ -127,7 +127,7 @@ class typography_plugin extends TestCase
 
         $css = <<<CSS
         {$pluginDirective};
-        @tailwind utilities;
+        @import "tailwindcss/utilities.css";
         CSS;
 
         // Extract classes from HTML

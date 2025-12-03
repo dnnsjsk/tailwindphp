@@ -20,7 +20,7 @@ class important extends TestCase
         // This is the v4 equivalent of `important: "#app"` from v3
         $input = <<<CSS
 #app {
-  @tailwind utilities;
+  @import "tailwindcss/utilities.css";
 }
 CSS;
 
@@ -41,7 +41,7 @@ CSS;
         $input = <<<CSS
 @media important {
   #app {
-    @tailwind utilities;
+    @import "tailwindcss/utilities.css";
   }
 }
 CSS;
@@ -64,7 +64,7 @@ CSS;
 @theme {
   --spacing-10: 2.5rem;
 }
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         $compiler = compile($input);
@@ -78,7 +78,7 @@ CSS;
     public function important_suffix_with_variants(): void
     {
         $input = <<<CSS
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         $compiler = compile($input);

@@ -441,23 +441,23 @@ class css_parser extends TestCase
     #[Test]
     public function parses_an_at_rule_without_a_block_or_semicolon(): void
     {
-        $result = parse('@tailwind utilities');
+        $result = parse('@import "tailwindcss/utilities.css"');
         $this->assertEquals([
-            ['kind' => 'at-rule', 'name' => '@tailwind', 'params' => 'utilities', 'nodes' => []],
+            ['kind' => 'at-rule', 'name' => '@import', 'params' => '"tailwindcss/utilities.css"', 'nodes' => []],
         ], $result);
     }
 
     #[Test]
     public function parses_an_at_rule_without_a_block_or_semicolon_when_last_rule_in_block(): void
     {
-        $result = parse("@layer utilities {\n@tailwind utilities\n}");
+        $result = parse("@layer utilities {\n@import \"tailwindcss/utilities.css\"\n}");
         $this->assertEquals([
             [
                 'kind' => 'at-rule',
                 'name' => '@layer',
                 'params' => 'utilities',
                 'nodes' => [
-                    ['kind' => 'at-rule', 'name' => '@tailwind', 'params' => 'utilities', 'nodes' => []],
+                    ['kind' => 'at-rule', 'name' => '@import', 'params' => '"tailwindcss/utilities.css"', 'nodes' => []],
                 ],
             ],
         ], $result);

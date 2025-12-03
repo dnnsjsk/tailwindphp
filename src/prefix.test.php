@@ -20,7 +20,7 @@ class prefix extends TestCase
     {
         $input = <<<CSS
 @theme reference prefix(tw);
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         // Tests provide their own @theme, so don't load default theme
@@ -54,7 +54,7 @@ CSS;
         // @apply with prefix works - test basic functionality
         $input = <<<CSS
 @theme reference prefix(tw);
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 
 .my-underline {
   @apply tw:underline;
@@ -77,7 +77,7 @@ CSS;
   --breakpoint-sm: 640px;
 }
 
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         $compiler = compile($input, ['loadDefaultTheme' => false]);
@@ -102,7 +102,7 @@ CSS;
   --breakpoint-sm: 640px;
 }
 
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         $compiler = compile($input, ['loadDefaultTheme' => false]);
@@ -148,7 +148,7 @@ CSS;
     {
         $input = <<<CSS
 @theme reference prefix(tomato);
-@tailwind utilities;
+@import "tailwindcss/utilities.css";
 CSS;
 
         $compiler = compile($input, ['loadDefaultTheme' => false]);

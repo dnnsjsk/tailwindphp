@@ -550,9 +550,9 @@ class utilities extends TestCase
         // Handle compileCss type tests - they have custom CSS with @theme
         if ($testCase['type'] === 'compileCss') {
             $cssInput = $testCase['css'];
-            // Ensure @tailwind utilities is present
-            if (!str_contains($cssInput, '@tailwind utilities')) {
-                $cssInput .= "\n@tailwind utilities;";
+            // Ensure @import "tailwindcss/utilities.css" is present
+            if (!str_contains($cssInput, '@import') && !str_contains($cssInput, '@tailwind utilities')) {
+                $cssInput .= "\n@import \"tailwindcss/utilities\";";
             }
             $compiled = compile($cssInput);
             $css = $compiled['build']($testCase['classes']);
