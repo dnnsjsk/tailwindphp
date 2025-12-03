@@ -3,6 +3,18 @@
     "description": "A full port of TailwindCSS 4.x to PHP",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "tailwind",
+        "tailwindcss",
+        "css",
+        "utility-css",
+        "php"
+    ],
+    "homepage": "https://github.com/dnnsjsk/tailwindphp",
+    "support": {
+        "issues": "https://github.com/dnnsjsk/tailwindphp/issues",
+        "source": "https://github.com/dnnsjsk/tailwindphp"
+    },
     "authors": [
         {
             "name": "Dennis Josek"
