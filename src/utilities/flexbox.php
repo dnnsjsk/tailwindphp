@@ -55,6 +55,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
                 $parts = explode('/', $value['fraction']);
                 if (count($parts) === 2 && isPositiveInteger($parts[0]) && isPositiveInteger($parts[1])) {
                     $percent = (int)$parts[0] / (int)$parts[1] * 100;
+
                     return $percent . '%';
                 }
             }
@@ -62,6 +63,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--flex'],
@@ -81,6 +83,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--flex-grow'],
@@ -96,6 +99,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--flex-shrink'],
@@ -127,6 +131,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return "repeat({$value['value']}, minmax(0, 1fr))";
             }
+
             return null;
         },
         'themeKeys' => ['--grid-template-columns'],
@@ -145,6 +150,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return "repeat({$value['value']}, minmax(0, 1fr))";
             }
+
             return null;
         },
         'themeKeys' => ['--grid-template-rows'],
@@ -164,6 +170,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-column'],
@@ -181,6 +188,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => [],
@@ -199,6 +207,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-row'],
@@ -216,6 +225,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value']) && (int)$value['value'] > 0) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => [],
@@ -233,6 +243,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-column-start'],
@@ -249,6 +260,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-column-end'],
@@ -266,6 +278,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-row-start'],
@@ -282,6 +295,7 @@ function registerFlexboxUtilities(UtilityBuilder $builder): void
             if (isPositiveInteger($value['value'])) {
                 return $value['value'];
             }
+
             return null;
         },
         'themeKeys' => ['--grid-row-end'],

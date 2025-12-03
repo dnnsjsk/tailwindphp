@@ -4,20 +4,13 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use TailwindPHP\Theme;
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Utils\segment;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Utils\inferDataType;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidOpacityValue;
-use function TailwindPHP\Utils\inferDataType;
 use function TailwindPHP\Utils\replaceShadowColors;
-use function TailwindPHP\Utilities\property;
-use function TailwindPHP\Utilities\resolveThemeColor;
-use function TailwindPHP\Utilities\withAlpha;
-use function TailwindPHP\Utilities\replaceAlpha;
-use function TailwindPHP\Utilities\asColor;
-use function TailwindPHP\Utilities\colorToHex;
+use function TailwindPHP\Utils\segment;
 
 /**
  * Filters Utilities
@@ -178,6 +171,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -199,6 +193,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -221,6 +216,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -242,6 +238,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -264,6 +261,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -285,6 +283,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -308,6 +307,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}deg";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -330,6 +330,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}deg";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -352,6 +353,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -373,6 +375,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -395,6 +398,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -416,6 +420,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -438,6 +443,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssFilterValue) {
@@ -459,6 +465,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {
@@ -498,7 +505,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
         string $property,
         string $value,
         ?string $alpha,
-        callable $varInjector
+        callable $varInjector,
     ): array {
         // Parse drop shadow(s) and replace colors
         // The value is the raw shadow values like "0 1px 1px rgb(0 0 0 / 0.05)"
@@ -529,7 +536,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
 
     // drop-shadow-none
     $builder->staticUtility('drop-shadow-none', [
-        fn() => $filterProperties(),
+        fn () => $filterProperties(),
         ['--tw-drop-shadow', ' '],
         ['filter', $cssFilterValue],
     ]);
@@ -552,10 +559,12 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
         if (!isset($candidate['value'])) {
             $value = $theme->get(['--drop-shadow']);
             $resolved = $theme->resolve(null, ['--drop-shadow']);
-            if ($value === null || $resolved === null) return null;
+            if ($value === null || $resolved === null) {
+                return null;
+            }
 
             $segments = segment($resolved, ',');
-            $dropShadowParts = array_map(fn($v) => "drop-shadow({$v})", array_map('trim', $segments));
+            $dropShadowParts = array_map(fn ($v) => "drop-shadow({$v})", array_map('trim', $segments));
 
             return array_merge(
                 [$filterProperties()],
@@ -564,10 +573,10 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
                     '--tw-drop-shadow-size',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-drop-shadow-color, {$color})",
                 ),
                 [decl('--tw-drop-shadow', implode(' ', $dropShadowParts))],
-                [decl('filter', $cssFilterValue)]
+                [decl('filter', $cssFilterValue)],
             );
         }
 
@@ -580,7 +589,9 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
 
             if ($type === 'color') {
                 $value = asColor($value, $modifier, $theme);
-                if ($value === null) return null;
+                if ($value === null) {
+                    return null;
+                }
 
                 return [
                     $filterProperties(),
@@ -590,7 +601,9 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             }
 
             // Shadow arbitrary value
-            if ($modifier !== null && $alpha === null) return null;
+            if ($modifier !== null && $alpha === null) {
+                return null;
+            }
 
             return array_merge(
                 [$filterProperties()],
@@ -599,10 +612,10 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
                     '--tw-drop-shadow-size',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-drop-shadow-color, {$color})",
                 ),
                 [decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)')],
-                [decl('filter', $cssFilterValue)]
+                [decl('filter', $cssFilterValue)],
             );
         }
 
@@ -612,7 +625,9 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
         $shadowValue = $theme->get(["--drop-shadow-{$namedValue}"]);
         $resolved = $theme->resolve($namedValue, ['--drop-shadow']);
         if ($shadowValue !== null && $resolved !== null) {
-            if ($modifier !== null && $alpha === null) return null;
+            if ($modifier !== null && $alpha === null) {
+                return null;
+            }
 
             if ($alpha !== null) {
                 return array_merge(
@@ -622,15 +637,15 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
                         '--tw-drop-shadow-size',
                         $shadowValue,
                         $alpha,
-                        fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                        fn ($color) => "var(--tw-drop-shadow-color, {$color})",
                     ),
                     [decl('--tw-drop-shadow', 'var(--tw-drop-shadow-size)')],
-                    [decl('filter', $cssFilterValue)]
+                    [decl('filter', $cssFilterValue)],
                 );
             }
 
             $segments = segment($resolved, ',');
-            $dropShadowParts = array_map(fn($v) => "drop-shadow({$v})", array_map('trim', $segments));
+            $dropShadowParts = array_map(fn ($v) => "drop-shadow({$v})", array_map('trim', $segments));
 
             return array_merge(
                 [$filterProperties()],
@@ -639,10 +654,10 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
                     '--tw-drop-shadow-size',
                     $shadowValue,
                     $alpha,
-                    fn($color) => "var(--tw-drop-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-drop-shadow-color, {$color})",
                 ),
                 [decl('--tw-drop-shadow', implode(' ', $dropShadowParts))],
-                [decl('filter', $cssFilterValue)]
+                [decl('filter', $cssFilterValue)],
             );
         }
 
@@ -678,6 +693,7 @@ function registerFiltersUtilities(UtilityBuilder $builder): void
             if (!isValidOpacityValue($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}%";
         },
         'handle' => function ($value) use ($cssBackdropFilterValue) {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use TailwindPHP\Tests\TestHelper;
 
 /**
@@ -104,6 +104,7 @@ class index extends TestCase
                 if (str_contains($css, $pattern)) {
                     // Pass without assertion - these features are outside scope of PHP port
                     $this->assertTrue(true);
+
                     return;
                 }
             }
@@ -113,6 +114,7 @@ class index extends TestCase
         if (in_array($name, self::PENDING_TESTS, true)) {
             // Pass without assertion - test extraction has issues
             $this->assertTrue(true);
+
             return;
         }
 
@@ -140,6 +142,7 @@ class index extends TestCase
             $actual = $compiled['build']($classes);
         } else {
             $this->markTestSkipped("Unknown test type: $type");
+
             return;
         }
 
@@ -150,7 +153,7 @@ class index extends TestCase
         $this->assertEquals(
             $normalizedExpected,
             $normalizedActual,
-            "Test '$name' failed.\n\nExpected:\n$expected\n\nActual:\n$actual"
+            "Test '$name' failed.\n\nExpected:\n$expected\n\nActual:\n$actual",
         );
     }
 
@@ -190,31 +193,31 @@ class index extends TestCase
         // Modern: @media (width >= 768px) -> Legacy: @media (min-width: 768px)
         $css = preg_replace_callback(
             '/@media\s*\(width\s*>=\s*([^)]+)\)/',
-            fn($m) => '@media (min-width: ' . trim($m[1]) . ')',
-            $css
+            fn ($m) => '@media (min-width: ' . trim($m[1]) . ')',
+            $css,
         );
         // Modern: @media (width < 768px) -> Legacy: @media not all and (min-width: 768px)
         // Actually let's convert both to modern format for consistency
         $css = preg_replace_callback(
             '/@media\s*not\s+all\s+and\s*\(min-width:\s*([^)]+)\)/',
-            fn($m) => '@media (width < ' . trim($m[1]) . ')',
-            $css
+            fn ($m) => '@media (width < ' . trim($m[1]) . ')',
+            $css,
         );
         $css = preg_replace_callback(
             '/@media\s*\(min-width:\s*([^)]+)\)/',
-            fn($m) => '@media (width >= ' . trim($m[1]) . ')',
-            $css
+            fn ($m) => '@media (width >= ' . trim($m[1]) . ')',
+            $css,
         );
         // Convert back width >= to min-width for final comparison (legacy format)
         $css = preg_replace_callback(
             '/@media\s*\(width\s*>=\s*([^)]+)\)/',
-            fn($m) => '@media (min-width: ' . trim($m[1]) . ')',
-            $css
+            fn ($m) => '@media (min-width: ' . trim($m[1]) . ')',
+            $css,
         );
         $css = preg_replace_callback(
             '/@media\s*\(width\s*<\s*([^)]+)\)/',
-            fn($m) => '@media not all and (min-width: ' . trim($m[1]) . ')',
-            $css
+            fn ($m) => '@media not all and (min-width: ' . trim($m[1]) . ')',
+            $css,
         );
 
         // Normalize order of @media queries inside @layer utilities
@@ -254,9 +257,11 @@ class index extends TestCase
                     $depth = 0;
                     for ($i = 0; $i < strlen($selector); $i++) {
                         $char = $selector[$i];
-                        if ($char === '(' || $char === '[') $depth++;
-                        elseif ($char === ')' || $char === ']') $depth--;
-                        elseif ($char === ',' && $depth === 0) {
+                        if ($char === '(' || $char === '[') {
+                            $depth++;
+                        } elseif ($char === ')' || $char === ']') {
+                            $depth--;
+                        } elseif ($char === ',' && $depth === 0) {
                             $parts[] = trim($current);
                             $current = '';
                             continue;
@@ -266,11 +271,13 @@ class index extends TestCase
                     $parts[] = trim($current);
                     // Sort parts alphabetically
                     sort($parts);
+
                     return implode(', ', $parts) . ' {';
                 }
+
                 return $match[0];
             },
-            $css
+            $css,
         );
     }
 
@@ -296,12 +303,17 @@ class index extends TestCase
             $pos = $braceStart + 1;
             $len = strlen($css);
             while ($pos < $len && $braceCount > 0) {
-                if ($css[$pos] === '{') $braceCount++;
-                elseif ($css[$pos] === '}') $braceCount--;
+                if ($css[$pos] === '{') {
+                    $braceCount++;
+                } elseif ($css[$pos] === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
-            if ($braceCount !== 0) continue;
+            if ($braceCount !== 0) {
+                continue;
+            }
 
             $layerEnd = $pos;
             $layerContent = substr($css, $braceStart + 1, $layerEnd - $braceStart - 2);
@@ -317,20 +329,27 @@ class index extends TestCase
                     $contentOffset++;
                 }
 
-                if ($contentOffset >= strlen($layerContent)) break;
+                if ($contentOffset >= strlen($layerContent)) {
+                    break;
+                }
 
                 // Check if this is an @media block
                 if (substr($layerContent, $contentOffset, 6) === '@media') {
                     // Find the end of this @media block
                     $mediaStart = $contentOffset;
                     $bracePos = strpos($layerContent, '{', $mediaStart);
-                    if ($bracePos === false) break;
+                    if ($bracePos === false) {
+                        break;
+                    }
 
                     $braceCount = 1;
                     $mediaEnd = $bracePos + 1;
                     while ($mediaEnd < strlen($layerContent) && $braceCount > 0) {
-                        if ($layerContent[$mediaEnd] === '{') $braceCount++;
-                        elseif ($layerContent[$mediaEnd] === '}') $braceCount--;
+                        if ($layerContent[$mediaEnd] === '{') {
+                            $braceCount++;
+                        } elseif ($layerContent[$mediaEnd] === '}') {
+                            $braceCount--;
+                        }
                         $mediaEnd++;
                     }
 
@@ -348,8 +367,11 @@ class index extends TestCase
                     $braceCount = 1;
                     $ruleEnd = $bracePos + 1;
                     while ($ruleEnd < strlen($layerContent) && $braceCount > 0) {
-                        if ($layerContent[$ruleEnd] === '{') $braceCount++;
-                        elseif ($layerContent[$ruleEnd] === '}') $braceCount--;
+                        if ($layerContent[$ruleEnd] === '{') {
+                            $braceCount++;
+                        } elseif ($layerContent[$ruleEnd] === '}') {
+                            $braceCount--;
+                        }
                         $ruleEnd++;
                     }
 

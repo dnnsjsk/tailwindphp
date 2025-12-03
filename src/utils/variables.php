@@ -44,7 +44,7 @@ function extractUsedVariables(string $raw): array
             $variables[] = $child['value'];
         });
 
-        return \TailwindPHP\ValueParser\WalkAction::Skip();
+        return \TailwindPHP\ValueParser\WalkAction::Skip;
     });
 
     return $variables;

@@ -46,7 +46,7 @@ $tests = [];
 $forPattern = '/for\s*\(\s*let\s+\[classes,\s*expected\]\s+of\s+\[/s';
 preg_match_all($forPattern, $content, $forMatches, PREG_OFFSET_CAPTURE);
 
-echo "Found " . count($forMatches[0]) . " for loops with test data\n";
+echo 'Found ' . count($forMatches[0]) . " for loops with test data\n";
 
 foreach ($forMatches[0] as $matchIndex => $match) {
     $forStartPos = $match[1];
@@ -78,7 +78,7 @@ foreach ($forMatches[0] as $matchIndex => $match) {
     // Parse the test data pairs from the array
     $pairs = parseForLoopArray($arrayContent);
 
-    echo "  For loop " . ($matchIndex + 1) . ": template='$testNameTemplate', property='$property', " . count($pairs) . " pairs\n";
+    echo '  For loop ' . ($matchIndex + 1) . ": template='$testNameTemplate', property='$property', " . count($pairs) . " pairs\n";
 
     foreach ($pairs as $pair) {
         $classes = $pair['classes'];
@@ -111,22 +111,32 @@ foreach ($testMatches[0] as $i => $match) {
     $startPos = $match[1];
 
     // Skip tests that are inside for loops (their names contain ${})
-    if (str_contains($testName, '${')) continue;
+    if (str_contains($testName, '${')) {
+        continue;
+    }
 
     // Skip test.skip
-    if (str_contains(substr($content, max(0, $startPos - 5), 10), '.skip')) continue;
+    if (str_contains(substr($content, max(0, $startPos - 5), 10), '.skip')) {
+        continue;
+    }
 
     // Extract test body
     $testBody = extractTestBody(substr($content, $startPos, 8000));
-    if ($testBody === null) continue;
+    if ($testBody === null) {
+        continue;
+    }
 
     // Find HTML content with classes
     $classes = extractClassesFromHtml($testBody);
-    if (empty($classes)) continue;
+    if (empty($classes)) {
+        continue;
+    }
 
     // Find expected property values
     $expectations = extractExpectations($testBody);
-    if (empty($expectations)) continue;
+    if (empty($expectations)) {
+        continue;
+    }
 
     $tests[] = [
         'name' => $testName,
@@ -180,7 +190,9 @@ function extractArrayAtPosition(string $content, int $start): ?string
             continue;
         }
 
-        if ($inComment || $inLineComment) continue;
+        if ($inComment || $inLineComment) {
+            continue;
+        }
 
         // Handle strings
         if (!$inString && ($char === '"' || $char === "'" || $char === '`')) {
@@ -231,7 +243,9 @@ function parseForLoopArray(string $arrayContent): array
             $pos++;
         }
 
-        if ($pos >= $len) break;
+        if ($pos >= $len) {
+            break;
+        }
 
         // We should be at a [
         if ($arrayContent[$pos] !== '[') {
@@ -274,7 +288,9 @@ function parsePairContent(string $content): ?array
 
     // Find the comma and then the expected value
     $commaPos = strpos($afterClasses, ',');
-    if ($commaPos === false) return null;
+    if ($commaPos === false) {
+        return null;
+    }
 
     $expectedPart = trim(substr($afterClasses, $commaPos + 1));
 
@@ -293,12 +309,14 @@ function parsePairContent(string $content): ?array
         // It's a string
         if (preg_match("/^['\"`]([^'\"`]+)['\"`]/s", $expectedPart, $m)) {
             $expected = $m[1];
-        } elseif (preg_match("/^`([^`]+)`/s", $expectedPart, $m)) {
+        } elseif (preg_match('/^`([^`]+)`/s', $expectedPart, $m)) {
             $expected = $m[1];
         }
     }
 
-    if ($expected === null) return null;
+    if ($expected === null) {
+        return null;
+    }
 
     return [
         'classes' => $classesMatch,
@@ -312,10 +330,14 @@ function parsePairContent(string $content): ?array
 function extractTestBody(string $str): ?string
 {
     $start = strpos($str, '=>');
-    if ($start === false) return null;
+    if ($start === false) {
+        return null;
+    }
 
     $braceStart = strpos($str, '{', $start);
-    if ($braceStart === false) return null;
+    if ($braceStart === false) {
+        return null;
+    }
 
     $depth = 0;
     $len = strlen($str);
@@ -367,7 +389,9 @@ function extractClassesFromHtml(string $body): array
         foreach ($matches as $match) {
             $classStr = $match[1] ?: $match[2];
             // Skip if it's just a variable
-            if ($classStr === '${classes}') continue;
+            if ($classStr === '${classes}') {
+                continue;
+            }
 
             // Handle interpolation - extract static parts
             $classStr = preg_replace('/\$\{[^}]+\}/', ' ', $classStr);
@@ -469,14 +493,14 @@ $summary = [
     'sourceFile' => 'tailwindcss/packages/tailwindcss/tests/ui.spec.ts',
     'sourceLines' => $totalLines,
     'totalTests' => count($tests),
-    'forLoopTests' => count(array_filter($tests, fn($t) => $t['type'] === 'for-loop')),
-    'standaloneTests' => count(array_filter($tests, fn($t) => $t['type'] === 'standalone')),
-    'categories' => array_map(fn($c) => count($c), $categories),
+    'forLoopTests' => count(array_filter($tests, fn ($t) => $t['type'] === 'for-loop')),
+    'standaloneTests' => count(array_filter($tests, fn ($t) => $t['type'] === 'standalone')),
+    'categories' => array_map(fn ($c) => count($c), $categories),
 ];
 
 file_put_contents("$summaryDir/summary.json", json_encode($summary, JSON_PRETTY_PRINT));
 
 echo "\nTotal: " . count($tests) . " test cases extracted\n";
-echo "  For-loop tests: " . $summary['forLoopTests'] . "\n";
-echo "  Standalone tests: " . $summary['standaloneTests'] . "\n";
+echo '  For-loop tests: ' . $summary['forLoopTests'] . "\n";
+echo '  Standalone tests: ' . $summary['standaloneTests'] . "\n";
 echo "\nDone! Check $summaryDir for extracted tests.\n";

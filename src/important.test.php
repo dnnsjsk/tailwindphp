@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-
-use function TailwindPHP\compile;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for !important handling.

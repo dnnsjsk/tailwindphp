@@ -68,6 +68,22 @@ While this is a 1:1 port focused on correctness, PHP-specific optimizations are 
 3. Run benchmarks (`composer bench`) to verify improvement
 4. Focus on hot paths identified by profiling
 
+### 7. Code Quality Tools
+
+The project uses Pint (formatting) and PHPStan (static analysis):
+
+```bash
+composer lint      # Check formatting (Pint --test)
+composer format    # Fix formatting (Pint)
+composer analyse   # Static analysis (PHPStan level 3)
+composer quality   # Run both lint + analyse
+```
+
+**PHPStan Notes:**
+- Level 3 is used (higher levels conflict with function-based architecture)
+- Some patterns are intentionally ignored (dynamic arrays, cross-file functions)
+- All 75 source files are analyzed, test files are excluded
+
 ---
 
 ## Test System

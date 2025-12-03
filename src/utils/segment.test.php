@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-
-use function TailwindPHP\Utils\segment;
+use PHPUnit\Framework\TestCase;
 
 class segment extends TestCase
 {

@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use TailwindPHP\Walk\WalkAction;
-use function TailwindPHP\Walk\walk;
-use function TailwindPHP\ValueParser\parse as parseValue;
-use function TailwindPHP\ValueParser\toCss;
+use function TailwindPHP\Utilities\withAlpha;
 use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Utils\toKeyPath;
-use function TailwindPHP\Utilities\withAlpha;
+use function TailwindPHP\ValueParser\parse as parseValue;
+use function TailwindPHP\ValueParser\toCss;
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 /**
  * Exception thrown when a theme value cannot be resolved.
  * This is caught during candidate compilation to skip invalid candidates.
  */
-class ThemeResolutionException extends \Exception {}
+class ThemeResolutionException extends \Exception
+{
+}
 
 /**
  * CSS Functions
@@ -75,6 +78,7 @@ function substituteFunctions(array &$ast, object $designSystem): int
                 // Mark this node's parent rule for removal
                 $node['__invalid'] = true;
             }
+
             return WalkAction::Skip;
         }
 
@@ -388,10 +392,13 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
                             return WalkAction::Replace(parseValue($result));
                         }
                     }
+
                     return WalkAction::Continue;
                 });
+
                 return toCss($fallbackAst);
             }
+
             return $fallbackStr;
         }
         // Throw an exception to indicate unresolvable theme value
@@ -405,6 +412,7 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
         // For static values, use inline mode to compute the actual oklab value
         // This enables proper stacking of opacity (50% on 50% = 25%)
         $isStaticOpacity = !str_contains($modifier, 'var(');
+
         return withAlpha($resolvedValue, $modifier, $isStaticOpacity);
     }
 
@@ -480,6 +488,7 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
         if (!empty($fallback)) {
             return implode(', ', $fallback);
         }
+
         return null;
     }
 
@@ -497,6 +506,7 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
         if ($inline) {
             return $value;
         }
+
         return "var({$prefixedPath})";
     }
 
@@ -508,12 +518,14 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
             if ($joinedFallback !== null) {
                 return $joinedFallback;
             }
+
             return 'initial';
         } else {
             // For non-inline mode, return var() with fallback injected
             if ($joinedFallback !== null) {
                 return "var({$prefixedPath}, {$joinedFallback})";
             }
+
             return "var({$prefixedPath})";
         }
     }
@@ -549,6 +561,7 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
             } elseif (!str_ends_with($opacity, '%')) {
                 $opacityValue = $opacity . '%';
             }
+
             return "color-mix(in oklab, var({$prefixedPath}) {$opacityValue}, transparent)";
         }
     }
@@ -560,8 +573,9 @@ function handleTheme(array $node, array $source, object $designSystem): ?string
 
     // Return var() reference with optional fallback
     if (!empty($fallback)) {
-        return "var({$prefixedPath}, " . implode(', ', $fallback) . ")";
+        return "var({$prefixedPath}, " . implode(', ', $fallback) . ')';
     }
+
     return "var({$prefixedPath})";
 }
 
@@ -742,6 +756,7 @@ function resolveNestedThemeCallsForInitial(string $value, object $designSystem, 
             if (!empty($fallback)) {
                 return WalkAction::Replace(parseValue(implode(', ', $fallback)));
             }
+
             return WalkAction::Replace(parseValue('initial'));
         }
 

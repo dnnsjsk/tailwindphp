@@ -1,0 +1,37 @@
+parameters:
+    level: 3
+    paths:
+        - src
+    excludePaths:
+        - src/*.test.php
+        - src/**/*.test.php
+        - vendor
+        - reference
+    reportUnmatchedIgnoredErrors: false
+    parallel:
+        maximumNumberOfProcesses: 1
+    ignoreErrors:
+        # Allow dynamic array access patterns used throughout
+        - '#Cannot access offset .* on mixed#'
+        # PHPDoc type aliases not recognized
+        - '#invalid type TailwindPHP\\Ast\\AstNode#'
+        - '#invalid type TailwindPHP\\DesignSystem#'
+        # Functions from other files in same namespace
+        - '#Function .* not found#'
+        - '#Call to .* on an unknown class#'
+        - '#Constant .* not found#'
+        - '#static method .* not found#'
+        # Unused closure variables (intentional in ported code)
+        - '#Anonymous function has an unused use#'
+        # Strict comparison warnings on ported code
+        - '#Strict comparison using#'
+        # Null coalesce on arrays (intentional defensive coding)
+        - '#on left side of \?\? always exists#'
+        # Callable checks
+        - '#Trying to invoke null but#'
+        # Empty check on variable (defensive coding)
+        - '#Variable .* in empty\(\) always exists#'
+        # DefaultMap generics (complex ported pattern)
+        - '#does not accept TailwindPHP\\Utils\\DefaultMap#'
+        # Method return type issues with complex arrays
+        - '#should return array<string> but returns#'

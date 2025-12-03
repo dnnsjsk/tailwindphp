@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use TailwindPHP\Theme;
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Ast\decl;
 
 /**
  * Interactivity Utilities

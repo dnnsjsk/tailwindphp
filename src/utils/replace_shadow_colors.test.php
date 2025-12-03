@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\DataProvider;
-use function TailwindPHP\Utils\replaceShadowColors;
+use PHPUnit\Framework\TestCase;
+
 use function TailwindPHP\DesignSystem\replaceAlpha;
+use function TailwindPHP\Utils\replaceShadowColors;
 
 /**
  * Tests for replace-shadow-colors.php
@@ -40,49 +40,49 @@ class replace_shadow_colors extends TestCase
     #[Test]
     public function should_handle_var_shadow(): void
     {
-        $parsed = replaceShadowColors('var(--my-shadow)', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('var(--my-shadow)', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('var(--my-shadow)', $parsed);
     }
 
     #[Test]
     public function should_handle_var_shadow_with_offset(): void
     {
-        $parsed = replaceShadowColors('1px var(--my-shadow)', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('1px var(--my-shadow)', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('1px var(--my-shadow)', $parsed);
     }
 
     #[Test]
     public function should_handle_var_color_with_offsets(): void
     {
-        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('1px 1px var(--tw-shadow-color, var(--my-color))', $parsed);
     }
 
     #[Test]
     public function should_handle_var_color_with_zero_offsets(): void
     {
-        $parsed = replaceShadowColors('0 0 0 var(--my-color)', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('0 0 0 var(--my-color)', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('0 0 0 var(--tw-shadow-color, var(--my-color))', $parsed);
     }
 
     #[Test]
     public function should_handle_two_values_with_currentcolor(): void
     {
-        $parsed = replaceShadowColors('1px 2px', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('1px 2px', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('1px 2px var(--tw-shadow-color, currentcolor)', $parsed);
     }
 
     #[Test]
     public function should_handle_three_values_with_currentcolor(): void
     {
-        $parsed = replaceShadowColors('1px 2px 3px', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('1px 2px 3px', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('1px 2px 3px var(--tw-shadow-color, currentcolor)', $parsed);
     }
 
     #[Test]
     public function should_handle_four_values_with_currentcolor(): void
     {
-        $parsed = replaceShadowColors('1px 2px 3px 4px', fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors('1px 2px 3px 4px', fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals('1px 2px 3px 4px var(--tw-shadow-color, currentcolor)', $parsed);
     }
 
@@ -90,10 +90,10 @@ class replace_shadow_colors extends TestCase
     public function should_handle_multiple_shadows(): void
     {
         $input = implode(', ', ['var(--my-shadow)', '1px 1px var(--my-color)', '0 0 1px var(--my-color)']);
-        $parsed = replaceShadowColors($input, fn($c) => $this->simpleReplacer($c));
+        $parsed = replaceShadowColors($input, fn ($c) => $this->simpleReplacer($c));
         $this->assertEquals(
             'var(--my-shadow), 1px 1px var(--tw-shadow-color, var(--my-color)), 0 0 1px var(--tw-shadow-color, var(--my-color))',
-            $parsed
+            $parsed,
         );
     }
 
@@ -104,33 +104,33 @@ class replace_shadow_colors extends TestCase
     #[Test]
     public function should_handle_var_color_with_intensity(): void
     {
-        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn($c) => $this->alphaReplacer($c));
+        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn ($c) => $this->alphaReplacer($c));
         // PHP uses color-mix for better browser support
         $this->assertEquals(
             '1px 1px var(--tw-shadow-color, color-mix(in oklab, var(--my-color) 50%, transparent))',
-            $parsed
+            $parsed,
         );
     }
 
     #[Test]
     public function should_handle_box_shadow_with_intensity(): void
     {
-        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn($c) => $this->alphaReplacer($c));
+        $parsed = replaceShadowColors('1px 1px var(--my-color)', fn ($c) => $this->alphaReplacer($c));
         // PHP uses color-mix for better browser support
         $this->assertEquals(
             '1px 1px var(--tw-shadow-color, color-mix(in oklab, var(--my-color) 50%, transparent))',
-            $parsed
+            $parsed,
         );
     }
 
     #[Test]
     public function should_handle_four_values_with_intensity_and_no_color_value(): void
     {
-        $parsed = replaceShadowColors('1px 2px 3px 4px', fn($c) => $this->alphaReplacer($c));
+        $parsed = replaceShadowColors('1px 2px 3px 4px', fn ($c) => $this->alphaReplacer($c));
         // PHP uses color-mix for better browser support
         $this->assertEquals(
             '1px 2px 3px 4px var(--tw-shadow-color, color-mix(in oklab, currentcolor 50%, transparent))',
-            $parsed
+            $parsed,
         );
     }
 
@@ -138,11 +138,11 @@ class replace_shadow_colors extends TestCase
     public function should_handle_multiple_shadows_with_intensity(): void
     {
         $input = implode(', ', ['var(--my-shadow)', '1px 1px var(--my-color)', '0 0 1px var(--my-color)']);
-        $parsed = replaceShadowColors($input, fn($c) => $this->alphaReplacer($c));
+        $parsed = replaceShadowColors($input, fn ($c) => $this->alphaReplacer($c));
         // PHP uses color-mix for better browser support
         $this->assertEquals(
             'var(--my-shadow), 1px 1px var(--tw-shadow-color, color-mix(in oklab, var(--my-color) 50%, transparent)), 0 0 1px var(--tw-shadow-color, color-mix(in oklab, var(--my-color) 50%, transparent))',
-            $parsed
+            $parsed,
         );
     }
 }

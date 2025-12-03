@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use function TailwindPHP\Ast\decl;
-use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Ast\atRule;
-use function TailwindPHP\Utilities\property;
-use function TailwindPHP\Utilities\resolveThemeColor;
-use function TailwindPHP\Utilities\asColor;
-use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Utils\inferDataType;
+use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
  * Border Utilities
@@ -52,11 +49,12 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 foreach ($properties as $prop) {
                     $decls[] = decl($prop, $value);
                 }
+
                 return $decls;
             },
             'staticValues' => [
-                'none' => array_map(fn($p) => decl($p, '0'), $properties),
-                'full' => array_map(fn($p) => decl($p, RADIUS_FULL_DEFAULT), $properties),
+                'none' => array_map(fn ($p) => decl($p, '0'), $properties),
+                'full' => array_map(fn ($p) => decl($p, RADIUS_FULL_DEFAULT), $properties),
             ],
         ]);
     };
@@ -111,7 +109,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
 
             // No value - bare 'border' class (default width)
             if (!isset($candidate['value'])) {
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
                 $defaultWidth = $theme->get(['--default-border-width']) ?? '1px';
                 $decls = [$borderProperties()];
                 if ($styleProps) {
@@ -120,6 +120,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 foreach ($widthProps as $prop) {
                     $decls[] = decl($prop, $defaultWidth);
                 }
+
                 return $decls;
             }
 
@@ -133,7 +134,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 switch ($type) {
                     case 'line-width':
                     case 'length':
-                        if ($modifier !== null) return null;
+                        if ($modifier !== null) {
+                            return null;
+                        }
                         $decls = [$borderProperties()];
                         if ($styleProps) {
                             $decls[] = decl($styleProps, 'var(--tw-border-style)');
@@ -141,15 +144,19 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                         foreach ($widthProps as $prop) {
                             $decls[] = decl($prop, $value);
                         }
+
                         return $decls;
                     default:
                         // Color
                         $colorValue = asColor($value, $modifier, $theme);
-                        if ($colorValue === null) return null;
+                        if ($colorValue === null) {
+                            return null;
+                        }
                         $decls = [];
                         foreach ($colorProps as $prop) {
                             $decls[] = decl($prop, $colorValue);
                         }
+
                         return $decls;
                 }
             }
@@ -163,11 +170,14 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 foreach ($colorProps as $prop) {
                     $decls[] = decl($prop, $colorValue);
                 }
+
                 return $decls;
             }
 
             // Try to resolve as width
-            if ($modifier !== null) return null;
+            if ($modifier !== null) {
+                return null;
+            }
             $widthValue = $theme->resolve($namedValue, ['--border-width']);
             if ($widthValue !== null) {
                 $decls = [$borderProperties()];
@@ -177,6 +187,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 foreach ($widthProps as $prop) {
                     $decls[] = decl($prop, $widthValue);
                 }
+
                 return $decls;
             }
 
@@ -189,6 +200,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 foreach ($widthProps as $prop) {
                     $decls[] = decl($prop, "{$namedValue}px");
                 }
+
                 return $decls;
             }
 
@@ -251,8 +263,11 @@ function registerBorderUtilities(UtilityBuilder $builder): void
 
         // No value - bare 'outline' class
         if (!isset($candidate['value'])) {
-            if ($modifier !== null) return null;
+            if ($modifier !== null) {
+                return null;
+            }
             $defaultWidth = $theme->get(['--default-outline-width']) ?? '1px';
+
             return [
                 $outlineProperties(),
                 decl('outline-style', 'var(--tw-outline-style)'),
@@ -271,7 +286,10 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 case 'length':
                 case 'number':
                 case 'percentage':
-                    if ($modifier !== null) return null;
+                    if ($modifier !== null) {
+                        return null;
+                    }
+
                     return [
                         $outlineProperties(),
                         decl('outline-style', 'var(--tw-outline-style)'),
@@ -280,7 +298,10 @@ function registerBorderUtilities(UtilityBuilder $builder): void
                 default:
                     // Color
                     $value = asColor($value, $modifier, $theme);
-                    if ($value === null) return null;
+                    if ($value === null) {
+                        return null;
+                    }
+
                     return [decl('outline-color', $value)];
             }
         }
@@ -294,7 +315,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
         }
 
         // Try to resolve as width
-        if ($modifier !== null) return null;
+        if ($modifier !== null) {
+            return null;
+        }
         $widthValue = $theme->resolve($namedValue, ['--outline-width']);
         if ($widthValue !== null) {
             return [
@@ -328,6 +351,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}px";
         },
         'handle' => function ($value) {
@@ -355,6 +379,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return $value['value'] . 'px';
         },
         'handle' => function ($value) {
@@ -381,6 +406,7 @@ function registerBorderUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return $value['value'] . 'px';
         },
         'handle' => function ($value) {
@@ -402,41 +428,41 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     // divide-x-reverse, divide-y-reverse
     // These use :where(& > :not(:last-child)) selector
     $builder->staticUtility('divide-x-reverse', [
-        fn() => atRoot([property('--tw-divide-x-reverse', '0')]),
-        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-x-reverse', '1')]),
+        fn () => atRoot([property('--tw-divide-x-reverse', '0')]),
+        fn () => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-x-reverse', '1')]),
     ]);
     $builder->staticUtility('divide-y-reverse', [
-        fn() => atRoot([property('--tw-divide-y-reverse', '0')]),
-        fn() => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-y-reverse', '1')]),
+        fn () => atRoot([property('--tw-divide-y-reverse', '0')]),
+        fn () => styleRule(':where(& > :not(:last-child))', [decl('--tw-divide-y-reverse', '1')]),
     ]);
 
     // Divide Style - also uses :where(& > :not(:last-child)) selector
     $builder->staticUtility('divide-solid', [
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-border-style', 'solid'),
             decl('border-style', 'solid'),
         ]),
     ]);
     $builder->staticUtility('divide-dashed', [
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-border-style', 'dashed'),
             decl('border-style', 'dashed'),
         ]),
     ]);
     $builder->staticUtility('divide-dotted', [
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-border-style', 'dotted'),
             decl('border-style', 'dotted'),
         ]),
     ]);
     $builder->staticUtility('divide-double', [
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-border-style', 'double'),
             decl('border-style', 'double'),
         ]),
     ]);
     $builder->staticUtility('divide-none', [
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-border-style', 'none'),
             decl('border-style', 'none'),
         ]),

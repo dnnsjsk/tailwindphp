@@ -90,7 +90,10 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('z', [
         'supportsNegative' => true,
         'handleBareValue' => function ($value) {
-            if (!isPositiveInteger($value['value'])) return null;
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+
             return $value['value'];
         },
         'themeKeys' => ['--z-index'],
@@ -102,7 +105,7 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    $builder->suggest('z', fn() => [
+    $builder->suggest('z', fn () => [
         [
             'supportsNegative' => true,
             'values' => ['0', '10', '20', '30', '40', '50'],
@@ -114,7 +117,10 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('order', [
         'supportsNegative' => true,
         'handleBareValue' => function ($value) {
-            if (!isPositiveInteger($value['value'])) return null;
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+
             return $value['value'];
         },
         'themeKeys' => ['--order'],
@@ -128,10 +134,10 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    $builder->suggest('order', fn() => [
+    $builder->suggest('order', fn () => [
         [
             'supportsNegative' => true,
-            'values' => array_map(fn($i) => (string)($i + 1), range(0, 11)),
+            'values' => array_map(fn ($i) => (string)($i + 1), range(0, 11)),
             'valueThemeKeys' => ['--order'],
         ],
     ]);
@@ -158,7 +164,10 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     // Line Clamp
     $builder->functionalUtility('line-clamp', [
         'handleBareValue' => function ($value) {
-            if (!isPositiveInteger($value['value'])) return null;
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+
             return $value['value'];
         },
         'themeKeys' => ['--line-clamp'],
@@ -180,9 +189,9 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    $builder->suggest('line-clamp', fn() => [
+    $builder->suggest('line-clamp', fn () => [
         [
-            'values' => array_map(fn($i) => (string)($i + 1), range(0, 5)),
+            'values' => array_map(fn ($i) => (string)($i + 1), range(0, 5)),
             'valueThemeKeys' => ['--line-clamp'],
         ],
     ]);
@@ -252,6 +261,7 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
                     return $fraction;
                 }
             }
+
             return null;
         },
         'handle' => function ($value, $dataType) {
@@ -267,7 +277,10 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     // Columns
     $builder->functionalUtility('columns', [
         'handleBareValue' => function ($value) {
-            if (!isPositiveInteger($value['value'])) return null;
+            if (!isPositiveInteger($value['value'])) {
+                return null;
+            }
+
             return $value['value'];
         },
         'themeKeys' => ['--columns', '--width'],
@@ -292,9 +305,9 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    $builder->suggest('columns', fn() => [
+    $builder->suggest('columns', fn () => [
         [
-            'values' => array_map(fn($i) => (string)($i + 1), range(0, 11)),
+            'values' => array_map(fn ($i) => (string)($i + 1), range(0, 11)),
             'valueThemeKeys' => ['--columns', '--width'],
         ],
     ]);

@@ -35,6 +35,7 @@ class LruCache
         if (isset($this->previousCache[$key])) {
             $value = $this->previousCache[$key];
             $this->update($key, $value);
+
             return $value;
         }
 

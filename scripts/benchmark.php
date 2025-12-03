@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Benchmark Comparison: PHP vs TypeScript
  *
@@ -21,7 +22,8 @@ $rootDir = dirname(__DIR__);
 require_once $rootDir . '/vendor/autoload.php';
 
 // Colors for terminal output
-function color(string $text, string $color): string {
+function color(string $text, string $color): string
+{
     $colors = [
         'green' => "\033[32m",
         'red' => "\033[31m",
@@ -33,31 +35,37 @@ function color(string $text, string $color): string {
         'bold' => "\033[1m",
         'dim' => "\033[2m",
     ];
+
     return ($colors[$color] ?? '') . $text . $colors['reset'];
 }
 
-function formatOps(float $ops): string {
+function formatOps(float $ops): string
+{
     if ($ops >= 1000000) {
         return number_format($ops / 1000000, 2) . 'M';
     } elseif ($ops >= 1000) {
         return number_format($ops / 1000, 2) . 'K';
     }
+
     return number_format($ops, 0);
 }
 
-function formatTime(float $ms): string {
+function formatTime(float $ms): string
+{
     if ($ms < 0.001) {
         return number_format($ms * 1000000, 2) . 'ns';
     } elseif ($ms < 1) {
         return number_format($ms * 1000, 2) . 'μs';
     }
+
     return number_format($ms, 2) . 'ms';
 }
 
 /**
  * Run a PHP benchmark
  */
-function runPhpBenchmark(callable $fn, int $iterations = 1000): array {
+function runPhpBenchmark(callable $fn, int $iterations = 1000): array
+{
     // Warm up
     for ($i = 0; $i < 10; $i++) {
         $fn();
@@ -85,7 +93,8 @@ function runPhpBenchmark(callable $fn, int $iterations = 1000): array {
 /**
  * Run TypeScript benchmarks via vitest
  */
-function runTsBenchmarks(string $pattern, string $rootDir): array {
+function runTsBenchmarks(string $pattern, string $rootDir): array
+{
     $jsonFile = sys_get_temp_dir() . '/tailwind-bench-' . uniqid() . '.json';
     $refDir = $rootDir . '/reference/tailwindcss';
 
@@ -93,7 +102,7 @@ function runTsBenchmarks(string $pattern, string $rootDir): array {
         'cd %s && pnpm exec vitest bench %s --run --outputJson %s 2>/dev/null',
         escapeshellarg($refDir),
         escapeshellarg($pattern),
-        escapeshellarg($jsonFile)
+        escapeshellarg($jsonFile),
     );
 
     exec($cmd, $output, $returnCode);
@@ -127,7 +136,8 @@ function runTsBenchmarks(string $pattern, string $rootDir): array {
 /**
  * Print a comparison row
  */
-function printRow(string $name, ?array $php, ?array $ts): void {
+function printRow(string $name, ?array $php, ?array $ts): void
+{
     $name = str_pad($name, 32);
 
     $phpStr = $php ? formatOps($php['hz']) . ' ops/s' : 'N/A';
@@ -146,15 +156,15 @@ function printRow(string $name, ?array $php, ?array $ts): void {
         }
     }
 
-    echo "  {$name} " . color($phpStr, 'cyan') . " " . color($tsStr, 'magenta') . "  {$ratio}\n";
+    echo "  {$name} " . color($phpStr, 'cyan') . ' ' . color($tsStr, 'magenta') . "  {$ratio}\n";
 }
 
 // =============================================================================
 // BENCHMARK DEFINITIONS
 // =============================================================================
 
-use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\CssParser\parse;
 
 $preflightCss = file_get_contents($rootDir . '/resources/preflight.css');
 $preflightAst = parse($preflightCss);
@@ -165,8 +175,8 @@ $benchmarks = [
         'ts_file' => 'packages/tailwindcss/src/css-parser.bench.ts',
         'tests' => [
             'css-parser on preflight.css' => [
-                'php' => function() use ($preflightCss) {
-                    return runPhpBenchmark(function() use ($preflightCss) {
+                'php' => function () use ($preflightCss) {
+                    return runPhpBenchmark(function () use ($preflightCss) {
                         parse($preflightCss);
                     });
                 },
@@ -178,8 +188,8 @@ $benchmarks = [
         'ts_file' => 'packages/tailwindcss/src/ast.bench.ts',
         'tests' => [
             'toCss' => [
-                'php' => function() use ($preflightAst) {
-                    return runPhpBenchmark(function() use ($preflightAst) {
+                'php' => function () use ($preflightAst) {
+                    return runPhpBenchmark(function () use ($preflightAst) {
                         toCss($preflightAst);
                     });
                 },
@@ -199,7 +209,7 @@ $listOnly = in_array('--list', $args);
 $saveResults = in_array('--save', $args);
 
 // Filter out flags
-$args = array_filter($args, fn($a) => !str_starts_with($a, '--'));
+$args = array_filter($args, fn ($a) => !str_starts_with($a, '--'));
 $specificBench = $args[0] ?? null;
 
 // Collect all results for saving
@@ -221,23 +231,23 @@ if ($listOnly) {
 
 echo "\n";
 echo color("  ┌─────────────────────────────────────────────────────────────────────┐\n", 'dim');
-echo color("  │", 'dim') . color("              TailwindPHP - Benchmark Comparison                   ", 'bold') . color("│\n", 'dim');
+echo color('  │', 'dim') . color('              TailwindPHP - Benchmark Comparison                   ', 'bold') . color("│\n", 'dim');
 echo color("  └─────────────────────────────────────────────────────────────────────┘\n", 'dim');
 echo "\n";
 
 // Show versions
 if (!$tsOnly) {
-    echo "  PHP:     " . color(PHP_VERSION, 'cyan') . "\n";
+    echo '  PHP:     ' . color(PHP_VERSION, 'cyan') . "\n";
 }
 if (!$phpOnly) {
     $nodeVersion = trim(shell_exec('node --version 2>/dev/null') ?? 'N/A');
-    echo "  Node.js: " . color($nodeVersion, 'magenta') . "\n";
+    echo '  Node.js: ' . color($nodeVersion, 'magenta') . "\n";
 }
 echo "\n";
 
 // Header
-echo "  " . str_pad("Benchmark", 32) . " " . color(str_pad("PHP", 14), 'cyan') . " " . color(str_pad("TypeScript", 14), 'magenta') . "  Comparison\n";
-echo "  " . str_repeat("─", 75) . "\n";
+echo '  ' . str_pad('Benchmark', 32) . ' ' . color(str_pad('PHP', 14), 'cyan') . ' ' . color(str_pad('TypeScript', 14), 'magenta') . "  Comparison\n";
+echo '  ' . str_repeat('─', 75) . "\n";
 
 $toRun = $specificBench && isset($benchmarks[$specificBench])
     ? [$specificBench => $benchmarks[$specificBench]]
@@ -283,5 +293,5 @@ echo "\n";
 if ($saveResults) {
     $outputFile = $rootDir . '/benchmarks/results.json';
     file_put_contents($outputFile, json_encode($allResults, JSON_PRETTY_PRINT));
-    echo "  Results saved to: " . color($outputFile, 'green') . "\n\n";
+    echo '  Results saved to: ' . color($outputFile, 'green') . "\n\n";
 }

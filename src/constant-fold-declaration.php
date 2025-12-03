@@ -52,6 +52,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                 }
 
                 $folded = true;
+
                 return ValueParser\WalkAction::ReplaceSkip(ValueParser\word($canonical));
             }
 
@@ -83,6 +84,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                         ($rhs !== null && $rhs[0] === 0.0 && $rhs[1] === null))
                 ) {
                     $folded = true;
+
                     return ValueParser\WalkAction::ReplaceSkip(ValueParser\word('0'));
                 }
 
@@ -101,6 +103,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                             $folded = true;
                             $result = $lhs[0] * $rhs[0];
                             $unit = $lhs[1] ?? '';
+
                             return ValueParser\WalkAction::ReplaceSkip(ValueParser\word("{$result}{$unit}"));
                         }
                         break;
@@ -110,6 +113,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                             $folded = true;
                             $result = $lhs[0] + $rhs[0];
                             $unit = $lhs[1] ?? '';
+
                             return ValueParser\WalkAction::ReplaceSkip(ValueParser\word("{$result}{$unit}"));
                         }
                         break;
@@ -119,6 +123,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                             $folded = true;
                             $result = $lhs[0] - $rhs[0];
                             $unit = $lhs[1] ?? '';
+
                             return ValueParser\WalkAction::ReplaceSkip(ValueParser\word("{$result}{$unit}"));
                         }
                         break;
@@ -132,6 +137,7 @@ function constantFoldDeclaration(string $input, ?int $rem = null): string
                             $folded = true;
                             $result = $lhs[0] / $rhs[0];
                             $unit = $lhs[1] ?? '';
+
                             return ValueParser\WalkAction::ReplaceSkip(ValueParser\word("{$result}{$unit}"));
                         }
                         break;
@@ -169,6 +175,7 @@ function canonicalizeDimension(string $input, ?int $rem = null): ?string
         if ($value == 0.0) {
             return '0';
         }
+
         return (string) (int) $value === (string) $value ? (string) (int) $value : (string) $value;
     }
 
@@ -195,31 +202,35 @@ function canonicalizeDimension(string $input, ?int $rem = null): ?string
         case 'rem':
             return $rem !== null ? ($value * $rem) . 'px' : null;
 
-        // <angle> to deg
+            // <angle> to deg
         case 'deg':
             return ($value == 0.0 ? '0' : $value) . 'deg';
         case 'grad':
             $result = $value * 0.9;
+
             return ($result == 0.0 ? '0' : $result) . 'deg';
         case 'rad':
             $result = $value * 180 / M_PI;
+
             return ($result == 0.0 ? '0' : $result) . 'deg';
         case 'turn':
             $result = $value * 360;
+
             return ($result == 0.0 ? '0' : $result) . 'deg';
 
-        // <time> to s
+            // <time> to s
         case 's':
             return ($value == 0.0 ? '0' : $value) . 's';
         case 'ms':
             $result = $value / 1000;
+
             return ($result == 0.0 ? '0' : $result) . 's';
 
-        // <frequency> to hz
+            // <frequency> to hz
         case 'khz':
             return ($value * 1000) . 'hz';
 
-        // <percentage> and <flex>
+            // <percentage> and <flex>
         case '%':
             return ($value == 0.0 ? '0' : $value) . '%';
         case 'fr':
@@ -244,5 +255,6 @@ function isLength(string $input): bool
     }
 
     $unit = strtolower($dimension[1] ?? '');
+
     return in_array($unit, ['px', 'em', 'rem', 'vw', 'vh', 'vmin', 'vmax', 'ch', 'ex', 'cm', 'mm', 'in', 'pt', 'pc', 'q', 'lh', 'rlh', 'cqw', 'cqh', 'cqi', 'cqb', 'cqmin', 'cqmax', 'dvw', 'dvh', 'svw', 'svh', 'lvw', 'lvh'], true);
 }

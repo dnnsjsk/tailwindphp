@@ -72,7 +72,7 @@ for ($i = 0; $i < $totalLines; $i++) {
     }
 }
 
-echo "Found " . count($tests) . " tests\n\n";
+echo 'Found ' . count($tests) . " tests\n\n";
 
 // Extract test cases
 $testCases = [];
@@ -172,6 +172,7 @@ function parseClassArray(string $str): array
     foreach ($matches[1] as $class) {
         $classes[] = $class;
     }
+
     return $classes;
 }
 
@@ -247,14 +248,14 @@ function findClosingBacktick(string $str): ?int
     return null;
 }
 
-echo "Extracted " . count($testCases) . " test cases\n\n";
+echo 'Extracted ' . count($testCases) . " test cases\n\n";
 
 // Count by type
-$runTests = array_filter($testCases, fn($t) => $t['type'] === 'run');
-$compileCssTests = array_filter($testCases, fn($t) => $t['type'] === 'compileCss');
+$runTests = array_filter($testCases, fn ($t) => $t['type'] === 'run');
+$compileCssTests = array_filter($testCases, fn ($t) => $t['type'] === 'compileCss');
 
-echo "run() tests: " . count($runTests) . "\n";
-echo "compileCss() tests: " . count($compileCssTests) . "\n\n";
+echo 'run() tests: ' . count($runTests) . "\n";
+echo 'compileCss() tests: ' . count($compileCssTests) . "\n\n";
 
 // Categorize tests
 $categories = [];
@@ -262,16 +263,27 @@ foreach ($testCases as $case) {
     $testName = strtolower($case['name']);
 
     $category = 'other';
-    if (str_contains($testName, '@tailwind')) $category = 'tailwind-directive';
-    elseif (str_contains($testName, '@theme')) $category = 'theme';
-    elseif (str_contains($testName, '@apply')) $category = 'apply';
-    elseif (str_contains($testName, '@import')) $category = 'import';
-    elseif (str_contains($testName, '@layer')) $category = 'layers';
-    elseif (str_contains($testName, 'arbitrary')) $category = 'arbitrary';
-    elseif (str_contains($testName, 'prefix')) $category = 'prefix';
-    elseif (str_contains($testName, 'important')) $category = 'important';
-    elseif (str_contains($testName, 'vendor')) $category = 'vendor-prefixes';
-    elseif (str_contains($testName, 'variable') || str_contains($testName, '--')) $category = 'css-variables';
+    if (str_contains($testName, '@tailwind')) {
+        $category = 'tailwind-directive';
+    } elseif (str_contains($testName, '@theme')) {
+        $category = 'theme';
+    } elseif (str_contains($testName, '@apply')) {
+        $category = 'apply';
+    } elseif (str_contains($testName, '@import')) {
+        $category = 'import';
+    } elseif (str_contains($testName, '@layer')) {
+        $category = 'layers';
+    } elseif (str_contains($testName, 'arbitrary')) {
+        $category = 'arbitrary';
+    } elseif (str_contains($testName, 'prefix')) {
+        $category = 'prefix';
+    } elseif (str_contains($testName, 'important')) {
+        $category = 'important';
+    } elseif (str_contains($testName, 'vendor')) {
+        $category = 'vendor-prefixes';
+    } elseif (str_contains($testName, 'variable') || str_contains($testName, '--')) {
+        $category = 'css-variables';
+    }
 
     if (!isset($categories[$category])) {
         $categories[$category] = [];
@@ -295,7 +307,7 @@ $outputData = [
     'totalCases' => count($testCases),
     'runTests' => count($runTests),
     'compileCssTests' => count($compileCssTests),
-    'categories' => array_map(fn($c) => count($c), $categories),
+    'categories' => array_map(fn ($c) => count($c), $categories),
 ];
 
 file_put_contents("$summaryDir/summary.json", json_encode($outputData, JSON_PRETTY_PRINT));

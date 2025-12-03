@@ -37,7 +37,7 @@ function createPrefixedQuad(
     string $t = 'top',
     string $r = 'right',
     string $b = 'bottom',
-    string $l = 'left'
+    string $l = 'left',
 ): array {
     return createBareQuad("{$prefix}-{$t}", "{$prefix}-{$r}", "{$prefix}-{$b}", "{$prefix}-{$l}");
 }
@@ -55,7 +55,7 @@ function createBareQuad(
     string $t = 'top',
     string $r = 'right',
     string $b = 'bottom',
-    string $l = 'left'
+    string $l = 'left',
 ): array {
     return [
         1 => [[$t, 0], [$r, 0], [$b, 0], [$l, 0]],
@@ -97,6 +97,7 @@ function getVariadicExpansionMap(): array
             'gap' => createPair('row-gap', 'column-gap'),
         ];
     }
+
     return $map;
 }
 
@@ -119,6 +120,7 @@ function getVariadicLogicalExpansionMap(): array
             'padding-inline' => createPair('padding-left', 'padding-right'),
         ];
     }
+
     return $map;
 }
 
@@ -163,17 +165,18 @@ function expandDeclaration(array $node, int $options): ?array
             if ($mapping === null) {
                 return null;
             }
+
             return array_map(
-                fn($item) => decl($item[0], $args[$item[1]], $important),
-                $mapping
+                fn ($item) => decl($item[0], $args[$item[1]], $important),
+                $mapping,
             );
         }
 
         $logicalMap = getLogicalExpansionMap();
         if (isset($logicalMap[$property])) {
             return array_map(
-                fn($prop) => decl($prop, $value, $important),
-                $logicalMap[$property]
+                fn ($prop) => decl($prop, $value, $important),
+                $logicalMap[$property],
             );
         }
     }
@@ -185,9 +188,10 @@ function expandDeclaration(array $node, int $options): ?array
         if ($mapping === null) {
             return null;
         }
+
         return array_map(
-            fn($item) => decl($item[0], $args[$item[1]], $important),
-            $mapping
+            fn ($item) => decl($item[0], $args[$item[1]], $important),
+            $mapping,
         );
     }
 

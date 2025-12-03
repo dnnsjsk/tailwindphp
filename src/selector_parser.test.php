@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\Walk\WalkAction;
+use PHPUnit\Framework\TestCase;
 
 use function TailwindPHP\SelectorParser\parse;
 use function TailwindPHP\SelectorParser\toCss;
 use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 class selector_parser extends TestCase
 {

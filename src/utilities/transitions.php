@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use TailwindPHP\Theme;
 use function TailwindPHP\Ast\decl;
+
+use TailwindPHP\Theme;
+
 use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
@@ -35,6 +37,7 @@ function msToSeconds(int $ms): string
     if (str_starts_with($formatted, '0.')) {
         $formatted = substr($formatted, 1);
     }
+
     return $formatted . 's';
 }
 
@@ -131,6 +134,7 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return msToSeconds((int)$value['value']);
         },
         'handle' => function ($value) {
@@ -138,6 +142,7 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (preg_match('/^(\d+)ms$/', $value, $m)) {
                 $value = msToSeconds((int)$m[1]);
             }
+
             return [decl('transition-delay', $value)];
         },
     ]);
@@ -155,6 +160,7 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return msToSeconds((int)$value['value']);
         },
         'handle' => function ($value) {
@@ -162,6 +168,7 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
             if (preg_match('/^(\d+)ms$/', $value, $m)) {
                 $value = msToSeconds((int)$m[1]);
             }
+
             return [
                 decl('--tw-duration', $value),
                 decl('transition-duration', $value),

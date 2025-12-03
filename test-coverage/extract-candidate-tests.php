@@ -71,7 +71,7 @@ for ($i = 0; $i < $totalLines; $i++) {
     }
 }
 
-echo "Found " . count($tests) . " tests\n\n";
+echo 'Found ' . count($tests) . " tests\n\n";
 
 // Extract test cases from each test
 $testCases = [];
@@ -148,14 +148,14 @@ function findClosingBacktick(string $str): ?int
     return null;
 }
 
-echo "Extracted " . count($testCases) . " test cases\n\n";
+echo 'Extracted ' . count($testCases) . " test cases\n\n";
 
 // Group by type
-$snapshotTests = array_filter($testCases, fn($t) => $t['type'] === 'snapshot');
-$emptyTests = array_filter($testCases, fn($t) => $t['type'] === 'empty');
+$snapshotTests = array_filter($testCases, fn ($t) => $t['type'] === 'snapshot');
+$emptyTests = array_filter($testCases, fn ($t) => $t['type'] === 'empty');
 
-echo "Snapshot tests: " . count($snapshotTests) . "\n";
-echo "Empty tests: " . count($emptyTests) . "\n\n";
+echo 'Snapshot tests: ' . count($snapshotTests) . "\n";
+echo 'Empty tests: ' . count($emptyTests) . "\n\n";
 
 // Write test cases to JSON for use by PHP tests
 $outputData = [
@@ -177,14 +177,23 @@ foreach ($testCases as $case) {
 
     // Categorize by key words
     $category = 'other';
-    if (str_contains($testName, 'variant')) $category = 'variants';
-    elseif (str_contains($testName, 'modifier')) $category = 'modifiers';
-    elseif (str_contains($testName, 'arbitrary')) $category = 'arbitrary';
-    elseif (str_contains($testName, 'important')) $category = 'important';
-    elseif (str_contains($testName, 'negative')) $category = 'negative';
-    elseif (str_contains($testName, 'prefix')) $category = 'prefix';
-    elseif (str_contains($testName, 'unknown') || str_contains($testName, 'skip')) $category = 'invalid';
-    elseif (str_contains($testName, 'simple')) $category = 'basic';
+    if (str_contains($testName, 'variant')) {
+        $category = 'variants';
+    } elseif (str_contains($testName, 'modifier')) {
+        $category = 'modifiers';
+    } elseif (str_contains($testName, 'arbitrary')) {
+        $category = 'arbitrary';
+    } elseif (str_contains($testName, 'important')) {
+        $category = 'important';
+    } elseif (str_contains($testName, 'negative')) {
+        $category = 'negative';
+    } elseif (str_contains($testName, 'prefix')) {
+        $category = 'prefix';
+    } elseif (str_contains($testName, 'unknown') || str_contains($testName, 'skip')) {
+        $category = 'invalid';
+    } elseif (str_contains($testName, 'simple')) {
+        $category = 'basic';
+    }
 
     if (!isset($categories[$category])) {
         $categories[$category] = [];

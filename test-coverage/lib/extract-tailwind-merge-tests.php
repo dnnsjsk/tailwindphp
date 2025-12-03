@@ -78,10 +78,10 @@ foreach ($testFiles as $sourcePath) {
 $totalInFiles = array_sum(array_column($filesSummary, 'tests'));
 
 echo "\n";
-echo "Total test files: " . count($testFiles) . "\n";
+echo 'Total test files: ' . count($testFiles) . "\n";
 echo "Total tests in files: $totalInFiles\n";
 echo "Applicable tests: $totalTests\n";
-echo "N/A tests: " . ($totalInFiles - $totalTests) . "\n";
+echo 'N/A tests: ' . ($totalInFiles - $totalTests) . "\n";
 
 // Write a summary file
 $summary = [

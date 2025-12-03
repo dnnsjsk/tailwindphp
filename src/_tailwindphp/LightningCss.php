@@ -82,9 +82,10 @@ class LightningCss
                     str_starts_with($url, "'")) {
                     return $match[0];
                 }
+
                 return 'url("' . $url . '")';
             },
-            $value
+            $value,
         );
     }
 
@@ -216,6 +217,7 @@ class LightningCss
             if (strpos($formatted, '0.') === 0) {
                 $formatted = substr($formatted, 1);
             }
+
             return $formatted . 's';
         }, $value);
     }
@@ -255,6 +257,7 @@ class LightningCss
             if (strpos($formatted, '0.') === 0) {
                 $formatted = substr($formatted, 1);
             }
+
             return $formatted;
         }
 
@@ -343,6 +346,7 @@ class LightningCss
             if (str_starts_with($num, '-')) {
                 return substr($num, 1) . $unit;
             }
+
             return '-' . $num . $unit;
         }
 
@@ -477,11 +481,13 @@ class LightningCss
     {
         if ($node['kind'] === 'declaration') {
             $parent[] = $node;
+
             return;
         }
 
         if ($node['kind'] === 'comment') {
             $parent[] = $node;
+
             return;
         }
 
@@ -490,6 +496,7 @@ class LightningCss
             foreach ($node['nodes'] ?? [] as $child) {
                 self::flattenNode($child, $parent, $atRules, $parentSelector);
             }
+
             return;
         }
 
@@ -535,6 +542,7 @@ class LightningCss
             foreach ($nestedRules as $nested) {
                 self::flattenNode($nested, $parent, $atRules, $selector);
             }
+
             return;
         }
 
@@ -563,6 +571,7 @@ class LightningCss
                         'nodes' => $allLayerNodes,
                     ];
                 }
+
                 return;
             }
 
@@ -612,6 +621,7 @@ class LightningCss
                         'nodes' => $flattenedNodes,
                     ];
                 }
+
                 return;
             }
 
@@ -674,7 +684,7 @@ class LightningCss
                 }
                 $bySelector[$node['selector']]['nodes'] = array_merge(
                     $bySelector[$node['selector']]['nodes'],
-                    $node['nodes']
+                    $node['nodes'],
                 );
             } else {
                 $result[] = $node;
@@ -754,6 +764,7 @@ class LightningCss
             }
         }
         sort($parts); // Sort for consistent comparison
+
         return implode(';', $parts);
     }
 
@@ -1014,9 +1025,9 @@ class LightningCss
         $s = 0.0883024619 * $r + 0.2817188376 * $g + 0.6299787005 * $b;
 
         // LMS to OKLab
-        $l_ = pow($l, 1/3);
-        $m_ = pow($m, 1/3);
-        $s_ = pow($s, 1/3);
+        $l_ = pow($l, 1 / 3);
+        $m_ = pow($m, 1 / 3);
+        $s_ = pow($s, 1 / 3);
 
         $L = 0.2104542553 * $l_ + 0.7936177850 * $m_ - 0.0040720468 * $s_;
         $a = 1.9779984951 * $l_ - 2.4285922050 * $m_ + 0.4505937099 * $s_;
@@ -1057,8 +1068,7 @@ class LightningCss
             $r = hexdec($match[1]);
             $g = hexdec($match[2]);
             $b = hexdec($match[3]);
-        }
-        else {
+        } else {
             // Unknown format, return as-is
             return $color;
         }
@@ -1155,8 +1165,7 @@ class LightningCss
             // Multiply existing alpha with new alpha
             $existingAlpha = hexdec($match[4]) / 255;
             $alpha = $alpha * $existingAlpha;
-        }
-        else {
+        } else {
             // Unknown format, return as-is
             return $color;
         }
@@ -1219,7 +1228,7 @@ class LightningCss
                     $params = preg_replace(
                         '/\(\s*' . preg_quote($name, '/') . '\s*\)/',
                         $query,
-                        $params
+                        $params,
                     );
                 }
 
@@ -1260,9 +1269,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(min-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width <= value) → (max-width: value)
@@ -1271,9 +1281,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(max-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width > value) → (min-width: value)
@@ -1282,9 +1293,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(min-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width < value) → (not (min-width: value))
@@ -1294,9 +1306,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(not (min-{$prop}: {$value}))";
             },
-            $query
+            $query,
         );
 
         return $query;
@@ -1322,9 +1335,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(min-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width <= value) → (max-width: value)
@@ -1333,9 +1347,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(max-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width > value) → not (max-width: value)
@@ -1345,9 +1360,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "not (max-{$prop}: {$value})";
             },
-            $query
+            $query,
         );
 
         // (width < value) → (not (min-width: value))
@@ -1356,9 +1372,10 @@ class LightningCss
             function ($match) {
                 $prop = $match[1];
                 $value = trim($match[2]);
+
                 return "(not (min-{$prop}: {$value}))";
             },
-            $query
+            $query,
         );
 
         return $query;

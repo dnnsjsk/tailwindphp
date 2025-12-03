@@ -25,7 +25,7 @@ class DefaultConfig
     public static function get(): array
     {
         // Theme getters
-        $fromTheme = fn(string $key) => self::createThemeGetter($key);
+        $fromTheme = fn (string $key) => self::createThemeGetter($key);
 
         $themeColor = $fromTheme('color');
         $themeFont = $fromTheme('font');
@@ -71,27 +71,27 @@ class DefaultConfig
         $isArbitraryVariableShadow = [Validators::class, 'isArbitraryVariableShadow'];
 
         // Scale helpers
-        $scaleBreak = fn() => ['auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column'];
+        $scaleBreak = fn () => ['auto', 'avoid', 'all', 'avoid-page', 'page', 'left', 'right', 'column'];
 
-        $scalePosition = fn() => [
+        $scalePosition = fn () => [
             'center', 'top', 'bottom', 'left', 'right',
             'top-left', 'left-top', 'top-right', 'right-top',
             'bottom-right', 'right-bottom', 'bottom-left', 'left-bottom',
         ];
 
-        $scalePositionWithArbitrary = fn() => [...$scalePosition(), $isArbitraryVariable, $isArbitraryValue];
+        $scalePositionWithArbitrary = fn () => [...$scalePosition(), $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleOverflow = fn() => ['auto', 'hidden', 'clip', 'visible', 'scroll'];
+        $scaleOverflow = fn () => ['auto', 'hidden', 'clip', 'visible', 'scroll'];
 
-        $scaleOverscroll = fn() => ['auto', 'contain', 'none'];
+        $scaleOverscroll = fn () => ['auto', 'contain', 'none'];
 
-        $scaleUnambiguousSpacing = fn() => [$isArbitraryVariable, $isArbitraryValue, $themeSpacing];
+        $scaleUnambiguousSpacing = fn () => [$isArbitraryVariable, $isArbitraryValue, $themeSpacing];
 
-        $scaleInset = fn() => [$isFraction, 'full', 'auto', ...$scaleUnambiguousSpacing()];
+        $scaleInset = fn () => [$isFraction, 'full', 'auto', ...$scaleUnambiguousSpacing()];
 
-        $scaleGridTemplateColsRows = fn() => [$isInteger, 'none', 'subgrid', $isArbitraryVariable, $isArbitraryValue];
+        $scaleGridTemplateColsRows = fn () => [$isInteger, 'none', 'subgrid', $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleGridColRowStartAndEnd = fn() => [
+        $scaleGridColRowStartAndEnd = fn () => [
             'auto',
             ['span' => ['full', $isInteger, $isArbitraryVariable, $isArbitraryValue]],
             $isInteger,
@@ -99,66 +99,66 @@ class DefaultConfig
             $isArbitraryValue,
         ];
 
-        $scaleGridColRowStartOrEnd = fn() => [$isInteger, 'auto', $isArbitraryVariable, $isArbitraryValue];
+        $scaleGridColRowStartOrEnd = fn () => [$isInteger, 'auto', $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleGridAutoColsRows = fn() => ['auto', 'min', 'max', 'fr', $isArbitraryVariable, $isArbitraryValue];
+        $scaleGridAutoColsRows = fn () => ['auto', 'min', 'max', 'fr', $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleAlignPrimaryAxis = fn() => [
+        $scaleAlignPrimaryAxis = fn () => [
             'start', 'end', 'center', 'between', 'around', 'evenly', 'stretch', 'baseline',
             'center-safe', 'end-safe',
         ];
 
-        $scaleAlignSecondaryAxis = fn() => ['start', 'end', 'center', 'stretch', 'center-safe', 'end-safe'];
+        $scaleAlignSecondaryAxis = fn () => ['start', 'end', 'center', 'stretch', 'center-safe', 'end-safe'];
 
-        $scaleMargin = fn() => ['auto', ...$scaleUnambiguousSpacing()];
+        $scaleMargin = fn () => ['auto', ...$scaleUnambiguousSpacing()];
 
-        $scaleSizing = fn() => [
+        $scaleSizing = fn () => [
             $isFraction, 'auto', 'full', 'dvw', 'dvh', 'lvw', 'lvh', 'svw', 'svh',
             'min', 'max', 'fit', ...$scaleUnambiguousSpacing(),
         ];
 
-        $scaleColor = fn() => [$themeColor, $isArbitraryVariable, $isArbitraryValue];
+        $scaleColor = fn () => [$themeColor, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleBgPosition = fn() => [
+        $scaleBgPosition = fn () => [
             ...$scalePosition(),
             $isArbitraryVariablePosition,
             $isArbitraryPosition,
             ['position' => [$isArbitraryVariable, $isArbitraryValue]],
         ];
 
-        $scaleBgRepeat = fn() => ['no-repeat', ['repeat' => ['', 'x', 'y', 'space', 'round']]];
+        $scaleBgRepeat = fn () => ['no-repeat', ['repeat' => ['', 'x', 'y', 'space', 'round']]];
 
-        $scaleBgSize = fn() => [
+        $scaleBgSize = fn () => [
             'auto', 'cover', 'contain',
             $isArbitraryVariableSize, $isArbitrarySize,
             ['size' => [$isArbitraryVariable, $isArbitraryValue]],
         ];
 
-        $scaleGradientStopPosition = fn() => [$isPercent, $isArbitraryVariableLength, $isArbitraryLength];
+        $scaleGradientStopPosition = fn () => [$isPercent, $isArbitraryVariableLength, $isArbitraryLength];
 
-        $scaleRadius = fn() => ['', 'none', 'full', $themeRadius, $isArbitraryVariable, $isArbitraryValue];
+        $scaleRadius = fn () => ['', 'none', 'full', $themeRadius, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleBorderWidth = fn() => ['', $isNumber, $isArbitraryVariableLength, $isArbitraryLength];
+        $scaleBorderWidth = fn () => ['', $isNumber, $isArbitraryVariableLength, $isArbitraryLength];
 
-        $scaleLineStyle = fn() => ['solid', 'dashed', 'dotted', 'double'];
+        $scaleLineStyle = fn () => ['solid', 'dashed', 'dotted', 'double'];
 
-        $scaleBlendMode = fn() => [
+        $scaleBlendMode = fn () => [
             'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
             'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference',
             'exclusion', 'hue', 'saturation', 'color', 'luminosity',
         ];
 
-        $scaleMaskImagePosition = fn() => [$isNumber, $isPercent, $isArbitraryVariablePosition, $isArbitraryPosition];
+        $scaleMaskImagePosition = fn () => [$isNumber, $isPercent, $isArbitraryVariablePosition, $isArbitraryPosition];
 
-        $scaleBlur = fn() => ['', 'none', $themeBlur, $isArbitraryVariable, $isArbitraryValue];
+        $scaleBlur = fn () => ['', 'none', $themeBlur, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleRotate = fn() => ['none', $isNumber, $isArbitraryVariable, $isArbitraryValue];
+        $scaleRotate = fn () => ['none', $isNumber, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleScale = fn() => ['none', $isNumber, $isArbitraryVariable, $isArbitraryValue];
+        $scaleScale = fn () => ['none', $isNumber, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleSkew = fn() => [$isNumber, $isArbitraryVariable, $isArbitraryValue];
+        $scaleSkew = fn () => [$isNumber, $isArbitraryVariable, $isArbitraryValue];
 
-        $scaleTranslate = fn() => [$isFraction, 'full', ...$scaleUnambiguousSpacing()];
+        $scaleTranslate = fn () => [$isFraction, 'full', ...$scaleUnambiguousSpacing()];
 
         return [
             'cacheSize' => 500,

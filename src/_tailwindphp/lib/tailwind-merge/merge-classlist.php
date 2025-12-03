@@ -53,7 +53,7 @@ function mergeClassList(string $classList, array $configUtils): string
         $classGroupId = $getClassGroupId(
             $hasPostfixModifier
                 ? substr($baseClassName, 0, $maybePostfixModifierPosition)
-                : $baseClassName
+                : $baseClassName,
         );
 
         if ($classGroupId === null) {

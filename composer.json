@@ -12,7 +12,9 @@
         "php": "^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "laravel/pint": "^1.26",
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -101,6 +103,13 @@
             "php scripts/update-libs.php --check"
         ],
         "bench": "php scripts/benchmark.php",
-        "bench:save": "php scripts/benchmark.php --save"
+        "bench:save": "php scripts/benchmark.php --save",
+        "lint": "pint --test",
+        "format": "pint",
+        "analyse": "phpstan analyse",
+        "quality": [
+            "@lint",
+            "@analyse"
+        ]
     }
 }

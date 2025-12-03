@@ -41,7 +41,7 @@ function substituteAtImports(
     string $base,
     callable $loadStylesheet,
     int $recurseCount = 0,
-    bool $track = false
+    bool $track = false,
 ): int {
     $features = FEATURES_NONE;
 
@@ -75,7 +75,7 @@ function substituteAtImports(
             // recursion depth.
             if ($recurseCount > 100) {
                 throw new \RuntimeException(
-                    "Exceeded maximum recursion depth while resolving `{$uri}` in `{$base}`)"
+                    "Exceeded maximum recursion depth while resolving `{$uri}` in `{$base}`)",
                 );
             }
 
@@ -148,7 +148,7 @@ function parseImportParams(array $params): ?array
             }
             if ($supports !== null) {
                 throw new \RuntimeException(
-                    '`layer(…)` in an `@import` should come before any other functions or conditions'
+                    '`layer(…)` in an `@import` should come before any other functions or conditions',
                 );
             }
 
@@ -200,7 +200,7 @@ function buildImportNodes(
     array $importedAst,
     ?string $layer,
     ?string $media,
-    ?string $supports
+    ?string $supports,
 ): array {
     $root = $importedAst;
 

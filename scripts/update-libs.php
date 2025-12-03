@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * Companion Libraries Reference Update Script
  *
@@ -30,7 +31,8 @@ $libs = [
 ];
 
 // Colors for terminal output
-function color(string $text, string $color): string {
+function color(string $text, string $color): string
+{
     $colors = [
         'green' => "\033[32m",
         'red' => "\033[31m",
@@ -40,10 +42,12 @@ function color(string $text, string $color): string {
         'reset' => "\033[0m",
         'bold' => "\033[1m",
     ];
+
     return ($colors[$color] ?? '') . $text . $colors['reset'];
 }
 
-function run(string $cmd, ?string $cwd = null): array {
+function run(string $cmd, ?string $cwd = null): array
+{
     $descriptors = [
         0 => ['pipe', 'r'],
         1 => ['pipe', 'w'],
@@ -67,7 +71,8 @@ function run(string $cmd, ?string $cwd = null): array {
     return ['output' => trim($output), 'error' => trim($error), 'code' => $code];
 }
 
-function getCurrentVersion(string $dir): array {
+function getCurrentVersion(string $dir): array
+{
     $commit = run('git rev-parse HEAD', $dir)['output'];
     $tag = run('git describe --tags --exact-match 2>/dev/null || git describe --tags --abbrev=0 2>/dev/null', $dir)['output'];
 
@@ -78,8 +83,10 @@ function getCurrentVersion(string $dir): array {
     ];
 }
 
-function getLatestTag(string $dir, string $pattern): string {
+function getLatestTag(string $dir, string $pattern): string
+{
     $result = run("git fetch --tags && git tag -l \"{$pattern}\" | sort -V | tail -1", $dir);
+
     return $result['output'] ?: '';
 }
 
@@ -93,13 +100,13 @@ if ($arg === '--check' || $arg === '-c') {
 
     foreach ($libs as $name => $config) {
         if (!is_dir($config['dir'])) {
-            echo color($name, 'yellow') . ": " . color("not installed", 'red') . "\n";
+            echo color($name, 'yellow') . ': ' . color('not installed', 'red') . "\n";
             continue;
         }
         $version = getCurrentVersion($config['dir']);
         echo color($name, 'cyan') . "\n";
-        echo "  Tag:    " . color($version['tag'], 'green') . "\n";
-        echo "  Commit: " . color($version['short'], 'blue') . "\n\n";
+        echo '  Tag:    ' . color($version['tag'], 'green') . "\n";
+        echo '  Commit: ' . color($version['short'], 'blue') . "\n\n";
     }
     exit(0);
 }
@@ -110,7 +117,7 @@ if ($arg && isset($libs[$arg])) {
     $libsToUpdate[$arg] = $libs[$arg];
 } elseif ($arg && !isset($libs[$arg])) {
     echo color("Error: Unknown library '{$arg}'\n", 'red');
-    echo "Available: " . implode(', ', array_keys($libs)) . "\n";
+    echo 'Available: ' . implode(', ', array_keys($libs)) . "\n";
     exit(1);
 } else {
     $libsToUpdate = $libs;
@@ -123,7 +130,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo color("Current versions:\n", 'yellow');
 foreach ($libsToUpdate as $name => $config) {
     if (!is_dir($config['dir'])) {
-        echo "  {$name}: " . color("not installed", 'red') . "\n";
+        echo "  {$name}: " . color('not installed', 'red') . "\n";
         continue;
     }
     $version = getCurrentVersion($config['dir']);
@@ -167,8 +174,8 @@ foreach ($updates as $name => $info) {
 echo "  - Re-extract tests from references\n";
 echo "  - Run the test suite\n\n";
 
-echo "Continue? [y/N] ";
-$handle = fopen("php://stdin", "r");
+echo 'Continue? [y/N] ';
+$handle = fopen('php://stdin', 'r');
 $line = fgets($handle);
 fclose($handle);
 
@@ -183,7 +190,7 @@ echo "\n";
 foreach ($updates as $name => $info) {
     echo color("Updating {$name}...\n", 'bold');
 
-    $result = run("git fetch --all --tags", $info['config']['dir']);
+    $result = run('git fetch --all --tags', $info['config']['dir']);
     if ($result['code'] !== 0) {
         echo color("  Error fetching: {$result['error']}\n", 'red');
         exit(1);
@@ -195,16 +202,16 @@ foreach ($updates as $name => $info) {
         exit(1);
     }
 
-    echo color("  ✓ ", 'green') . "Checked out {$info['to']}\n";
+    echo color('  ✓ ', 'green') . "Checked out {$info['to']}\n";
 
     // Run extraction script
     if (file_exists($info['config']['extractScript'])) {
         echo "  Extracting tests...\n";
-        $result = run("php " . escapeshellarg($info['config']['extractScript']), $rootDir);
+        $result = run('php ' . escapeshellarg($info['config']['extractScript']), $rootDir);
         if ($result['code'] !== 0) {
             echo color("  Error extracting: {$result['error']}\n", 'red');
         } else {
-            echo color("  ✓ ", 'green') . "Tests extracted\n";
+            echo color('  ✓ ', 'green') . "Tests extracted\n";
         }
     }
     echo "\n";
@@ -222,16 +229,16 @@ foreach ($updates as $name => $info) {
     $readme = preg_replace(
         "/{$badgeName}-v[\d.]+-/",
         "{$badgeName}-{$info['to']}-",
-        $readme
+        $readme,
     );
 }
 
 file_put_contents($readmePath, $readme);
-echo color("  ✓ ", 'green') . "README badges updated\n\n";
+echo color('  ✓ ', 'green') . "README badges updated\n\n";
 
 // Run tests
 echo color("Running tests...\n", 'bold');
-passthru("cd " . escapeshellarg($rootDir) . " && ./vendor/bin/phpunit src/_tailwindphp/lib/", $testResult);
+passthru('cd ' . escapeshellarg($rootDir) . ' && ./vendor/bin/phpunit src/_tailwindphp/lib/', $testResult);
 
 echo "\n";
 
@@ -246,7 +253,7 @@ if ($testResult === 0) {
     echo "\nNext steps:\n";
     echo "  1. Review changes: git diff\n";
     echo "  2. Run full test suite: composer test\n";
-    echo "  3. Commit: git add -A && git commit -m \"Update libs: " . implode(', ', array_map(fn($n, $i) => "{$n} {$i['to']}", array_keys($updates), $updates)) . "\"\n";
+    echo '  3. Commit: git add -A && git commit -m "Update libs: ' . implode(', ', array_map(fn ($n, $i) => "{$n} {$i['to']}", array_keys($updates), $updates)) . "\"\n";
 } else {
     echo color("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", 'red');
     echo color("✗ Tests failed!\n", 'red');

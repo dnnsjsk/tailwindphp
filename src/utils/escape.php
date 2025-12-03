@@ -95,10 +95,12 @@ function unescape(string $escaped): string
             if (strlen($match[0]) > 2) {
                 // It's a hex escape sequence
                 $hex = trim($match[1]);
+
                 return mb_chr((int) hexdec($hex), 'UTF-8');
             }
+
             return $match[1];
         },
-        $escaped
+        $escaped,
     );
 }

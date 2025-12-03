@@ -62,6 +62,7 @@ class ClassGroupUtils
                 if ($baseConflicts !== null) {
                     return array_merge($baseConflicts, $modifierConflicts);
                 }
+
                 return $modifierConflicts;
             }
 
@@ -123,6 +124,7 @@ class ClassGroupUtils
         }
 
         $property = substr($content, 0, $colonIndex);
+
         return $property ? self::ARBITRARY_PROPERTY_PREFIX . $property : null;
     }
 
@@ -157,7 +159,7 @@ class ClassGroupUtils
         array $classGroup,
         array &$classPartObject,
         string $classGroupId,
-        array $theme
+        array $theme,
     ): void {
         foreach ($classGroup as $classDefinition) {
             $this->processClassDefinition($classDefinition, $classPartObject, $classGroupId, $theme);
@@ -173,7 +175,7 @@ class ClassGroupUtils
         mixed $classDefinition,
         array &$classPartObject,
         string $classGroupId,
-        array $theme
+        array $theme,
     ): void {
         if (is_string($classDefinition)) {
             $target = $classDefinition === ''
@@ -185,6 +187,7 @@ class ClassGroupUtils
             } else {
                 $classPartObject['classGroupId'] = $classGroupId;
             }
+
             return;
         }
 
@@ -193,6 +196,7 @@ class ClassGroupUtils
             $themeGetter = $classDefinition['__invoke'];
             $themeValues = $themeGetter($theme);
             $this->processClassesRecursively($themeValues, $classPartObject, $classGroupId, $theme);
+
             return;
         }
 
@@ -205,6 +209,7 @@ class ClassGroupUtils
                 'classGroupId' => $classGroupId,
                 'validator' => $classDefinition,
             ];
+
             return;
         }
 

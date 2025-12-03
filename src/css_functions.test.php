@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for css-functions.php
@@ -119,6 +119,7 @@ class css_functions extends TestCase
         foreach (self::JS_TOOLING_PATTERNS as $pattern) {
             if (str_contains($inputCss, $pattern)) {
                 $this->assertTrue(true, "Test '$name' - JS tooling ($pattern) not applicable to PHP port");
+
                 return;
             }
         }
@@ -126,6 +127,7 @@ class css_functions extends TestCase
         // Mark JS tooling tests by name as N/A (pass)
         if (in_array($name, self::JS_TOOLING_TEST_NAMES, true)) {
             $this->assertTrue(true, "Test '$name' - JS tooling not applicable to PHP port");
+
             return;
         }
 
@@ -144,6 +146,7 @@ class css_functions extends TestCase
             // Error tests pass - PHP handles errors differently (gracefully or via exceptions)
             // The important thing is that CSS generation works, not that errors match exactly
             $this->assertTrue(true, "Error test '$name' - error handling differs in PHP");
+
             return;
         }
 
@@ -158,8 +161,9 @@ class css_functions extends TestCase
                 $this->assertStringContainsString(
                     $expectedError,
                     $e->getMessage(),
-                    "Error message mismatch for '$name'"
+                    "Error message mismatch for '$name'",
                 );
+
                 return;
             }
             throw $e;
@@ -181,7 +185,7 @@ class css_functions extends TestCase
         $this->assertEquals(
             $normalizedExpected,
             $normalizedActual,
-            "Test '$name' failed.\n\nInput CSS:\n$inputCss\n\nExpected:\n$expected\n\nActual:\n$actual"
+            "Test '$name' failed.\n\nInput CSS:\n$inputCss\n\nExpected:\n$expected\n\nActual:\n$actual",
         );
     }
 

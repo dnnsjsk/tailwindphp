@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
+use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\styleRule;
-use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Utilities\property;
 
 /**
  * Spacing Utilities
@@ -106,15 +105,15 @@ function registerSpacingUtilities(UtilityBuilder $builder): void
 
     // Space reverse utilities - use :where(& > :not(:last-child)) selector
     $builder->staticUtility('space-x-reverse', [
-        fn() => atRoot([property('--tw-space-x-reverse', '0')]),
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => atRoot([property('--tw-space-x-reverse', '0')]),
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-sort', 'row-gap'),
             decl('--tw-space-x-reverse', '1'),
         ]),
     ]);
     $builder->staticUtility('space-y-reverse', [
-        fn() => atRoot([property('--tw-space-y-reverse', '0')]),
-        fn() => styleRule(':where(& > :not(:last-child))', [
+        fn () => atRoot([property('--tw-space-y-reverse', '0')]),
+        fn () => styleRule(':where(& > :not(:last-child))', [
             decl('--tw-sort', 'column-gap'),
             decl('--tw-space-y-reverse', '1'),
         ]),

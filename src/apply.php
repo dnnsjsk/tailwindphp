@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace TailwindPHP;
 
 use function TailwindPHP\Ast\rule;
-use function TailwindPHP\Ast\toCss;
-use function TailwindPHP\Walk\walk;
-use TailwindPHP\Walk\WalkAction;
-use TailwindPHP\DesignSystem\DesignSystem;
-use function TailwindPHP\Utils\segment;
 use function TailwindPHP\Compile\compileCandidates;
+
+use TailwindPHP\DesignSystem\DesignSystem;
+
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 /**
  * Substitute @apply at-rules with actual utility declarations.
@@ -73,7 +74,7 @@ function substituteAtApply(array &$ast, DesignSystem $designSystem): int
         }
 
         if (isset($wip[$pathKey])) {
-            throw new \Exception("Circular dependency detected in @apply");
+            throw new \Exception('Circular dependency detected in @apply');
         }
 
         $wip[$pathKey] = true;
@@ -192,12 +193,13 @@ function registerCssUtility(array $node, DesignSystem $designSystem): void
             if (!isset($candidate['value'])) {
                 return null;
             }
+
             // Deep clone to avoid mutation
-            return array_map(fn($child) => cloneUtilityNode($child), $nodes);
+            return array_map(fn ($child) => cloneUtilityNode($child), $nodes);
         });
     } else {
         // Static utility - return all nodes (declarations, nested rules, etc.)
-        $designSystem->getUtilities()->static($name, fn() => array_map(fn($child) => cloneUtilityNode($child), $nodes));
+        $designSystem->getUtilities()->static($name, fn () => array_map(fn ($child) => cloneUtilityNode($child), $nodes));
     }
 }
 
@@ -211,8 +213,9 @@ function cloneUtilityNode(array $node): array
 {
     $cloned = $node;
     if (isset($cloned['nodes'])) {
-        $cloned['nodes'] = array_map(fn($child) => cloneUtilityNode($child), $cloned['nodes']);
+        $cloned['nodes'] = array_map(fn ($child) => cloneUtilityNode($child), $cloned['nodes']);
     }
+
     return $cloned;
 }
 
@@ -236,7 +239,7 @@ function collectApplyInfo(
     array &$definitions,
     array &$utilityNodes,
     DesignSystem $designSystem,
-    int &$features
+    int &$features,
 ): void {
     foreach ($ast as $index => &$node) {
         $nodePath = array_merge($currentPath, [$index]);
@@ -314,6 +317,7 @@ function collectApplyInfo(
                                 $dependencies[$pathKey][$dependency] = true;
                             }
                         }
+
                         return WalkAction::Continue;
                     });
 
@@ -376,6 +380,7 @@ function substituteApplyInNode(array &$ast, string $pathKey, DesignSystem $desig
             }
 
             $newNodes = compileApplyAtRule($child, $designSystem);
+
             return WalkAction::Replace($newNodes);
         });
     } else {

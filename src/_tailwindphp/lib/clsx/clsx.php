@@ -61,6 +61,7 @@ function toValue(mixed $mix): string
         if (is_float($mix) && is_nan($mix)) {
             return '';
         }
+
         return (string) $mix;
     }
 

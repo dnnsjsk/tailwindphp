@@ -28,7 +28,7 @@ function twMerge(mixed ...$classLists): string
     static $merge = null;
 
     if ($merge === null) {
-        $merge = createTailwindMerge(fn() => DefaultConfig::get());
+        $merge = createTailwindMerge(fn () => DefaultConfig::get());
     }
 
     return $merge(...$classLists);

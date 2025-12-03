@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use TailwindPHP\Tests\TestHelper;
 
 /**
@@ -70,8 +70,11 @@ class utilities extends TestCase
 
             while ($pos < strlen($content) && $braceCount > 0) {
                 $char = $content[$pos];
-                if ($char === '{') $braceCount++;
-                elseif ($char === '}') $braceCount--;
+                if ($char === '{') {
+                    $braceCount++;
+                } elseif ($char === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
@@ -259,7 +262,9 @@ class utilities extends TestCase
                 $quote = $char;
                 $pos++;
                 while ($pos < $len && $str[$pos] !== $quote) {
-                    if ($str[$pos] === '\\') $pos++;
+                    if ($str[$pos] === '\\') {
+                        $pos++;
+                    }
                     $pos++;
                 }
             } elseif ($char === '[') {
@@ -311,7 +316,9 @@ class utilities extends TestCase
                 $pos++;
             }
 
-            if ($pos >= $len) break;
+            if ($pos >= $len) {
+                break;
+            }
 
             // Check for string start
             if ($str[$pos] === "'" || $str[$pos] === '"') {
@@ -330,10 +337,14 @@ class utilities extends TestCase
                         $nestedQuote = $str[$pos];
                         $pos++;
                         while ($pos < $len && $str[$pos] !== $nestedQuote) {
-                            if ($str[$pos] === '\\' && $pos + 1 < $len) $pos++;
+                            if ($str[$pos] === '\\' && $pos + 1 < $len) {
+                                $pos++;
+                            }
                             $pos++;
                         }
-                        if ($pos < $len) $pos++; // Skip closing nested quote
+                        if ($pos < $len) {
+                            $pos++;
+                        } // Skip closing nested quote
                         continue;
                     }
                     if ($str[$pos] === $quote) {
@@ -346,7 +357,9 @@ class utilities extends TestCase
                 if (!empty($class) && $class !== '[' && $class !== ']') {
                     $classes[] = $class;
                 }
-                if ($pos < $len) $pos++; // Skip closing quote
+                if ($pos < $len) {
+                    $pos++;
+                } // Skip closing quote
             } else {
                 // Skip non-string content
                 $pos++;
@@ -393,19 +406,25 @@ class utilities extends TestCase
         while (preg_match('/' . $pattern . '\s*[^{]*\{/', $css, $match, PREG_OFFSET_CAPTURE)) {
             $start = $match[0][1];
             $braceStart = strpos($css, '{', $start);
-            if ($braceStart === false) break;
+            if ($braceStart === false) {
+                break;
+            }
 
             $braceCount = 1;
             $pos = $braceStart + 1;
             $len = strlen($css);
             while ($pos < $len && $braceCount > 0) {
-                if ($css[$pos] === '{') $braceCount++;
-                elseif ($css[$pos] === '}') $braceCount--;
+                if ($css[$pos] === '{') {
+                    $braceCount++;
+                } elseif ($css[$pos] === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
             $css = substr($css, 0, $start) . substr($css, $pos);
         }
+
         return $css;
     }
 
@@ -418,19 +437,25 @@ class utilities extends TestCase
         while (preg_match('/' . $pattern . '\s*\{/', $css, $match, PREG_OFFSET_CAPTURE)) {
             $start = $match[0][1];
             $braceStart = strpos($css, '{', $start);
-            if ($braceStart === false) break;
+            if ($braceStart === false) {
+                break;
+            }
 
             $braceCount = 1;
             $pos = $braceStart + 1;
             $len = strlen($css);
             while ($pos < $len && $braceCount > 0) {
-                if ($css[$pos] === '{') $braceCount++;
-                elseif ($css[$pos] === '}') $braceCount--;
+                if ($css[$pos] === '{') {
+                    $braceCount++;
+                } elseif ($css[$pos] === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
             $css = substr($css, 0, $start) . substr($css, $pos);
         }
+
         return $css;
     }
 
@@ -445,13 +470,21 @@ class utilities extends TestCase
 
         while ($pos < $len) {
             // Skip whitespace
-            while ($pos < $len && ctype_space($css[$pos])) $pos++;
-            if ($pos >= $len) break;
+            while ($pos < $len && ctype_space($css[$pos])) {
+                $pos++;
+            }
+            if ($pos >= $len) {
+                break;
+            }
 
             // Find selector (everything up to {)
             $selectorStart = $pos;
-            while ($pos < $len && $css[$pos] !== '{') $pos++;
-            if ($pos >= $len) break;
+            while ($pos < $len && $css[$pos] !== '{') {
+                $pos++;
+            }
+            if ($pos >= $len) {
+                break;
+            }
 
             $selector = trim(substr($css, $selectorStart, $pos - $selectorStart));
             $pos++; // Skip {
@@ -460,8 +493,11 @@ class utilities extends TestCase
             $braceCount = 1;
             $contentStart = $pos;
             while ($pos < $len && $braceCount > 0) {
-                if ($css[$pos] === '{') $braceCount++;
-                elseif ($css[$pos] === '}') $braceCount--;
+                if ($css[$pos] === '{') {
+                    $braceCount++;
+                } elseif ($css[$pos] === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
@@ -503,7 +539,8 @@ class utilities extends TestCase
     public static function tailwindTestCases(): array
     {
         self::parseTestFiles();
-        return array_map(fn($test) => [$test], self::$testCases);
+
+        return array_map(fn ($test) => [$test], self::$testCases);
     }
 
     #[Test]
@@ -530,14 +567,15 @@ class utilities extends TestCase
                 $this->assertEmpty(trim($css), sprintf(
                     "Expected empty CSS output for classes: %s\n\nActual CSS:\n%s",
                     implode(', ', $testCase['classes']),
-                    $css
+                    $css,
                 ));
+
                 return;
             }
 
             $this->assertNotEmpty(trim($css), sprintf(
-                "Expected CSS output for classes: %s",
-                implode(', ', $testCase['classes'])
+                'Expected CSS output for classes: %s',
+                implode(', ', $testCase['classes']),
             ));
 
             // Verify each class generates a selector - but only if the class appears in expected output
@@ -585,9 +623,10 @@ class utilities extends TestCase
 
                 $this->assertTrue(
                     $foundSelector,
-                    sprintf("Class '%s' not found in CSS output (expected selector: %s)", $class, $expectedSelector)
+                    sprintf("Class '%s' not found in CSS output (expected selector: %s)", $class, $expectedSelector),
                 );
             }
+
             return;
         }
 
@@ -595,9 +634,10 @@ class utilities extends TestCase
 
         if ($testCase['type'] === 'empty') {
             $this->assertEquals('', $css, sprintf(
-                "Expected empty output for classes: %s",
-                implode(', ', $testCase['classes'])
+                'Expected empty output for classes: %s',
+                implode(', ', $testCase['classes']),
             ));
+
             return;
         }
 
@@ -621,7 +661,7 @@ class utilities extends TestCase
                 "Missing selector '%s' in output for classes: %s\nActual selectors: %s",
                 $selector,
                 implode(', ', $testCase['classes']),
-                implode(', ', array_keys($actualRules))
+                implode(', ', array_keys($actualRules)),
             ));
 
             if ($matchedSelector) {
@@ -632,16 +672,16 @@ class utilities extends TestCase
                         "Missing property '%s' in selector '%s' for classes: %s",
                         $prop,
                         $selector,
-                        implode(', ', $testCase['classes'])
+                        implode(', ', $testCase['classes']),
                     ));
 
                     // Allow theme variable differences
                     if (!$this->valuesMatch($expectedValue, $actualDecls[$prop])) {
                         $this->assertEquals($expectedValue, $actualDecls[$prop], sprintf(
-                            "Value mismatch for %s { %s } in classes: %s",
+                            'Value mismatch for %s { %s } in classes: %s',
                             $selector,
                             $prop,
-                            implode(', ', $testCase['classes'])
+                            implode(', ', $testCase['classes']),
                         ));
                     }
                 }
@@ -789,8 +829,10 @@ class utilities extends TestCase
             $g = $m[2] . $m[2];
             $b = $m[3] . $m[3];
             $a = isset($m[4]) ? $m[4] . $m[4] : '';
+
             return '#' . $r . $g . $b . $a;
         }
+
         return $color;
     }
 }

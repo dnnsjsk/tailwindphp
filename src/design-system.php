@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace TailwindPHP\DesignSystem;
 
-use TailwindPHP\Theme;
-use TailwindPHP\Utilities\Utilities;
-use TailwindPHP\Utilities\UtilityBuilder;
-use TailwindPHP\Variants\Variants;
-use TailwindPHP\Utils\DefaultMap;
-
-use function TailwindPHP\Compile\compileCandidates;
-use function TailwindPHP\Compile\compileAstNodes;
 use function TailwindPHP\Ast\toCss;
+
+use TailwindPHP\Candidate\DesignSystemInterface as CandidateDesignSystemInterface;
+
 use function TailwindPHP\Candidate\parseCandidate;
 use function TailwindPHP\Candidate\parseVariant;
-use TailwindPHP\Candidate\DesignSystemInterface as CandidateDesignSystemInterface;
+use function TailwindPHP\Compile\compileAstNodes;
+use function TailwindPHP\Compile\compileCandidates;
+
+use TailwindPHP\Theme;
+use TailwindPHP\Utilities\Utilities;
+use TailwindPHP\Utils\DefaultMap;
+use TailwindPHP\Variants\Variants;
 
 // Load utility registration files
 require_once __DIR__ . '/utilities/accessibility.php';
@@ -111,6 +112,7 @@ class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterf
             foreach (extractUsedVariables($raw) as $variable) {
                 $designSystem->theme->markUsedVariable($variable);
             }
+
             return true;
         });
     }
@@ -195,7 +197,7 @@ class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterf
         $themeValue = $this->theme->resolve(
             null,
             [$path],
-            $forceInline ? Theme::OPTIONS_INLINE : Theme::OPTIONS_NONE
+            $forceInline ? Theme::OPTIONS_INLINE : Theme::OPTIONS_NONE,
         );
 
         // Apply the opacity modifier if present
@@ -221,7 +223,7 @@ class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterf
             $compiled = compileCandidates([$className], $this, [
                 'onInvalidCandidate' => function () use (&$wasInvalid) {
                     $wasInvalid = true;
-                }
+                },
             ]);
 
             $astNodes = $compiled['astNodes'];
@@ -257,6 +259,7 @@ class DesignSystem implements DesignSystemInterface, CandidateDesignSystemInterf
         foreach ($this->variants->variants as $name => $info) {
             $order[$name] = $info['order'] ?? 0;
         }
+
         return $order;
     }
 }

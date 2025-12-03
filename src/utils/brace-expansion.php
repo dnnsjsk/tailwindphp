@@ -63,7 +63,7 @@ function expand(string $pattern): array
         $parts = segment($inside, ',');
     }
 
-    $parts = array_merge(...array_map(fn($part) => expand($part), $parts));
+    $parts = array_merge(...array_map(fn ($part) => expand($part), $parts));
 
     $expandedTail = expand($post);
 

@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use TailwindPHP\CssParser\CssSyntaxError;
 
 use function TailwindPHP\CssParser\parse;
-use function TailwindPHP\Ast\rule;
-use function TailwindPHP\Ast\decl;
-use function TailwindPHP\Ast\comment;
 
 class css_parser extends TestCase
 {
@@ -357,7 +354,7 @@ class css_parser extends TestCase
     #[Test]
     public function parses_rules_with_declarations_that_end_with_missing_semicolon(): void
     {
-        $result = parse(".foo { color: red; font-size: 16px }");
+        $result = parse('.foo { color: red; font-size: 16px }');
         $this->assertEquals([
             [
                 'kind' => 'rule',
@@ -373,7 +370,7 @@ class css_parser extends TestCase
     #[Test]
     public function parses_rules_with_declarations_that_end_with_missing_semicolon_and_important(): void
     {
-        $result = parse(".foo { color: red; font-size: 16px !important }");
+        $result = parse('.foo { color: red; font-size: 16px !important }');
         $this->assertEquals([
             [
                 'kind' => 'rule',

@@ -50,6 +50,7 @@ class DefaultMap
         if (is_array($key)) {
             return serialize($key);
         }
+
         return $key;
     }
 

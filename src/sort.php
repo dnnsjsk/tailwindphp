@@ -56,7 +56,7 @@ function getClassOrder(DesignSystem $designSystem, array $classes): array
 
     // Pair classes with their assigned sorting number
     return array_map(
-        fn($className) => [$className, $sorted[$className] ?? null],
-        $classes
+        fn ($className) => [$className, $sorted[$className] ?? null],
+        $classes,
     );
 }

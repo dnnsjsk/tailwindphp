@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-
-use function TailwindPHP\Utils\toKeyPath;
+use PHPUnit\Framework\TestCase;
 
 class to_key_path extends TestCase
 {

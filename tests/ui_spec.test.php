@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Tests;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
+
 use function TailwindPHP\compile;
 
 /**
@@ -111,7 +112,7 @@ CSS;
         // Verify CSS was generated (not empty)
         $this->assertNotEmpty(
             trim($css),
-            "Test '$name' produced empty CSS for classes: " . implode(' ', $classes)
+            "Test '$name' produced empty CSS for classes: " . implode(' ', $classes),
         );
 
         // For for-loop tests, verify the expected property is present
@@ -120,7 +121,7 @@ CSS;
             $this->assertPropertyInCss(
                 $css,
                 $property,
-                "Test '$name': Expected property '$property' not found in CSS"
+                "Test '$name': Expected property '$property' not found in CSS",
             );
         }
 
@@ -131,7 +132,7 @@ CSS;
                 $this->assertPropertyInCss(
                     $css,
                     $property,
-                    "Test '$name': Expected property '$property' not found in CSS"
+                    "Test '$name': Expected property '$property' not found in CSS",
                 );
             }
         }

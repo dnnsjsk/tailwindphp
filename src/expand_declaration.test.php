@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
-use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\Ast\toCss;
-use function TailwindPHP\Walk\walk;
+use function TailwindPHP\CssParser\parse;
 use function TailwindPHP\ExpandDeclaration\expandDeclaration;
-use TailwindPHP\Walk\WalkAction;
 
 use const TailwindPHP\ExpandDeclaration\SIGNATURE_EXPAND_PROPERTIES;
 use const TailwindPHP\ExpandDeclaration\SIGNATURE_LOGICAL_TO_PHYSICAL;
+
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 /**
  * Tests for expand-declaration.php

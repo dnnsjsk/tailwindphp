@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-
-use function TailwindPHP\Utils\escape;
-use function TailwindPHP\Utils\unescape;
+use PHPUnit\Framework\TestCase;
 
 class escape extends TestCase
 {

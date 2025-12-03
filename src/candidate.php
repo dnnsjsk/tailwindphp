@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Candidate;
 
-use TailwindPHP\Theme;
 use function TailwindPHP\DecodeArbitraryValue\decodeArbitraryValue;
-use function TailwindPHP\Utils\segment;
+
+use TailwindPHP\Theme;
+
 use function TailwindPHP\Utils\isValidArbitrary;
+use function TailwindPHP\Utils\segment;
 use function TailwindPHP\ValueParser\parse as valueParse;
 use function TailwindPHP\ValueParser\toCss as valueToCss;
 use function TailwindPHP\Walk\walk;
@@ -113,6 +115,7 @@ function cloneCandidate(array $candidate): array
                     ];
                 }
             }
+
             return [
                 'kind' => $candidate['kind'],
                 'root' => $candidate['root'],
@@ -200,8 +203,12 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
     // all utilities must start with that variant which we will then remove from
     // the variant list so no other part of the codebase has to know about it.
     if ($theme->prefix) {
-        if (count($rawVariants) === 1) return;
-        if ($rawVariants[0] !== $theme->prefix) return;
+        if (count($rawVariants) === 1) {
+            return;
+        }
+        if ($rawVariants[0] !== $theme->prefix) {
+            return;
+        }
 
         array_shift($rawVariants);
     }
@@ -215,7 +222,9 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
 
     for ($i = count($rawVariants) - 1; $i >= 0; --$i) {
         $parsedVariant = $designSystem->parseVariant($rawVariants[$i]);
-        if ($parsedVariant === null) return;
+        if ($parsedVariant === null) {
+            return;
+        }
 
         $parsedCandidateVariants[] = $parsedVariant;
     }
@@ -266,7 +275,9 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
     // E.g.:
     //
     // - `bg-red-500/50/50`
-    if ($additionalModifier !== null) return;
+    if ($additionalModifier !== null) {
+        return;
+    }
 
     $parsedModifier = $modifierSegment === null ? null : parseModifier($modifierSegment);
 
@@ -274,12 +285,16 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
     //                                                        ^^                  ^^
     //                                           `bg-[#0088cc]/[]` or `bg-[#0088cc]/()`.
     //                                                         ^^                   ^^
-    if ($modifierSegment !== null && $parsedModifier === null) return;
+    if ($modifierSegment !== null && $parsedModifier === null) {
+        return;
+    }
 
     // Arbitrary properties
     if (strlen($baseWithoutModifier) > 0 && $baseWithoutModifier[0] === '[') {
         // Arbitrary properties should end with a `]`.
-        if ($baseWithoutModifier[strlen($baseWithoutModifier) - 1] !== ']') return;
+        if ($baseWithoutModifier[strlen($baseWithoutModifier) - 1] !== ']') {
+            return;
+        }
 
         // The property part of the arbitrary property can only start with a-z
         // lowercase or a dash `-` in case of vendor prefixes such as `-webkit-`
@@ -303,13 +318,17 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
         // also verify that the colon is not the first or last character in the
         // candidate, because that would make it invalid as well.
         $idx = strpos($baseWithoutModifier, ':');
-        if ($idx === false || $idx === 0 || $idx === strlen($baseWithoutModifier) - 1) return;
+        if ($idx === false || $idx === 0 || $idx === strlen($baseWithoutModifier) - 1) {
+            return;
+        }
 
         $property = substr($baseWithoutModifier, 0, $idx);
         $value = decodeArbitraryValue(substr($baseWithoutModifier, $idx + 1));
 
         // Values can't contain `;` or `}` characters at the top-level.
-        if (!isValidArbitrary($value)) return;
+        if (!isValidArbitrary($value)) {
+            return;
+        }
 
         yield [
             'kind' => 'arbitrary',
@@ -345,13 +364,17 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
     // ```
     if (strlen($baseWithoutModifier) > 0 && $baseWithoutModifier[strlen($baseWithoutModifier) - 1] === ']') {
         $idx = strpos($baseWithoutModifier, '-[');
-        if ($idx === false) return;
+        if ($idx === false) {
+            return;
+        }
 
         $root = substr($baseWithoutModifier, 0, $idx);
 
         // The root of the utility should exist as-is in the utilities map. If not,
         // it's an invalid utility and we can skip continue parsing.
-        if (!$utilities->has($root, 'functional')) return;
+        if (!$utilities->has($root, 'functional')) {
+            return;
+        }
 
         $value = substr($baseWithoutModifier, $idx + 1);
 
@@ -371,13 +394,17 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
     // ```
     elseif (strlen($baseWithoutModifier) > 0 && $baseWithoutModifier[strlen($baseWithoutModifier) - 1] === ')') {
         $idx = strpos($baseWithoutModifier, '-(');
-        if ($idx === false) return;
+        if ($idx === false) {
+            return;
+        }
 
         $root = substr($baseWithoutModifier, 0, $idx);
 
         // The root of the utility should exist as-is in the utilities map. If not,
         // it's an invalid utility and we can skip continue parsing.
-        if (!$utilities->has($root, 'functional')) return;
+        if (!$utilities->has($root, 'functional')) {
+            return;
+        }
 
         $value = substr($baseWithoutModifier, $idx + 2, -1);
 
@@ -391,10 +418,14 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
 
         // An arbitrary value with `(…)` should always start with `--` since it
         // represents a CSS variable.
-        if (strlen($value) < 2 || $value[0] !== '-' || $value[1] !== '-') return;
+        if (strlen($value) < 2 || $value[0] !== '-' || $value[1] !== '-') {
+            return;
+        }
 
         // Values can't contain `;` or `}` characters at the top-level.
-        if (!isValidArbitrary($value)) return;
+        if (!isValidArbitrary($value)) {
+            return;
+        }
 
         $roots = [[$root, $dataType === null ? "[var({$value})]" : "[{$dataType}:var({$value})]"]];
     }
@@ -427,12 +458,16 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
 
         if ($valueIsArbitrary) {
             // Arbitrary values must end with a `]`.
-            if ($value[strlen($value) - 1] !== ']') return;
+            if ($value[strlen($value) - 1] !== ']') {
+                return;
+            }
 
             $arbitraryValue = decodeArbitraryValue(substr($value, $startArbitraryIdx + 1, -1));
 
             // Values can't contain `;` or `}` characters at the top-level.
-            if (!isValidArbitrary($arbitraryValue)) continue;
+            if (!isValidArbitrary($arbitraryValue)) {
+                continue;
+            }
 
             // Extract an explicit typehint if present, e.g. `bg-[color:var(--my-var)])`
             $typehint = null;
@@ -461,7 +496,9 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
                 continue;
             }
 
-            if ($typehint === '') continue;
+            if ($typehint === '') {
+                continue;
+            }
 
             $candidate['value'] = [
                 'kind' => 'arbitrary',
@@ -500,11 +537,15 @@ function parseModifier(string $modifier): ?array
         $arbitraryValue = decodeArbitraryValue(substr($modifier, 1, -1));
 
         // Values can't contain `;` or `}` characters at the top-level.
-        if (!isValidArbitrary($arbitraryValue)) return null;
+        if (!isValidArbitrary($arbitraryValue)) {
+            return null;
+        }
 
         // Empty arbitrary values are invalid. E.g.: `data-[]:`
         //                                                 ^^
-        if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) return null;
+        if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) {
+            return null;
+        }
 
         return [
             'kind' => 'arbitrary',
@@ -518,10 +559,14 @@ function parseModifier(string $modifier): ?array
 
         // A modifier with `(…)` should always start with `--` since it
         // represents a CSS variable.
-        if (strlen($modifier) < 2 || $modifier[0] !== '-' || $modifier[1] !== '-') return null;
+        if (strlen($modifier) < 2 || $modifier[0] !== '-' || $modifier[1] !== '-') {
+            return null;
+        }
 
         // Values can't contain `;` or `}` characters at the top-level.
-        if (!isValidArbitrary($modifier)) return null;
+        if (!isValidArbitrary($modifier)) {
+            return null;
+        }
 
         // Wrap the value in `var(…)` to ensure that it is a valid CSS variable.
         $modifier = "var({$modifier})";
@@ -566,16 +611,22 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
          *  - `[@media(width>=123px)]:[&:hover]:`
          *  - `[@media(width>=123px)]:hover:`
          */
-        if ($variant[1] === '@' && strpos($variant, '&') !== false) return null;
+        if ($variant[1] === '@' && strpos($variant, '&') !== false) {
+            return null;
+        }
 
         $selector = decodeArbitraryValue(substr($variant, 1, -1));
 
         // Values can't contain `;` or `}` characters at the top-level.
-        if (!isValidArbitrary($selector)) return null;
+        if (!isValidArbitrary($selector)) {
+            return null;
+        }
 
         // Empty arbitrary values are invalid. E.g.: `[]:`
         //                                            ^^
-        if (strlen($selector) === 0 || strlen(trim($selector)) === 0) return null;
+        if (strlen($selector) === 0 || strlen(trim($selector)) === 0) {
+            return null;
+        }
 
         $relative = $selector[0] === '>' || $selector[0] === '+' || $selector[0] === '~';
 
@@ -610,7 +661,9 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
     // E.g.:
     //
     // - `group-hover/foo/bar`
-    if ($additionalModifier !== null) return null;
+    if ($additionalModifier !== null) {
+        return null;
+    }
 
     $roots = findRoots($variantWithoutModifier, function (string $root) use ($variants) {
         return $variants->has($root);
@@ -620,10 +673,14 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
         switch ($variants->kind($root)) {
             case 'static':
                 // Static variants do not have a value
-                if ($value !== null) return null;
+                if ($value !== null) {
+                    return null;
+                }
 
                 // Static variants do not have a modifier
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
 
                 return [
                     'kind' => 'static',
@@ -634,7 +691,9 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
                 $parsedModifier = $modifier === null ? null : parseModifier($modifier);
                 // Empty arbitrary values are invalid. E.g.: `@max-md/[]:` or `@max-md/():`
                 //                                                    ^^               ^^
-                if ($modifier !== null && $parsedModifier === null) return null;
+                if ($modifier !== null && $parsedModifier === null) {
+                    return null;
+                }
 
                 if ($value === null) {
                     return [
@@ -647,16 +706,22 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
 
                 if (strlen($value) > 0 && $value[strlen($value) - 1] === ']') {
                     // Discard values like `foo-[#bar]`
-                    if ($value[0] !== '[') continue 2;
+                    if ($value[0] !== '[') {
+                        continue 2;
+                    }
 
                     $arbitraryValue = decodeArbitraryValue(substr($value, 1, -1));
 
                     // Values can't contain `;` or `}` characters at the top-level.
-                    if (!isValidArbitrary($arbitraryValue)) return null;
+                    if (!isValidArbitrary($arbitraryValue)) {
+                        return null;
+                    }
 
                     // Empty arbitrary values are invalid. E.g.: `data-[]:`
                     //                                                 ^^
-                    if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) return null;
+                    if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) {
+                        return null;
+                    }
 
                     return [
                         'kind' => 'functional',
@@ -671,19 +736,27 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
 
                 if (strlen($value) > 0 && $value[strlen($value) - 1] === ')') {
                     // Discard values like `foo-(--bar)`
-                    if ($value[0] !== '(') continue 2;
+                    if ($value[0] !== '(') {
+                        continue 2;
+                    }
 
                     $arbitraryValue = decodeArbitraryValue(substr($value, 1, -1));
 
                     // Values can't contain `;` or `}` characters at the top-level.
-                    if (!isValidArbitrary($arbitraryValue)) return null;
+                    if (!isValidArbitrary($arbitraryValue)) {
+                        return null;
+                    }
 
                     // Empty arbitrary values are invalid. E.g.: `data-():`
                     //                                                 ^^
-                    if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) return null;
+                    if (strlen($arbitraryValue) === 0 || strlen(trim($arbitraryValue)) === 0) {
+                        return null;
+                    }
 
                     // Arbitrary values must start with `--` since it represents a CSS variable.
-                    if (strlen($arbitraryValue) < 2 || $arbitraryValue[0] !== '-' || $arbitraryValue[1] !== '-') return null;
+                    if (strlen($arbitraryValue) < 2 || $arbitraryValue[0] !== '-' || $arbitraryValue[1] !== '-') {
+                        return null;
+                    }
 
                     return [
                         'kind' => 'functional',
@@ -704,7 +777,9 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
                 ];
 
             case 'compound':
-                if ($value === null) return null;
+                if ($value === null) {
+                    return null;
+                }
 
                 // Forward the modifier of the compound variants to its subVariant.
                 // This allows for `not-group-hover/name:flex` to work.
@@ -714,15 +789,21 @@ function parseVariant(string $variant, DesignSystemInterface $designSystem): ?ar
                 }
 
                 $subVariant = $designSystem->parseVariant($value);
-                if ($subVariant === null) return null;
+                if ($subVariant === null) {
+                    return null;
+                }
 
                 // These two variants must be compatible when compounded
-                if (!$variants->compoundsWith($root, $subVariant)) return null;
+                if (!$variants->compoundsWith($root, $subVariant)) {
+                    return null;
+                }
 
                 $parsedModifier = $modifier === null ? null : parseModifier($modifier);
                 // Empty arbitrary values are invalid. E.g.: `group-focus/[]:` or `group-focus/():`
                 //                                                        ^^                   ^^
-                if ($modifier !== null && $parsedModifier === null) return null;
+                if ($modifier !== null && $parsedModifier === null) {
+                    return null;
+                }
 
                 return [
                     'kind' => 'compound',
@@ -770,18 +851,24 @@ function findRoots(string $input, callable $exists): iterable
             // If the leftover value is an empty string, it means that the value is an
             // invalid named value, e.g.: `bg-`. This makes the candidate invalid and we
             // can skip any further parsing.
-            if ($root[1] === '') break;
+            if ($root[1] === '') {
+                break;
+            }
 
             // Edge case: `@-…` is not valid as a variant or a utility so we want to
             // skip if an `@` is followed by a `-`. Otherwise `@-2xl:flex` and
             // `@-2xl:flex` would be considered the same.
-            if ($root[0] === '@' && $exists('@') && $input[$idx] === '-') break;
+            if ($root[0] === '@' && $exists('@') && $input[$idx] === '-') {
+                break;
+            }
 
             yield $root;
         }
 
         $idx = strrpos(substr($input, 0, $idx), '-');
-        if ($idx === false) break;
+        if ($idx === false) {
+            break;
+        }
     }
 
     // Try '@' variant after permutations. This allows things like `@max` of `@max-foo-bar`
@@ -844,7 +931,7 @@ function printCandidate(DesignSystemInterface $designSystem, array $candidate): 
 
     // Handle arbitrary
     if ($candidate['kind'] === 'arbitrary') {
-        $base .= "[{$candidate['property']}:" . printArbitraryValue($candidate['value']) . "]";
+        $base .= "[{$candidate['property']}:" . printArbitraryValue($candidate['value']) . ']';
     }
 
     // Handle modifier
@@ -870,7 +957,9 @@ function printCandidate(DesignSystemInterface $designSystem, array $candidate): 
  */
 function printModifier(?array $modifier): string
 {
-    if ($modifier === null) return '';
+    if ($modifier === null) {
+        return '';
+    }
 
     $isVarValue = isVar($modifier['value']);
     $value = $isVarValue ? substr($modifier['value'], 4, -1) : $modifier['value'];
@@ -975,13 +1064,19 @@ function printArbitraryValue(string $input): string
             $idx = array_search($node, $parentArray, true);
 
             // This should not be possible
-            if ($idx === false) return;
+            if ($idx === false) {
+                return;
+            }
 
             $previous = $parentArray[$idx - 1] ?? null;
-            if (!$previous || $previous['kind'] !== 'separator' || $previous['value'] !== ' ') return;
+            if (!$previous || $previous['kind'] !== 'separator' || $previous['value'] !== ' ') {
+                return;
+            }
 
             $next = $parentArray[$idx + 1] ?? null;
-            if (!$next || $next['kind'] !== 'separator' || $next['value'] !== ' ') return;
+            if (!$next || $next['kind'] !== 'separator' || $next['value'] !== ' ') {
+                return;
+            }
 
             $drop[] = spl_object_hash((object)$previous);
             $drop[] = spl_object_hash((object)$next);
@@ -1011,6 +1106,7 @@ function printArbitraryValue(string $input): string
 
     $result = valueToCss($ast);
     $printArbitraryValueCache[$input] = $result;
+
     return $result;
 }
 
@@ -1034,6 +1130,7 @@ function filterAstNodes(array $ast, array $dropHashes): array
         }
         $result[] = $node;
     }
+
     return $result;
 }
 
@@ -1074,10 +1171,12 @@ function simplifyArbitraryVariant(string $input): string
     ) {
         $result = valueToCss($ast[2]['nodes']);
         $simplifyArbitraryVariantCache[$input] = $result;
+
         return $result;
     }
 
     $simplifyArbitraryVariantCache[$input] = $input;
+
     return $input;
 }
 
@@ -1157,6 +1256,7 @@ function isVar(string $value): bool
     $ast = valueParse($value);
     $result = count($ast) === 1 && $ast[0]['kind'] === 'function' && $ast[0]['value'] === 'var';
     $isVarCache[$value] = $result;
+
     return $result;
 }
 

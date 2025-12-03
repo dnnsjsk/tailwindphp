@@ -72,7 +72,7 @@ for ($i = 0; $i < $totalLines; $i++) {
     }
 }
 
-echo "Found " . count($tests) . " tests\n\n";
+echo 'Found ' . count($tests) . " tests\n\n";
 
 // Extract test cases
 $testCases = [];
@@ -84,13 +84,17 @@ foreach ($tests as $test) {
     // Pattern: compileCss(css`...`) or compileCss(css`...`, [...classes])
 
     $cssStart = strpos($body, 'css`');
-    if ($cssStart === false) continue;
+    if ($cssStart === false) {
+        continue;
+    }
 
     $cssStart += 4;
     $remaining = substr($body, $cssStart);
     $cssEnd = findClosingBacktick($remaining);
 
-    if ($cssEnd === null) continue;
+    if ($cssEnd === null) {
+        continue;
+    }
 
     $inputCss = trim(substr($remaining, 0, $cssEnd));
     $afterCss = substr($body, $cssStart + $cssEnd);
@@ -147,6 +151,7 @@ function parseClassArray(string $str): array
     foreach ($matches[1] as $class) {
         $classes[] = $class;
     }
+
     return $classes;
 }
 
@@ -213,14 +218,14 @@ function findClosingBacktick(string $str): ?int
     return null;
 }
 
-echo "Extracted " . count($testCases) . " test cases\n\n";
+echo 'Extracted ' . count($testCases) . " test cases\n\n";
 
 // Count by type
-$outputTests = array_filter($testCases, fn($t) => $t['type'] === 'output');
-$errorTests = array_filter($testCases, fn($t) => $t['type'] === 'error');
+$outputTests = array_filter($testCases, fn ($t) => $t['type'] === 'output');
+$errorTests = array_filter($testCases, fn ($t) => $t['type'] === 'error');
 
-echo "Output tests: " . count($outputTests) . "\n";
-echo "Error tests: " . count($errorTests) . "\n\n";
+echo 'Output tests: ' . count($outputTests) . "\n";
+echo 'Error tests: ' . count($errorTests) . "\n\n";
 
 // Categorize by function
 $categories = [];
@@ -229,9 +234,13 @@ foreach ($testCases as $case) {
 
     // Determine category from test name
     $category = 'other';
-    if (str_starts_with($testName, '--alpha')) $category = 'alpha';
-    elseif (str_starts_with($testName, '--spacing')) $category = 'spacing';
-    elseif (str_starts_with($testName, '--theme')) $category = 'theme';
+    if (str_starts_with($testName, '--alpha')) {
+        $category = 'alpha';
+    } elseif (str_starts_with($testName, '--spacing')) {
+        $category = 'spacing';
+    } elseif (str_starts_with($testName, '--theme')) {
+        $category = 'theme';
+    }
 
     if (!isset($categories[$category])) {
         $categories[$category] = [];
@@ -255,7 +264,7 @@ $outputData = [
     'totalCases' => count($testCases),
     'outputTests' => count($outputTests),
     'errorTests' => count($errorTests),
-    'categories' => array_map(fn($c) => count($c), $categories),
+    'categories' => array_map(fn ($c) => count($c), $categories),
 ];
 
 file_put_contents("$summaryDir/summary.json", json_encode($outputData, JSON_PRETTY_PRINT));

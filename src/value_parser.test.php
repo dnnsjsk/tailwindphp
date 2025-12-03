@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\Walk\WalkAction;
+use PHPUnit\Framework\TestCase;
 
 use function TailwindPHP\ValueParser\parse;
 use function TailwindPHP\ValueParser\toCss;
 use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 class value_parser extends TestCase
 {

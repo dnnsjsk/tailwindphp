@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use TailwindPHP\Theme;
 use function TailwindPHP\Ast\decl;
+
+use TailwindPHP\Theme;
+
 use function TailwindPHP\Utils\isPositiveInteger;
 
 /**
@@ -240,6 +242,7 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         }
 
         $negValue = "calc({$value} * -1)";
+
         return [
             decl('--tw-scale-x', $negValue),
             decl('--tw-scale-y', $negValue),
@@ -262,6 +265,7 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
                 if (!isPositiveInteger($value['value'])) {
                     return null;
                 }
+
                 return "{$value['value']}%";
             },
             'handle' => function ($value) use ($axis, $scaleValue) {
@@ -294,12 +298,14 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}deg";
         },
         'handleNegativeBareValue' => function ($value) {
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "-{$value['value']}deg";
         },
         'handle' => function ($value) {
@@ -320,10 +326,12 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
                 if (!isPositiveInteger($value['value'])) {
                     return null;
                 }
+
                 return "{$value['value']}deg";
             },
             'handle' => function ($value) use ($axis, $transformValue) {
                 $rotateFunc = 'rotate' . strtoupper($axis);
+
                 return [
                     decl("--tw-rotate-{$axis}", "{$rotateFunc}({$value})"),
                     decl('transform', $transformValue),
@@ -345,6 +353,7 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}deg";
         },
         'handle' => function ($value) use ($transformValue) {
@@ -366,10 +375,12 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
                 if (!isPositiveInteger($value['value'])) {
                     return null;
                 }
+
                 return "{$value['value']}deg";
             },
             'handle' => function ($value) use ($axis, $transformValue) {
                 $skewFunc = 'skew' . strtoupper($axis);
+
                 return [
                     decl("--tw-skew-{$axis}", "{$skewFunc}({$value})"),
                     decl('transform', $transformValue),

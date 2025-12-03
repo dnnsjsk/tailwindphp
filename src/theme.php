@@ -64,6 +64,7 @@ function isIgnoredThemeKey(string $themeKey, string $namespace): bool
             return true;
         }
     }
+
     return false;
 }
 
@@ -144,7 +145,7 @@ class Theme
                 $this->clearNamespace(
                     substr($key, 0, -2),
                     // `--${key}-*: initial;` should clear _all_ theme values
-                    THEME_OPTION_NONE
+                    THEME_OPTION_NONE,
                 );
             }
         }
@@ -235,6 +236,7 @@ class Theme
     public function getOptions(string $key): int
     {
         $key = unescape($this->unprefixKey($key));
+
         return $this->values[$key]['options'] ?? THEME_OPTION_NONE;
     }
 
@@ -249,6 +251,7 @@ class Theme
             foreach ($this->values as $key => $value) {
                 yield [$key, $value];
             }
+
             return;
         }
 
@@ -268,6 +271,7 @@ class Theme
         if (!$this->prefix) {
             return $key;
         }
+
         return "--{$this->prefix}-" . substr($key, 2);
     }
 
@@ -282,6 +286,7 @@ class Theme
         if (!$this->prefix) {
             return $key;
         }
+
         return '--' . substr($key, 3 + strlen($this->prefix));
     }
 
@@ -381,6 +386,7 @@ class Theme
         }
 
         $prefixedKey = escape($this->prefixKey($themeKey));
+
         return "var({$prefixedKey}" . ($fallback ? ", {$fallback}" : '') . ')';
     }
 
@@ -398,6 +404,7 @@ class Theme
         }
         $isUsed = $this->values[$key]['options'] & THEME_OPTION_USED;
         $this->values[$key]['options'] |= THEME_OPTION_USED;
+
         return !$isUsed;
     }
 
@@ -530,7 +537,7 @@ class Theme
      */
     public function getKeyframes(): array
     {
-        return array_map(fn($kf) => $kf['node'], $this->keyframes);
+        return array_map(fn ($kf) => $kf['node'], $this->keyframes);
     }
 
     /**

@@ -127,7 +127,7 @@ $testType = $argv[1] ?? 'utilities';
 
 if (!isset($testConfigs[$testType])) {
     echo "Error: Unknown test type '$testType'\n";
-    echo "Supported types: " . implode(', ', array_keys($testConfigs)) . "\n";
+    echo 'Supported types: ' . implode(', ', array_keys($testConfigs)) . "\n";
     exit(1);
 }
 
@@ -203,7 +203,7 @@ for ($i = 0; $i < $totalLines; $i++) {
     }
 }
 
-echo "Found " . count($tests) . " tests\n\n";
+echo 'Found ' . count($tests) . " tests\n\n";
 
 // Assign tests to categories
 $categories = [];
@@ -253,7 +253,7 @@ $maxLinesPerFile = 1000;
 $stats = [];
 
 foreach ($categories as $category => $categoryTests) {
-    $totalCategoryLines = array_sum(array_map(fn($t) => $t['lineCount'], $categoryTests));
+    $totalCategoryLines = array_sum(array_map(fn ($t) => $t['lineCount'], $categoryTests));
     $stats[$category] = [
         'tests' => count($categoryTests),
         'lines' => $totalCategoryLines,
@@ -283,7 +283,7 @@ foreach ($categories as $category => $categoryTests) {
 
             // If adding this test would exceed limit, write current file and start new one
             if ($currentLines + $testLines > $maxLinesPerFile && $testsInFile > 0) {
-                $filename = "$outputDir/{$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . ".ts";
+                $filename = "$outputDir/{$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . '.ts';
                 file_put_contents($filename, $currentContent);
                 $lineCount = count(explode("\n", $currentContent));
                 echo "Wrote {$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . ".ts ($testsInFile tests, $lineCount lines)\n";
@@ -300,7 +300,7 @@ foreach ($categories as $category => $categoryTests) {
 
         // Write remaining content
         if ($testsInFile > 0) {
-            $filename = "$outputDir/{$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . ".ts";
+            $filename = "$outputDir/{$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . '.ts';
             file_put_contents($filename, $currentContent);
             $lineCount = count(explode("\n", $currentContent));
             echo "Wrote {$category}-" . str_pad($fileIndex, 2, '0', STR_PAD_LEFT) . ".ts ($testsInFile tests, $lineCount lines)\n";
@@ -323,7 +323,7 @@ foreach ($stats as $category => $info) {
         'tests' => $info['tests'],
         'lines' => $info['lines'],
         'files' => $info['files'],
-        'testNames' => array_map(fn($t) => $t['name'], $categories[$category]),
+        'testNames' => array_map(fn ($t) => $t['name'], $categories[$category]),
     ];
 }
 
@@ -334,14 +334,14 @@ file_put_contents("$summaryDir/summary.json", json_encode($summary, JSON_PRETTY_
 // Print summary
 echo "\n=== Summary ===\n";
 echo "Source: $totalLines lines\n";
-echo "Total tests: " . count($tests) . "\n";
-echo "Categories: " . count($categories) . "\n\n";
+echo 'Total tests: ' . count($tests) . "\n";
+echo 'Categories: ' . count($categories) . "\n\n";
 
 ksort($stats);
 $totalFiles = 0;
 foreach ($stats as $category => $info) {
     $totalFiles += $info['files'];
-    $filesStr = $info['files'] > 1 ? "({$info['files']} files)" : "";
+    $filesStr = $info['files'] > 1 ? "({$info['files']} files)" : '';
     echo sprintf("  %-20s %3d tests, %5d lines %s\n", $category, $info['tests'], $info['lines'], $filesStr);
 }
 

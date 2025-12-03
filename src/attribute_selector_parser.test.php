@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
 use function TailwindPHP\AttributeSelectorParser\parse;
 
 /**
@@ -99,7 +100,7 @@ class attribute_selector_parser extends TestCase
                 'value' => '.com',
                 'sensitivity' => 'i',
             ],
-            parse('[data-url$=".com"i]')
+            parse('[data-url$=".com"i]'),
         );
     }
 }

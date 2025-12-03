@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 use function TailwindPHP\DecodeArbitraryValue\decodeArbitraryValue;
 
@@ -38,7 +38,7 @@ class decode_arbitrary_value extends TestCase
         $this->assertEquals('url(./my_file.jpg)', decodeArbitraryValue('url(./my_file.jpg)'));
         $this->assertEquals(
             'no-repeat url(./my_file.jpg)',
-            decodeArbitraryValue('no-repeat_url(./my_file.jpg)')
+            decodeArbitraryValue('no-repeat_url(./my_file.jpg)'),
         );
     }
 
@@ -49,7 +49,7 @@ class decode_arbitrary_value extends TestCase
         $this->assertEquals('var(--spacing-1_5, 1rem)', decodeArbitraryValue('var(--spacing-1_5,_1rem)'));
         $this->assertEquals(
             'var(--spacing-1_5, var(--spacing-2_5, 1rem))',
-            decodeArbitraryValue('var(--spacing-1_5,_var(--spacing-2_5,_1rem))')
+            decodeArbitraryValue('var(--spacing-1_5,_var(--spacing-2_5,_1rem))'),
         );
     }
 
@@ -60,7 +60,7 @@ class decode_arbitrary_value extends TestCase
         $this->assertEquals('theme(--spacing-1_5, 1rem)', decodeArbitraryValue('theme(--spacing-1_5,_1rem)'));
         $this->assertEquals(
             'theme(--spacing-1_5, theme(--spacing-2_5, 1rem))',
-            decodeArbitraryValue('theme(--spacing-1_5,_theme(--spacing-2_5,_1rem))')
+            decodeArbitraryValue('theme(--spacing-1_5,_theme(--spacing-2_5,_1rem))'),
         );
     }
 

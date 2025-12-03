@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utils;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
-
-use function TailwindPHP\Utils\expand;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class brace_expansion extends TestCase
 {

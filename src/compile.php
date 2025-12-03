@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Compile;
 
-use function TailwindPHP\Ast\rule;
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRule;
-use function TailwindPHP\Utils\escape;
-use function TailwindPHP\Utils\compare;
-use function TailwindPHP\Walk\walk;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\rule;
 
 use const TailwindPHP\PropertyOrder\PROPERTY_ORDER;
+
+use function TailwindPHP\Utils\compare;
+use function TailwindPHP\Utils\escape;
+use function TailwindPHP\Walk\walk;
 
 /**
  * Compile - Candidate compilation to CSS AST.
@@ -44,7 +45,7 @@ const COMPILE_FLAG_RESPECT_IMPORTANT = 1 << 0;
 function compileCandidates(
     iterable $rawCandidates,
     object $designSystem,
-    array $options = []
+    array $options = [],
 ): array {
     $onInvalidCandidate = $options['onInvalidCandidate'] ?? null;
     $respectImportant = $options['respectImportant'] ?? true;
@@ -86,7 +87,9 @@ function compileCandidates(
 
         foreach ($candidates as $candidate) {
             $rules = $designSystem->compileAstNodes($candidate, $flags);
-            if (empty($rules)) continue;
+            if (empty($rules)) {
+                continue;
+            }
 
             $found = true;
 
@@ -192,7 +195,9 @@ function compileCandidates(
 function compileAstNodes(array $candidate, object $designSystem, int $flags): array
 {
     $asts = compileBaseUtility($candidate, $designSystem);
-    if (empty($asts)) return [];
+    if (empty($asts)) {
+        return [];
+    }
 
     $respectImportant = $designSystem->isImportant() && ($flags & COMPILE_FLAG_RESPECT_IMPORTANT);
 
@@ -219,7 +224,9 @@ function compileAstNodes(array $candidate, object $designSystem, int $flags): ar
 
             // When the variant results in false, the variant cannot be applied
             // (null/no return means success - node was modified in place)
-            if ($result === false) return [];
+            if ($result === false) {
+                return [];
+            }
         }
 
         $rules[] = [
@@ -244,15 +251,20 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
 {
     if ($variant['kind'] === 'arbitrary') {
         // Relative selectors are not valid at the top level
-        if ($variant['relative'] && $depth === 0) return false;
+        if ($variant['relative'] && $depth === 0) {
+            return false;
+        }
 
         $node['nodes'] = [rule($variant['selector'], $node['nodes'])];
+
         return;
     }
 
     // Get the variant's apply function
     $variantData = $variants->get($variant['root']);
-    if (!$variantData) return false;
+    if (!$variantData) {
+        return false;
+    }
 
     $applyFn = $variantData['applyFn'];
 
@@ -261,28 +273,36 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
         $isolatedNode = atRule('@slot');
 
         $result = applyVariant($isolatedNode, $variant['variant'], $variants, $depth + 1);
-        if ($result === false) return false;
+        if ($result === false) {
+            return false;
+        }
 
         if ($variant['root'] === 'not' && count($isolatedNode['nodes']) > 1) {
             return false;
         }
 
         foreach ($isolatedNode['nodes'] as &$child) {
-            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') return false;
+            if ($child['kind'] !== 'rule' && $child['kind'] !== 'at-rule') {
+                return false;
+            }
 
             $result = $applyFn($child, $variant);
-            if ($result === false) return false;
+            if ($result === false) {
+                return false;
+            }
         }
 
         // Replace placeholder with actual node
         walk($isolatedNode['nodes'], function (&$child) use (&$node) {
             if (($child['kind'] === 'rule' || $child['kind'] === 'at-rule') && empty($child['nodes'])) {
                 $child['nodes'] = $node['nodes'];
+
                 return \TailwindPHP\Walk\WalkAction::Skip;
             }
         });
 
         $node['nodes'] = $isolatedNode['nodes'];
+
         return;
     }
 
@@ -290,7 +310,9 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
     // Note: applyFn modifies $node by reference and returns nothing on success.
     // It returns false explicitly to indicate failure.
     $result = $applyFn($node, $variant);
-    if ($result === false) return false;
+    if ($result === false) {
+        return false;
+    }
 }
 
 /**
@@ -302,6 +324,7 @@ function applyVariant(array &$node, array $variant, object $variants, int $depth
 function isFallbackUtility(array $utility): bool
 {
     $types = $utility['options']['types'] ?? [];
+
     return count($types) > 1 && in_array('any', $types);
 }
 
@@ -322,7 +345,9 @@ function compileBaseUtility(array $candidate, object $designSystem): array
             $value = asColor($value, $candidate['modifier'], $designSystem->getTheme());
         }
 
-        if ($value === null) return [];
+        if ($value === null) {
+            return [];
+        }
 
         return [[decl($candidate['property'], $value)]];
     }
@@ -332,26 +357,40 @@ function compileBaseUtility(array $candidate, object $designSystem): array
     $asts = [];
 
     // Try normal utilities first
-    $normalUtilities = array_filter($utilities, fn($u) => !isFallbackUtility($u));
+    $normalUtilities = array_filter($utilities, fn ($u) => !isFallbackUtility($u));
     foreach ($normalUtilities as $utility) {
-        if ($utility['kind'] !== $candidate['kind']) continue;
+        if ($utility['kind'] !== $candidate['kind']) {
+            continue;
+        }
 
         $compiledNodes = $utility['compileFn']($candidate);
-        if ($compiledNodes === null) return $asts;
-        if ($compiledNodes === false) continue;
+        if ($compiledNodes === null) {
+            return $asts;
+        }
+        if ($compiledNodes === false) {
+            continue;
+        }
         $asts[] = $compiledNodes;
     }
 
-    if (!empty($asts)) return $asts;
+    if (!empty($asts)) {
+        return $asts;
+    }
 
     // Try fallback utilities
-    $fallbackUtilities = array_filter($utilities, fn($u) => isFallbackUtility($u));
+    $fallbackUtilities = array_filter($utilities, fn ($u) => isFallbackUtility($u));
     foreach ($fallbackUtilities as $utility) {
-        if ($utility['kind'] !== $candidate['kind']) continue;
+        if ($utility['kind'] !== $candidate['kind']) {
+            continue;
+        }
 
         $compiledNodes = $utility['compileFn']($candidate);
-        if ($compiledNodes === null) return $asts;
-        if ($compiledNodes === false) continue;
+        if ($compiledNodes === null) {
+            return $asts;
+        }
+        if ($compiledNodes === false) {
+            continue;
+        }
         $asts[] = $compiledNodes;
     }
 
@@ -369,7 +408,9 @@ function compileBaseUtility(array $candidate, object $designSystem): array
 function asColor(string $value, array $modifier, object $theme): ?string
 {
     $modifierValue = $modifier['value'] ?? null;
-    if ($modifierValue === null) return $value;
+    if ($modifierValue === null) {
+        return $value;
+    }
 
     $alpha = null;
 
@@ -410,7 +451,9 @@ function asColor(string $value, array $modifier, object $theme): ?string
         return null;
     }
 
-    if ($alpha === null) return $value;
+    if ($alpha === null) {
+        return $value;
+    }
 
     // Check if value is a color that can have opacity applied
     // For CSS variables, we use color-mix and let the polyfill handle @supports fallback
@@ -419,6 +462,7 @@ function asColor(string $value, array $modifier, object $theme): ?string
         // CSS variable - use color-mix (not inline), polyfill will add @supports fallback
         return \TailwindPHP\Utilities\withAlpha($value, $alpha, false);
     }
+
     // Concrete color - compute inline oklab value
     return \TailwindPHP\Utilities\withAlpha($value, $alpha, true);
 }
@@ -464,11 +508,15 @@ function getPropertySort(array $nodes): array
         $node = array_shift($queue);
 
         if ($node['kind'] === 'declaration') {
-            if (!isset($node['value'])) continue;
+            if (!isset($node['value'])) {
+                continue;
+            }
 
             $count++;
 
-            if ($seenTwSort) continue;
+            if ($seenTwSort) {
+                continue;
+            }
 
             // Check for --tw-sort property
             if ($node['property'] === '--tw-sort') {

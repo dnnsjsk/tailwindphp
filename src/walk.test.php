@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use TailwindPHP\Walk\WalkAction;
+use PHPUnit\Framework\TestCase;
 
-use function TailwindPHP\Walk\walk;
-use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 class walk extends TestCase
 {
@@ -52,7 +53,7 @@ class walk extends TestCase
 
         $paths = [];
         walk($ast, function ($node, $ctx) use (&$paths) {
-            $path = array_map(fn($n) => $n['kind'], $ctx->path());
+            $path = array_map(fn ($n) => $n['kind'], $ctx->path());
             if (count($path) === 0) {
                 array_unshift($path, 'ø');
             }
@@ -353,6 +354,7 @@ class walk extends TestCase
                     $parts = explode(' ', $node['value']);
                     $y = $parts[0];
                     $x = $parts[1] ?? $parts[0];
+
                     return WalkAction::Replace([
                         decl('margin-top', $y),
                         decl('margin-bottom', $y),
@@ -382,6 +384,7 @@ class walk extends TestCase
                         if ($a['kind'] === 'declaration' && $z['kind'] === 'declaration') {
                             return strcasecmp($a['property'], $z['property']);
                         }
+
                         return 0;
                     });
                 }

@@ -81,6 +81,7 @@ function isLineWidth(string $value): bool
             return false;
         }
     }
+
     return true;
 }
 
@@ -157,18 +158,21 @@ function isRelativeSize(string $value): bool
 function isNumberValue(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '$/';
+
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
 function isPercentage(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '%$/';
+
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
 function isFraction(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . '\\s*\\/\\s*' . HAS_NUMBER_PATTERN . '$/';
+
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
@@ -176,6 +180,7 @@ function isLengthValue(string $value): bool
 {
     $unitsPattern = implode('|', LENGTH_UNITS);
     $pattern = '/^' . HAS_NUMBER_PATTERN . '(' . $unitsPattern . ')$/';
+
     return (bool) preg_match($pattern, $value) || hasMathFn($value);
 }
 
@@ -241,24 +246,28 @@ function isAngle(string $value): bool
 {
     $unitsPattern = implode('|', ANGLE_UNITS);
     $pattern = '/^' . HAS_NUMBER_PATTERN . '(' . $unitsPattern . ')$/';
+
     return (bool) preg_match($pattern, $value);
 }
 
 function isVector(string $value): bool
 {
     $pattern = '/^' . HAS_NUMBER_PATTERN . ' +' . HAS_NUMBER_PATTERN . ' +' . HAS_NUMBER_PATTERN . '$/';
+
     return (bool) preg_match($pattern, $value);
 }
 
 function isPositiveInteger(mixed $value): bool
 {
     $num = is_numeric($value) ? (int) $value : null;
+
     return $num !== null && $num >= 0 && (string) $num === (string) $value;
 }
 
 function isStrictPositiveInteger(mixed $value): bool
 {
     $num = is_numeric($value) ? (int) $value : null;
+
     return $num !== null && $num > 0 && (string) $num === (string) $value;
 }
 
@@ -278,5 +287,6 @@ function isMultipleOf(mixed $value, float $divisor): bool
         return false;
     }
     $num = (float) $value;
+
     return $num >= 0 && fmod($num, $divisor) === 0.0 && (string) $num === (string) $value;
 }

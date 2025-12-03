@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use TailwindPHP\Theme;
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Utilities\property;
-use function TailwindPHP\Utilities\resolveThemeColor;
-use function TailwindPHP\Utilities\asColor;
+use function TailwindPHP\Ast\decl;
+
+use TailwindPHP\Theme;
 
 /**
  * Background Utilities
@@ -67,7 +65,10 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         'themeKeys' => [],
         'defaultValue' => null,
         'handle' => function ($value) {
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
+
             return [decl('background-size', $value)];
         },
     ]);
@@ -107,7 +108,10 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         'themeKeys' => [],
         'defaultValue' => null,
         'handle' => function ($value) {
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
+
             return [decl('background-position', $value)];
         },
     ]);
@@ -175,6 +179,7 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
             if (is_numeric($value['value'])) {
                 return "{$value['value']}deg";
             }
+
             return null;
         },
         'handle' => function ($value) use ($builder) {
@@ -216,6 +221,7 @@ function registerLinearGradientUtility(UtilityBuilder $builder, string $name, st
             if ($value === null || $value === '') {
                 return $direction;
             }
+
             return null;
         },
         'handle' => function ($value, $modifier = null) use ($direction) {
@@ -306,10 +312,13 @@ function registerConicGradientUtilities(UtilityBuilder $builder): void
             if (is_numeric($value['value'] ?? '')) {
                 return $value['value'] . 'deg';
             }
+
             return null;
         },
         'handle' => function ($value, $modifier = null, $negative = false) {
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
 
             $interpolation = getGradientInterpolationMode($modifier);
             $interpolationStr = $interpolation ? " in {$interpolation}" : '';
@@ -366,7 +375,9 @@ function registerRadialGradientUtilities(UtilityBuilder $builder): void
     $builder->functionalUtility('bg-radial', [
         'themeKeys' => ['--gradient'],
         'handle' => function ($value, $modifier = null) {
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
 
             $interpolation = getGradientInterpolationMode($modifier);
 
@@ -437,15 +448,20 @@ function registerGradientColorStopUtilities(UtilityBuilder $builder): void
 
     // Helper to check if a string is a positive integer
     $isPositiveInteger = function ($value) {
-        if (!is_numeric($value)) return false;
+        if (!is_numeric($value)) {
+            return false;
+        }
         $num = (int) $value;
+
         return $num >= 0 && (string) $num === (string) $value;
     };
 
     // Generic gradient stop utility creator
     $gradientStopUtility = function (string $classRoot, callable $colorHandler, callable $positionHandler) use ($builder, $theme, $isPositiveInteger) {
         $builder->getUtilities()->functional($classRoot, function ($candidate) use ($theme, $colorHandler, $positionHandler, $isPositiveInteger) {
-            if (!isset($candidate['value'])) return null;
+            if (!isset($candidate['value'])) {
+                return null;
+            }
 
             $candidateValue = $candidate['value'];
             $modifier = $candidate['modifier'] ?? null;
@@ -458,11 +474,17 @@ function registerGradientColorStopUtilities(UtilityBuilder $builder): void
                 switch ($type) {
                     case 'length':
                     case 'percentage':
-                        if ($modifier !== null) return null;
+                        if ($modifier !== null) {
+                            return null;
+                        }
+
                         return $positionHandler($value);
                     default:
                         $value = asColor($value, $modifier, $theme);
-                        if ($value === null) return null;
+                        if ($value === null) {
+                            return null;
+                        }
+
                         return $colorHandler($value);
                 }
             }
@@ -496,48 +518,51 @@ function registerGradientColorStopUtilities(UtilityBuilder $builder): void
     };
 
     // from-* utility (color and position)
-    $gradientStopUtility('from',
-        fn($value) => [
+    $gradientStopUtility(
+        'from',
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-sort', '--tw-gradient-from'),
             decl('--tw-gradient-from', $value),
             decl('--tw-gradient-stops', 'var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))'),
         ],
-        fn($value) => [
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-gradient-from-position', $value),
-        ]
+        ],
     );
 
     // via-none utility
     $builder->staticUtility('via-none', [['--tw-gradient-via-stops', 'initial']]);
 
     // via-* utility (color and position)
-    $gradientStopUtility('via',
-        fn($value) => [
+    $gradientStopUtility(
+        'via',
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-sort', '--tw-gradient-via'),
             decl('--tw-gradient-via', $value),
             decl('--tw-gradient-via-stops', 'var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position)'),
             decl('--tw-gradient-stops', 'var(--tw-gradient-via-stops)'),
         ],
-        fn($value) => [
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-gradient-via-position', $value),
-        ]
+        ],
     );
 
     // to-* utility (color and position)
-    $gradientStopUtility('to',
-        fn($value) => [
+    $gradientStopUtility(
+        'to',
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-sort', '--tw-gradient-to'),
             decl('--tw-gradient-to', $value),
             decl('--tw-gradient-stops', 'var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position))'),
         ],
-        fn($value) => [
+        fn ($value) => [
             $gradientStopProperties(),
             decl('--tw-gradient-to-position', $value),
-        ]
+        ],
     );
 }

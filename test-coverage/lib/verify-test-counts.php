@@ -63,6 +63,6 @@ foreach ($tmSummary['files'] as $file) {
 }
 
 echo "\n=== Summary ===\n";
-echo "clsx: 27 PHP tests from " . count($clsxSummary['files']) . " reference files\n";
+echo 'clsx: 27 PHP tests from ' . count($clsxSummary['files']) . " reference files\n";
 echo "tailwind-merge: ~52 PHP tests from {$tmSummary['applicable_tests']} applicable reference tests\n";
 echo "Total library tests: ~79\n";

@@ -56,10 +56,10 @@ function createTailwindMerge(callable $createConfigFirst, callable ...$createCon
 
         $configUtils = [
             'cache' => $cache,
-            'parseClassName' => fn(string $cn) => $parseClassName->parse($cn),
-            'sortModifiers' => fn(array $mods) => $sortModifiers->sort($mods),
-            'getClassGroupId' => fn(string $cn) => $classGroupUtils->getClassGroupId($cn),
-            'getConflictingClassGroupIds' => fn(string $id, bool $hasPostfix) => $classGroupUtils->getConflictingClassGroupIds($id, $hasPostfix),
+            'parseClassName' => fn (string $cn) => $parseClassName->parse($cn),
+            'sortModifiers' => fn (array $mods) => $sortModifiers->sort($mods),
+            'getClassGroupId' => fn (string $cn) => $classGroupUtils->getClassGroupId($cn),
+            'getConflictingClassGroupIds' => fn (string $id, bool $hasPostfix) => $classGroupUtils->getConflictingClassGroupIds($id, $hasPostfix),
         ];
 
         // Switch to the real merge function

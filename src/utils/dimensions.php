@@ -55,7 +55,7 @@ class Dimensions
     public static function get(string $input): ?array
     {
         if (self::$cache === null) {
-            self::$cache = new DefaultMap(fn($key) => parseDimension($key));
+            self::$cache = new DefaultMap(fn ($key) => parseDimension($key));
         }
 
         return self::$cache->get($input);

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\DecodeArbitraryValue;
 
+use function TailwindPHP\Utils\addWhitespaceAroundMathOperators;
 use function TailwindPHP\ValueParser\parse;
 use function TailwindPHP\ValueParser\toCss;
-use function TailwindPHP\Utils\addWhitespaceAroundMathOperators;
 
 /**
  * Decode Arbitrary Value - Convert Tailwind arbitrary value syntax to CSS.

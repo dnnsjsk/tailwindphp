@@ -42,6 +42,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => WALK_REPLACE, 'nodes' => $nodes];
     }
 
@@ -56,6 +57,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => WALK_REPLACE_SKIP, 'nodes' => $nodes];
     }
 
@@ -70,6 +72,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => WALK_REPLACE_STOP, 'nodes' => $nodes];
     }
 }
@@ -123,7 +126,7 @@ function walk(array &$ast, callable|array $hooks): void
         walkImplementation(
             $ast,
             $hooks['enter'] ?? null,
-            $hooks['exit'] ?? null
+            $hooks['exit'] ?? null,
         );
     }
 }
@@ -199,6 +202,7 @@ function walkImplementation(array &$ast, ?callable $enter = null, ?callable $exi
                 case WALK_REPLACE_STOP:
                     unset($node);
                     array_splice($nodes, $offset, 1, $result['nodes']);
+
                     return; // Stop immediately
 
                 case WALK_REPLACE_SKIP:
@@ -239,6 +243,7 @@ function walkImplementation(array &$ast, ?callable $enter = null, ?callable $exi
             case WALK_REPLACE_STOP:
                 unset($node);
                 array_splice($nodes, $index, 1, $result['nodes']);
+
                 return; // Stop immediately
 
             case WALK_REPLACE_SKIP:

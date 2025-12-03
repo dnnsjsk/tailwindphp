@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+
 /**
  * TailwindCSS Reference Update Script
  *
@@ -17,7 +18,8 @@ $rootDir = dirname(__DIR__);
 $referenceDir = $rootDir . '/reference/tailwindcss';
 
 // Colors for terminal output
-function color(string $text, string $color): string {
+function color(string $text, string $color): string
+{
     $colors = [
         'green' => "\033[32m",
         'red' => "\033[31m",
@@ -26,10 +28,12 @@ function color(string $text, string $color): string {
         'reset' => "\033[0m",
         'bold' => "\033[1m",
     ];
+
     return ($colors[$color] ?? '') . $text . $colors['reset'];
 }
 
-function run(string $cmd, ?string $cwd = null): array {
+function run(string $cmd, ?string $cwd = null): array
+{
     $descriptors = [
         0 => ['pipe', 'r'],
         1 => ['pipe', 'w'],
@@ -53,7 +57,8 @@ function run(string $cmd, ?string $cwd = null): array {
     return ['output' => trim($output), 'error' => trim($error), 'code' => $code];
 }
 
-function getCurrentVersion(string $referenceDir): array {
+function getCurrentVersion(string $referenceDir): array
+{
     $commit = run('git rev-parse HEAD', $referenceDir)['output'];
     $tag = run('git describe --tags --exact-match 2>/dev/null || git describe --tags --abbrev=0 2>/dev/null', $referenceDir)['output'];
     $branch = run('git rev-parse --abbrev-ref HEAD', $referenceDir)['output'];
@@ -66,9 +71,11 @@ function getCurrentVersion(string $referenceDir): array {
     ];
 }
 
-function getLatestTag(string $referenceDir): string {
+function getLatestTag(string $referenceDir): string
+{
     // Get latest v4.x tag
     $result = run('git fetch --tags && git tag -l "v4.*" | sort -V | tail -1', $referenceDir);
+
     return $result['output'] ?: '';
 }
 
@@ -80,8 +87,8 @@ $current = getCurrentVersion($referenceDir);
 
 if ($arg === '--check' || $arg === '-c') {
     echo color("Current TailwindCSS Reference\n", 'bold');
-    echo "  Tag:    " . color($current['tag'], 'green') . "\n";
-    echo "  Commit: " . color($current['commit'], 'blue') . "\n";
+    echo '  Tag:    ' . color($current['tag'], 'green') . "\n";
+    echo '  Commit: ' . color($current['commit'], 'blue') . "\n";
     echo "  Branch: {$current['branch']}\n";
     exit(0);
 }
@@ -104,7 +111,7 @@ if (!$target) {
     }
 }
 
-echo color("Target version: ", 'yellow') . color($target, 'green') . "\n\n";
+echo color('Target version: ', 'yellow') . color($target, 'green') . "\n\n";
 
 // Confirm
 echo "This will:\n";
@@ -114,8 +121,8 @@ echo "  3. Update README badge\n";
 echo "  4. Re-extract all tests from TypeScript source\n";
 echo "  5. Run the full test suite\n\n";
 
-echo "Continue? [y/N] ";
-$handle = fopen("php://stdin", "r");
+echo 'Continue? [y/N] ';
+$handle = fopen('php://stdin', 'r');
 $line = fgets($handle);
 fclose($handle);
 
@@ -128,7 +135,7 @@ echo "\n";
 
 // Step 1: Fetch and checkout
 echo color("Step 1: Updating reference...\n", 'bold');
-$result = run("git fetch --all --tags", $referenceDir);
+$result = run('git fetch --all --tags', $referenceDir);
 if ($result['code'] !== 0) {
     echo color("  Error fetching: {$result['error']}\n", 'red');
     exit(1);
@@ -141,7 +148,7 @@ if ($result['code'] !== 0) {
 }
 
 $newVersion = getCurrentVersion($referenceDir);
-echo color("  ✓ ", 'green') . "Checked out {$newVersion['tag']} ({$newVersion['short']})\n\n";
+echo color('  ✓ ', 'green') . "Checked out {$newVersion['tag']} ({$newVersion['short']})\n\n";
 
 // Step 2: Copy CSS files
 echo color("Step 2: Copying CSS files...\n", 'bold');
@@ -158,9 +165,9 @@ foreach ($cssFiles as $file) {
     $target = $cssTargetDir . '/' . $file;
     if (file_exists($source)) {
         copy($source, $target);
-        echo color("  ✓ ", 'green') . "Copied {$file}\n";
+        echo color('  ✓ ', 'green') . "Copied {$file}\n";
     } else {
-        echo color("  ⚠ ", 'yellow') . "Source not found: {$file}\n";
+        echo color('  ⚠ ', 'yellow') . "Source not found: {$file}\n";
     }
 }
 echo "\n";
@@ -172,25 +179,25 @@ $readme = file_get_contents($readmePath);
 $readme = preg_replace(
     '/TailwindCSS-v[\d.]+-/',
     "TailwindCSS-{$newVersion['tag']}-",
-    $readme
+    $readme,
 );
 file_put_contents($readmePath, $readme);
-echo color("  ✓ ", 'green') . "README badge updated to {$newVersion['tag']}\n\n";
+echo color('  ✓ ', 'green') . "README badge updated to {$newVersion['tag']}\n\n";
 
 // Step 4: Extract tests
 echo color("Step 4: Extracting tests...\n", 'bold');
-$result = run("composer extract", $rootDir);
+$result = run('composer extract', $rootDir);
 if ($result['code'] !== 0) {
     echo color("  Error extracting tests:\n", 'red');
     echo "  {$result['error']}\n";
     echo "  {$result['output']}\n";
     exit(1);
 }
-echo color("  ✓ ", 'green') . "Tests extracted\n\n";
+echo color('  ✓ ', 'green') . "Tests extracted\n\n";
 
 // Step 5: Run tests
 echo color("Step 5: Running tests...\n", 'bold');
-passthru("cd " . escapeshellarg($rootDir) . " && composer test", $testResult);
+passthru('cd ' . escapeshellarg($rootDir) . ' && composer test', $testResult);
 
 echo "\n";
 

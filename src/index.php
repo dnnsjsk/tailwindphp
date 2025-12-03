@@ -4,18 +4,21 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use TailwindPHP\Utilities\Utilities;
-use TailwindPHP\Variants\Variants;
-use TailwindPHP\DesignSystem\DesignSystem;
-use function TailwindPHP\DesignSystem\buildDesignSystem;
-use function TailwindPHP\CssParser\parse;
-use function TailwindPHP\Ast\toCss;
-use function TailwindPHP\Ast\styleRule;
 use function TailwindPHP\Ast\atRule;
 use function TailwindPHP\Ast\decl;
-use function TailwindPHP\Walk\walk;
-use TailwindPHP\Walk\WalkAction;
+use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\DesignSystem\buildDesignSystem;
+
+use TailwindPHP\DesignSystem\DesignSystem;
 use TailwindPHP\LightningCss\LightningCss;
+use TailwindPHP\Utilities\Utilities;
+use TailwindPHP\Variants\Variants;
+
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
 
 /**
  * TailwindPHP - CSS-first Tailwind CSS compiler for PHP.
@@ -104,6 +107,7 @@ function loadDefaultTheme(): Theme
     });
 
     $_defaultThemeCache = $theme;
+
     return clone $_defaultThemeCache;
 }
 
@@ -117,6 +121,7 @@ function loadDefaultTheme(): Theme
 function compile(string $css, array $options = []): array
 {
     $ast = parse($css);
+
     return compileAst($ast, $options);
 }
 
@@ -178,8 +183,10 @@ function compileAst(array $ast, array $options = []): array
             // Find the context node that was converted from @tailwind utilities
             if ($node['kind'] === 'context' && isset($node['context']) && is_array($node['context'])) {
                 $node['nodes'] = $newNodes;
+
                 return WalkAction::Stop;
             }
+
             return WalkAction::Continue;
         });
     };
@@ -207,6 +214,7 @@ function compileAst(array $ast, array $options = []): array
                 if ($compiled === null) {
                     $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
                 }
+
                 return toCss($compiled);
             }
 
@@ -231,6 +239,7 @@ function compileAst(array $ast, array $options = []): array
                 if ($compiled === null) {
                     $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
                 }
+
                 return toCss($compiled);
             }
 
@@ -239,7 +248,7 @@ function compileAst(array $ast, array $options = []): array
                 $designSystem,
                 ['onInvalidCandidate' => function ($candidate) use ($designSystem) {
                     $designSystem->addInvalidCandidate($candidate);
-                }]
+                }],
             );
 
             $newNodes = $compileResult['astNodes'];
@@ -252,6 +261,7 @@ function compileAst(array $ast, array $options = []): array
                 if ($compiled === null) {
                     $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
                 }
+
                 return toCss($compiled);
             }
 
@@ -261,6 +271,7 @@ function compileAst(array $ast, array $options = []): array
             $updateUtilitiesNode($ast, $newNodes);
 
             $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
+
             return toCss($compiled);
         },
     ];
@@ -328,7 +339,7 @@ function parseCss(array &$ast, array $options = []): array
             if ($themePrefix !== null) {
                 if (!preg_match(IS_VALID_PREFIX, $themePrefix)) {
                     throw new \Exception(
-                        "The prefix \"{$themePrefix}\" is invalid. Prefixes must be lowercase ASCII letters (a-z) only."
+                        "The prefix \"{$themePrefix}\" is invalid. Prefixes must be lowercase ASCII letters (a-z) only.",
                     );
                 }
                 $theme->prefix = $themePrefix;
@@ -353,6 +364,7 @@ function parseCss(array &$ast, array $options = []): array
             // theme later, and delete any other @theme rules.
             if ($firstThemeRule === null) {
                 $firstThemeRule = styleRule(':root, :host', []);
+
                 return WalkAction::ReplaceSkip($firstThemeRule);
             } else {
                 return WalkAction::ReplaceSkip([]);
@@ -367,6 +379,7 @@ function parseCss(array &$ast, array $options = []): array
                 'pattern' => $path,
                 'negated' => false,
             ];
+
             return WalkAction::ReplaceSkip([]);
         }
 
@@ -397,7 +410,7 @@ function parseCss(array &$ast, array $options = []): array
                     // If there's a theme() modifier, wrap in @media theme()
                     if (str_contains($modifiers, 'theme(')) {
                         return WalkAction::Replace([
-                            atRule('@media', $modifiers, $themeContent)
+                            atRule('@media', $modifiers, $themeContent),
                         ]);
                     }
 
@@ -411,7 +424,7 @@ function parseCss(array &$ast, array $options = []): array
                     // If there's an 'important' modifier
                     if (str_contains($modifiers, 'important')) {
                         return WalkAction::Replace([
-                            atRule('@media', 'important', [$utilityNode])
+                            atRule('@media', 'important', [$utilityNode]),
                         ]);
                     }
 
@@ -432,7 +445,7 @@ function parseCss(array &$ast, array $options = []): array
 
             if (empty($node['nodes'])) {
                 throw new \Exception(
-                    "`@utility {$node['params']}` is empty. Utilities should include at least one property."
+                    "`@utility {$node['params']}` is empty. Utilities should include at least one property.",
                 );
             }
 
@@ -441,15 +454,15 @@ function parseCss(array &$ast, array $options = []): array
             if (!preg_match(IS_VALID_FUNCTIONAL_UTILITY_NAME, $name) && !preg_match(IS_VALID_STATIC_UTILITY_NAME, $name)) {
                 if (str_ends_with($name, '-*')) {
                     throw new \Exception(
-                        "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter."
+                        "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter.",
                     );
                 } elseif (str_contains($name, '*')) {
                     throw new \Exception(
-                        "`@utility {$name}` defines an invalid utility name. The dynamic portion marked by `-*` must appear once at the end."
+                        "`@utility {$name}` defines an invalid utility name. The dynamic portion marked by `-*` must appear once at the end.",
                     );
                 }
                 throw new \Exception(
-                    "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter."
+                    "`@utility {$name}` defines an invalid utility name. Utilities should be alphanumeric and start with a lowercase letter.",
                 );
             }
 
@@ -473,7 +486,7 @@ function parseCss(array &$ast, array $options = []): array
 
             if (!preg_match(\TailwindPHP\Variants\IS_VALID_VARIANT_NAME, $name)) {
                 throw new \Exception(
-                    "`@custom-variant {$name}` defines an invalid variant name. Variants should only contain alphanumeric, dashes, or underscore characters and start with a lowercase letter or number."
+                    "`@custom-variant {$name}` defines an invalid variant name. Variants should only contain alphanumeric, dashes, or underscore characters and start with a lowercase letter or number.",
                 );
             }
 
@@ -490,6 +503,7 @@ function parseCss(array &$ast, array $options = []): array
             ];
 
             $features |= FEATURE_VARIANTS;
+
             return WalkAction::ReplaceSkip([]);
         }
 
@@ -513,20 +527,25 @@ function parseCss(array &$ast, array $options = []): array
                     // Walk children and append theme params to @theme blocks
                     if (isset($node['nodes'])) {
                         walk($node['nodes'], function (&$child) use ($themeParams, $hasReference) {
-                            if ($child['kind'] === 'context') return WalkAction::Continue;
+                            if ($child['kind'] === 'context') {
+                                return WalkAction::Continue;
+                            }
                             if ($child['kind'] !== 'at-rule') {
                                 if ($hasReference) {
                                     throw new \Exception(
-                                        "Files imported with `@import \"…\" theme(reference)` must only contain `@theme` blocks.\nUse `@reference \"…\";` instead."
+                                        "Files imported with `@import \"…\" theme(reference)` must only contain `@theme` blocks.\nUse `@reference \"…\";` instead.",
                                     );
                                 }
+
                                 return WalkAction::Continue;
                             }
 
                             if ($child['name'] === '@theme') {
                                 $child['params'] = trim($child['params'] . ' ' . $themeParams);
+
                                 return WalkAction::Skip;
                             }
+
                             return WalkAction::Continue;
                         });
                     }
@@ -568,8 +587,10 @@ function parseCss(array &$ast, array $options = []): array
                     $nodes[] = decl(\TailwindPHP\Utils\escape($key), $value['value']);
                 }
                 $node['nodes'] = $nodes;
+
                 return WalkAction::Stop;
             }
+
             return WalkAction::Continue;
         });
 
@@ -692,8 +713,7 @@ function registerCustomVariant($designSystem, string $name, ?string $selector, a
     // Body-based variant: @custom-variant hocus { &:hover, &:focus { @slot; } }
     elseif (!empty($nodes)) {
         $variants->fromAst($name, $nodes, $designSystem);
-    }
-    else {
+    } else {
         throw new \Exception("`@custom-variant {$name}` has no selector or body.");
     }
 }
@@ -726,7 +746,7 @@ function createCssUtility(array $node): ?callable
 
                 // Return all nodes (declarations, nested rules, etc.)
                 // Deep clone to avoid mutation
-                return array_map(fn($child) => cloneAstNode($child), $node['nodes'] ?? []);
+                return array_map(fn ($child) => cloneAstNode($child), $node['nodes'] ?? []);
             });
         };
     }
@@ -736,7 +756,7 @@ function createCssUtility(array $node): ?callable
         return function (DesignSystem $designSystem) use ($name, $node) {
             // Return all nodes (declarations, nested rules, etc.)
             // Deep clone to avoid mutation
-            $designSystem->getUtilities()->static($name, fn() => array_map(fn($child) => cloneAstNode($child), $node['nodes'] ?? []));
+            $designSystem->getUtilities()->static($name, fn () => array_map(fn ($child) => cloneAstNode($child), $node['nodes'] ?? []));
         };
     }
 
@@ -753,8 +773,9 @@ function cloneAstNode(array $node): array
 {
     $cloned = $node;
     if (isset($cloned['nodes'])) {
-        $cloned['nodes'] = array_map(fn($child) => cloneAstNode($child), $cloned['nodes']);
+        $cloned['nodes'] = array_map(fn ($child) => cloneAstNode($child), $cloned['nodes']);
     }
+
     return $cloned;
 }
 
@@ -844,6 +865,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             foreach ($node['nodes'] ?? [] as $child) {
                 $transform($child, $parent);
             }
+
             return;
         }
 
@@ -865,6 +887,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
                     }
                 }
             }
+
             return;
         }
 
@@ -900,6 +923,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             }
             $node['nodes'] = $filteredNodes;
             $parent[] = $node;
+
             return;
         }
 
@@ -1063,20 +1087,32 @@ function extractKeyframeNames(string $value): array
         $parts = preg_split('/\s+/', trim($animation));
         foreach ($parts as $part) {
             $part = trim($part);
-            if (empty($part)) continue;
+            if (empty($part)) {
+                continue;
+            }
 
             // Skip timing values (numbers, percentages, seconds)
-            if (preg_match('/^[\d.]+/', $part)) continue;
-            if (preg_match('/^-?[\d.]+(?:s|ms|%)$/', $part)) continue;
+            if (preg_match('/^[\d.]+/', $part)) {
+                continue;
+            }
+            if (preg_match('/^-?[\d.]+(?:s|ms|%)$/', $part)) {
+                continue;
+            }
 
             // Skip keywords
-            if (in_array(strtolower($part), $keywords)) continue;
+            if (in_array(strtolower($part), $keywords)) {
+                continue;
+            }
 
             // Skip functions (like cubic-bezier, steps)
-            if (str_contains($part, '(')) continue;
+            if (str_contains($part, '(')) {
+                continue;
+            }
 
             // Skip var() references - the variable value will be resolved
-            if (str_starts_with($part, 'var(')) continue;
+            if (str_starts_with($part, 'var(')) {
+                continue;
+            }
 
             // This is likely a keyframe name
             $names[] = $part;
@@ -1188,8 +1224,12 @@ function themeValueResolvesToInitial(string $value, Theme $theme): bool
     $depth = 0;
     for ($i = 0; $i < strlen($args); $i++) {
         $char = $args[$i];
-        if ($char === '(') $depth++;
-        if ($char === ')') $depth--;
+        if ($char === '(') {
+            $depth++;
+        }
+        if ($char === ')') {
+            $depth--;
+        }
         if ($char === ',' && $depth === 0) {
             $parts[] = trim($current);
             $current = '';
@@ -1253,8 +1293,12 @@ function resolveThemeCallsInValue(string $value, Theme $theme): string
         $depth = 0;
         for ($i = 0; $i < strlen($args); $i++) {
             $char = $args[$i];
-            if ($char === '(') $depth++;
-            if ($char === ')') $depth--;
+            if ($char === '(') {
+                $depth++;
+            }
+            if ($char === ')') {
+                $depth--;
+            }
             if ($char === ',' && $depth === 0) {
                 $parts[] = trim($current);
                 $current = '';
@@ -1362,7 +1406,9 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
                         if ($colorValue !== null) {
                             // Calculate hex with alpha
                             $opacity = floatval(rtrim($opacityStr, '%'));
-                            if ($opacity > 1) $opacity = $opacity / 100;
+                            if ($opacity > 1) {
+                                $opacity = $opacity / 100;
+                            }
                             $fallbackColor = LightningCss::colorWithAlpha($colorValue, $opacity);
                         } else {
                             // Unknown variable (arbitrary property) - fallback to just the variable

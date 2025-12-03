@@ -74,10 +74,18 @@ function parse(string $input): ?array
             $i++;
             continue;
         }
-        if ($currentChar >= UPPER_A && $currentChar <= UPPER_Z) continue;
-        if ($currentChar >= LOWER_A && $currentChar <= LOWER_Z) continue;
-        if ($currentChar >= ZERO && $currentChar <= NINE) continue;
-        if ($currentChar === DASH || $currentChar === UNDERSCORE) continue;
+        if ($currentChar >= UPPER_A && $currentChar <= UPPER_Z) {
+            continue;
+        }
+        if ($currentChar >= LOWER_A && $currentChar <= LOWER_Z) {
+            continue;
+        }
+        if ($currentChar >= ZERO && $currentChar <= NINE) {
+            continue;
+        }
+        if ($currentChar === DASH || $currentChar === UNDERSCORE) {
+            continue;
+        }
         break;
     }
 

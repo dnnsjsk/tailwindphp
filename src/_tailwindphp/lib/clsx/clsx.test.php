@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Lib\Clsx;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/clsx.php';
 
@@ -216,18 +216,34 @@ class clsx extends TestCase
         }
 
         // Boolean/null
-        if ($value === 'true') return true;
-        if ($value === 'false') return false;
-        if ($value === 'null') return null;
-        if ($value === 'undefined') return null;
+        if ($value === 'true') {
+            return true;
+        }
+        if ($value === 'false') {
+            return false;
+        }
+        if ($value === 'null') {
+            return null;
+        }
+        if ($value === 'undefined') {
+            return null;
+        }
 
         // Numbers - but PHP outputs INF for Infinity, need special handling
-        if ($value === 'Infinity') return 'INF_PLACEHOLDER';
-        if ($value === 'NaN') return NAN;
-        if (is_numeric($value)) return $value + 0;
+        if ($value === 'Infinity') {
+            return 'INF_PLACEHOLDER';
+        }
+        if ($value === 'NaN') {
+            return NAN;
+        }
+        if (is_numeric($value)) {
+            return $value + 0;
+        }
 
         // Empty object
-        if ($value === '{}') return [];
+        if ($value === '{}') {
+            return [];
+        }
 
         // Object literal
         if (preg_match('/^\{(.+)\}$/s', $value, $m)) {
@@ -325,6 +341,7 @@ class clsx extends TestCase
         if ($test['name'] === 'exports' && $test['typeAssertions'] > 0) {
             $this->assertIsCallable('TailwindPHP\Lib\Clsx\clsx');
             $this->assertIsString(clsx());
+
             return;
         }
 
@@ -356,8 +373,8 @@ class clsx extends TestCase
                     $test['name'],
                     json_encode($args),
                     $expected,
-                    $result
-                )
+                    $result,
+                ),
             );
         }
     }

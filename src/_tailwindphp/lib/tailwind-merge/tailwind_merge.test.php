@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Lib\TailwindMerge;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/index.php';
 
@@ -239,22 +239,37 @@ class tailwind_merge extends TestCase
             $str = str_replace('\\n', "\n", $str);
             $str = str_replace('\\r', "\r", $str);
             $str = str_replace('\\t', "\t", $str);
-            $str = str_replace('\\\\', "\\", $str);
+            $str = str_replace('\\\\', '\\', $str);
+
             return $str;
         }
 
         // Boolean/null
-        if ($value === 'true') return true;
-        if ($value === 'false') return false;
-        if ($value === 'null') return null;
-        if ($value === 'undefined') return null;
+        if ($value === 'true') {
+            return true;
+        }
+        if ($value === 'false') {
+            return false;
+        }
+        if ($value === 'null') {
+            return null;
+        }
+        if ($value === 'undefined') {
+            return null;
+        }
 
         // Numbers
-        if (is_numeric($value)) return $value + 0;
+        if (is_numeric($value)) {
+            return $value + 0;
+        }
 
         // Empty object/array
-        if ($value === '{}') return [];
-        if ($value === '[]') return [];
+        if ($value === '{}') {
+            return [];
+        }
+        if ($value === '[]') {
+            return [];
+        }
 
         // Array literal
         if (preg_match('/^\[(.*)]$/s', $value, $m)) {
@@ -337,6 +352,7 @@ class tailwind_merge extends TestCase
                         $result = $fn(...$args);
                     } else {
                         $this->markTestSkipped("Unknown function: $func");
+
                         return;
                     }
                     break;
@@ -351,8 +367,8 @@ class tailwind_merge extends TestCase
                     $func,
                     json_encode($args),
                     json_encode($expected),
-                    json_encode($result)
-                )
+                    json_encode($result),
+                ),
             );
         }
     }

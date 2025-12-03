@@ -228,6 +228,7 @@ function toCss(array $ast): string
 {
     $parts = [];
     stringifyNodes($ast, 0, $parts);
+
     return implode('', $parts);
 }
 
@@ -273,7 +274,7 @@ function stringifyNodes(array $nodes, int $depth, array &$parts): void
                 $parts[] = $indent . '/*' . $node['value'] . "*/\n";
                 break;
 
-            // context and at-root should've been handled by optimizeAst
+                // context and at-root should've been handled by optimizeAst
         }
     }
 }

@@ -64,7 +64,7 @@ class ParseClassName
         if ($this->experimentalParseClassName !== null) {
             $result = ($this->experimentalParseClassName)([
                 'className' => $className,
-                'parseClassName' => fn($cn) => $this->parseInternal($cn),
+                'parseClassName' => fn ($cn) => $this->parseInternal($cn),
             ]);
         }
 

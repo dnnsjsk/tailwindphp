@@ -26,7 +26,7 @@ function replaceShadowColors(string $input, callable $replacement): string
 {
     $shadows = array_map(function ($shadow) use ($replacement) {
         $shadow = trim($shadow);
-        $parts = array_filter(segment($shadow, ' '), fn($part) => trim($part) !== '');
+        $parts = array_filter(segment($shadow, ' '), fn ($part) => trim($part) !== '');
         $color = null;
         $offsetX = null;
         $offsetY = null;
@@ -60,6 +60,7 @@ function replaceShadowColors(string $input, callable $replacement): string
             if ($pos !== false) {
                 return substr_replace($shadow, $replacementColor, $pos, strlen($color));
             }
+
             return $shadow;
         }
 

@@ -64,7 +64,7 @@ interface CanonicalizeOptions
 function canonicalizeCandidates(
     array $candidates,
     DesignSystem $designSystem,
-    array $options = []
+    array $options = [],
 ): array {
     // TODO: Implement full canonicalization logic
     // For now, return candidates as-is
@@ -82,7 +82,7 @@ function canonicalizeCandidates(
 function canonicalizeCandidate(
     string $candidate,
     DesignSystem $designSystem,
-    array $options = []
+    array $options = [],
 ): string {
     // TODO: Implement full canonicalization logic
     // For now, return candidate as-is

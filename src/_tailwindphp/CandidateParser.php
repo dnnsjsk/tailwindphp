@@ -138,6 +138,7 @@ class CandidateParser
                             'value' => "var({$value})",
                             'dataType' => null,
                         ];
+
                         return [$maybeRoot, $valueObj];
                     }
                 }

@@ -126,6 +126,7 @@ function toCss(array $ast): string
                 break;
         }
     }
+
     return $css;
 }
 
@@ -149,6 +150,7 @@ function parse(string $input): array
     $addNode = function ($node) use (&$ast, &$stack) {
         if (count($stack) === 0) {
             $ast[] = $node;
+
             return count($ast) - 1;
         } else {
             // Navigate to current parent and add to its nodes
@@ -158,6 +160,7 @@ function parse(string $input): array
                 $target = &$target[$key];
             }
             $target['nodes'][] = $node;
+
             return count($target['nodes']) - 1;
         }
     };
@@ -213,14 +216,14 @@ function parse(string $input): array
 
                 break;
 
-            // Start of a function call.
-            //
-            // E.g.:
-            //
-            // ```css
-            // .foo:not(.bar)
-            //         ^
-            // ```
+                // Start of a function call.
+                //
+                // E.g.:
+                //
+                // ```css
+                // .foo:not(.bar)
+                //         ^
+                // ```
             case SP_OPEN_PAREN:
                 $node = fun($buffer, []);
                 $buffer = '';
@@ -285,14 +288,14 @@ function parse(string $input): array
 
                 break;
 
-            // End of a function call.
-            //
-            // E.g.:
-            //
-            // ```css
-            // foo(bar, baz)
-            //             ^
-            // ```
+                // End of a function call.
+                //
+                // E.g.:
+                //
+                // ```css
+                // foo(bar, baz)
+                //             ^
+                // ```
             case SP_CLOSE_PAREN:
                 // Handle everything before the closing paren as a selector
                 if (strlen($buffer) > 0) {
@@ -307,14 +310,14 @@ function parse(string $input): array
 
                 break;
 
-            // Split compound selectors.
-            //
-            // E.g.:
-            //
-            // ```css
-            // .foo.bar
-            //     ^
-            // ```
+                // Split compound selectors.
+                //
+                // E.g.:
+                //
+                // ```css
+                // .foo.bar
+                //     ^
+                // ```
             case SP_FULL_STOP:
             case SP_COLON:
             case SP_NUMBER_SIGN:
@@ -326,14 +329,14 @@ function parse(string $input): array
                 $buffer = $input[$i];
                 break;
 
-            // Start of an attribute selector.
-            //
-            // NOTE: Right now we don't care about the individual parts of the
-            // attribute selector, we just want to find the matching closing bracket.
-            //
-            // If we need more information from inside the attribute selector in the
-            // future, then we can use the `AttributeSelectorParser` here (and even
-            // inline it if needed)
+                // Start of an attribute selector.
+                //
+                // NOTE: Right now we don't care about the individual parts of the
+                // attribute selector, we just want to find the matching closing bracket.
+                //
+                // If we need more information from inside the attribute selector in the
+                // future, then we can use the `AttributeSelectorParser` here (and even
+                // inline it if needed)
             case SP_OPEN_BRACKET:
                 // Handle everything before the combinator as a selector
                 if (strlen($buffer) > 0) {
@@ -364,7 +367,7 @@ function parse(string $input): array
                 $buffer .= substr($input, $start, $i - $start + 1);
                 break;
 
-            // Start of a string.
+                // Start of a string.
             case SP_SINGLE_QUOTE:
             case SP_DOUBLE_QUOTE:
                 $start = $i;
@@ -396,8 +399,8 @@ function parse(string $input): array
                 $buffer .= substr($input, $start, $i - $start + 1);
                 break;
 
-            // Nesting `&` is always a new selector.
-            // Universal `*` is always a new selector.
+                // Nesting `&` is always a new selector.
+                // Universal `*` is always a new selector.
             case SP_AMPERSAND:
             case SP_ASTERISK:
                 // 1. Handle everything before the combinator as a selector
@@ -410,7 +413,7 @@ function parse(string $input): array
                 $addNode(selector($input[$i]));
                 break;
 
-            // Escaped characters.
+                // Escaped characters.
             case SP_BACKSLASH:
                 $buffer .= $input[$i];
                 if ($i + 1 < $len) {
@@ -419,7 +422,7 @@ function parse(string $input): array
                 }
                 break;
 
-            // Everything else will be collected in the buffer
+                // Everything else will be collected in the buffer
             default:
                 $buffer .= $input[$i];
         }

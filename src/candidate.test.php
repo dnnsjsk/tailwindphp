@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
-use TailwindPHP\Theme;
-use TailwindPHP\Candidate\DesignSystemInterface;
-use TailwindPHP\Candidate\UtilitiesInterface;
-use TailwindPHP\Candidate\VariantsInterface;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
-use function TailwindPHP\Candidate\parseCandidate;
-use function TailwindPHP\Candidate\parseVariant;
-use function TailwindPHP\Candidate\printCandidate;
-use function TailwindPHP\Candidate\printVariant;
 use function TailwindPHP\Candidate\cloneCandidate;
 use function TailwindPHP\Candidate\cloneVariant;
+
+use TailwindPHP\Candidate\DesignSystemInterface;
+
 use function TailwindPHP\Candidate\findRoots;
+use function TailwindPHP\Candidate\parseCandidate;
+use function TailwindPHP\Candidate\parseVariant;
+
+use TailwindPHP\Candidate\UtilitiesInterface;
+use TailwindPHP\Candidate\VariantsInterface;
 
 /**
  * Stub Utilities class for testing.
@@ -46,6 +46,7 @@ class StubUtilities implements UtilitiesInterface
         if ($kind === 'functional') {
             return isset($this->functionalUtilities[$name]);
         }
+
         return false;
     }
 }
@@ -101,6 +102,7 @@ class StubVariants implements VariantsInterface
         if (isset($this->compoundVariants[$root])) {
             return 'compound';
         }
+
         return '';
     }
 
@@ -138,7 +140,7 @@ class StubDesignSystem implements DesignSystemInterface
     public function __construct(
         ?UtilitiesInterface $utilities = null,
         ?VariantsInterface $variants = null,
-        ?string $prefix = null
+        ?string $prefix = null,
     ) {
         $this->theme = new Theme();
         $this->theme->prefix = $prefix;
@@ -174,7 +176,7 @@ function run(
     string $candidate,
     ?StubUtilities $utilities = null,
     ?StubVariants $variants = null,
-    ?string $prefix = null
+    ?string $prefix = null,
 ): array {
     $utilities = $utilities ?? new StubUtilities();
     $variants = $variants ?? new StubVariants();
@@ -202,7 +204,7 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $result = run('flex', $utilities);
 
@@ -218,7 +220,7 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_that_should_be_important(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $result = run('flex!', $utilities);
 
@@ -232,7 +234,7 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_that_can_be_negative(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('-translate-x', fn() => []);
+        $utilities->functional('-translate-x', fn () => []);
 
         $result = run('-translate-x-4', $utilities);
 
@@ -248,10 +250,10 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_with_a_variant(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('hover', fn() => null);
+        $variants->static('hover', fn () => null);
 
         $result = run('hover:flex', $utilities, $variants);
 
@@ -267,11 +269,11 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_with_stacked_variants(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('hover', fn() => null);
-        $variants->static('focus', fn() => null);
+        $variants->static('hover', fn () => null);
+        $variants->static('focus', fn () => null);
 
         $result = run('focus:hover:flex', $utilities, $variants);
 
@@ -285,7 +287,7 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_with_an_arbitrary_variant(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $result = run('[&_p]:flex', $utilities);
 
@@ -300,10 +302,10 @@ class candidate extends TestCase
     public function should_parse_an_arbitrary_variant_using_the_automatic_var_shorthand(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('supports', fn() => null);
+        $variants->functional('supports', fn () => null);
 
         $result = run('supports-(--test):flex', $utilities, $variants);
 
@@ -319,10 +321,10 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_with_a_parameterized_variant(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('data', fn() => null);
+        $variants->functional('data', fn () => null);
 
         $result = run('data-[disabled]:flex', $utilities, $variants);
 
@@ -338,10 +340,10 @@ class candidate extends TestCase
     public function should_parse_compound_variants_with_an_arbitrary_value(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->compound('group', Compounds::StyleRules, fn() => null);
+        $variants->compound('group', Compounds::StyleRules, fn () => null);
 
         $result = run('group-[&_p]/parent-name:flex', $utilities, $variants);
 
@@ -359,7 +361,7 @@ class candidate extends TestCase
     public function should_parse_a_simple_utility_with_an_arbitrary_media_variant(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $result = run('[@media(width>=123px)]:flex', $utilities);
 
@@ -373,7 +375,7 @@ class candidate extends TestCase
     public function should_skip_arbitrary_variants_where_media_and_other_arbitrary_variants_are_combined(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $result = run('[@media(width>=123px){&:hover}]:flex', $utilities);
 
@@ -384,7 +386,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_a_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-red-500/50', $utilities);
 
@@ -401,7 +403,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_an_arbitrary_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-red-500/[50%]', $utilities);
 
@@ -415,8 +417,8 @@ class candidate extends TestCase
     public function should_not_parse_a_partial_utility(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
-        $utilities->functional('bg', fn() => []);
+        $utilities->static('flex', fn () => []);
+        $utilities->functional('bg', fn () => []);
 
         $this->assertEquals([], run('flex-', $utilities));
         $this->assertEquals([], run('bg-', $utilities));
@@ -426,7 +428,7 @@ class candidate extends TestCase
     public function should_not_parse_static_utilities_with_a_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $this->assertEquals([], run('flex/foo', $utilities));
     }
@@ -435,7 +437,7 @@ class candidate extends TestCase
     public function should_not_parse_functional_utilities_with_multiple_modifiers(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $this->assertEquals([], run('bg-red-1/2/3', $utilities));
     }
@@ -444,7 +446,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_an_arbitrary_value(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-[#0088cc]', $utilities);
 
@@ -460,7 +462,7 @@ class candidate extends TestCase
     public function should_not_parse_a_utility_with_an_incomplete_arbitrary_value(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $this->assertEquals([], run('bg-[#0088cc', $utilities));
     }
@@ -469,7 +471,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_an_arbitrary_value_with_parens(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-(--my-color)', $utilities);
 
@@ -483,7 +485,7 @@ class candidate extends TestCase
     public function should_not_parse_a_utility_with_an_arbitrary_value_with_parens_not_starting_with_dashes(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $this->assertEquals([], run('bg-(my-color)', $utilities));
     }
@@ -492,7 +494,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_an_arbitrary_value_including_a_typehint(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-[color:var(--value)]', $utilities);
 
@@ -505,7 +507,7 @@ class candidate extends TestCase
     public function should_parse_a_utility_with_an_arbitrary_value_with_parens_including_a_typehint(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-(color:--my-color)', $utilities);
 
@@ -561,7 +563,7 @@ class candidate extends TestCase
     public function should_parse_arbitrary_properties_with_a_variant(): void
     {
         $variants = new StubVariants();
-        $variants->static('hover', fn() => null);
+        $variants->static('hover', fn () => null);
 
         $result = run('hover:[color:red]', null, $variants);
 
@@ -575,7 +577,7 @@ class candidate extends TestCase
     public function should_replace_underscore_with_space(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('content', fn() => []);
+        $utilities->functional('content', fn () => []);
 
         $result = run('content-["hello_world"]', $utilities);
 
@@ -587,7 +589,7 @@ class candidate extends TestCase
     public function should_not_replace_escaped_underscore_with_space(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('content', fn() => []);
+        $utilities->functional('content', fn () => []);
 
         $result = run('content-["hello\\_world"]', $utilities);
 
@@ -599,7 +601,7 @@ class candidate extends TestCase
     public function should_not_replace_underscore_in_url(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-[no-repeat_url(https://example.com/some_page)]', $utilities);
 
@@ -611,7 +613,7 @@ class candidate extends TestCase
     public function should_not_replace_underscore_in_first_argument_of_var(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('ml', fn() => []);
+        $utilities->functional('ml', fn () => []);
 
         $result = run('ml-[var(--spacing-1_5,_var(--spacing-2_5,_1rem))]', $utilities);
 
@@ -623,10 +625,10 @@ class candidate extends TestCase
     public function should_parse_candidates_with_a_prefix(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('hover', fn() => null);
+        $variants->static('hover', fn () => null);
 
         // A prefix is required
         $result = run('flex', $utilities, $variants, 'tw');
@@ -648,10 +650,10 @@ class candidate extends TestCase
     public function should_parse_a_static_variant_starting_with_at(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('@lg', fn() => null);
+        $variants->static('@lg', fn () => null);
 
         $result = run('@lg:flex', $utilities, $variants);
 
@@ -665,10 +667,10 @@ class candidate extends TestCase
     public function should_parse_a_functional_variant_starting_with_at(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('@', fn() => null);
+        $variants->functional('@', fn () => null);
 
         $result = run('@lg:flex', $utilities, $variants);
 
@@ -683,10 +685,10 @@ class candidate extends TestCase
     public function should_parse_a_functional_variant_with_a_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('foo', fn() => null);
+        $variants->functional('foo', fn () => null);
 
         $result = run('foo-bar/50:flex', $utilities, $variants);
 
@@ -730,12 +732,12 @@ class candidate extends TestCase
     public function should_not_parse_invalid_empty_arbitrary_values(string $rawCandidate): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
-        $utilities->functional('bg', fn() => []);
+        $utilities->static('flex', fn () => []);
+        $utilities->functional('bg', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('data', fn() => null);
-        $variants->compound('group', Compounds::StyleRules, fn() => null);
+        $variants->functional('data', fn () => null);
+        $variants->compound('group', Compounds::StyleRules, fn () => null);
 
         $this->assertEquals([], run($rawCandidate, $utilities, $variants));
     }
@@ -760,12 +762,12 @@ class candidate extends TestCase
     public function should_not_parse_invalid_arbitrary_values(string $rawCandidate): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
-        $utilities->functional('bg', fn() => []);
+        $utilities->static('flex', fn () => []);
+        $utilities->functional('bg', fn () => []);
 
         $variants = new StubVariants();
-        $variants->functional('data', fn() => null);
-        $variants->compound('group', Compounds::StyleRules, fn() => null);
+        $variants->functional('data', fn () => null);
+        $variants->compound('group', Compounds::StyleRules, fn () => null);
 
         $this->assertEquals([], run($rawCandidate, $utilities, $variants));
     }
@@ -849,7 +851,7 @@ class candidate extends TestCase
     public function should_parse_utility_with_an_implicit_variable_as_the_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-red-500/[var(--value)]', $utilities);
 
@@ -862,7 +864,7 @@ class candidate extends TestCase
     public function should_parse_utility_with_an_implicit_variable_as_modifier_using_shorthand(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         $result = run('bg-red-500/(--value)', $utilities);
 
@@ -875,7 +877,7 @@ class candidate extends TestCase
     public function should_not_parse_an_invalid_arbitrary_shorthand_modifier(): void
     {
         $utilities = new StubUtilities();
-        $utilities->functional('bg', fn() => []);
+        $utilities->functional('bg', fn () => []);
 
         // Completely empty
         $this->assertEquals([], run('bg-red-500/()', $utilities));
@@ -888,11 +890,11 @@ class candidate extends TestCase
     public function should_parse_compound_group_with_itself(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('hover', fn() => null);
-        $variants->compound('group', Compounds::StyleRules, fn() => null);
+        $variants->static('hover', fn () => null);
+        $variants->compound('group', Compounds::StyleRules, fn () => null);
 
         $result = run('group-group-group-hover/parent-name:flex', $utilities, $variants);
 
@@ -909,11 +911,11 @@ class candidate extends TestCase
     public function should_not_parse_a_partial_variant(): void
     {
         $utilities = new StubUtilities();
-        $utilities->static('flex', fn() => []);
+        $utilities->static('flex', fn () => []);
 
         $variants = new StubVariants();
-        $variants->static('open', fn() => null);
-        $variants->functional('data', fn() => null);
+        $variants->static('open', fn () => null);
+        $variants->functional('data', fn () => null);
 
         $this->assertEquals([], run('open-:flex', $utilities, $variants));
         $this->assertEquals([], run('data-:flex', $utilities, $variants));

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace TailwindPHP\CssParser;
 
-use function TailwindPHP\Ast\rule;
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\comment;
+use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\parseAtRule;
+use function TailwindPHP\Ast\rule;
 
 /**
  * CSS Parser - Character-by-character CSS tokenizer.
@@ -255,7 +255,7 @@ function parse(string $input): array
 
             $declaration = parseDeclaration($buffer, $colonIdx);
             if (!$declaration) {
-                throw new CssSyntaxError("Invalid custom property, expected a value");
+                throw new CssSyntaxError('Invalid custom property, expected a value');
             }
 
             if ($parent !== null) {
@@ -292,7 +292,7 @@ function parse(string $input): array
                 if ($bufferLen === 0) {
                     continue;
                 }
-                throw new CssSyntaxError("Invalid declaration: `" . trim($buffer) . "`");
+                throw new CssSyntaxError('Invalid declaration: `' . trim($buffer) . '`');
             }
 
             if ($parent !== null) {
@@ -348,7 +348,7 @@ function parse(string $input): array
                     $colonIdx = strpos($buffer, ':');
                     $decl = parseDeclaration($buffer, $colonIdx !== false ? $colonIdx : -1);
                     if (!$decl) {
-                        throw new CssSyntaxError("Invalid declaration: `" . trim($buffer) . "`");
+                        throw new CssSyntaxError('Invalid declaration: `' . trim($buffer) . '`');
                     }
                     $parent['nodes'][] = $decl;
                 }
@@ -444,7 +444,7 @@ function parseDeclaration(string $buffer, int $colonIdx = -1): ?array
     return decl(
         trim(substr($buffer, 0, $colonIdx)),
         trim(substr($buffer, $colonIdx + 1, $importantIdx === false ? null : $importantIdx - $colonIdx - 1)),
-        $importantIdx !== false
+        $importantIdx !== false,
     );
 }
 
@@ -478,7 +478,7 @@ function parseStringChar(string $input, int $startIdx, string $quoteChar, int $l
                 if ($nc === C_LINE_BREAK ||
                     ($nc === C_CARRIAGE_RETURN && isset($input[$i + 2]) && $input[$i + 2] === C_LINE_BREAK)) {
                     throw new CssSyntaxError(
-                        "Unterminated string: " . substr($input, $startIdx, $i - $startIdx + 1) . $quoteChar
+                        'Unterminated string: ' . substr($input, $startIdx, $i - $startIdx + 1) . $quoteChar,
                     );
                 }
             }
@@ -487,7 +487,7 @@ function parseStringChar(string $input, int $startIdx, string $quoteChar, int $l
         if ($pc === C_LINE_BREAK ||
             ($pc === C_CARRIAGE_RETURN && isset($input[$i + 1]) && $input[$i + 1] === C_LINE_BREAK)) {
             throw new CssSyntaxError(
-                "Unterminated string: " . substr($input, $startIdx, $i - $startIdx) . $quoteChar
+                'Unterminated string: ' . substr($input, $startIdx, $i - $startIdx) . $quoteChar,
             );
         }
     }

@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
-use function TailwindPHP\CssParser\parse;
-use function TailwindPHP\Ast\toCss;
-use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\atRoot;
 use function TailwindPHP\Ast\atRule;
-use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\cloneAstNode;
 use function TailwindPHP\Ast\comment;
 use function TailwindPHP\Ast\context;
-use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Ast\cloneAstNode;
+use function TailwindPHP\Ast\decl;
+use function TailwindPHP\Ast\styleRule;
+use function TailwindPHP\Ast\toCss;
+use function TailwindPHP\CssParser\parse;
 
 class ast extends TestCase
 {

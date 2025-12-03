@@ -33,6 +33,7 @@ function topologicalSort(array $graph, callable $onCircularDependency): array
         // Circular dependency detected
         if (isset($wip[$node])) {
             $onCircularDependency($path, $node);
+
             return;
         }
 

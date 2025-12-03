@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
+use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\styleRule;
-use function TailwindPHP\Utilities\property;
+use function TailwindPHP\Utils\inferDataType;
 use function TailwindPHP\Utils\isPositiveInteger;
 use function TailwindPHP\Utils\isValidSpacingMultiplier;
-use function TailwindPHP\Utils\inferDataType;
 use function TailwindPHP\Utils\replaceShadowColors;
-use function TailwindPHP\Utilities\asColor;
-use function TailwindPHP\Utilities\resolveThemeColor;
-use function TailwindPHP\Utilities\withAlpha;
-use function TailwindPHP\Utilities\replaceAlpha;
 
 /**
  * Typography Utilities
@@ -92,13 +87,18 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                         if ($modifier) {
                             return [decl('font-size', $value), decl('line-height', $modifier)];
                         }
+
                         return null;
                     }
+
                     return [decl('font-size', $value)];
 
                 default:
                     $value = asColor($value, $candidate['modifier'] ?? null, $theme);
-                    if ($value === null) return null;
+                    if ($value === null) {
+                        return null;
+                    }
+
                     return [decl('color', $value)];
             }
         }
@@ -140,6 +140,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                 if ($modifier) {
                     $declarations[] = decl('line-height', $modifier);
                 }
+
                 return $declarations;
             }
 
@@ -157,17 +158,18 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if (isset($options['--font-weight'])) {
                 $declarations[] = decl('font-weight', "var(--tw-font-weight, {$options['--font-weight']})");
             }
+
             return $declarations;
         }
 
         return null;
     });
 
-    $builder->suggest('text', fn() => [
+    $builder->suggest('text', fn () => [
         [
             'values' => ['current', 'inherit', 'transparent'],
             'valueThemeKeys' => ['--text-color', '--color'],
-            'modifiers' => array_map(fn($i) => (string)($i * 5), range(0, 20)),
+            'modifiers' => array_map(fn ($i) => (string)($i * 5), range(0, 20)),
         ],
         [
             'values' => [],
@@ -197,8 +199,10 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                 if ($percent >= 50 && $percent <= 200 && $percent % 1 === 0) {
                     return $value['value'];
                 }
+
                 return null;
             }
+
             return null;
         },
         'handle' => function ($value) {
@@ -206,7 +210,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         },
         'staticValues' => array_combine(
             $fontStretchKeywords,
-            array_map(fn($kw) => [decl('font-stretch', $kw)], $fontStretchKeywords)
+            array_map(fn ($kw) => [decl('font-stretch', $kw)], $fontStretchKeywords),
         ),
     ]);
 
@@ -330,12 +334,14 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                     if (isset($candidate['modifier'])) {
                         return null;
                     }
+
                     return [decl('text-decoration-thickness', $value)];
                 default:
                     $colorValue = asColor($value, $candidate['modifier'] ?? null, $theme);
                     if ($colorValue === null) {
                         return null;
                     }
+
                     return [decl('text-decoration-color', $colorValue)];
             }
         }
@@ -346,6 +352,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if (isset($candidate['modifier'])) {
                 return null;
             }
+
             return [decl('text-decoration-thickness', $thicknessValue)];
         }
 
@@ -354,6 +361,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if (isset($candidate['modifier'])) {
                 return null;
             }
+
             return [decl('text-decoration-thickness', "{$candidateValue['value']}px")];
         }
 
@@ -375,6 +383,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if (!isPositiveInteger($value['value'])) {
                 return null;
             }
+
             return "{$value['value']}px";
         },
         'handle' => function ($value) {
@@ -492,8 +501,13 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         },
         'handleBareValue' => function ($value) use ($theme) {
             $multiplier = $theme->resolve(null, ['--spacing']);
-            if ($multiplier === null) return null;
-            if (!isValidSpacingMultiplier($value['value'])) return null;
+            if ($multiplier === null) {
+                return null;
+            }
+            if (!isValidSpacingMultiplier($value['value'])) {
+                return null;
+            }
+
             return "calc({$multiplier} * {$value['value']})";
         },
         'staticValues' => [
@@ -613,7 +627,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
 
     // text-shadow-initial
     $builder->staticUtility('text-shadow-initial', [
-        fn() => $textShadowProperties(),
+        fn () => $textShadowProperties(),
         ['--tw-text-shadow-color', 'initial'],
     ]);
 
@@ -647,8 +661,9 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if ($alpha !== null) {
                 $result[] = decl('--tw-text-shadow-alpha', $alpha);
             }
-            $replacedValue = replaceShadowColors($value, fn($color) => "var(--tw-text-shadow-color, {$color})");
+            $replacedValue = replaceShadowColors($value, fn ($color) => "var(--tw-text-shadow-color, {$color})");
             $result[] = decl('text-shadow', $replacedValue);
+
             return $result;
         }
 
@@ -663,6 +678,7 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                 if ($value === null) {
                     return null;
                 }
+
                 return [
                     $textShadowProperties(),
                     decl('--tw-text-shadow-color', withAlpha($value, 'var(--tw-text-shadow-alpha)')),
@@ -681,9 +697,11 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                 if (str_starts_with($color, 'current')) {
                     return 'var(--tw-text-shadow-color, ' . withAlpha($color, $alpha) . ')';
                 }
+
                 return 'var(--tw-text-shadow-color, ' . replaceAlpha($color, $alpha) . ')';
             });
             $result[] = decl('text-shadow', $replacedValue);
+
             return $result;
         }
 
@@ -693,12 +711,14 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
             if ($modifier !== null) {
                 return null;
             }
+
             return [$textShadowProperties(), decl('text-shadow', 'none')];
         }
         if ($namedValue === 'inherit') {
             if ($modifier !== null) {
                 return null;
             }
+
             return [$textShadowProperties(), decl('--tw-text-shadow-color', 'inherit')];
         }
 
@@ -717,9 +737,11 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                 if (str_starts_with($color, 'current')) {
                     return 'var(--tw-text-shadow-color, ' . withAlpha($color, $alpha) . ')';
                 }
+
                 return 'var(--tw-text-shadow-color, ' . replaceAlpha($color, $alpha) . ')';
             });
             $result[] = decl('text-shadow', $replacedValue);
+
             return $result;
         }
 

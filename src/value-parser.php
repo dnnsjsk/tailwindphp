@@ -91,6 +91,7 @@ function toCss(array $ast): string
                 break;
         }
     }
+
     return $css;
 }
 
@@ -115,6 +116,7 @@ function parse(string $input): array
     $addNode = function ($node) use (&$ast, &$stack) {
         if (count($stack) === 0) {
             $ast[] = $node;
+
             return count($ast) - 1;
         } else {
             // Navigate to current parent and add to its nodes
@@ -124,6 +126,7 @@ function parse(string $input): array
                 $target = &$target[$key];
             }
             $target['nodes'][] = $node;
+
             return count($target['nodes']) - 1;
         }
     };
@@ -142,9 +145,9 @@ function parse(string $input): array
                 }
                 break;
 
-            // Typically for math operators, they have to have spaces around them. But
-            // there are situations in `theme(colors.red.500/10)` where we use `/`
-            // without spaces. Let's make sure this is a separate word as well.
+                // Typically for math operators, they have to have spaces around them. But
+                // there are situations in `theme(colors.red.500/10)` where we use `/`
+                // without spaces. Let's make sure this is a separate word as well.
             case VP_SLASH:
                 // 1. Handle everything before the separator as a word
                 if (strlen($buffer) > 0) {
@@ -156,7 +159,7 @@ function parse(string $input): array
                 $addNode(word($input[$i]));
                 break;
 
-            // Space and commas are bundled into separators
+                // Space and commas are bundled into separators
             case VP_COLON:
             case VP_COMMA:
             case VP_EQUALS:
@@ -194,7 +197,7 @@ function parse(string $input): array
                 $addNode(separator(substr($input, $start, $end - $start)));
                 break;
 
-            // Start of a string.
+                // Start of a string.
             case VP_SINGLE_QUOTE:
             case VP_DOUBLE_QUOTE:
                 $start = $i;
@@ -217,7 +220,7 @@ function parse(string $input): array
                 $buffer .= substr($input, $start, $i - $start + 1);
                 break;
 
-            // Start of a function call.
+                // Start of a function call.
             case VP_OPEN_PAREN:
                 $node = fun($buffer, []);
                 $buffer = '';
@@ -243,7 +246,7 @@ function parse(string $input): array
                 }
                 break;
 
-            // End of a function call.
+                // End of a function call.
             case VP_CLOSE_PAREN:
                 // Handle everything before the closing paren as a word
                 if (strlen($buffer) > 0) {
@@ -257,7 +260,7 @@ function parse(string $input): array
                 }
                 break;
 
-            // Everything else will be collected in the buffer
+                // Everything else will be collected in the buffer
             default:
                 $buffer .= chr($currentChar);
         }
@@ -293,6 +296,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => VP_WALK_REPLACE, 'nodes' => $nodes];
     }
 
@@ -301,6 +305,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => VP_WALK_REPLACE_SKIP, 'nodes' => $nodes];
     }
 
@@ -309,6 +314,7 @@ class WalkAction
         if (!empty($nodes) && !isset($nodes[0])) {
             $nodes = [$nodes];
         }
+
         return ['kind' => VP_WALK_REPLACE_STOP, 'nodes' => $nodes];
     }
 }
@@ -328,7 +334,7 @@ function walk(array &$ast, callable|array $hooks): void
         walkImplementation(
             $ast,
             $hooks['enter'] ?? null,
-            $hooks['exit'] ?? null
+            $hooks['exit'] ?? null,
         );
     }
 }
@@ -391,6 +397,7 @@ function walkImplementation(array &$ast, ?callable $enter = null, ?callable $exi
                 case VP_WALK_REPLACE_STOP:
                     unset($node);
                     array_splice($nodes, $offset, 1, $result['nodes']);
+
                     return;
 
                 case VP_WALK_REPLACE_SKIP:
@@ -431,6 +438,7 @@ function walkImplementation(array &$ast, ?callable $enter = null, ?callable $exi
             case VP_WALK_REPLACE_STOP:
                 unset($node);
                 array_splice($nodes, $index, 1, $result['nodes']);
+
                 return;
 
             case VP_WALK_REPLACE_SKIP:

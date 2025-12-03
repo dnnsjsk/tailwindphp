@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace TailwindPHP\Utilities;
 
-use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Ast\atRoot;
-use function TailwindPHP\Utilities\property;
-use function TailwindPHP\Utilities\resolveThemeColor;
-use function TailwindPHP\Utilities\withAlpha;
-use function TailwindPHP\Utilities\replaceAlpha;
-use function TailwindPHP\Utilities\asColor;
-use function TailwindPHP\Utils\replaceShadowColors;
-use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Ast\decl;
 use function TailwindPHP\Utils\inferDataType;
+use function TailwindPHP\Utils\isPositiveInteger;
+use function TailwindPHP\Utils\replaceShadowColors;
 
 /**
  * Replace shadow colors with a CSS variable reference.
@@ -27,6 +22,7 @@ function replaceShadowColor(string $shadow, string $varName): string
     return replaceShadowColors($shadow, function (string $color) use ($varName) {
         // Convert color to hex if it's a named color
         $hexColor = colorToHex($color);
+
         return "var({$varName}, {$hexColor})";
     });
 }
@@ -52,7 +48,7 @@ function colorToHex(string $color): string
             if (str_ends_with($alphaStr, '%')) {
                 $alpha = (float)rtrim($alphaStr, '%') / 100;
             } elseif (str_starts_with($alphaStr, '.')) {
-                $alpha = (float)("0" . $alphaStr);
+                $alpha = (float)('0' . $alphaStr);
             } elseif (str_starts_with($alphaStr, '0.')) {
                 $alpha = (float)$alphaStr;
             } else {
@@ -71,6 +67,7 @@ function colorToHex(string $color): string
             return "#{$rHex}{$gHex}{$bHex}{$alphaHex}";
         }
     }
+
     return $color;
 }
 
@@ -122,8 +119,10 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                 if (str_starts_with($formatted, '0.')) {
                     $formatted = substr($formatted, 1);
                 }
+
                 return $formatted ?: '0';
             }
+
             return null;
         },
         'handle' => function ($value) {
@@ -168,7 +167,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         string $value,
         ?string $alpha,
         callable $varInjector,
-        string $prefix = ''
+        string $prefix = '',
     ) use ($theme): array {
         $replacedValue = replaceShadowColors($value, function ($color) use ($alpha, $varInjector, $theme) {
             if ($alpha === null) {
@@ -197,7 +196,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     // shadow-initial static utility
     $builder->staticUtility('shadow-initial', [
-        fn() => $boxShadowProperties(),
+        fn () => $boxShadowProperties(),
         ['--tw-shadow-color', 'initial'],
     ]);
 
@@ -218,7 +217,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         // No value - default shadow
         if (!isset($candidate['value'])) {
             $value = $theme->get(['--shadow']);
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
 
             return array_merge(
                 [$boxShadowProperties()],
@@ -227,9 +228,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-shadow',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-shadow-color, {$color})",
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -242,7 +243,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
             if ($type === 'color') {
                 $value = asColor($value, $modifier, $theme);
-                if ($value === null) return null;
+                if ($value === null) {
+                    return null;
+                }
 
                 return [
                     $boxShadowProperties(),
@@ -258,9 +261,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-shadow',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-shadow-color, {$color})",
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -269,14 +272,20 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         // Static values
         switch ($namedValue) {
             case 'none':
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
+
                 return [
                     $boxShadowProperties(),
                     decl('--tw-shadow', $nullShadow),
                     decl('box-shadow', $cssBoxShadowValue),
                 ];
             case 'inherit':
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
+
                 return [$boxShadowProperties(), decl('--tw-shadow-color', 'inherit')];
         }
 
@@ -290,9 +299,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-shadow',
                     $shadowValue,
                     $alpha,
-                    fn($color) => "var(--tw-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-shadow-color, {$color})",
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -310,7 +319,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     // inset-shadow-initial static utility
     $builder->staticUtility('inset-shadow-initial', [
-        fn() => $boxShadowProperties(),
+        fn () => $boxShadowProperties(),
         ['--tw-inset-shadow-color', 'initial'],
     ]);
 
@@ -331,7 +340,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         // No value - default inset shadow
         if (!isset($candidate['value'])) {
             $value = $theme->get(['--inset-shadow']);
-            if ($value === null) return null;
+            if ($value === null) {
+                return null;
+            }
 
             return array_merge(
                 [$boxShadowProperties()],
@@ -340,9 +351,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-inset-shadow',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-inset-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-inset-shadow-color, {$color})",
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -355,7 +366,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
             if ($type === 'color') {
                 $value = asColor($value, $modifier, $theme);
-                if ($value === null) return null;
+                if ($value === null) {
+                    return null;
+                }
 
                 return [
                     $boxShadowProperties(),
@@ -371,10 +384,10 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-inset-shadow',
                     $value,
                     $alpha,
-                    fn($color) => "var(--tw-inset-shadow-color, {$color})",
-                    'inset '
+                    fn ($color) => "var(--tw-inset-shadow-color, {$color})",
+                    'inset ',
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -383,14 +396,20 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         // Static values
         switch ($namedValue) {
             case 'none':
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
+
                 return [
                     $boxShadowProperties(),
                     decl('--tw-inset-shadow', $nullShadow),
                     decl('box-shadow', $cssBoxShadowValue),
                 ];
             case 'inherit':
-                if ($modifier !== null) return null;
+                if ($modifier !== null) {
+                    return null;
+                }
+
                 return [$boxShadowProperties(), decl('--tw-inset-shadow-color', 'inherit')];
         }
 
@@ -404,9 +423,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                     '--tw-inset-shadow',
                     $shadowValue,
                     $alpha,
-                    fn($color) => "var(--tw-inset-shadow-color, {$color})"
+                    fn ($color) => "var(--tw-inset-shadow-color, {$color})",
                 ),
-                [decl('box-shadow', $cssBoxShadowValue)]
+                [decl('box-shadow', $cssBoxShadowValue)],
             );
         }
 
@@ -428,7 +447,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     // ring-inset static utility
     $builder->staticUtility('ring-inset', [
-        fn() => $boxShadowProperties(),
+        fn () => $boxShadowProperties(),
         ['--tw-ring-inset', 'inset'],
     ]);
 
@@ -449,6 +468,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                 return null;
             }
             $value = $theme->get(['--default-ring-width']) ?? '1px';
+
             return [
                 $boxShadowProperties(),
                 decl('--tw-ring-shadow', $ringShadowValue($value)),
@@ -465,6 +485,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                 if ($modifier !== null) {
                     return null;
                 }
+
                 return [
                     $boxShadowProperties(),
                     decl('--tw-ring-shadow', $ringShadowValue($value)),
@@ -477,6 +498,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
             if ($value === null) {
                 return null;
             }
+
             return [decl('--tw-ring-color', $value)];
         }
 
@@ -521,6 +543,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
             if ($modifier !== null) {
                 return null;
             }
+
             return [
                 $boxShadowProperties(),
                 decl('--tw-inset-ring-shadow', $insetRingShadowValue('1px')),
@@ -537,6 +560,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                 if ($modifier !== null) {
                     return null;
                 }
+
                 return [
                     $boxShadowProperties(),
                     decl('--tw-inset-ring-shadow', $insetRingShadowValue($value)),
@@ -549,6 +573,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
             if ($value === null) {
                 return null;
             }
+
             return [decl('--tw-inset-ring-color', $value)];
         }
 
@@ -600,6 +625,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
                 if ($modifier !== null) {
                     return null;
                 }
+
                 return [
                     $boxShadowProperties(),
                     decl('--tw-ring-offset-width', $value),
@@ -613,6 +639,7 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
             if ($value === null) {
                 return null;
             }
+
             return [decl('--tw-ring-offset-color', $value)];
         }
 

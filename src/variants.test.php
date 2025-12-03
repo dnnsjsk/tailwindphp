@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 use TailwindPHP\Tests\TestHelper;
 
 /**
@@ -70,8 +70,11 @@ class variants extends TestCase
 
             while ($pos < strlen($content) && $braceCount > 0) {
                 $char = $content[$pos];
-                if ($char === '{') $braceCount++;
-                elseif ($char === '}') $braceCount--;
+                if ($char === '{') {
+                    $braceCount++;
+                } elseif ($char === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
@@ -181,7 +184,9 @@ class variants extends TestCase
                 $quote = $char;
                 $pos++;
                 while ($pos < $len && $str[$pos] !== $quote) {
-                    if ($str[$pos] === '\\') $pos++;
+                    if ($str[$pos] === '\\') {
+                        $pos++;
+                    }
                     $pos++;
                 }
             } elseif ($char === '[') {
@@ -232,7 +237,9 @@ class variants extends TestCase
             while ($i < $len && ($str[$i] === ' ' || $str[$i] === ',' || $str[$i] === "\n" || $str[$i] === "\t")) {
                 $i++;
             }
-            if ($i >= $len) break;
+            if ($i >= $len) {
+                break;
+            }
 
             // Check for string start
             if ($str[$i] === "'" || $str[$i] === '"') {
@@ -306,8 +313,11 @@ class variants extends TestCase
             $len = strlen($css);
 
             while ($pos < $len && $braceCount > 0) {
-                if ($css[$pos] === '{') $braceCount++;
-                elseif ($css[$pos] === '}') $braceCount--;
+                if ($css[$pos] === '{') {
+                    $braceCount++;
+                } elseif ($css[$pos] === '}') {
+                    $braceCount--;
+                }
                 $pos++;
             }
 
@@ -423,7 +433,8 @@ class variants extends TestCase
     public static function variantTestCases(): array
     {
         self::parseTestFiles();
-        return array_map(fn($test) => [$test], self::$testCases);
+
+        return array_map(fn ($test) => [$test], self::$testCases);
     }
 
     #[Test]
@@ -434,9 +445,10 @@ class variants extends TestCase
 
         if ($testCase['type'] === 'empty') {
             $this->assertEquals('', $css, sprintf(
-                "Expected empty output for classes: %s",
-                implode(', ', $testCase['classes'])
+                'Expected empty output for classes: %s',
+                implode(', ', $testCase['classes']),
             ));
+
             return;
         }
 
@@ -465,7 +477,7 @@ class variants extends TestCase
                     "Missing selector '%s' in output for classes: %s\nActual selectors: %s",
                     $singleSelector,
                     implode(', ', $testCase['classes']),
-                    implode(', ', array_keys($actualRules))
+                    implode(', ', array_keys($actualRules)),
                 ));
 
                 if ($matchedSelector) {
@@ -476,16 +488,16 @@ class variants extends TestCase
                             "Missing property '%s' in selector '%s' for classes: %s",
                             $prop,
                             $singleSelector,
-                            implode(', ', $testCase['classes'])
+                            implode(', ', $testCase['classes']),
                         ));
 
                         // Allow theme variable differences
                         if (!$this->valuesMatch($expectedValue, $actualDecls[$prop])) {
                             $this->assertEquals($expectedValue, $actualDecls[$prop], sprintf(
-                                "Value mismatch for %s { %s } in classes: %s",
+                                'Value mismatch for %s { %s } in classes: %s',
                                 $singleSelector,
                                 $prop,
-                                implode(', ', $testCase['classes'])
+                                implode(', ', $testCase['classes']),
                             ));
                         }
                     }
@@ -640,16 +652,16 @@ class variants extends TestCase
         // Convert legacy max syntax: @media not all and (min-width: X) -> @media (width < X)
         $selector = preg_replace_callback(
             '/@media not all and \(min-width:\s*([^)]+)\)/',
-            fn($m) => '@media (width < ' . trim($m[1]) . ')',
-            $selector
+            fn ($m) => '@media (width < ' . trim($m[1]) . ')',
+            $selector,
         );
 
         // Convert legacy min syntax: @media (min-width: X) -> @media (width >= X)
         // But not if it's already part of a "not all and" pattern
         $selector = preg_replace_callback(
             '/@media \(min-width:\s*([^)]+)\)(?!\s*\|\|\|@media not)/',
-            fn($m) => '@media (width >= ' . trim($m[1]) . ')',
-            $selector
+            fn ($m) => '@media (width >= ' . trim($m[1]) . ')',
+            $selector,
         );
 
         return $selector;
