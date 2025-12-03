@@ -938,4 +938,823 @@ class DirectivesTest extends TestCase
         $utilitiesPos = strpos($css, 'display: flex');
         $this->assertLessThan($utilitiesPos, $preflightPos);
     }
+
+    // =========================================================================
+    // source(none) MODIFIER
+    // =========================================================================
+
+    public function test_source_none_on_theme_import(): void
+    {
+        // source(none) tells Tailwind not to scan files for candidates
+        // In TailwindPHP this is a no-op since we don't do file scanning
+        // but we should accept the syntax without errors
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" source(none); @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_source_none_on_utilities_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" source(none);',
+        ]);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_source_none_with_layer_modifier(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities) source(none);',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_source_none_on_preflight_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/preflight.css" layer(base) source(none); @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_source_none_full_setup(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex p-4">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/theme.css" layer(theme) source(none);
+                @import "tailwindcss/preflight.css" layer(base) source(none);
+                @import "tailwindcss/utilities.css" layer(utilities) source(none);
+            ',
+        ]);
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    // =========================================================================
+    // theme(static) MODIFIER
+    // =========================================================================
+
+    public function test_theme_static_modifier_on_import(): void
+    {
+        // theme(static) makes all theme values always included in output
+        // even if they're not used by any utility
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" theme(static); @tailwind utilities;',
+        ]);
+        // With theme(static), theme variables should be in output
+        // even though we're only using "flex" which doesn't need them
+        $this->assertStringContainsString('--color-red-500', $css);
+        $this->assertStringContainsString('--color-blue-500', $css);
+    }
+
+    public function test_theme_static_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static); @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('--color-red-500', $css);
+    }
+
+    public function test_theme_static_directive_already_works(): void
+    {
+        // Verify @theme static directive already works (it does)
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @tailwind utilities;
+                @theme static {
+                    --color-always-here: #ff0000;
+                }
+            ',
+        ]);
+        // Static values should be in output even if unused
+        $this->assertStringContainsString('--color-always-here:', $css);
+    }
+
+    // =========================================================================
+    // theme(inline) MODIFIER
+    // =========================================================================
+
+    public function test_theme_inline_modifier_on_import(): void
+    {
+        // theme(inline) makes theme values be inlined directly rather than via CSS variables
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" theme(inline); @tailwind utilities;',
+        ]);
+        // With theme(inline), theme values are inlined - no CSS variables in :root
+        // This is a complex feature - for now just verify it doesn't error
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_theme_inline_with_layer(): void
+    {
+        // With theme(inline), values are inlined directly into utilities
+        // rather than being CSS variables in :root. This means the @layer theme
+        // block will be empty and removed, since there are no CSS variables to output.
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(inline); @tailwind utilities;',
+        ]);
+        // The utility should still work
+        $this->assertStringContainsString('display: flex', $css);
+        // No @layer theme since all values are inlined (no CSS variables)
+        $this->assertStringNotContainsString('@layer theme', $css);
+    }
+
+    public function test_theme_inline_directive_already_works(): void
+    {
+        // Verify @theme inline directive already works
+        $css = Tailwind::generate([
+            'content' => '<div class="bg-brand">',
+            'css' => '
+                @tailwind utilities;
+                @theme inline {
+                    --color-brand: #ff0000;
+                }
+            ',
+        ]);
+        // Inline theme values should not appear as CSS variables
+        $this->assertStringContainsString('background-color:', $css);
+    }
+
+    // =========================================================================
+    // prefix() MODIFIER
+    // =========================================================================
+
+    public function test_prefix_modifier_on_theme_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="tw:flex tw:p-4">',
+            'css' => '@import "tailwindcss/theme.css" prefix(tw); @tailwind utilities;',
+        ]);
+        // Prefix should apply to theme variables
+        $this->assertStringContainsString('--tw-', $css);
+    }
+
+    public function test_prefix_modifier_on_utilities_import(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="tw:flex">',
+            'css' => '@import "tailwindcss/utilities.css" prefix(tw);',
+        ]);
+        // Utilities should work with prefix
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_prefix_modifier_with_layer(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="tw:flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities) prefix(tw);',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_prefix_full_setup(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="tw:flex tw:p-4 tw:bg-blue-500">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/theme.css" layer(theme) prefix(tw);
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
+            ',
+        ]);
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    // =========================================================================
+    // COMBINED MODIFIERS
+    // =========================================================================
+
+    public function test_all_modifiers_combined(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/utilities.css" layer(utilities) important source(none);',
+        ]);
+        $this->assertStringContainsString('@layer utilities', $css);
+        $this->assertStringContainsString('!important', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_theme_import_with_multiple_modifiers(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" layer(theme) theme(static) source(none); @tailwind utilities;',
+        ]);
+        $this->assertStringContainsString('@layer theme', $css);
+        $this->assertStringContainsString('--color-red-500', $css);
+    }
+
+    // =========================================================================
+    // PREFLIGHT - COMPREHENSIVE TESTS
+    // Based on https://tailwindcss.com/docs/preflight
+    // =========================================================================
+
+    // --- Box Sizing & Margins Reset ---
+
+    public function test_preflight_universal_box_sizing(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Universal selector should have box-sizing: border-box
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_preflight_universal_margin_reset(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Universal selector should reset margins
+        $this->assertStringContainsString('margin: 0', $css);
+    }
+
+    public function test_preflight_universal_padding_reset(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Universal selector should reset padding
+        $this->assertStringContainsString('padding: 0', $css);
+    }
+
+    public function test_preflight_universal_border_reset(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Universal selector should reset borders
+        $this->assertStringContainsString('border: 0 solid', $css);
+    }
+
+    public function test_preflight_pseudo_elements_included(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Pseudo-elements should be included in reset
+        $this->assertStringContainsString('::after', $css);
+        $this->assertStringContainsString('::before', $css);
+        $this->assertStringContainsString('::backdrop', $css);
+        $this->assertStringContainsString('::file-selector-button', $css);
+    }
+
+    // --- HTML/Body Base Styles ---
+
+    public function test_preflight_html_line_height(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('line-height: 1.5', $css);
+    }
+
+    public function test_preflight_html_text_size_adjust(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('-webkit-text-size-adjust: 100%', $css);
+    }
+
+    public function test_preflight_html_tab_size(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('tab-size: 4', $css);
+    }
+
+    public function test_preflight_html_font_family(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Should include system font stack
+        $this->assertStringContainsString('font-family:', $css);
+        $this->assertStringContainsString('ui-sans-serif', $css);
+        $this->assertStringContainsString('system-ui', $css);
+    }
+
+    public function test_preflight_html_tap_highlight(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('-webkit-tap-highlight-color: transparent', $css);
+    }
+
+    // --- Typography Resets ---
+
+    public function test_preflight_headings_unstyled(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<h1 class="flex">',
+            'preflight' => true,
+        ]);
+        // Headings should inherit font-size and font-weight
+        $this->assertMatchesRegularExpression('/h1.*font-size:\s*inherit/s', $css);
+        $this->assertMatchesRegularExpression('/h1.*font-weight:\s*inherit/s', $css);
+    }
+
+    public function test_preflight_all_heading_levels(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // All heading levels should be included
+        $this->assertMatchesRegularExpression('/h1,\s*h2,\s*h3,\s*h4,\s*h5,\s*h6/', $css);
+    }
+
+    public function test_preflight_lists_unstyled(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<ul class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('list-style: none', $css);
+    }
+
+    public function test_preflight_list_elements_included(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // ol, ul, menu should all be unstyled
+        $this->assertMatchesRegularExpression('/ol,\s*ul,\s*menu/', $css);
+    }
+
+    // --- Link Resets ---
+
+    public function test_preflight_links_inherit_color(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<a class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/\ba\s*\{[^}]*color:\s*inherit/s', $css);
+    }
+
+    public function test_preflight_links_inherit_text_decoration(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<a class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('text-decoration: inherit', $css);
+    }
+
+    // --- Media Elements ---
+
+    public function test_preflight_images_block(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<img class="flex">',
+            'preflight' => true,
+        ]);
+        // Images should be display: block
+        $this->assertMatchesRegularExpression('/img[^{]*\{[^}]*display:\s*block/s', $css);
+    }
+
+    public function test_preflight_images_max_width(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<img class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('max-width: 100%', $css);
+    }
+
+    public function test_preflight_images_height_auto(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<img class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('height: auto', $css);
+    }
+
+    public function test_preflight_media_elements_block(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Various media elements should be display: block
+        $this->assertStringContainsString('svg', $css);
+        $this->assertStringContainsString('video', $css);
+        $this->assertStringContainsString('canvas', $css);
+        $this->assertStringContainsString('audio', $css);
+        $this->assertStringContainsString('iframe', $css);
+    }
+
+    public function test_preflight_media_vertical_align(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('vertical-align: middle', $css);
+    }
+
+    // --- Form Elements ---
+
+    public function test_preflight_form_elements_inherit_font(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('font: inherit', $css);
+    }
+
+    public function test_preflight_form_elements_no_border_radius(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('border-radius: 0', $css);
+    }
+
+    public function test_preflight_form_elements_transparent_bg(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('background-color: transparent', $css);
+    }
+
+    public function test_preflight_form_elements_included(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // All form elements should be included
+        $this->assertStringContainsString('button', $css);
+        $this->assertStringContainsString('input', $css);
+        $this->assertStringContainsString('select', $css);
+        $this->assertStringContainsString('textarea', $css);
+    }
+
+    public function test_preflight_textarea_resize(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<textarea class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('resize: vertical', $css);
+    }
+
+    public function test_preflight_placeholder_opacity(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('::placeholder', $css);
+        $this->assertStringContainsString('opacity: 1', $css);
+    }
+
+    public function test_preflight_button_appearance(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<button class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('appearance: button', $css);
+    }
+
+    // --- Table Resets ---
+
+    public function test_preflight_table_border_collapse(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<table class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('border-collapse: collapse', $css);
+    }
+
+    public function test_preflight_table_border_color_inherit(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<table class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/table\s*\{[^}]*border-color:\s*inherit/s', $css);
+    }
+
+    public function test_preflight_table_text_indent(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<table class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/table\s*\{[^}]*text-indent:\s*0/s', $css);
+    }
+
+    // --- Other Elements ---
+
+    public function test_preflight_hr_styles(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<hr class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/hr\s*\{[^}]*height:\s*0/s', $css);
+        $this->assertStringContainsString('border-top-width: 1px', $css);
+    }
+
+    public function test_preflight_abbr_title_decoration(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<abbr class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('abbr:where([title])', $css);
+        $this->assertStringContainsString('underline dotted', $css);
+    }
+
+    public function test_preflight_strong_bold_weight(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<strong class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('font-weight: bolder', $css);
+    }
+
+    public function test_preflight_code_font_family(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<code class="flex">',
+            'preflight' => true,
+        ]);
+        // Code elements should use mono font stack
+        $this->assertStringContainsString('ui-monospace', $css);
+        $this->assertStringContainsString('monospace', $css);
+    }
+
+    public function test_preflight_small_font_size(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<small class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/small\s*\{[^}]*font-size:\s*80%/s', $css);
+    }
+
+    public function test_preflight_sub_sup_styles(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<sub class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('font-size: 75%', $css);
+        $this->assertStringContainsString('line-height: 0', $css);
+        $this->assertStringContainsString('vertical-align: baseline', $css);
+    }
+
+    public function test_preflight_summary_display(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<summary class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/summary\s*\{[^}]*display:\s*list-item/s', $css);
+    }
+
+    public function test_preflight_progress_vertical_align(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<progress class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertMatchesRegularExpression('/progress\s*\{[^}]*vertical-align:\s*baseline/s', $css);
+    }
+
+    // --- Hidden Attribute ---
+
+    public function test_preflight_hidden_attribute(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Hidden elements should be display: none !important
+        $this->assertStringContainsString('[hidden]', $css);
+        $this->assertStringContainsString('display: none !important', $css);
+    }
+
+    public function test_preflight_hidden_until_found_exception(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'preflight' => true,
+        ]);
+        // Should exclude hidden="until-found"
+        $this->assertStringContainsString("hidden='until-found'", $css);
+    }
+
+    // --- Browser Specific ---
+
+    public function test_preflight_webkit_search_decoration(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('::-webkit-search-decoration', $css);
+        $this->assertStringContainsString('-webkit-appearance: none', $css);
+    }
+
+    public function test_preflight_webkit_datetime(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('::-webkit-datetime-edit', $css);
+        $this->assertStringContainsString('::-webkit-date-and-time-value', $css);
+    }
+
+    public function test_preflight_moz_focusring(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString(':-moz-focusring', $css);
+        $this->assertStringContainsString('outline: auto', $css);
+    }
+
+    public function test_preflight_moz_ui_invalid(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString(':-moz-ui-invalid', $css);
+        $this->assertStringContainsString('box-shadow: none', $css);
+    }
+
+    public function test_preflight_webkit_spin_buttons(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        $this->assertStringContainsString('::-webkit-inner-spin-button', $css);
+        $this->assertStringContainsString('::-webkit-outer-spin-button', $css);
+    }
+
+    // --- @supports for Placeholder Color ---
+
+    public function test_preflight_placeholder_color_supports(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<input class="flex">',
+            'preflight' => true,
+        ]);
+        // Should have @supports block for placeholder color
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('color-mix', $css);
+    }
+
+    // --- Configuration Options ---
+
+    public function test_preflight_disabled_via_import(): void
+    {
+        // Preflight can be disabled by not importing it
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @import "tailwindcss/theme.css" layer(theme);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        // Should have utilities but no preflight
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringNotContainsString('box-sizing: border-box', $css);
+    }
+
+    public function test_preflight_with_custom_base_styles(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @import "tailwindcss/preflight.css" layer(base);
+                @tailwind utilities;
+                @layer base {
+                    body { background-color: white; }
+                }
+            ',
+        ]);
+        // Should have both preflight and custom base styles
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('background-color: white', $css);
+    }
+
+    public function test_preflight_layer_order_preserved(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @layer theme, base, components, utilities;
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities);
+            ',
+        ]);
+        // Layer order should be preserved
+        $this->assertStringContainsString('@layer theme, base, components, utilities;', $css);
+        // Preflight in base, utilities in utilities
+        $this->assertStringContainsString('@layer base', $css);
+        $this->assertStringContainsString('@layer utilities', $css);
+    }
+
+    // --- Integration with Other Features ---
+
+    public function test_preflight_with_theme_customization(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="font-custom">',
+            'css' => '
+                @import "tailwindcss/preflight.css" layer(base);
+                @tailwind utilities;
+                @theme {
+                    --font-custom: "Custom Font", sans-serif;
+                }
+            ',
+        ]);
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        $this->assertStringContainsString('--font-custom', $css);
+    }
+
+    public function test_preflight_with_prefix(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="tw:flex">',
+            'css' => '
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities) prefix(tw);
+            ',
+        ]);
+        // Preflight should still work
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        // Utilities should work with prefix
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    public function test_preflight_with_important(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '
+                @import "tailwindcss/preflight.css" layer(base);
+                @import "tailwindcss/utilities.css" layer(utilities) important;
+            ',
+        ]);
+        // Preflight should NOT be !important
+        $this->assertStringContainsString('box-sizing: border-box', $css);
+        // Utilities should be !important
+        $this->assertStringContainsString('display: flex !important', $css);
+    }
 }

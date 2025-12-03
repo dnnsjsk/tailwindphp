@@ -433,6 +433,14 @@ function parseCss(array &$ast, array $options = []): array
                         $themeAst = [atRule('@media', 'theme(static)', $themeAst)];
                     }
 
+                    // Check for theme(inline) modifier - theme values inlined, not as variables
+                    if (str_contains($modifiers, 'theme(inline)')) {
+                        $themeAst = [atRule('@media', 'theme(inline)', $themeAst)];
+                    }
+
+                    // source(none) is a no-op in TailwindPHP since we don't do file scanning
+                    // It's accepted for compatibility with official Tailwind CSS syntax
+
                     // Check for layer() modifier
                     if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
                         return WalkAction::Replace([
@@ -630,6 +638,36 @@ function parseCss(array &$ast, array $options = []): array
 
                             return WalkAction::Continue;
                         });
+                    }
+                }
+                // Handle @media prefix(…)
+                // We support `@import "tailwindcss/theme" prefix(tw)` as a way to
+                // prefix theme variables, which becomes `@media prefix(tw) { … }`
+                elseif (str_starts_with($param, 'prefix(')) {
+                    $prefixValue = substr($param, 7, -1); // extract from prefix(...)
+
+                    // Walk children and append prefix to @theme blocks
+                    if (isset($node['nodes'])) {
+                        walk($node['nodes'], function (&$child) use ($prefixValue, $theme) {
+                            if ($child['kind'] === 'context') {
+                                return WalkAction::Continue;
+                            }
+                            if ($child['kind'] !== 'at-rule') {
+                                return WalkAction::Continue;
+                            }
+
+                            if ($child['name'] === '@theme') {
+                                $child['params'] = trim($child['params'] . ' prefix(' . $prefixValue . ')');
+
+                                return WalkAction::Skip;
+                            }
+
+                            return WalkAction::Continue;
+                        });
+                    }
+                    // Also set the prefix on the theme directly for utility generation
+                    if (!empty($prefixValue) && preg_match(IS_VALID_PREFIX, $prefixValue)) {
+                        $theme->prefix = $prefixValue;
                     }
                 } else {
                     $unknownParams[] = $param;
