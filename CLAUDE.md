@@ -101,6 +101,53 @@ test-coverage/plugins/
 
 **Important for LLMs**: The plugin implementations are PHP ports, not JavaScript execution. They follow the same logic and produce the same output, but are implemented natively in PHP. Tests are extracted from the reference JavaScript test files where available.
 
+**Creating Custom Plugins:**
+
+```php
+use TailwindPHP\Plugin\PluginInterface;
+use TailwindPHP\Plugin\PluginAPI;
+
+class MyPlugin implements PluginInterface
+{
+    public function getName(): string
+    {
+        return 'my-plugin';
+    }
+
+    public function __invoke(PluginAPI $api, array $options = []): void
+    {
+        // Add static utilities
+        $api->addUtilities([
+            '.btn' => ['padding' => '0.5rem 1rem', 'border-radius' => '0.25rem'],
+        ]);
+
+        // Add functional utilities (generates .tab-1, .tab-2, .tab-4, .tab-8)
+        $api->matchUtilities(
+            ['tab' => fn($value) => ['tab-size' => $value]],
+            ['values' => ['1' => '1', '2' => '2', '4' => '4', '8' => '8']]
+        );
+
+        // Add components
+        $api->addComponents(['.card' => ['background' => 'white', 'padding' => '1rem']]);
+
+        // Add variants
+        $api->addVariant('hocus', '&:hover, &:focus');
+
+        // Access theme
+        $color = $api->theme('colors.blue.500', '#3b82f6');
+    }
+
+    public function getThemeExtensions(array $options = []): array
+    {
+        return []; // Theme additions
+    }
+}
+
+// Register and use
+registerPlugin(new MyPlugin());
+$css = Tailwind::generate($html, '@plugin "my-plugin"; @tailwind utilities;');
+```
+
 ### 7. Performance Optimizations
 
 While this is a 1:1 port focused on correctness, PHP-specific optimizations are applied where they improve performance without changing output. These are marked with `@port-deviation:performance` in file headers.

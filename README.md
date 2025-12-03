@@ -313,6 +313,86 @@ $css = Tailwind::generate(
 // form-checkbox, form-radio
 ```
 
+### Creating Custom Plugins
+
+You can create your own plugins by implementing the `PluginInterface`:
+
+```php
+use TailwindPHP\Plugin\PluginInterface;
+use TailwindPHP\Plugin\PluginAPI;
+
+class MyCustomPlugin implements PluginInterface
+{
+    public function getName(): string
+    {
+        return 'my-custom-plugin';
+    }
+
+    public function __invoke(PluginAPI $api, array $options = []): void
+    {
+        // Add static utilities
+        $api->addUtilities([
+            '.btn' => [
+                'padding' => '0.5rem 1rem',
+                'border-radius' => '0.25rem',
+                'font-weight' => '600',
+            ],
+            '.btn-primary' => [
+                'background-color' => 'blue',
+                'color' => 'white',
+            ],
+        ]);
+
+        // Add functional utilities with values
+        $api->matchUtilities(
+            [
+                'tab' => function ($value) {
+                    return ['tab-size' => $value];
+                },
+            ],
+            ['values' => ['1' => '1', '2' => '2', '4' => '4', '8' => '8']]
+        );
+
+        // Add component classes
+        $api->addComponents([
+            '.card' => [
+                'background-color' => 'white',
+                'border-radius' => '0.5rem',
+                'padding' => '1rem',
+                'box-shadow' => '0 1px 3px rgba(0,0,0,0.1)',
+            ],
+        ]);
+
+        // Add custom variants
+        $api->addVariant('hocus', '&:hover, &:focus');
+
+        // Access theme values
+        $primary = $api->theme('colors.blue.500', '#3b82f6');
+    }
+
+    public function getThemeExtensions(array $options = []): array
+    {
+        return []; // Return theme additions if needed
+    }
+}
+```
+
+Register and use your plugin:
+
+```php
+use TailwindPHP\Tailwind;
+use function TailwindPHP\registerPlugin;
+
+// Register the plugin
+registerPlugin(new MyCustomPlugin());
+
+// Use it in CSS
+$css = Tailwind::generate(
+    '<div class="btn btn-primary card tab-4">...</div>',
+    '@plugin "my-custom-plugin"; @tailwind utilities;'
+);
+```
+
 ### Architecture
 
 The plugin system follows the TailwindCSS plugin API pattern:
@@ -325,12 +405,14 @@ src/plugin/plugins/
 ```
 
 **PluginAPI** provides the same methods as TailwindCSS:
-- `addBase()` — Add base styles
-- `addUtilities()` — Add static utilities
-- `matchUtilities()` — Add functional utilities with values
-- `addComponents()` — Add component classes
-- `addVariant()` — Add custom variants
-- `theme()` — Access theme values
+- `addBase(array $css)` — Add base styles
+- `addUtilities(array $utilities)` — Add static utilities
+- `matchUtilities(array $utilities, array $options)` — Add functional utilities with values
+- `addComponents(array $components)` — Add component classes
+- `addVariant(string $name, string|array $variant)` — Add custom variants
+- `matchVariant(string $name, callable $callback, array $options)` — Add functional variants
+- `theme(string $path, mixed $default)` — Access theme values
+- `config(string $path, mixed $default)` — Access config values
 
 ---
 
