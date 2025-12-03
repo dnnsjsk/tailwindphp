@@ -721,18 +721,19 @@ class utilities extends TestCase
             return true;
         }
 
-        // Theme variable usage is acceptable
-        if (preg_match('/^var\(--[\w-]+\)$/', $actual)) {
+        // Theme variable usage - MUST match expected if expected is also a var()
+        // Only accept var() if expected is NOT a var (i.e., actual uses theme, expected was hardcoded)
+        if (preg_match('/^var\(--[\w-]+\)$/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
-        // calc() with var() is also acceptable
-        if (preg_match('/^calc\(var\(--[\w-]+\)/', $actual)) {
+        // calc() with var() - only if expected doesn't have specific var
+        if (preg_match('/^calc\(var\(--[\w-]+\)/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
-        // calc(var(...) * N) patterns
-        if (preg_match('/^calc\(var\(--[\w-]+\)\s*\*\s*[\d.]+\)$/', $actual)) {
+        // calc(var(...) * N) patterns - only if expected doesn't have specific var
+        if (preg_match('/^calc\(var\(--[\w-]+\)\s*\*\s*[\d.]+\)$/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
@@ -787,33 +788,25 @@ class utilities extends TestCase
         }
 
         // var() with fallback containing var(): var(--x, var(--y)) patterns
+        // Only match if ALL variable names match (not just intersection)
         if (str_contains($actual, 'var(') && str_contains($expected, 'var(')) {
-            // If both use var() and the variable names match, consider it equivalent
             $actualVars = [];
             $expectedVars = [];
             preg_match_all('/var\(--[\w-]+/', $actual, $actualVars);
             preg_match_all('/var\(--[\w-]+/', $expected, $expectedVars);
-            if (!empty($actualVars[0]) && !empty($expectedVars[0]) &&
-                array_intersect($actualVars[0], $expectedVars[0])) {
-                return true;
+            // Sort and compare - must have same vars
+            if (!empty($actualVars[0]) && !empty($expectedVars[0])) {
+                sort($actualVars[0]);
+                sort($expectedVars[0]);
+                if ($actualVars[0] === $expectedVars[0]) {
+                    return true;
+                }
             }
         }
 
-        // oklab() vs color-mix(in oklab, ...) - both represent the same color
-        // oklab(59.9824% -.067 -.124 / .5) is equivalent to color-mix(in oklab, #0088cc 50%, transparent)
-        if (str_starts_with($expected, 'oklab(') && str_contains($actual, 'color-mix(in oklab')) {
-            return true;
-        }
-        if (str_starts_with($actual, 'oklab(') && str_contains($expected, 'color-mix(in oklab')) {
-            return true;
-        }
-
-        // Handle color values with alpha that may be expressed differently
-        // Expected may have oklab(), actual may have color-mix()
-        if ((str_contains($expected, 'oklab') || str_contains($expected, 'color-mix')) &&
-            (str_contains($actual, 'oklab') || str_contains($actual, 'color-mix'))) {
-            return true;
-        }
+        // oklab() vs color-mix(in oklab, ...) - DISABLED: too loose, need proper color comparison
+        // TODO: Implement actual color value comparison if needed
+        // For now, these must match exactly
 
         return false;
     }
