@@ -1,14 +1,15 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,197%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,313%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
+[![cva](https://img.shields.io/badge/cva-v1.0.0--beta.4-blue)](https://github.com/joe-bell/cva)
 
 A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilation**. Generate Tailwind CSS using pure PHP — no Node.js required. This entire codebase was written by Claude, with the goal of creating an automated, always up-to-date Tailwind port that tests directly against TailwindCSS's reference test files.
 
-**Includes PHP ports of [clsx](https://github.com/lukeed/clsx) and [tailwind-merge](https://github.com/dcastil/tailwind-merge)** — the most popular companion libraries for Tailwind CSS.
+**Includes PHP ports of [clsx](https://github.com/lukeed/clsx), [tailwind-merge](https://github.com/dcastil/tailwind-merge), and [CVA](https://github.com/joe-bell/cva)** — the most popular companion libraries for Tailwind CSS.
 
 ## Table of Contents
 
@@ -20,9 +21,12 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
   - [Full Tailwind Setup](#full-tailwind-setup)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
-  - [clsx()](#clsx)
-  - [twMerge()](#twmerge)
-  - [twJoin()](#twjoin)
+  - [merge()](#merge)
+  - [join()](#join)
+- [CVA (Class Variance Authority)](#cva-class-variance-authority)
+  - [cva()](#cva)
+  - [cx()](#cx)
+  - [compose()](#compose)
 - [Plugin System](#plugin-system)
   - [Built-in Plugins](#built-in-plugins)
   - [Plugin Options](#plugin-options)
@@ -51,7 +55,7 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 - All CSS compilation features (utilities, variants, directives, functions)
 - Preflight CSS reset via `@import "tailwindcss"` or `@import "tailwindcss/preflight.css"`
 - Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
-- `cn()`, `clsx()`, `twMerge()` — class name utilities (no separate packages needed)
+- `cn()`, `cva()`, `merge()`, `join()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
 **What's NOT included (for now):**
@@ -63,7 +67,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 
 ## Status
 
-✅ **3,197 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,313 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -72,6 +76,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 | Plugin system (typography, forms) | 25 | ✅ |
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
+| CVA (from reference test suite) | 50 | ✅ |
 
 ### Not Supported
 
@@ -258,29 +263,16 @@ cn('px-2 py-1', 'px-4');
 cn('btn', ['btn-primary' => true, 'btn-disabled' => false]);
 // => 'btn btn-primary'
 
-// Override defaults with conditionals
-cn('text-gray-500', ['text-red-500' => $hasError]);
-// => 'text-red-500' (if $hasError is true)
-
-// Complex component example
-function Button($variant = 'default', $size = 'md', $disabled = false, $className = '') {
-    return cn(
-        'inline-flex items-center justify-center rounded-md font-medium transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2',
-        [
-            'bg-primary text-white hover:bg-primary/90' => $variant === 'default',
-            'bg-destructive text-white hover:bg-destructive/90' => $variant === 'destructive',
-            'border border-input bg-background hover:bg-accent' => $variant === 'outline',
-        ],
-        [
-            'h-9 px-3 text-sm' => $size === 'sm',
-            'h-10 px-4' => $size === 'md',
-            'h-11 px-8 text-lg' => $size === 'lg',
-        ],
-        ['opacity-50 pointer-events-none' => $disabled],
-        $className // Allow overrides from caller
+// React-style component
+function Card(array $props = []): string {
+    $class = cn(
+        'rounded-lg border bg-card text-card-foreground shadow-sm',
+        $props['class'] ?? null
     );
+    return "<div class=\"{$class}\">" . ($props['children'] ?? '') . "</div>";
 }
+
+Card(['class' => 'p-6', 'children' => 'Content']);
 ```
 
 ### `merge()`
@@ -290,21 +282,11 @@ Merge Tailwind classes, resolving conflicts. Later classes override earlier ones
 ```php
 use function TailwindPHP\merge;
 
-// Later classes override earlier conflicting ones
 merge('px-2 py-1 bg-red-500', 'px-4 bg-blue-500');
 // => 'py-1 px-4 bg-blue-500'
 
-// Works with variants
 merge('hover:bg-red-500', 'hover:bg-blue-500');
 // => 'hover:bg-blue-500'
-
-// Handles arbitrary values
-merge('text-[14px]', 'text-[16px]');
-// => 'text-[16px]'
-
-// Non-conflicting classes are preserved
-merge('flex', 'items-center', 'justify-between');
-// => 'flex items-center justify-between'
 ```
 
 ### `join()`
@@ -318,9 +300,97 @@ join('foo', 'bar', null, 'baz');
 // => 'foo bar baz'
 ```
 
-### Why include these?
+---
 
-These are essential companion utilities in the Tailwind ecosystem. Including PHP ports means no Node.js dependency for anything.
+## CVA (Class Variance Authority)
+
+PHP port of [CVA](https://github.com/joe-bell/cva) for creating type-safe UI component variants.
+
+### `cva()`
+
+Create component variants with declarative configuration.
+
+```php
+use function TailwindPHP\cva;
+
+// Define component styles
+$button = cva([
+    'base' => 'inline-flex items-center justify-center rounded-md font-medium',
+    'variants' => [
+        'variant' => [
+            'default' => 'bg-primary text-white hover:bg-primary/90',
+            'outline' => 'border border-input bg-background hover:bg-accent',
+            'ghost' => 'hover:bg-accent hover:text-accent-foreground',
+        ],
+        'size' => [
+            'default' => 'h-10 px-4 py-2',
+            'sm' => 'h-9 px-3',
+            'lg' => 'h-11 px-8',
+        ],
+    ],
+    'defaultVariants' => [
+        'variant' => 'default',
+        'size' => 'default',
+    ],
+]);
+
+// Usage (React-style single props object)
+$button();                              // defaults applied
+$button(['variant' => 'outline']);      // override variant
+$button(['size' => 'sm', 'class' => 'mt-4']); // override + custom class
+
+// Use in a component function
+function Button(array $props = []): string {
+    static $styles = null;
+    $styles ??= cva([
+        'base' => 'inline-flex items-center justify-center rounded-md font-medium',
+        'variants' => [
+            'variant' => [
+                'default' => 'bg-primary text-white hover:bg-primary/90',
+                'outline' => 'border border-input hover:bg-accent',
+            ],
+            'size' => [
+                'default' => 'h-10 px-4 py-2',
+                'sm' => 'h-9 px-3',
+            ],
+        ],
+        'defaultVariants' => ['variant' => 'default', 'size' => 'default'],
+    ]);
+
+    $class = $styles($props);
+    $text = $props['children'] ?? 'Button';
+    return "<button class=\"{$class}\">{$text}</button>";
+}
+
+Button(['variant' => 'outline', 'size' => 'sm', 'children' => 'Click me']);
+```
+
+### `cx()`
+
+Simple class concatenation (like clsx).
+
+```php
+use function TailwindPHP\cx;
+
+cx('foo', 'bar');                     // => 'foo bar'
+cx('foo', null, 'bar');               // => 'foo bar'
+cx(['foo', ['bar', 'baz']]);          // => 'foo bar baz'
+```
+
+### `compose()`
+
+Merge multiple CVA components into one.
+
+```php
+use function TailwindPHP\cva;
+use function TailwindPHP\compose;
+
+$box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+$stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+$card = compose($box, $stack);
+
+$card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
+```
 
 ---
 
@@ -515,7 +585,8 @@ src/
 │   ├── CssFormatter.php         # CSS output formatting
 │   └── lib/                     # Companion library ports
 │       ├── clsx/                # clsx port (27 tests from reference)
-│       └── tailwind-merge/      # tailwind-merge port (52 tests from reference)
+│       ├── tailwind-merge/      # tailwind-merge port (52 tests from reference)
+│       └── cva/                 # CVA port (50 tests from reference)
 │
 ├── plugin/                      # Plugin system
 │   └── plugins/                 # Built-in plugin implementations
@@ -542,7 +613,7 @@ src/
 │
 ├── utils/                       # Helper functions (ported from utils/)
 │
-├── index.php                    # Main entry point, compile(), cn(), clsx(), twMerge()
+├── index.php                    # Main entry point, compile(), cn(), cva(), merge(), join()
 ├── ast.php                      # AST nodes and toCss()
 ├── candidate.php                # Candidate parsing (class name → parts)
 ├── compile.php                  # Candidate to CSS compilation
@@ -632,6 +703,7 @@ composer test
 | **Library tests** | | |
 | clsx.test.php | 27 | clsx/test/*.js |
 | tailwind_merge.test.php | 52 | tailwind-merge/tests/*.ts |
+| cva.test.php | 50 | cva/src/index.test.ts |
 | **API coverage tests** | 1,684 | Custom exhaustive tests |
 | **Plugin tests** | 25 | Plugin functionality |
 
@@ -654,3 +726,4 @@ This project ports:
 - [TailwindCSS](https://tailwindcss.com) by Tailwind Labs
 - [clsx](https://github.com/lukeed/clsx) by Luke Edwards
 - [tailwind-merge](https://github.com/dcastil/tailwind-merge) by Dany Castillo
+- [CVA](https://github.com/joe-bell/cva) by Joe Bell
