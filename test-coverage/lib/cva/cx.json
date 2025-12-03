@@ -1,0 +1,59 @@
+[
+    {
+        "name": "cx(null)",
+        "input": null,
+        "expected": ""
+    },
+    {
+        "name": "cx(false)",
+        "input": false,
+        "expected": ""
+    },
+    {
+        "name": "cx(\"foo\")",
+        "input": "foo",
+        "expected": "foo"
+    },
+    {
+        "name": "cx(array with nulls)",
+        "input": [
+            "foo",
+            null,
+            "bar",
+            null,
+            "baz"
+        ],
+        "expected": "foo bar baz"
+    },
+    {
+        "name": "cx(nested arrays)",
+        "input": [
+            "foo",
+            [
+                "bar",
+                [
+                    "hello",
+                    [
+                        "world"
+                    ]
+                ]
+            ],
+            "cya"
+        ],
+        "expected": "foo bar hello world cya"
+    },
+    {
+        "name": "cx(deeply nested)",
+        "input": [
+            "foo",
+            [
+                "bar"
+            ],
+            [
+                "baz",
+                "qux"
+            ]
+        ],
+        "expected": "foo bar baz qux"
+    }
+]

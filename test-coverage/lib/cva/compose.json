@@ -1,0 +1,75 @@
+[
+    {
+        "name": "compose: should merge into a single component",
+        "box": {
+            "variants": {
+                "shadow": {
+                    "sm": "shadow-sm",
+                    "md": "shadow-md"
+                }
+            },
+            "defaultVariants": {
+                "shadow": "sm"
+            }
+        },
+        "stack": {
+            "variants": {
+                "gap": {
+                    "unset": null,
+                    "1": "gap-1",
+                    "2": "gap-2",
+                    "3": "gap-3"
+                }
+            },
+            "defaultVariants": {
+                "gap": "unset"
+            }
+        },
+        "cases": [
+            [
+                [],
+                "shadow-sm"
+            ],
+            [
+                {
+                    "class": "adhoc-class"
+                },
+                "shadow-sm adhoc-class"
+            ],
+            [
+                {
+                    "className": "adhoc-class"
+                },
+                "shadow-sm adhoc-class"
+            ],
+            [
+                {
+                    "shadow": "md"
+                },
+                "shadow-md"
+            ],
+            [
+                {
+                    "gap": "2"
+                },
+                "shadow-sm gap-2"
+            ],
+            [
+                {
+                    "shadow": "md",
+                    "gap": "3",
+                    "class": "adhoc-class"
+                },
+                "shadow-md gap-3 adhoc-class"
+            ],
+            [
+                {
+                    "shadow": "md",
+                    "gap": "3",
+                    "className": "adhoc-class"
+                },
+                "shadow-md gap-3 adhoc-class"
+            ]
+        ]
+    }
+]

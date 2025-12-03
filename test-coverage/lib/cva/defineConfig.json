@@ -1,0 +1,44 @@
+[
+    {
+        "name": "hooks: onComplete should extend cx",
+        "hook": "onComplete",
+        "prefix": "never-gonna-give-you-up",
+        "suffix": "never-gonna-let-you-down",
+        "type": "cx",
+        "input": [
+            "foo",
+            "bar"
+        ],
+        "expected_contains_prefix": true,
+        "expected_contains_suffix": true
+    },
+    {
+        "name": "hooks: onComplete should extend cva",
+        "hook": "onComplete",
+        "prefix": "never-gonna-give-you-up",
+        "suffix": "never-gonna-let-you-down",
+        "type": "cva",
+        "config": {
+            "base": "foo",
+            "variants": {
+                "intent": {
+                    "primary": "bar"
+                }
+            }
+        },
+        "props": {
+            "intent": "primary"
+        },
+        "expected_contains_prefix": true,
+        "expected_contains_suffix": true
+    },
+    {
+        "name": "hooks: onComplete should extend compose",
+        "hook": "onComplete",
+        "prefix": "never-gonna-give-you-up",
+        "suffix": "never-gonna-let-you-down",
+        "type": "compose",
+        "expected_contains_prefix": true,
+        "expected_contains_suffix": true
+    }
+]

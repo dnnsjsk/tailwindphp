@@ -1,0 +1,11 @@
+{
+    "source": "reference\/cva\/packages\/cva\/src\/index.test.ts",
+    "extracted": "2025-12-03 11:58:45",
+    "counts": {
+        "cx": 6,
+        "compose": 7,
+        "cva": 44,
+        "defineConfig": 3
+    },
+    "total": 60
+}

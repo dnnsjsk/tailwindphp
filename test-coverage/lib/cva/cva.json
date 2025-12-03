@@ -1,0 +1,460 @@
+[
+    {
+        "name": "without base, without defaults",
+        "config": {
+            "variants": {
+                "intent": {
+                    "unset": null,
+                    "primary": "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600",
+                    "secondary": "button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100",
+                    "warning": "button--warning bg-yellow-500 border-transparent hover:bg-yellow-600",
+                    "danger": "button--danger bg-red-500 text-white border-transparent hover:bg-red-600"
+                },
+                "disabled": {
+                    "unset": null,
+                    "true": "button--disabled opacity-050 cursor-not-allowed",
+                    "false": "button--enabled cursor-pointer"
+                },
+                "size": {
+                    "unset": null,
+                    "small": "button--small text-sm py-1 px-2",
+                    "medium": "button--medium text-base py-2 px-4",
+                    "large": "button--large text-lg py-2.5 px-4"
+                },
+                "m": {
+                    "unset": null,
+                    "0": "m-0",
+                    "1": "m-1"
+                }
+            },
+            "compoundVariants": [
+                {
+                    "intent": "primary",
+                    "size": "medium",
+                    "class": "button--primary-medium uppercase"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "false",
+                    "class": "button--warning-enabled text-gray-800"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "true",
+                    "class": "button--warning-disabled text-black"
+                }
+            ]
+        },
+        "cases": [
+            [
+                null,
+                ""
+            ],
+            [
+                [],
+                ""
+            ],
+            [
+                {
+                    "intent": "secondary"
+                },
+                "button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100"
+            ],
+            [
+                {
+                    "size": "small"
+                },
+                "button--small text-sm py-1 px-2"
+            ],
+            [
+                {
+                    "disabled": "true"
+                },
+                "button--disabled opacity-050 cursor-not-allowed"
+            ],
+            [
+                {
+                    "intent": "secondary",
+                    "size": "unset"
+                },
+                "button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100"
+            ],
+            [
+                {
+                    "intent": "danger",
+                    "size": "medium"
+                },
+                "button--danger bg-red-500 text-white border-transparent hover:bg-red-600 button--medium text-base py-2 px-4"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large"
+                },
+                "button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--large text-lg py-2.5 px-4"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large",
+                    "disabled": "true"
+                },
+                "button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--disabled opacity-050 cursor-not-allowed button--large text-lg py-2.5 px-4 button--warning-disabled text-black"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "m": "0"
+                },
+                "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 m-0"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "m": "1"
+                },
+                "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 m-1"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "m": "1",
+                    "class": "adhoc-class"
+                },
+                "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 m-1 adhoc-class"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "m": "1",
+                    "className": "adhoc-classname"
+                },
+                "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 m-1 adhoc-classname"
+            ]
+        ]
+    },
+    {
+        "name": "with base, with defaults",
+        "config": {
+            "base": "button font-semibold border rounded",
+            "variants": {
+                "intent": {
+                    "unset": null,
+                    "primary": "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600",
+                    "secondary": "button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100",
+                    "warning": "button--warning bg-yellow-500 border-transparent hover:bg-yellow-600",
+                    "danger": "button--danger bg-red-500 text-white border-transparent hover:bg-red-600"
+                },
+                "disabled": {
+                    "unset": null,
+                    "true": "button--disabled opacity-050 cursor-not-allowed",
+                    "false": "button--enabled cursor-pointer"
+                },
+                "size": {
+                    "unset": null,
+                    "small": "button--small text-sm py-1 px-2",
+                    "medium": "button--medium text-base py-2 px-4",
+                    "large": "button--large text-lg py-2.5 px-4"
+                }
+            },
+            "compoundVariants": [
+                {
+                    "intent": "primary",
+                    "size": "medium",
+                    "class": "button--primary-medium uppercase"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "false",
+                    "class": "button--warning-enabled text-gray-800"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "true",
+                    "class": "button--warning-disabled text-black"
+                },
+                {
+                    "intent": [
+                        "warning",
+                        "danger"
+                    ],
+                    "class": "button--warning-danger !border-red-500"
+                },
+                {
+                    "intent": [
+                        "warning",
+                        "danger"
+                    ],
+                    "size": "medium",
+                    "class": "button--warning-danger-medium"
+                }
+            ],
+            "defaultVariants": {
+                "disabled": "false",
+                "intent": "primary",
+                "size": "medium"
+            }
+        },
+        "cases": [
+            [
+                null,
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--enabled cursor-pointer button--medium text-base py-2 px-4 button--primary-medium uppercase"
+            ],
+            [
+                [],
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--enabled cursor-pointer button--medium text-base py-2 px-4 button--primary-medium uppercase"
+            ],
+            [
+                {
+                    "intent": "secondary"
+                },
+                "button font-semibold border rounded button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100 button--enabled cursor-pointer button--medium text-base py-2 px-4"
+            ],
+            [
+                {
+                    "size": "small"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--enabled cursor-pointer button--small text-sm py-1 px-2"
+            ],
+            [
+                {
+                    "disabled": "unset"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--medium text-base py-2 px-4 button--primary-medium uppercase"
+            ],
+            [
+                {
+                    "disabled": "true"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--disabled opacity-050 cursor-not-allowed button--medium text-base py-2 px-4 button--primary-medium uppercase"
+            ],
+            [
+                {
+                    "intent": "secondary",
+                    "size": "unset"
+                },
+                "button font-semibold border rounded button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100 button--enabled cursor-pointer"
+            ],
+            [
+                {
+                    "intent": "danger",
+                    "size": "medium"
+                },
+                "button font-semibold border rounded button--danger bg-red-500 text-white border-transparent hover:bg-red-600 button--enabled cursor-pointer button--medium text-base py-2 px-4 button--warning-danger !border-red-500 button--warning-danger-medium"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--enabled cursor-pointer button--large text-lg py-2.5 px-4 button--warning-enabled text-gray-800 button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large",
+                    "disabled": "true"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--disabled opacity-050 cursor-not-allowed button--large text-lg py-2.5 px-4 button--warning-disabled text-black button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "class": "adhoc-class"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--enabled cursor-pointer button--medium text-base py-2 px-4 button--primary-medium uppercase adhoc-class"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "className": "adhoc-classname"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 button--enabled cursor-pointer button--medium text-base py-2 px-4 button--primary-medium uppercase adhoc-classname"
+            ]
+        ]
+    },
+    {
+        "name": "with base, without defaults",
+        "config": {
+            "base": "button font-semibold border rounded",
+            "variants": {
+                "intent": {
+                    "unset": null,
+                    "primary": "button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600",
+                    "secondary": "button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100",
+                    "warning": "button--warning bg-yellow-500 border-transparent hover:bg-yellow-600",
+                    "danger": "button--danger bg-red-500 text-white border-transparent hover:bg-red-600"
+                },
+                "disabled": {
+                    "unset": null,
+                    "true": "button--disabled opacity-050 cursor-not-allowed",
+                    "false": "button--enabled cursor-pointer"
+                },
+                "size": {
+                    "unset": null,
+                    "small": "button--small text-sm py-1 px-2",
+                    "medium": "button--medium text-base py-2 px-4",
+                    "large": "button--large text-lg py-2.5 px-4"
+                }
+            },
+            "compoundVariants": [
+                {
+                    "intent": "primary",
+                    "size": "medium",
+                    "class": "button--primary-medium uppercase"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "false",
+                    "class": "button--warning-enabled text-gray-800"
+                },
+                {
+                    "intent": "warning",
+                    "disabled": "true",
+                    "class": "button--warning-disabled text-black"
+                },
+                {
+                    "intent": [
+                        "warning",
+                        "danger"
+                    ],
+                    "class": "button--warning-danger !border-red-500"
+                },
+                {
+                    "intent": [
+                        "warning",
+                        "danger"
+                    ],
+                    "size": "medium",
+                    "class": "button--warning-danger-medium"
+                }
+            ]
+        },
+        "cases": [
+            [
+                null,
+                "button font-semibold border rounded"
+            ],
+            [
+                [],
+                "button font-semibold border rounded"
+            ],
+            [
+                {
+                    "intent": "secondary"
+                },
+                "button font-semibold border rounded button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100"
+            ],
+            [
+                {
+                    "size": "small"
+                },
+                "button font-semibold border rounded button--small text-sm py-1 px-2"
+            ],
+            [
+                {
+                    "disabled": "false"
+                },
+                "button font-semibold border rounded button--enabled cursor-pointer"
+            ],
+            [
+                {
+                    "disabled": "true"
+                },
+                "button font-semibold border rounded button--disabled opacity-050 cursor-not-allowed"
+            ],
+            [
+                {
+                    "intent": "secondary",
+                    "size": "unset"
+                },
+                "button font-semibold border rounded button--secondary bg-white text-gray-800 border-gray-400 hover:bg-gray-100"
+            ],
+            [
+                {
+                    "intent": "danger",
+                    "size": "medium"
+                },
+                "button font-semibold border rounded button--danger bg-red-500 text-white border-transparent hover:bg-red-600 button--medium text-base py-2 px-4 button--warning-danger !border-red-500 button--warning-danger-medium"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--large text-lg py-2.5 px-4 button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large",
+                    "disabled": "unset"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--large text-lg py-2.5 px-4 button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large",
+                    "disabled": "true"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--disabled opacity-050 cursor-not-allowed button--large text-lg py-2.5 px-4 button--warning-disabled text-black button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "warning",
+                    "size": "large",
+                    "disabled": "false"
+                },
+                "button font-semibold border rounded button--warning bg-yellow-500 border-transparent hover:bg-yellow-600 button--enabled cursor-pointer button--large text-lg py-2.5 px-4 button--warning-enabled text-gray-800 button--warning-danger !border-red-500"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "class": "adhoc-class"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 adhoc-class"
+            ],
+            [
+                {
+                    "intent": "primary",
+                    "className": "adhoc-className"
+                },
+                "button font-semibold border rounded button--primary bg-blue-500 text-white border-transparent hover:bg-blue-600 adhoc-className"
+            ]
+        ]
+    },
+    {
+        "name": "without anything (empty)",
+        "config": null,
+        "cases": [
+            [
+                null,
+                ""
+            ],
+            [
+                [],
+                ""
+            ],
+            [
+                {
+                    "class": "adhoc-class"
+                },
+                "adhoc-class"
+            ],
+            [
+                {
+                    "className": "adhoc-className"
+                },
+                "adhoc-className"
+            ],
+            [
+                {
+                    "class": "adhoc-class",
+                    "className": "adhoc-className"
+                },
+                "adhoc-class adhoc-className"
+            ]
+        ]
+    }
+]

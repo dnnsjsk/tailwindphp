@@ -257,6 +257,7 @@ Located in `test-coverage/`:
 #### Library Test Extraction (test-coverage/lib/)
 - `extract-clsx-tests.php` - Extracts clsx tests from reference/clsx/test/
 - `extract-tailwind-merge-tests.php` - Extracts tailwind-merge tests from reference/tailwind-merge/tests/
+- `extract-cva-tests.php` - Extracts CVA tests from reference/cva/packages/cva/src/
 - `verify-test-counts.php` - Verifies PHP tests match reference test counts
 
 ### Commands
@@ -345,12 +346,15 @@ tailwindphp/
 │   │       ├── clsx/           # clsx port (27 tests)
 │   │       │   ├── clsx.php
 │   │       │   └── clsx.test.php
-│   │       └── tailwind-merge/ # tailwind-merge port (52 tests)
-│   │           ├── index.php   # Main entry, cn(), twMerge(), twJoin()
-│   │           ├── config.php  # Default Tailwind v4 config
-│   │           ├── merger.php  # ClassNameMerger logic
-│   │           ├── lru-cache.php
-│   │           └── tailwind_merge.test.php
+│   │       ├── tailwind-merge/ # tailwind-merge port (52 tests)
+│   │       │   ├── index.php   # Main entry, cn(), twMerge(), twJoin()
+│   │       │   ├── config.php  # Default Tailwind v4 config
+│   │       │   ├── merger.php  # ClassNameMerger logic
+│   │       │   ├── lru-cache.php
+│   │       │   └── tailwind_merge.test.php
+│   │       └── cva/            # CVA port (50 tests)
+│   │           ├── cva.php     # cva(), cx(), compose(), defineConfig()
+│   │           └── cva.test.php
 │   │
 │   ├── plugin/                 # Plugin system
 │   │   └── plugins/            # Built-in plugin implementations
@@ -366,7 +370,7 @@ tailwindphp/
 │   │
 │   ├── utils/                  # Helper functions
 │   │
-│   ├── index.php               # Main entry + public API (cn, clsx, twMerge, twJoin)
+│   ├── index.php               # Main entry + public API (cn, cva, merge, join)
 │   ├── plugin.php              # Plugin system (PluginInterface, PluginAPI, PluginManager)
 │   ├── *.php                   # Core implementation
 │   └── *.test.php              # Unit test files
@@ -380,6 +384,7 @@ tailwindphp/
 │   ├── lib/                    # Library test extraction scripts
 │   │   ├── extract-clsx-tests.php
 │   │   ├── extract-tailwind-merge-tests.php
+│   │   ├── extract-cva-tests.php
 │   │   └── verify-test-counts.php
 │   └── extract-*.php           # Core extraction scripts
 │
@@ -394,7 +399,8 @@ tailwindphp/
 │   ├── tailwindcss-typography/ # Git submodule - @tailwindcss/typography source
 │   ├── tailwindcss-forms/      # Git submodule - @tailwindcss/forms source
 │   ├── clsx/                   # Git submodule - clsx source
-│   └── tailwind-merge/         # Git submodule - tailwind-merge source
+│   ├── tailwind-merge/         # Git submodule - tailwind-merge source
+│   └── cva/                    # Git submodule - CVA source
 │
 ├── scripts/
 │   ├── update-tailwind.php     # Update TailwindCSS reference + copy CSS files
@@ -409,7 +415,7 @@ tailwindphp/
 
 | File | Purpose |
 |------|---------|
-| `src/index.php` | Main entry point, `compile()`, `cn()`, `clsx()`, `twMerge()` |
+| `src/index.php` | Main entry point, `compile()`, `cn()`, `cva()`, etc. |
 | `src/utilities.php` | Utility registration and compilation |
 | `src/variants.php` | Variant handling (hover, focus, etc.) |
 | `src/compile.php` | Candidate to CSS compilation |
@@ -422,6 +428,7 @@ tailwindphp/
 | `src/_tailwindphp/LightningCss.php` | CSS optimizations |
 | `src/_tailwindphp/lib/clsx/clsx.php` | clsx implementation |
 | `src/_tailwindphp/lib/tailwind-merge/index.php` | tailwind-merge + cn() implementation |
+| `src/_tailwindphp/lib/cva/cva.php` | CVA (class variance authority) implementation |
 | `tests/TestHelper.php` | `TestHelper::run()` for tests |
 | `scripts/update-libs.php` | Update companion library references |
 
@@ -461,6 +468,88 @@ merge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
 
 // join() - Simple joining without conflict resolution
 join('foo', 'bar', null);                   // => 'foo bar'
+
+// React-style component using cn()
+function Card(array $props = []): string {
+    $class = cn(
+        'rounded-lg border bg-card text-card-foreground shadow-sm',
+        $props['class'] ?? null
+    );
+    return "<div class=\"{$class}\">" . ($props['children'] ?? '') . "</div>";
+}
+
+Card(['class' => 'p-6', 'children' => 'Content']);
+```
+
+### CVA (Class Variance Authority)
+
+```php
+use function TailwindPHP\cva;
+use function TailwindPHP\cx;
+use function TailwindPHP\compose;
+
+// cva() - Create component variants with declarative config
+$button = cva([
+    'base' => 'btn font-semibold border rounded',
+    'variants' => [
+        'intent' => [
+            'primary' => 'bg-blue-500 text-white',
+            'secondary' => 'bg-gray-200 text-gray-800',
+        ],
+        'size' => [
+            'sm' => 'text-sm px-2 py-1',
+            'md' => 'text-base px-4 py-2',
+        ],
+    ],
+    'defaultVariants' => [
+        'intent' => 'primary',
+        'size' => 'md',
+    ],
+]);
+
+// Usage (React-style single props object)
+$button();                                              // => 'btn font-semibold ... bg-blue-500 text-white text-base px-4 py-2'
+$button(['intent' => 'secondary']);                     // => 'btn font-semibold ... bg-gray-200 text-gray-800 text-base px-4 py-2'
+$button(['size' => 'sm', 'class' => 'my-class']);       // Appends custom classes
+
+// Example component using CVA
+function Button(array $props = []): string {
+    static $styles = null;
+    $styles ??= cva([
+        'base' => 'inline-flex items-center justify-center rounded-md font-medium',
+        'variants' => [
+            'variant' => [
+                'default' => 'bg-primary text-primary-foreground hover:bg-primary/90',
+                'outline' => 'border border-input bg-background hover:bg-accent',
+                'ghost' => 'hover:bg-accent hover:text-accent-foreground',
+            ],
+            'size' => [
+                'default' => 'h-10 px-4 py-2',
+                'sm' => 'h-9 px-3',
+                'lg' => 'h-11 px-8',
+            ],
+        ],
+        'defaultVariants' => ['variant' => 'default', 'size' => 'default'],
+    ]);
+
+    $class = $styles($props);
+    $text = $props['children'] ?? 'Button';
+    return "<button class=\"{$class}\">{$text}</button>";
+}
+
+// Usage
+Button(['variant' => 'outline', 'size' => 'sm', 'children' => 'Click me']);
+
+// cx() - Simple class concatenation (like clsx)
+cx('foo', 'bar');                     // => 'foo bar'
+cx('foo', null, 'bar');               // => 'foo bar'
+cx(['foo', ['bar', 'baz']]);          // => 'foo bar baz'
+
+// compose() - Merge multiple CVA components
+$box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+$stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+$card = compose($box, $stack);
+$card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
 ```
 
 ---
@@ -592,7 +681,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,197 tests (all passing)**
+**Total: 3,313 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -626,6 +715,7 @@ PHP ports of utility libraries with tests extracted from their reference impleme
 |---------|-----------|--------|-------|-----------|
 | clsx | `clsx.test.php` | ✅ | 27 | 27/27 (100%) |
 | tailwind-merge | `tailwind_merge.test.php` | ✅ | 52 | 52/67 applicable (78%) |
+| cva | `cva.test.php` | ✅ | 50 | 50/60 extracted |
 
 **clsx** - Class name string builder (`TailwindPHP\Lib\Clsx\clsx`)
 - Reference: https://github.com/lukeed/clsx
@@ -636,6 +726,11 @@ PHP ports of utility libraries with tests extracted from their reference impleme
 - 52 tests from 14 applicable test files
 - 32 tests N/A (require custom config, extendTailwindMerge, etc.)
 - Includes `cn()` function that combines clsx + twMerge
+
+**cva** - Class Variance Authority (`TailwindPHP\Lib\Cva\cva`)
+- Reference: https://github.com/joe-bell/cva
+- 50 tests for core functionality (cx, cva, compose, defineConfig)
+- Declarative component variant management with base, variants, compoundVariants, defaultVariants
 
 ### API Coverage Tests (`tests/tailwindphp/`)
 

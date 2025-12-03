@@ -1770,6 +1770,7 @@ class Tailwind
 
 require_once __DIR__ . '/_tailwindphp/lib/clsx/clsx.php';
 require_once __DIR__ . '/_tailwindphp/lib/tailwind-merge/index.php';
+require_once __DIR__ . '/_tailwindphp/lib/cva/cva.php';
 
 /**
  * The ultimate class name utility: conditional classes + conflict resolution.
@@ -1824,4 +1825,96 @@ function merge(mixed ...$args): string
 function join(mixed ...$args): string
 {
     return \TailwindPHP\Lib\TailwindMerge\twJoin(...$args);
+}
+
+// =============================================================================
+// CVA (Class Variance Authority)
+// =============================================================================
+// PHP port of CVA for creating type-safe UI component variants.
+// https://github.com/joe-bell/cva
+
+/**
+ * Create a class variance authority component.
+ *
+ * Provides a declarative API for managing component class variations
+ * with base classes, variants, compound variants, and default variants.
+ *
+ * @param array|null $config Configuration with base, variants, compoundVariants, defaultVariants
+ * @return callable A function that accepts a single props array and returns a class string
+ *
+ * @example
+ * // Define component styles
+ * $button = cva([
+ *     'base' => 'btn font-semibold',
+ *     'variants' => [
+ *         'intent' => [
+ *             'primary' => 'bg-blue-500 text-white',
+ *             'secondary' => 'bg-gray-200 text-gray-800',
+ *         ],
+ *         'size' => [
+ *             'sm' => 'text-sm px-2 py-1',
+ *             'md' => 'text-base px-4 py-2',
+ *         ],
+ *     ],
+ *     'defaultVariants' => [
+ *         'intent' => 'primary',
+ *         'size' => 'md',
+ *     ],
+ * ]);
+ *
+ * // React-style usage with single props object
+ * $button();                                        // defaults applied
+ * $button(['intent' => 'secondary']);               // override intent
+ * $button(['size' => 'sm', 'class' => 'mt-4']);     // override + custom class
+ *
+ * // Use in a component function
+ * function Button(array $props = []): string {
+ *     static $styles = null;
+ *     $styles ??= cva([...config...]);
+ *     return '<button class="' . $styles($props) . '">' . ($props['children'] ?? '') . '</button>';
+ * }
+ */
+function cva(?array $config = null): callable
+{
+    return \TailwindPHP\Lib\Cva\cva($config);
+}
+
+/**
+ * Concatenate class values (similar to clsx).
+ *
+ * Flattens and joins class values, filtering out falsy values.
+ *
+ * @param mixed ...$inputs Class values (strings, arrays, null, false)
+ * @return string Space-separated class string
+ *
+ * @example
+ * cx('foo', 'bar');                    // => 'foo bar'
+ * cx('foo', null, 'bar');              // => 'foo bar'
+ * cx(['foo', 'bar']);                  // => 'foo bar'
+ * cx(['foo', ['bar', ['baz']]]);       // => 'foo bar baz'
+ */
+function cx(mixed ...$inputs): string
+{
+    return \TailwindPHP\Lib\Cva\cx(...$inputs);
+}
+
+/**
+ * Compose multiple CVA components into one.
+ *
+ * Merges variants from multiple components, allowing you to combine
+ * reusable variant definitions.
+ *
+ * @param callable ...$components CVA component functions
+ * @return callable A function that accepts merged props and returns a class string
+ *
+ * @example
+ * $box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+ * $stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+ * $card = compose($box, $stack);
+ *
+ * $card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
+ */
+function compose(callable ...$components): callable
+{
+    return \TailwindPHP\Lib\Cva\compose(...$components);
 }

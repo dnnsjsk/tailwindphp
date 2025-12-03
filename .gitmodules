@@ -13,3 +13,6 @@
 [submodule "reference/tailwindcss-forms"]
 	path = reference/tailwindcss-forms
 	url = https://github.com/tailwindlabs/tailwindcss-forms.git
+[submodule "reference/cva"]
+	path = reference/cva
+	url = https://github.com/joe-bell/cva.git

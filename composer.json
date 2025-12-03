@@ -99,7 +99,8 @@
         ],
         "extract-libs": [
             "php test-coverage/lib/extract-clsx-tests.php",
-            "php test-coverage/lib/extract-tailwind-merge-tests.php"
+            "php test-coverage/lib/extract-tailwind-merge-tests.php",
+            "php test-coverage/lib/extract-cva-tests.php"
         ],
         "extract-plugins": [
             "php test-coverage/plugins/extract-typography-tests.php"
@@ -128,7 +129,7 @@
         "bench:save": "php scripts/benchmark.php --save",
         "lint": "pint --test",
         "format": "pint",
-        "analyse": "phpstan analyse",
+        "analyse": "phpstan analyse --memory-limit=512M",
         "quality": [
             "@lint",
             "@analyse"
