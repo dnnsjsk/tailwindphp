@@ -1,0 +1,8 @@
+/* Buttons */
+.btn {
+    @apply px-4 py-2 rounded font-semibold;
+}
+
+.btn-primary {
+    @apply bg-blue-500 text-white;
+}

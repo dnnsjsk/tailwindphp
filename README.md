@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,328%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,356%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -31,6 +31,7 @@ Previously, the only options were the Tailwind CDN (client-side, not ideal for p
 - [Status](#status)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Importing CSS Files](#importing-css-files)
   - [Preflight](#preflight)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
@@ -53,38 +54,40 @@ Previously, the only options were the Tailwind CDN (client-side, not ideal for p
 
 ## Scope
 
-This port (for now) focuses on **string-to-string CSS compilation**. Full filesystem support with `@import` resolution may come in a later version.
+TailwindPHP provides full CSS compilation with support for both inline CSS and file-based imports.
 
 ```php
-// Input: CSS string with Tailwind directives
-$input = '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }';
+// Inline CSS with Tailwind directives
+$css = Tailwind::generate('<div class="bg-brand p-4">', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
-// Output: Standard CSS string
-$output = Tailwind::generate('<div class="bg-brand p-4">', $input);
+// File-based imports
+$css = Tailwind::generate([
+    'content' => '<div class="bg-brand p-4">',
+    'importPaths' => '/path/to/styles.css',
+]);
 ```
 
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
-- Preflight CSS reset via `@import "tailwindcss"` or `@import "tailwindcss/preflight.css"`
-- Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
+- File-based `@import` resolution via `importPaths` option
+- Virtual modules (`tailwindcss`, `tailwindcss/preflight`, `tailwindcss/utilities`, etc.)
+- Preflight CSS reset
+- Plugin system with `@tailwindcss/typography`, `@tailwindcss/forms`, and custom plugin support
 - `cn()`, `variants()`, `merge()`, `join()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
-**What's NOT included (for now):**
-- File-based `@import` — No file system access. Virtual modules (`tailwindcss/preflight`, etc.) work
-- Custom JS plugins — Built-in plugins work, but custom `tailwind.config.js` plugins don't
-- IDE tooling — No IntelliSense, autocomplete, or source maps
-
-If you need file-based imports, preprocess your CSS before passing it to this library.
+**What's NOT included:**
+- IDE tooling — No IntelliSense, autocomplete, or source maps (these are editor features, not CSS compilation)
 
 ## Status
 
-✅ **3,328 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,356 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
-| API Coverage (utilities, modifiers, variants, directives, plugins) | 1,745 | ✅ |
+| API Coverage (utilities, modifiers, variants, directives, plugins) | 1,774 | ✅ |
+| Import functionality | 28 | ✅ |
 | Plugin system (typography, forms) | 25 | ✅ |
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
@@ -92,11 +95,7 @@ If you need file-based imports, preprocess your CSS before passing it to this li
 
 ### Not Supported
 
-- `@import` with file paths — No file system access (e.g., `@import './styles.css'`). Virtual modules work: `tailwindcss`, `tailwindcss/preflight`, `tailwindcss/utilities`
-- Custom JS plugins — Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`) work via PHP ports
-- IDE tooling — No IntelliSense, autocomplete, or source maps
-
-Everything else works.
+- IDE tooling — No IntelliSense, autocomplete, or source maps (these are editor features)
 
 ### Performance
 
@@ -153,6 +152,72 @@ $css = Tailwind::generate([
             @apply px-4 py-2 rounded-lg bg-brand text-white;
         }
     '
+]);
+```
+
+### Importing CSS Files
+
+Use `importPaths` to load CSS from the filesystem with full `@import` resolution:
+
+```php
+// Single file
+$css = Tailwind::generate([
+    'content' => '<div class="flex btn">Hello</div>',
+    'importPaths' => '/path/to/styles.css',
+]);
+
+// Directory (loads all .css files alphabetically)
+$css = Tailwind::generate([
+    'content' => '<div class="flex btn">Hello</div>',
+    'importPaths' => '/path/to/css/',
+]);
+
+// Multiple paths
+$css = Tailwind::generate([
+    'content' => '<div class="flex btn card">Hello</div>',
+    'importPaths' => [
+        '/path/to/base.css',
+        '/path/to/components/',
+    ],
+]);
+
+// Combine with inline CSS
+$css = Tailwind::generate([
+    'content' => '<div class="flex btn custom">Hello</div>',
+    'css' => '.custom { color: red; }',
+    'importPaths' => '/path/to/styles.css',
+]);
+```
+
+**Nested imports are resolved automatically.** If your CSS file contains `@import "./buttons.css"`, TailwindPHP resolves the path relative to the importing file.
+
+```css
+/* /path/to/styles.css */
+@import "tailwindcss";
+@import "./components/buttons.css";
+@import "./components/cards.css";
+
+@theme {
+    --color-brand: #3b82f6;
+}
+```
+
+**Deduplication:** Multiple imports of the same file or virtual module (like `@import "tailwindcss"`) are automatically deduplicated.
+
+**Custom resolver:** For advanced use cases (virtual file systems, databases), provide a callable:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<div class="flex virtual-class">Hello</div>',
+    'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+        if ($uri === null) {
+            return '@import "tailwindcss"; @import "custom.css";';
+        }
+        if ($uri === 'custom.css') {
+            return '.virtual-class { color: purple; }';
+        }
+        return null; // Unknown imports are silently skipped
+    },
 ]);
 ```
 

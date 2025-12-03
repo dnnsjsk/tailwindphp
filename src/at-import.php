@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
+use function TailwindPHP\Ast\atRule;
+use function TailwindPHP\Ast\context;
+use function TailwindPHP\CssParser\parse;
+use function TailwindPHP\Walk\walk;
+
+use TailwindPHP\Walk\WalkAction;
+
 /**
  * @import directive handling
  *
@@ -16,6 +23,7 @@ namespace TailwindPHP;
  * source map generation. PHP omits source map tracking.
  */
 
+const FEATURES_NONE = 0;
 const FEATURES_AT_IMPORT = 1 << 1;
 
 /**

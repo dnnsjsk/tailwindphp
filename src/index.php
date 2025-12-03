@@ -61,6 +61,230 @@ const FEATURE_AT_THEME = 1 << 6;
 $_defaultThemeCache = null;
 
 /**
+ * Virtual modules that should not be resolved from the filesystem.
+ */
+const VIRTUAL_MODULES = [
+    'tailwindcss',
+    'tailwindcss/theme',
+    'tailwindcss/theme.css',
+    'tailwindcss/preflight',
+    'tailwindcss/preflight.css',
+    'tailwindcss/utilities',
+    'tailwindcss/utilities.css',
+];
+
+/**
+ * Resolve import paths and load CSS content.
+ *
+ * Handles:
+ * - Single file path (ends with .css)
+ * - Directory path (loads all .css files)
+ * - Array of files/directories
+ * - Callable resolver function
+ *
+ * @param string|array|callable|null $importPaths Import paths configuration
+ * @return array{css: string, paths: array<string>} Loaded CSS and list of resolved paths for @import resolution
+ */
+function resolveImportPaths(string|array|callable|null $importPaths): array
+{
+    if ($importPaths === null) {
+        return ['css' => '', 'paths' => []];
+    }
+
+    // Callable resolver - call with null to get root CSS
+    if (is_callable($importPaths)) {
+        $css = $importPaths(null, null) ?? '';
+
+        return ['css' => $css, 'paths' => []];
+    }
+
+    $paths = is_array($importPaths) ? $importPaths : [$importPaths];
+    $css = '';
+    $resolvedPaths = [];
+
+    foreach ($paths as $path) {
+        $path = rtrim($path, '/\\');
+
+        if (str_ends_with($path, '.css') && is_file($path)) {
+            // Single CSS file
+            $content = file_get_contents($path);
+            if ($content !== false) {
+                $css .= $content . "\n";
+                $resolvedPaths[] = dirname($path);
+            }
+        } elseif (is_dir($path)) {
+            // Directory - load all .css files
+            $files = glob($path . '/*.css');
+            if ($files) {
+                // Sort for consistent ordering
+                sort($files);
+                foreach ($files as $file) {
+                    $content = file_get_contents($file);
+                    if ($content !== false) {
+                        $css .= $content . "\n";
+                    }
+                }
+                $resolvedPaths[] = $path;
+            }
+        }
+    }
+
+    return ['css' => $css, 'paths' => $resolvedPaths];
+}
+
+/**
+ * Check if a URI is a virtual module.
+ *
+ * @param string $uri Import URI
+ * @return bool True if virtual module
+ */
+function isVirtualModule(string $uri): bool
+{
+    return in_array($uri, VIRTUAL_MODULES, true);
+}
+
+/**
+ * Resolve a file import URI to an absolute path.
+ *
+ * @param string $uri Import URI (e.g., "./components.css", "buttons.css")
+ * @param string|null $fromFile Absolute path of the file containing the @import
+ * @param array $searchPaths Additional paths to search
+ * @return string|null Absolute path if found, null otherwise
+ */
+function resolveImportUri(string $uri, ?string $fromFile, array $searchPaths): ?string
+{
+    // Skip virtual modules
+    if (isVirtualModule($uri)) {
+        return null;
+    }
+
+    // Skip data URIs and remote URLs
+    if (str_starts_with($uri, 'data:') || str_starts_with($uri, 'http://') || str_starts_with($uri, 'https://')) {
+        return null;
+    }
+
+    // Handle absolute paths (Unix style starting with /)
+    if (str_starts_with($uri, '/')) {
+        $resolved = realpath($uri);
+        if ($resolved !== false && is_file($resolved)) {
+            return $resolved;
+        }
+
+        return null;
+    }
+
+    // Relative import - resolve from the importing file's directory
+    if ((str_starts_with($uri, './') || str_starts_with($uri, '../')) && $fromFile !== null) {
+        $fromDir = dirname($fromFile);
+        $resolved = realpath($fromDir . '/' . $uri);
+        if ($resolved !== false && is_file($resolved)) {
+            return $resolved;
+        }
+    }
+
+    // Search in import paths
+    foreach ($searchPaths as $searchPath) {
+        $searchPath = rtrim($searchPath, '/\\');
+
+        // Try direct path
+        $resolved = realpath($searchPath . '/' . $uri);
+        if ($resolved !== false && is_file($resolved)) {
+            return $resolved;
+        }
+
+        // Try without leading ./
+        if (str_starts_with($uri, './')) {
+            $resolved = realpath($searchPath . '/' . substr($uri, 2));
+            if ($resolved !== false && is_file($resolved)) {
+                return $resolved;
+            }
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Create a file loader function for substituteAtImports.
+ *
+ * @param array $searchPaths Paths to search for imports
+ * @param array &$seenFiles Tracks already-processed files to prevent duplicates
+ * @param callable|null $customResolver Optional custom resolver function
+ * @return callable Loader function compatible with substituteAtImports
+ */
+function createFileLoader(array $searchPaths, array &$seenFiles, ?callable $customResolver = null): callable
+{
+    return function (string $uri, string $base) use ($searchPaths, &$seenFiles, $customResolver): array {
+        // Skip virtual modules - they're handled elsewhere
+        if (isVirtualModule($uri)) {
+            return [
+                'path' => $uri,
+                'base' => $base,
+                'content' => '',
+            ];
+        }
+
+        // Custom resolver takes precedence
+        if ($customResolver !== null) {
+            $content = $customResolver($uri, $base);
+            if ($content !== null) {
+                // Generate a pseudo-path for tracking
+                $path = $base . '/' . $uri;
+                if (isset($seenFiles[$path])) {
+                    return ['path' => $path, 'base' => $base, 'content' => ''];
+                }
+                $seenFiles[$path] = true;
+
+                return [
+                    'path' => $path,
+                    'base' => dirname($path),
+                    'content' => $content,
+                ];
+            }
+        }
+
+        // Try to resolve the file path
+        $fromFile = $base !== '' ? $base . '/dummy.css' : null;
+        $resolved = resolveImportUri($uri, $fromFile, $searchPaths);
+
+        if ($resolved === null) {
+            // File not found - return empty (silently skip like Tailwind)
+            return [
+                'path' => $uri,
+                'base' => $base,
+                'content' => '',
+            ];
+        }
+
+        // Check if already seen (deduplication)
+        if (isset($seenFiles[$resolved])) {
+            return [
+                'path' => $resolved,
+                'base' => dirname($resolved),
+                'content' => '',
+            ];
+        }
+        $seenFiles[$resolved] = true;
+
+        // Read the file
+        $content = file_get_contents($resolved);
+        if ($content === false) {
+            return [
+                'path' => $resolved,
+                'base' => dirname($resolved),
+                'content' => '',
+            ];
+        }
+
+        return [
+            'path' => $resolved,
+            'base' => dirname($resolved),
+            'content' => $content,
+        ];
+    };
+}
+
+/**
  * Read a resource file with error checking.
  *
  * @param string $filename The filename relative to resources directory
@@ -315,8 +539,12 @@ function parseCss(array &$ast, array $options = []): array
     $customVariants = []; // Collect @custom-variant definitions
     $plugins = []; // Collect @plugin directives
 
+    // Import deduplication tracking (persists across walk iterations)
+    $seenFiles = [];
+    $seenVirtualModules = [];
+
     // Walk AST to find @tailwind utilities, @theme, @source, @utility, @custom-variant, @plugin, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, &$plugins, $options) {
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, &$plugins, $options, &$seenFiles, &$seenVirtualModules) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -410,6 +638,16 @@ function parseCss(array &$ast, array $options = []): array
             if ($matches) {
                 $importPath = $matches[1];
                 $modifiers = trim($matches[2] ?? '');
+
+                // Deduplicate virtual module imports (tailwindcss, tailwindcss/*)
+                // This applies to all virtual module imports, not just file-based ones
+                if (isVirtualModule($importPath)) {
+                    if (isset($seenVirtualModules[$importPath])) {
+                        // Already imported - remove duplicate
+                        return WalkAction::Replace([]);
+                    }
+                    $seenVirtualModules[$importPath] = true;
+                }
 
                 // Handle 'tailwindcss' virtual module - full Tailwind CSS (theme + preflight + utilities)
                 if ($importPath === 'tailwindcss') {
@@ -505,6 +743,45 @@ function parseCss(array &$ast, array $options = []): array
                     }
 
                     return WalkAction::Replace($preflightAst);
+                }
+
+                // Handle file-based imports if import resolution is enabled
+                $searchPaths = $options['importSearchPaths'] ?? [];
+                $importResolver = $options['importResolver'] ?? null;
+
+                if (!empty($searchPaths) || $importResolver !== null) {
+                    // Virtual modules are already deduplicated above, so skip them here
+                    if (isVirtualModule($importPath)) {
+                        return WalkAction::Continue;
+                    }
+
+                    // Try to resolve file-based import
+                    // Note: $seenFiles is captured by reference from outer scope
+                    $loader = createFileLoader($searchPaths, $seenFiles, $importResolver);
+                    $loaded = $loader($importPath, $options['base'] ?? '');
+
+                    if (!empty($loaded['content'])) {
+                        // Parse the imported CSS
+                        $importedAst = parse($loaded['content']);
+
+                        // Recursively resolve imports in the loaded file
+                        substituteAtImports(
+                            $importedAst,
+                            $loaded['base'],
+                            $loader,
+                            0,
+                            false,
+                        );
+
+                        // Handle layer modifier if present
+                        if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
+                            return WalkAction::Replace([
+                                atRule('@layer', $layerMatch[1], $importedAst),
+                            ]);
+                        }
+
+                        return WalkAction::Replace($importedAst);
+                    }
                 }
             }
 
@@ -1312,9 +1589,9 @@ function extractKeyframeNames(string $value): array
  *
  * Accepts either:
  * 1. A string (HTML content to scan for classes)
- * 2. An array with 'content' and optional 'css' key
+ * 2. An array with 'content', optional 'css', and optional 'importPaths' keys
  *
- * @param string|array $input HTML string or array with 'content' and 'css' keys
+ * @param string|array $input HTML string or array with options
  * @param string $css Optional CSS with @import directives (only used if $input is string)
  * @return string Generated CSS
  *
@@ -1335,22 +1612,80 @@ function extractKeyframeNames(string $value): array
  *           @import "tailwindcss/utilities.css" layer(utilities);
  *       '
  *   ]);
+ *
+ * @example With file imports (single file):
+ *   generate([
+ *       'content' => '<div class="flex p-4 btn">Hello</div>',
+ *       'importPaths' => '/var/www/theme/css/main.css',
+ *   ]);
+ *
+ * @example With file imports (directory - loads all .css files):
+ *   generate([
+ *       'content' => '<div class="flex p-4">Hello</div>',
+ *       'importPaths' => '/var/www/theme/css/',
+ *   ]);
+ *
+ * @example With file imports (array of paths):
+ *   generate([
+ *       'content' => '<div class="flex p-4">Hello</div>',
+ *       'importPaths' => [
+ *           '/var/www/theme/css/main.css',
+ *           '/var/www/shared/components/',
+ *       ],
+ *   ]);
+ *
+ * @example With inline CSS and file imports (inline CSS is processed first):
+ *   generate([
+ *       'content' => '<div class="flex p-4 brand-bg">Hello</div>',
+ *       'css' => '@theme { --color-brand: #3b82f6; }',
+ *       'importPaths' => '/var/www/theme/css/',
+ *   ]);
+ *
+ * @example With custom resolver function:
+ *   generate([
+ *       'content' => '<div class="flex">Hello</div>',
+ *       'importPaths' => function (string $uri, ?string $fromFile): ?string {
+ *           // Return CSS content or null if not found
+ *           return DB::table('css_files')->where('name', $uri)->value('content');
+ *       },
+ *   ]);
  */
 function generate(string|array $input, string $css = '@import "tailwindcss";'): string
 {
     // Handle array input
     if (is_array($input)) {
         $content = $input['content'] ?? '';
-        $css = $input['css'] ?? '@import "tailwindcss";';
+        $inlineCss = $input['css'] ?? '';
+        $importPaths = $input['importPaths'] ?? null;
+
+        // Resolve import paths to CSS content
+        $resolved = resolveImportPaths($importPaths);
+        $importedCss = $resolved['css'];
+        $searchPaths = $resolved['paths'];
+
+        // Combine: inline CSS first, then imported CSS
+        // If neither is provided, default to @import "tailwindcss"
+        if ($inlineCss === '' && $importedCss === '') {
+            $css = '@import "tailwindcss";';
+        } else {
+            $css = $inlineCss . "\n" . $importedCss;
+        }
+
+        // Store search paths for @import resolution within files
+        $compileOptions = !empty($searchPaths) ? ['importSearchPaths' => $searchPaths] : [];
+        if (is_callable($importPaths)) {
+            $compileOptions['importResolver'] = $importPaths;
+        }
     } else {
         $content = $input;
+        $compileOptions = [];
     }
 
     // Extract class names from content
     $candidates = extractCandidates($content);
 
     // Compile
-    $compiled = compile($css);
+    $compiled = compile($css, $compileOptions);
 
     return $compiled['build']($candidates);
 }

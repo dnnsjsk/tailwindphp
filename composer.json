@@ -67,6 +67,7 @@
             "src/variants.php",
             "src/design-system.php",
             "src/apply.php",
+            "src/at-import.php",
             "src/css-functions.php",
             "src/plugin.php",
             "src/plugin/plugins/typography-plugin.php",

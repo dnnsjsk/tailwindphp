@@ -416,6 +416,7 @@ tailwindphp/
 | File | Purpose |
 |------|---------|
 | `src/index.php` | Main entry point, `compile()`, `cn()`, `variants()`, etc. |
+| `src/at-import.php` | `@import` resolution and substitution |
 | `src/utilities.php` | Utility registration and compilation |
 | `src/variants.php` | Variant handling (hover, focus, etc.) |
 | `src/compile.php` | Candidate to CSS compilation |
@@ -429,6 +430,7 @@ tailwindphp/
 | `src/_tailwindphp/lib/clsx/clsx.php` | clsx implementation |
 | `src/_tailwindphp/lib/tailwind-merge/index.php` | tailwind-merge + cn() implementation |
 | `src/_tailwindphp/lib/cva/cva.php` | CVA (class variance authority) implementation |
+| `tests/ImportPathsTest.php` | Import paths feature tests |
 | `tests/TestHelper.php` | `TestHelper::run()` for tests |
 | `scripts/update-libs.php` | Update companion library references |
 
@@ -446,6 +448,38 @@ $css = Tailwind::generate('<div class="flex p-4">');
 
 // With custom CSS input
 $css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// With file-based imports
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4 btn">',
+    'importPaths' => '/path/to/styles.css',
+]);
+
+// With multiple import paths (files and directories)
+$css = Tailwind::generate([
+    'content' => $html,
+    'importPaths' => [
+        '/path/to/base.css',
+        '/path/to/components/',  // Directory loads all .css files
+    ],
+]);
+
+// Combine inline CSS with file imports
+$css = Tailwind::generate([
+    'content' => $html,
+    'css' => '.custom { color: red; }',
+    'importPaths' => '/path/to/styles.css',
+]);
+
+// Custom resolver (for virtual file systems, databases, etc.)
+$css = Tailwind::generate([
+    'content' => $html,
+    'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+        if ($uri === null) return '@import "tailwindcss";';
+        // Return CSS content for uri, or null to skip
+        return null;
+    },
+]);
 
 // Extract class candidates from content
 $classes = Tailwind::extractCandidates('<div class="flex p-4">');
@@ -676,7 +710,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,328 tests (all passing)**
+**Total: 3,356 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -772,32 +806,49 @@ These tests provide exhaustive coverage of the TailwindPHP public API including:
 | `expand_declaration.test.php` | ✅ | 4 |
 | `important.test.php` | ✅ | 4 |
 
+### Import Path Tests (`tests/ImportPathsTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `ImportPathsTest.php` | ✅ | 28 |
+
+Tests for the `importPaths` feature including:
+- Single file and directory imports
+- Array of import paths
+- Nested `@import` resolution
+- Circular import protection via deduplication
+- Custom resolver functions
+- Virtual module deduplication (tailwindcss, tailwindcss/preflight, etc.)
+- Multiple @theme blocks and overrides
+- @utility from imported files
+- Layer modifiers on file imports
+
 ### Outside Scope (0 tests - intentionally empty)
 
-These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (file system, JS runtime, IDE tooling):
+These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (JS runtime, IDE tooling):
 
 | PHP Test File | TypeScript Original | Reason |
 |---------------|---------------------|--------|
-| `at_import.test.php` | `at-import.test.ts` | File system - async file resolution |
 | `canonicalize_candidates.test.php` | `canonicalize-candidates.test.ts` | IDE tooling - Prettier plugin |
 | `intellisense.test.php` | `intellisense.test.ts` | IDE tooling - VS Code extension |
-| `plugin.test.php` | `plugin-api.test.ts` | JS runtime - Plugin API |
 | `sort.test.php` | `sort.test.ts` | IDE tooling - class sorting |
 | `to_key_path.test.php` | `to-key-path.test.ts` | Not needed |
 
 Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.ts`, `container-config.test.ts`, `screens-config.test.ts`, `flatten-color-palette.test.ts`, `apply-config-to-theme.test.ts`, `apply-keyframes-to-theme.test.ts`, `legacy-utilities.test.ts`, `source-map.test.ts`, `line-table.test.ts`, `translation-map.test.ts`.
 
-Within `css_functions.test.php`, tests containing `@plugin`, `@config`, or `@import './file'` are marked as N/A (passed without assertion) since these features are outside scope.
-
 ### Implemented Features
 
 - ✅ All utility classes (364 utilities)
-- ✅ All variants (hover, focus, responsive, dark mode, etc.)
+- ✅ All variants (hover, focus, responsive, dark mode, container queries, etc.)
 - ✅ `@apply` directive with nested selectors
 - ✅ `@theme` customization with namespace clearing
 - ✅ `@utility` custom utilities
 - ✅ `@custom-variant` support
-- ✅ `@import 'tailwindcss'` module resolution (inline, not file-based)
+- ✅ `@import` resolution for virtual modules (`tailwindcss`, `tailwindcss/preflight`, etc.)
+- ✅ `@import` resolution for file paths via `importPaths` option
+- ✅ Nested `@import` resolution (files importing other files)
+- ✅ Import deduplication (virtual modules and files)
+- ✅ Custom import resolvers (callable for virtual file systems)
 - ✅ `theme()` function with dot notation (`colors.red.500`)
 - ✅ `--theme()` function with initial fallback handling
 - ✅ `--spacing()` and `--alpha()` functions
@@ -808,6 +859,7 @@ Within `css_functions.test.php`, tests containing `@plugin`, `@config`, or `@imp
 - ✅ `@property` rules with `@layer properties` fallback
 - ✅ Vendor prefixes (autoprefixer equivalent)
 - ✅ Keyframe handling and hoisting
+- ✅ Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`)
 - ✅ Invalid `theme()` candidates filtered out
 
 ### Port Deviation Markers

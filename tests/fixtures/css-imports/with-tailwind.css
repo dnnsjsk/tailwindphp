@@ -1,0 +1,6 @@
+/* CSS with tailwind utilities */
+@import "tailwindcss";
+
+.custom-component {
+    @apply flex items-center gap-4;
+}

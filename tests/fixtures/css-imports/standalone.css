@@ -1,0 +1,5 @@
+/* Standalone CSS - no tailwindcss import */
+.standalone-class {
+    color: red;
+    background: blue;
+}

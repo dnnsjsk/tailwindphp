@@ -1,0 +1,7 @@
+/* CSS importing from shared directory */
+@import "tailwindcss";
+@import "./shared/utilities.css";
+
+.page-title {
+    @apply text-3xl font-bold;
+}

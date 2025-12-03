@@ -1,0 +1,7 @@
+/* Main CSS file */
+@import "tailwindcss";
+@import "./components.css";
+
+@theme {
+    --color-brand: #3b82f6;
+}
