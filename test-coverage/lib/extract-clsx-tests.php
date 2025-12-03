@@ -12,6 +12,7 @@
 $baseDir = dirname(__DIR__, 2);
 $referenceDir = $baseDir . '/reference/clsx/test';
 $outputDir = __DIR__ . '/clsx/tests';
+$summaryFile = __DIR__ . '/clsx/summary.json';
 
 // Ensure output directory exists
 if (!is_dir($outputDir)) {
@@ -58,5 +59,5 @@ $summary = [
     'total_tests' => $totalTests,
 ];
 
-file_put_contents($outputDir . '/summary.json', json_encode($summary, JSON_PRETTY_PRINT));
-echo "Summary written to: $outputDir/summary.json\n";
+file_put_contents($summaryFile, json_encode($summary, JSON_PRETTY_PRINT));
+echo "Summary written to: $summaryFile\n";

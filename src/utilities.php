@@ -194,6 +194,108 @@ class Utilities implements UtilitiesInterface
 
         return $keys;
     }
+
+    /**
+     * @var array<string, array{callback: callable, options: array}>
+     */
+    private array $functionalPluginUtilities = [];
+
+    /**
+     * @var array<string, array{declarations: array, options: array}>
+     */
+    private array $pluginUtilities = [];
+
+    /**
+     * Add a utility from a plugin (static utility).
+     *
+     * @param string $name Utility class name (without dot)
+     * @param array $declarations CSS declarations
+     * @param array $options Plugin options
+     */
+    public function addPluginUtility(string $name, array $declarations, array $options = []): void
+    {
+        $this->pluginUtilities[$name] = [
+            'declarations' => $declarations,
+            'options' => $options,
+        ];
+
+        // Also register as static utility for compilation
+        $this->static($name, function () use ($declarations) {
+            return $this->declarationsToAst($declarations);
+        });
+    }
+
+    /**
+     * Add a functional utility from a plugin (matchUtilities).
+     *
+     * @param string $name Utility base name
+     * @param callable $callback Function that generates CSS
+     * @param array $options Plugin options including values, type, etc.
+     */
+    public function addFunctional(string $name, callable $callback, array $options = []): void
+    {
+        $this->functionalPluginUtilities[$name] = [
+            'callback' => $callback,
+            'options' => $options,
+        ];
+    }
+
+    /**
+     * Check if a plugin utility exists.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasPluginUtility(string $name): bool
+    {
+        return isset($this->pluginUtilities[$name]);
+    }
+
+    /**
+     * Get a plugin utility.
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getPluginUtility(string $name): ?array
+    {
+        return $this->pluginUtilities[$name] ?? null;
+    }
+
+    /**
+     * Get all plugin utilities.
+     *
+     * @return array
+     */
+    public function getPluginUtilities(): array
+    {
+        return $this->pluginUtilities;
+    }
+
+    /**
+     * Convert declarations array to AST nodes.
+     *
+     * @param array $declarations
+     * @return array
+     */
+    private function declarationsToAst(array $declarations): array
+    {
+        $nodes = [];
+
+        foreach ($declarations as $property => $value) {
+            if (is_array($value)) {
+                // Nested selector
+                $nodes[] = \TailwindPHP\Ast\rule($property, $this->declarationsToAst($value));
+            } elseif (is_int($property)) {
+                // Tuple format [$property, $value]
+                $nodes[] = decl($value[0], $value[1]);
+            } else {
+                $nodes[] = decl($property, $value);
+            }
+        }
+
+        return $nodes;
+    }
 }
 
 /**

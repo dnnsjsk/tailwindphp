@@ -1,0 +1,14 @@
+{
+    "name": "should be possible to specify custom h5 and h6 styles",
+    "html": "<div class=\"prose prose-h5:text-sm prose-h6:text-xl\"></div>",
+    "config": {
+        "content": "{\n        raw: html`<div class=\"prose prose-h5:text-sm prose-h6:text-xl\"></div>`,\n      },"
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "include",
+            "css": ".prose-h5\\:text-sm :is(:where(h5):not(:where([class~='not-prose'], [class~='not-prose'] *))) { font-size: 0.875rem; line-height: 1.25rem; } .prose-h6\\:text-xl :is(:where(h6):not(:where([class~='not-prose'], [class~='not-prose'] *))) { font-size: 1.25rem; line-height: 1.75rem; }"
+        }
+    ]
+}

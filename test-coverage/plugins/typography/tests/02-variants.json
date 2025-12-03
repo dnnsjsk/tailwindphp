@@ -1,0 +1,15 @@
+{
+    "name": "variants",
+    "html": "<div class=\"sm:prose hover:prose-lg lg:prose-lg\"></div>",
+    "config": {
+        "content": "{ raw: html`<div class=\"sm:prose hover:prose-lg lg:prose-lg\"></div>` }",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "match",
+            "css": ".hover\\:prose-lg:hover { color: green; } .hover\\:prose-lg:hover :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: tomato; } .hover\\:prose-lg:hover :where(.hover\\:prose-lg:hover > ul > li):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: blue; } @media (min-width: 640px) { .sm\\:prose { color: red; } .sm\\:prose :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: lime; } .sm\\:prose :where(.sm\\:prose > ul > li):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: purple; } } @media (min-width: 1024px) { .lg\\:prose-lg { color: green; } .lg\\:prose-lg :where(p):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: tomato; } .lg\\:prose-lg :where(.lg\\:prose-lg > ul > li):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: blue; } }"
+        }
+    ]
+}

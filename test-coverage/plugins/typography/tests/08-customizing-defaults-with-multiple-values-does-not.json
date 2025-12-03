@@ -1,0 +1,15 @@
+{
+    "name": "customizing defaults with multiple values does not result in invalid css",
+    "html": "<div class=\"prose\"></div>",
+    "config": {
+        "content": "{\n        raw: html`<div class=\"prose\"></div>`,\n      },",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "match",
+            "css": ".prose { text-align: -webkit-match-parent; text-align: match-parent; }"
+        }
+    ]
+}

@@ -12,6 +12,7 @@
 $baseDir = dirname(__DIR__, 2);
 $referenceDir = $baseDir . '/reference/tailwind-merge/tests';
 $outputDir = __DIR__ . '/tailwind-merge/tests';
+$summaryFile = __DIR__ . '/tailwind-merge/summary.json';
 
 // Ensure output directory exists
 if (!is_dir($outputDir)) {
@@ -95,5 +96,5 @@ $summary = [
     'files' => $filesSummary,
 ];
 
-file_put_contents($outputDir . '/summary.json', json_encode($summary, JSON_PRETTY_PRINT));
-echo "\nSummary written to: $outputDir/summary.json\n";
+file_put_contents($summaryFile, json_encode($summary, JSON_PRETTY_PRINT));
+echo "\nSummary written to: $summaryFile\n";

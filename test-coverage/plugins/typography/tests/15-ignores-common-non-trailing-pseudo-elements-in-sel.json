@@ -1,0 +1,19 @@
+{
+    "name": "ignores common non-trailing pseudo-elements in selectors",
+    "html": "<div class=\"prose dark:prose\"></div>",
+    "config": {
+        "content": "{\n        raw: html`<div class=\"prose dark:prose\"></div>`,\n      },",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "include",
+            "css": ".prose :where(ol li::before::scroll-thumb, ul li::before::scroll-track):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: red; }"
+        },
+        {
+            "type": "include",
+            "css": ".dark .dark\\:prose :where(ol li::scroll-thumb, ul li::scroll-track):not(:where([class~='not-prose'], [class~='not-prose'] *))::before, ::before { color: red; }"
+        }
+    ]
+}

@@ -297,9 +297,10 @@ function parseCss(array &$ast, array $options = []): array
     $firstThemeRule = null;
     $important = false;
     $customVariants = []; // Collect @custom-variant definitions
+    $plugins = []; // Collect @plugin directives
 
-    // Walk AST to find @tailwind utilities, @theme, @source, @utility, @custom-variant, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, $options) {
+    // Walk AST to find @tailwind utilities, @theme, @source, @utility, @custom-variant, @plugin, @media important
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, &$plugins, $options) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -507,6 +508,37 @@ function parseCss(array &$ast, array $options = []): array
             return WalkAction::ReplaceSkip([]);
         }
 
+        // Handle @plugin
+        if ($node['name'] === '@plugin') {
+            if ($ctx->parent !== null) {
+                throw new \Exception('`@plugin` cannot be nested.');
+            }
+
+            // Extract plugin name from params (remove quotes)
+            $pluginName = trim($node['params'], "\"'");
+
+            if (empty($pluginName)) {
+                throw new \Exception('`@plugin` requires a plugin name.');
+            }
+
+            // Parse any options from nested declarations
+            $pluginOptions = [];
+            foreach ($node['nodes'] ?? [] as $child) {
+                if ($child['kind'] === 'declaration') {
+                    $pluginOptions[$child['property']] = parsePluginOptionValue($child['value'] ?? '');
+                }
+            }
+
+            $plugins[] = [
+                'name' => $pluginName,
+                'options' => $pluginOptions,
+            ];
+
+            $features |= FEATURE_JS_PLUGIN_COMPAT;
+
+            return WalkAction::ReplaceSkip([]);
+        }
+
         // Handle @media important, @media theme(...), @media prefix(...)
         if ($node['name'] === '@media') {
             $params = \TailwindPHP\Utils\segment($node['params'], ' ');
@@ -606,6 +638,45 @@ function parseCss(array &$ast, array $options = []): array
     // Set important flag on design system
     if ($important) {
         $designSystem->setImportant(true);
+    }
+
+    // Apply plugins
+    if (!empty($plugins)) {
+        $pluginManager = getPluginManager();
+        $api = $pluginManager->createAPI(
+            $theme,
+            $designSystem->getUtilities(),
+            $designSystem->getVariants(),
+            [],
+        );
+
+        foreach ($plugins as $pluginRef) {
+            $pluginName = $pluginRef['name'];
+            $pluginOptions = $pluginRef['options'];
+
+            if (!$pluginManager->has($pluginName)) {
+                throw new \Exception("Plugin \"{$pluginName}\" is not registered. Make sure the plugin is installed and registered.");
+            }
+
+            // Apply theme extensions first
+            $themeExtensions = $pluginManager->getThemeExtensions($pluginName, $pluginOptions);
+            foreach ($themeExtensions as $namespace => $values) {
+                if (!is_array($values)) {
+                    continue;
+                }
+                $themeNamespace = '--' . strtolower(preg_replace('/([A-Z])/', '-$1', $namespace));
+                foreach ($values as $key => $value) {
+                    if ($key === 'DEFAULT') {
+                        $theme->add($themeNamespace, $value);
+                    } else {
+                        $theme->add("{$themeNamespace}-{$key}", $value);
+                    }
+                }
+            }
+
+            // Execute the plugin
+            $pluginManager->execute($pluginName, $api, $pluginOptions);
+        }
     }
 
     // Register custom variants
@@ -1463,6 +1534,90 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
     }
 
     return $result;
+}
+
+// =============================================================================
+// Plugin System
+// =============================================================================
+
+use TailwindPHP\Plugin\PluginManager;
+
+/** @var PluginManager|null Global plugin manager instance */
+$_pluginManager = null;
+
+/**
+ * Get the global plugin manager instance.
+ *
+ * @return PluginManager
+ */
+function getPluginManager(): PluginManager
+{
+    global $_pluginManager;
+
+    if ($_pluginManager === null) {
+        $_pluginManager = new PluginManager();
+    }
+
+    return $_pluginManager;
+}
+
+/**
+ * Register a plugin with the global plugin manager.
+ *
+ * @param \TailwindPHP\Plugin\PluginInterface $plugin The plugin to register
+ */
+function registerPlugin(\TailwindPHP\Plugin\PluginInterface $plugin): void
+{
+    getPluginManager()->register($plugin);
+}
+
+/**
+ * Parse a plugin option value from CSS.
+ *
+ * Handles:
+ * - Quoted strings: "value" or 'value'
+ * - Numbers: 123, 1.5
+ * - Booleans: true, false
+ * - Lists: value1, value2 (space or comma separated)
+ *
+ * @param string $value The raw value string
+ * @return mixed Parsed value
+ */
+function parsePluginOptionValue(string $value): mixed
+{
+    $value = trim($value);
+
+    // Empty value
+    if ($value === '') {
+        return '';
+    }
+
+    // Quoted string
+    if ((str_starts_with($value, '"') && str_ends_with($value, '"')) ||
+        (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+        return substr($value, 1, -1);
+    }
+
+    // Boolean
+    if ($value === 'true') {
+        return true;
+    }
+    if ($value === 'false') {
+        return false;
+    }
+
+    // Number
+    if (is_numeric($value)) {
+        return str_contains($value, '.') ? (float) $value : (int) $value;
+    }
+
+    // Check for comma-separated list
+    if (str_contains($value, ',')) {
+        return array_map('trim', explode(',', $value));
+    }
+
+    // Plain string
+    return $value;
 }
 
 /**

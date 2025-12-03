@@ -68,6 +68,11 @@
             "src/design-system.php",
             "src/apply.php",
             "src/css-functions.php",
+            "src/plugin/PluginInterface.php",
+            "src/plugin/PluginAPI.php",
+            "src/plugin/PluginManager.php",
+            "src/plugin/plugins/TypographyPlugin.php",
+            "src/plugin/plugins/FormsPlugin.php",
             "src/index.php"
         ]
     },
@@ -98,21 +103,28 @@
             "php test-coverage/lib/extract-clsx-tests.php",
             "php test-coverage/lib/extract-tailwind-merge-tests.php"
         ],
+        "extract-plugins": [
+            "php test-coverage/plugins/extract-typography-tests.php"
+        ],
         "extract-all": [
             "@extract",
-            "@extract-libs"
+            "@extract-libs",
+            "@extract-plugins"
         ],
         "test": "phpunit",
         "test-libs": "phpunit src/_tailwindphp/lib/",
+        "test-plugins": "phpunit src/plugin/",
         "extract-and-test": [
             "@extract-all",
             "phpunit"
         ],
         "update-tailwind": "php scripts/update-tailwind.php",
         "update-libs": "php scripts/update-libs.php",
+        "update-plugins": "php scripts/update-plugins.php",
         "versions": [
             "php scripts/update-tailwind.php --check",
-            "php scripts/update-libs.php --check"
+            "php scripts/update-libs.php --check",
+            "php scripts/update-plugins.php --check"
         ],
         "bench": "php scripts/benchmark.php",
         "bench:save": "php scripts/benchmark.php --save",

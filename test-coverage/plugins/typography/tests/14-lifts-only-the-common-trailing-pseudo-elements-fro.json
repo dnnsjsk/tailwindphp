@@ -1,0 +1,19 @@
+{
+    "name": "lifts only the common, trailing pseudo elements from selectors",
+    "html": "<div class=\"prose dark:prose\"></div>",
+    "config": {
+        "content": "{\n        raw: html`<div class=\"prose dark:prose\"></div>`,\n      },",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "include",
+            "css": ".prose :where(ol li::scroll-thumb, ul li::scroll-track):not(:where([class~='not-prose'], [class~='not-prose'] *))::before { color: red; }"
+        },
+        {
+            "type": "include",
+            "css": ".dark .dark\\:prose :where(ol li, ul li):not(:where([class~='not-prose'], [class~='not-prose'] *))::scroll-thumb, ::scroll-track, ::before { color: red; }"
+        }
+    ]
+}

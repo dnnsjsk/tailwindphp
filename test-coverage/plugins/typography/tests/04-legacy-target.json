@@ -1,0 +1,17 @@
+{
+    "name": "legacy target",
+    "html": "<div class=\"prose prose-h1:text-center prose-headings:text-ellipsis\"></div>",
+    "config": {
+        "content": "{ raw: html`<div class=\"prose prose-h1:text-center prose-headings:text-ellipsis\"></div>` },",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": {
+        "target": "legacy"
+    },
+    "expectedCss": [
+        {
+            "type": "match",
+            "css": ".prose { color: var(--tw-prose-body); max-width: 65ch; } .prose [class~='lead'] { color: var(--tw-prose-lead); } .prose strong { color: var(--tw-prose-bold); font-weight: 600; } .prose ol[type='A'] { list-style-type: upper-alpha; } .prose blockquote p:first-of-type::before { content: open-quote; } .prose blockquote p:last-of-type::after { content: close-quote; } .prose h4 strong { font-weight: 700; } .prose figure > * { margin: 0; } .prose ol > li::marker { font-weight: 400; color: var(--tw-prose-counters); } .prose code::before { content: '&#96; '; } .prose code::after { content: '&#96; '; } .prose-headings\\:text-ellipsis h1 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis h2 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis h3 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis h4 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis h5 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis h6 { text-overflow: ellipsis; } .prose-headings\\:text-ellipsis th { text-overflow: ellipsis; } .prose-h1\\:text-center h1 { text-align: center; }"
+        }
+    ]
+}

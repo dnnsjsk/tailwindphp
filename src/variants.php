@@ -431,6 +431,111 @@ class Variants implements VariantsInterface
     {
         return $this->groupOrder ?? $this->lastOrder + 1;
     }
+
+    /**
+     * @var array<string, array{selector: string|array, options: array}>
+     */
+    private array $pluginVariants = [];
+
+    /**
+     * @var array<string, array{callback: callable, options: array}>
+     */
+    private array $functionalPluginVariants = [];
+
+    /**
+     * Add a static variant from a plugin.
+     *
+     * @param string $name Variant name
+     * @param string|array $selector Selector string(s) or CSS-in-JS
+     */
+    public function addPluginVariant(string $name, string|array $selector): void
+    {
+        $this->pluginVariants[$name] = [
+            'selector' => $selector,
+            'options' => [],
+        ];
+
+        // Convert selector(s) to apply function
+        $applyFn = $this->createSelectorApplyFn($selector);
+
+        // Register with the main variants registry
+        $this->static($name, $applyFn, [
+            'compounds' => $this->determineCompounds($selector),
+        ]);
+    }
+
+    /**
+     * Add a functional variant from a plugin (matchVariant).
+     *
+     * @param string $name Variant base name
+     * @param callable $callback Function that returns selector(s)
+     * @param array $options Settings including values, sort
+     */
+    public function addFunctionalVariant(string $name, callable $callback, array $options = []): void
+    {
+        $this->functionalPluginVariants[$name] = [
+            'callback' => $callback,
+            'options' => $options,
+        ];
+    }
+
+    /**
+     * Check if a plugin variant exists.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasPluginVariant(string $name): bool
+    {
+        return isset($this->pluginVariants[$name]);
+    }
+
+    /**
+     * Get a plugin variant.
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getPluginVariant(string $name): ?array
+    {
+        return $this->pluginVariants[$name] ?? null;
+    }
+
+    /**
+     * Create an apply function from a selector string or array.
+     *
+     * @param string|array $selector
+     * @return callable
+     */
+    private function createSelectorApplyFn(string|array $selector): callable
+    {
+        return function (array $ast) use ($selector): ?array {
+            // Handle multiple selectors
+            $selectors = is_array($selector) ? $selector : [$selector];
+
+            $nodes = [];
+            foreach ($selectors as $sel) {
+                // Replace & with the actual selector
+                $ruleSelector = str_contains($sel, '&') ? $sel : "{$sel} &";
+                $nodes[] = rule($ruleSelector, $ast);
+            }
+
+            return $nodes;
+        };
+    }
+
+    /**
+     * Determine compound flags for a selector.
+     *
+     * @param string|array $selector
+     * @return int
+     */
+    private function determineCompounds(string|array $selector): int
+    {
+        $selectors = is_array($selector) ? $selector : [$selector];
+
+        return compoundsForSelectors($selectors);
+    }
 }
 
 /**

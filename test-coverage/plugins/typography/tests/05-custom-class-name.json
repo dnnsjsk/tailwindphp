@@ -1,0 +1,17 @@
+{
+    "name": "custom class name",
+    "html": "<div class=\"markdown\"></div>",
+    "config": {
+        "content": "{ raw: html`<div class=\"markdown\"></div>` }",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": {
+        "className": "markdown"
+    },
+    "expectedCss": [
+        {
+            "type": "match",
+            "css": ".markdown { color: var(--tw-prose-body); max-width: 65ch; } .markdown :where([class~='lead']):not(:where([class~='not-markdown'], [class~='not-markdown'] *)) { color: var(--tw-prose-lead); } .markdown :where(strong):not(:where([class~='not-markdown'], [class~='not-markdown'] *)) { color: var(--tw-prose-bold); font-weight: 600; } .markdown :where(ol[type='A']):not(:where([class~='not-markdown'], [class~='not-markdown'] *)) { list-style-type: upper-alpha; } .markdown :where(blockquote p:first-of-type):not(:where([class~='not-markdown'], [class~='not-markdown'] *))::before { content: open-quote; } .markdown :where(blockquote p:last-of-type):not(:where([class~='not-markdown'], [class~='not-markdown'] *))::after { content: close-quote; } .markdown :where(h4 strong):not(:where([class~='not-markdown'], [class~='not-markdown'] *)) { font-weight: 700; } .markdown :where(figure > *):not(:where([class~='not-markdown'], [class~='not-markdown'] *)) { margin: 0; } .markdown :where(ol > li):not(:where([class~='not-markdown'], [class~='not-markdown'] *))::marker { font-weight: 400; color: var(--tw-prose-counters); } .markdown :where(code):not(:where([class~='not-markdown'], [class~='not-markdown'] *))::before { content: '&#96; '; } .markdown :where(code):not(:where([class~='not-markdown'], [class~='not-markdown'] *))::after { content: '&#96; '; }"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "does not modify selectors with differing pseudo elements",
+    "html": "<div class=\"prose dark:prose\"></div>",
+    "config": {
+        "content": "{\n        raw: html`<div class=\"prose dark:prose\"></div>`,\n      },",
+        "hasTypographyTheme": true
+    },
+    "pluginOptions": [],
+    "expectedCss": [
+        {
+            "type": "include",
+            "css": ".prose :where(ol li::before, ul li::after):not(:where([class~='not-prose'], [class~='not-prose'] *)) { color: red; }"
+        },
+        {
+            "type": "include",
+            "css": ".dark .dark\\:prose :where(ol li, ul li):not(:where([class~='not-prose'], [class~='not-prose'] *))::before, ::after { color: red; }"
+        }
+    ]
+}

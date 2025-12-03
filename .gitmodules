@@ -7,3 +7,9 @@
 [submodule "reference/clsx"]
 	path = reference/clsx
 	url = https://github.com/lukeed/clsx.git
+[submodule "reference/tailwindcss-typography"]
+	path = reference/tailwindcss-typography
+	url = https://github.com/tailwindlabs/tailwindcss-typography.git
+[submodule "reference/tailwindcss-forms"]
+	path = reference/tailwindcss-forms
+	url = https://github.com/tailwindlabs/tailwindcss-forms.git
