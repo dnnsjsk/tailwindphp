@@ -463,13 +463,6 @@ merge('hover:bg-red-500', 'hover:bg-blue-500'); // => 'hover:bg-blue-500'
 join('foo', 'bar', null);                   // => 'foo bar'
 ```
 
-### Deprecated Aliases
-
-The old function names are still available but deprecated:
-- `clsx()` → use `cn()` instead
-- `twMerge()` → use `merge()` instead
-- `twJoin()` → use `join()` instead
-
 ---
 
 ## Common Patterns

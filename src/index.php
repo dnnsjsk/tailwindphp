@@ -1826,30 +1826,3 @@ function join(mixed ...$args): string
     return \TailwindPHP\Lib\TailwindMerge\twJoin(...$args);
 }
 
-// =============================================================================
-// Deprecated Aliases (for backwards compatibility)
-// =============================================================================
-
-/**
- * @deprecated Use cn() instead
- */
-function clsx(mixed ...$args): string
-{
-    return \TailwindPHP\Lib\Clsx\clsx(...$args);
-}
-
-/**
- * @deprecated Use merge() instead
- */
-function twMerge(mixed ...$args): string
-{
-    return merge(...$args);
-}
-
-/**
- * @deprecated Use join() instead
- */
-function twJoin(mixed ...$args): string
-{
-    return join(...$args);
-}
