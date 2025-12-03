@@ -683,18 +683,18 @@ class variants extends TestCase
             return true;
         }
 
-        // Theme variable usage is acceptable
-        if (preg_match('/^var\(--[\w-]+\)$/', $actual)) {
+        // Theme variable usage - only accept if expected is NOT a var()
+        if (preg_match('/^var\(--[\w-]+\)$/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
-        // calc() with var() is also acceptable
-        if (preg_match('/^calc\(var\(--[\w-]+\)/', $actual)) {
+        // calc() with var() - only if expected doesn't have specific var
+        if (preg_match('/^calc\(var\(--[\w-]+\)/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
-        // calc(var(...) * N) patterns
-        if (preg_match('/^calc\(var\(--[\w-]+\)\s*\*\s*[\d.]+\)$/', $actual)) {
+        // calc(var(...) * N) patterns - only if expected doesn't have specific var
+        if (preg_match('/^calc\(var\(--[\w-]+\)\s*\*\s*[\d.]+\)$/', $actual) && !str_contains($expected, 'var(')) {
             return true;
         }
 
