@@ -279,7 +279,6 @@ src/
 ├── compile.php                  # Candidate to CSS compilation
 ├── css-functions.php            # theme(), --theme(), --spacing(), --alpha()
 ├── css-parser.php               # CSS parsing
-├── default-theme.php            # Default Tailwind theme values
 ├── design-system.php            # Central registry for utilities/variants
 ├── theme.php                    # Theme value resolution
 ├── utilities.php                # Utility registration and lookup
