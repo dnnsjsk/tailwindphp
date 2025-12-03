@@ -1867,35 +1867,17 @@ function join(mixed ...$args): string
  * $button(['intent' => 'secondary']);               // override intent
  * $button(['size' => 'sm', 'class' => 'mt-4']);     // override + custom class
  *
- * // Use in a component function
+ * // Use in a component function with cn() for class extension
  * function Button(array $props = []): string {
  *     static $styles = null;
  *     $styles ??= cva([...config...]);
- *     return '<button class="' . $styles($props) . '">' . ($props['children'] ?? '') . '</button>';
+ *     $class = cn($styles($props), $props['class'] ?? null);
+ *     return '<button class="' . $class . '">' . ($props['children'] ?? '') . '</button>';
  * }
  */
 function cva(?array $config = null): callable
 {
     return \TailwindPHP\Lib\Cva\cva($config);
-}
-
-/**
- * Concatenate class values (similar to clsx).
- *
- * Flattens and joins class values, filtering out falsy values.
- *
- * @param mixed ...$inputs Class values (strings, arrays, null, false)
- * @return string Space-separated class string
- *
- * @example
- * cx('foo', 'bar');                    // => 'foo bar'
- * cx('foo', null, 'bar');              // => 'foo bar'
- * cx(['foo', 'bar']);                  // => 'foo bar'
- * cx(['foo', ['bar', ['baz']]]);       // => 'foo bar baz'
- */
-function cx(mixed ...$inputs): string
-{
-    return \TailwindPHP\Lib\Cva\cx(...$inputs);
 }
 
 /**

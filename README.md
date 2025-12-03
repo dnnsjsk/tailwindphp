@@ -25,7 +25,6 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
   - [join()](#join)
 - [CVA (Class Variance Authority)](#cva-class-variance-authority)
   - [cva()](#cva)
-  - [cx()](#cx)
   - [compose()](#compose)
 - [Plugin System](#plugin-system)
   - [Built-in Plugins](#built-in-plugins)
@@ -339,7 +338,7 @@ $button();                              // defaults applied
 $button(['variant' => 'outline']);      // override variant
 $button(['size' => 'sm', 'class' => 'mt-4']); // override + custom class
 
-// Use in a component function
+// Use in a component function with cn() for easy class extension
 function Button(array $props = []): string {
     static $styles = null;
     $styles ??= cva([
@@ -357,24 +356,14 @@ function Button(array $props = []): string {
         'defaultVariants' => ['variant' => 'default', 'size' => 'default'],
     ]);
 
-    $class = $styles($props);
+    // cn() merges CVA output with custom classes, resolving conflicts
+    $class = cn($styles($props), $props['class'] ?? null);
     $text = $props['children'] ?? 'Button';
     return "<button class=\"{$class}\">{$text}</button>";
 }
 
-Button(['variant' => 'outline', 'size' => 'sm', 'children' => 'Click me']);
-```
-
-### `cx()`
-
-Simple class concatenation (like clsx).
-
-```php
-use function TailwindPHP\cx;
-
-cx('foo', 'bar');                     // => 'foo bar'
-cx('foo', null, 'bar');               // => 'foo bar'
-cx(['foo', ['bar', 'baz']]);          // => 'foo bar baz'
+// Custom classes override CVA defaults via cn()
+Button(['variant' => 'outline', 'size' => 'sm', 'class' => 'mt-4 px-8']);
 ```
 
 ### `compose()`
