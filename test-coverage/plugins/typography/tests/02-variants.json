@@ -3,7 +3,44 @@
     "html": "<div class=\"sm:prose hover:prose-lg lg:prose-lg\"></div>",
     "config": {
         "content": "{ raw: html`<div class=\"sm:prose hover:prose-lg lg:prose-lg\"></div>` }",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "color": "red",
+                        "p": {
+                            "color": "lime"
+                        },
+                        "> ul > li": {
+                            "color": "purple"
+                        }
+                    }
+                ]
+            },
+            "lg": {
+                "css": [
+                    {
+                        "color": "green",
+                        "p": {
+                            "color": "tomato"
+                        },
+                        "> ul > li": {
+                            "color": "blue"
+                        }
+                    }
+                ]
+            },
+            "xl": {
+                "css": [
+                    {
+                        "color": "yellow",
+                        "> ul > li": {
+                            "color": "hotpink"
+                        }
+                    }
+                ]
+            }
+        }
     },
     "pluginOptions": [],
     "expectedCss": [

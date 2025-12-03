@@ -3,7 +3,18 @@
     "html": "<div class=\"prose dark:prose\"></div>",
     "config": {
         "content": "{\n        raw: html`<div class=\"prose dark:prose\"></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "ol li::scroll-thumb::before, ul li::scroll-track::before": {
+                            "color": "red"
+                        }
+                    }
+                ]
+            }
+        },
+        "darkMode": "class"
     },
     "pluginOptions": [],
     "expectedCss": [

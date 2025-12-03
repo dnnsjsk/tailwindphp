@@ -3,7 +3,28 @@
     "html": "<div\n          class=\"\n            markdown\n            markdown-headings:underline\n            markdown-lead:italic\n            markdown-h1:text-3xl\n            markdown-h2:text-2xl\n            markdown-h3:text-xl\n            markdown-h4:text-lg\n            markdown-p:text-gray-700\n            markdown-a:font-bold\n            markdown-blockquote:italic\n            markdown-figure:mx-auto\n            markdown-figcaption:opacity-75\n            markdown-strong:font-medium\n            markdown-em:italic\n            markdown-kbd:border-b-2\n            markdown-code:font-mono\n            markdown-pre:font-mono\n            markdown-ol:pl-6\n            markdown-ul:pl-8\n            markdown-li:my-4\n            markdown-table:my-8\n            markdown-thead:border-red-300\n            markdown-tr:border-red-200\n            markdown-th:text-left\n            markdown-td:align-center\n            markdown-img:rounded-lg\n            markdown-video:my-12\n            markdown-hr:border-t-2\n        \"\n        ></div>",
     "config": {
         "content": "{\n        raw: html`<div\n          class=\"\n            markdown\n            markdown-headings:underline\n            markdown-lead:italic\n            markdown-h1:text-3xl\n            markdown-h2:text-2xl\n            markdown-h3:text-xl\n            markdown-h4:text-lg\n            markdown-p:text-gray-700\n            markdown-a:font-bold\n            markdown-blockquote:italic\n            markdown-figure:mx-auto\n            markdown-figcaption:opacity-75\n            markdown-strong:font-medium\n            markdown-em:italic\n            markdown-kbd:border-b-2\n            markdown-code:font-mono\n            markdown-pre:font-mono\n            markdown-ol:pl-6\n            markdown-ul:pl-8\n            markdown-li:my-4\n            markdown-table:my-8\n            markdown-thead:border-red-300\n            markdown-tr:border-red-200\n            markdown-th:text-left\n            markdown-td:align-center\n            markdown-img:rounded-lg\n            markdown-video:my-12\n            markdown-hr:border-t-2\n        \"\n        ></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "color": "var(--tw-prose-body)",
+                        "[class~=\"lead\"]": {
+                            "color": "var(--tw-prose-lead)"
+                        },
+                        "strong": {
+                            "color": "var(--tw-prose-bold)",
+                            "fontWeight": "600"
+                        },
+                        "h4 strong": {
+                            "fontWeight": "700"
+                        }
+                    }
+                ]
+            }
+        },
+        "pluginOptionsFromConfig": {
+            "className": "markdown"
+        }
     },
     "pluginOptions": {
         "className": "markdown"

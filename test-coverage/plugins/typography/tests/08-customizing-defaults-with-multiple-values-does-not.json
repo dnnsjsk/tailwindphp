@@ -3,7 +3,18 @@
     "html": "<div class=\"prose\"></div>",
     "config": {
         "content": "{\n        raw: html`<div class=\"prose\"></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "textAlign": [
+                            "-webkit-match-parent",
+                            "match-parent"
+                        ]
+                    }
+                ]
+            }
+        }
     },
     "pluginOptions": [],
     "expectedCss": [

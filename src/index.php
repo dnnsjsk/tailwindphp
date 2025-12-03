@@ -643,11 +643,13 @@ function parseCss(array &$ast, array $options = []): array
     // Apply plugins
     if (!empty($plugins)) {
         $pluginManager = getPluginManager();
+        // Pass theme config from options for plugins to access via theme('...')
+        $themeConfig = $options['theme'] ?? [];
         $api = $pluginManager->createAPI(
             $theme,
             $designSystem->getUtilities(),
             $designSystem->getVariants(),
-            [],
+            ['theme' => $themeConfig],
         );
 
         foreach ($plugins as $pluginRef) {
@@ -1548,7 +1550,7 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
 
 use TailwindPHP\Plugin\PluginManager;
 
-/** @var PluginManager|null Global plugin manager instance */
+/** @var \TailwindPHP\Plugin\PluginManager|null Global plugin manager instance */
 $_pluginManager = null;
 
 /**

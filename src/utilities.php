@@ -283,14 +283,16 @@ class Utilities implements UtilitiesInterface
         $nodes = [];
 
         foreach ($declarations as $property => $value) {
-            if (is_array($value)) {
+            if (is_int($property)) {
+                // Tuple format [$property, $value] - this must come first
+                if (is_array($value) && isset($value[0], $value[1])) {
+                    $nodes[] = decl($value[0], (string) $value[1]);
+                }
+            } elseif (is_array($value)) {
                 // Nested selector
                 $nodes[] = \TailwindPHP\Ast\rule($property, $this->declarationsToAst($value));
-            } elseif (is_int($property)) {
-                // Tuple format [$property, $value]
-                $nodes[] = decl($value[0], $value[1]);
             } else {
-                $nodes[] = decl($property, $value);
+                $nodes[] = decl($property, (string) $value);
             }
         }
 

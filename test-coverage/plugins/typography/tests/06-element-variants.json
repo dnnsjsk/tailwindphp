@@ -3,7 +3,25 @@
     "html": "<div\n          class=\"\n            prose\n            prose-headings:underline\n            prose-lead:italic\n            prose-h1:text-3xl\n            prose-h2:text-2xl\n            prose-h3:text-xl\n            prose-h4:text-lg\n            prose-p:text-gray-700\n            prose-a:font-bold\n            prose-blockquote:italic\n            prose-figure:mx-auto\n            prose-figcaption:opacity-75\n            prose-strong:font-medium\n            prose-em:italic\n            prose-kbd:border-b-2\n            prose-code:font-mono\n            prose-pre:font-mono\n            prose-ol:pl-6\n            prose-ul:pl-8\n            prose-li:my-4\n            prose-dl:pl-6\n            prose-dt:pl-8\n            prose-dd:my-4\n            prose-table:my-8\n            prose-thead:border-red-300\n            prose-tr:border-red-200\n            prose-th:text-left\n            prose-td:align-center\n            prose-img:rounded-lg\n            prose-picture:my-8\n            prose-video:my-12\n            prose-hr:border-t-2\n        \"\n        ></div>",
     "config": {
         "content": "{\n        raw: html`<div\n          class=\"\n            prose\n            prose-headings:underline\n            prose-lead:italic\n            prose-h1:text-3xl\n            prose-h2:text-2xl\n            prose-h3:text-xl\n            prose-h4:text-lg\n            prose-p:text-gray-700\n            prose-a:font-bold\n            prose-blockquote:italic\n            prose-figure:mx-auto\n            prose-figcaption:opacity-75\n            prose-strong:font-medium\n            prose-em:italic\n            prose-kbd:border-b-2\n            prose-code:font-mono\n            prose-pre:font-mono\n            prose-ol:pl-6\n            prose-ul:pl-8\n            prose-li:my-4\n            prose-dl:pl-6\n            prose-dt:pl-8\n            prose-dd:my-4\n            prose-table:my-8\n            prose-thead:border-red-300\n            prose-tr:border-red-200\n            prose-th:text-left\n            prose-td:align-center\n            prose-img:rounded-lg\n            prose-picture:my-8\n            prose-video:my-12\n            prose-hr:border-t-2\n        \"\n        ></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "color": "var(--tw-prose-body)",
+                        "[class~=\"lead\"]": {
+                            "color": "var(--tw-prose-lead)"
+                        },
+                        "strong": {
+                            "color": "var(--tw-prose-bold)",
+                            "fontWeight": "600"
+                        },
+                        "h4 strong": {
+                            "fontWeight": "700"
+                        }
+                    }
+                ]
+            }
+        }
     },
     "pluginOptions": [],
     "expectedCss": [

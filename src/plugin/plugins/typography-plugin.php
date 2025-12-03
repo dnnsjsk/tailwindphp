@@ -78,8 +78,9 @@ class TypographyPlugin implements PluginInterface
             $api->addVariant("{$className}-{$name}", $selector);
         }
 
-        // Get typography styles from theme
-        $modifiers = $this->getStyles();
+        // Get typography styles from theme (custom config overrides defaults)
+        $themeTypography = $api->theme('typography');
+        $modifiers = !empty($themeTypography) ? $this->normalizeTypographyConfig($themeTypography) : $this->getStyles();
 
         // Add components for each modifier (DEFAULT, sm, lg, xl, 2xl, colors, invert)
         foreach ($modifiers as $modifier => $styles) {
@@ -100,6 +101,95 @@ class TypographyPlugin implements PluginInterface
     }
 
     /**
+     * Normalize typography config from theme to internal format.
+     *
+     * The config format from theme is:
+     * [
+     *   'DEFAULT' => ['css' => [{ ... css rules ... }]],
+     *   'lg' => ['css' => [{ ... css rules ... }]],
+     * ]
+     *
+     * We need to flatten this to:
+     * [
+     *   'DEFAULT' => { ... css rules ... },
+     *   'lg' => { ... css rules ... },
+     * ]
+     */
+    private function normalizeTypographyConfig(array $config): array
+    {
+        $result = [];
+
+        foreach ($config as $modifier => $modifierConfig) {
+            // Skip internal metadata
+            if (str_starts_with((string) $modifier, '_')) {
+                continue;
+            }
+
+            if (isset($modifierConfig['css'])) {
+                // Flatten the css array
+                $styles = [];
+                foreach ((array) $modifierConfig['css'] as $cssBlock) {
+                    if (is_array($cssBlock)) {
+                        $styles = array_merge($styles, $this->convertCamelCaseKeys($cssBlock));
+                    }
+                }
+                $result[$modifier] = $styles;
+            } else {
+                // Already in expected format
+                $result[$modifier] = $modifierConfig;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert camelCase CSS property names to kebab-case.
+     */
+    private function convertCamelCaseKeys(array $styles): array
+    {
+        $result = [];
+
+        foreach ($styles as $key => $value) {
+            // Convert camelCase property names to kebab-case
+            $kebabKey = $this->toKebabCase($key);
+
+            if (is_array($value) && !$this->isArrayOfValues($value)) {
+                // Nested selector - recursively convert
+                $result[$kebabKey] = $this->convertCamelCaseKeys($value);
+            } elseif (is_int($value) || is_float($value)) {
+                // Convert numeric values to strings
+                $result[$kebabKey] = (string) $value;
+            } else {
+                $result[$kebabKey] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if array is a list of values (like textAlign: ['-webkit-match-parent', 'match-parent'])
+     */
+    private function isArrayOfValues(array $arr): bool
+    {
+        return array_keys($arr) === range(0, count($arr) - 1);
+    }
+
+    /**
+     * Convert camelCase to kebab-case.
+     */
+    private function toKebabCase(string $str): string
+    {
+        // Don't convert if it's a CSS selector (contains special chars)
+        if (preg_match('/[>\[\]~: ]/', $str)) {
+            return $str;
+        }
+
+        return strtolower(preg_replace('/([A-Z])/', '-$1', $str));
+    }
+
+    /**
      * Wrap selector in :where() with not-prose exclusion.
      */
     private function inWhere(string $selector, string $className, string $modifier): string
@@ -111,7 +201,89 @@ class TypographyPlugin implements PluginInterface
             $selectorPrefix = $modifier === 'DEFAULT' ? ".{$className} " : ".{$className}-{$modifier} ";
         }
 
+        // Extract common trailing pseudo-elements (::before, ::after, ::marker, etc.)
+        [$trailingPseudo, $rebuiltSelector] = $this->commonTrailingPseudos($selector);
+
+        if ($trailingPseudo !== null) {
+            return ":where({$selectorPrefix}{$rebuiltSelector}):not(:where([class~=\"{$prefixedNot}\"],[class~=\"{$prefixedNot}\"] *)){$trailingPseudo}";
+        }
+
         return ":where({$selectorPrefix}{$selector}):not(:where([class~=\"{$prefixedNot}\"],[class~=\"{$prefixedNot}\"] *))";
+    }
+
+    /**
+     * Extract common trailing pseudo-elements from selector.
+     *
+     * For "blockquote p:first-of-type::before" returns ["::before", "blockquote p:first-of-type"]
+     * For "ol li::before, ul li::before" returns ["::before", "ol li, ul li"]
+     * For "ol li::before, ul li::after" returns [null, "ol li::before, ul li::after"] (different pseudos)
+     *
+     * @return array{0: string|null, 1: string}
+     */
+    private function commonTrailingPseudos(string $selector): array
+    {
+        // Split by comma for multiple selectors
+        $selectors = array_map('trim', explode(',', $selector));
+
+        // For each selector, extract trailing pseudo-elements
+        $pseudoMatrix = [];
+        $rebuiltSelectors = [];
+
+        foreach ($selectors as $i => $sel) {
+            $pseudos = [];
+            $remaining = $sel;
+
+            // Extract all trailing pseudo-elements (::before, ::after, ::marker, etc.)
+            while (preg_match('/(::[\w-]+)$/', $remaining, $match)) {
+                array_unshift($pseudos, $match[1]);
+                $remaining = substr($remaining, 0, -strlen($match[1]));
+            }
+
+            $pseudoMatrix[$i] = $pseudos;
+            $rebuiltSelectors[$i] = $remaining;
+        }
+
+        // Find common trailing pseudos across all selectors
+        if (empty($pseudoMatrix[0])) {
+            return [null, $selector];
+        }
+
+        $commonPseudos = [];
+        $maxLen = max(array_map('count', $pseudoMatrix));
+
+        for ($j = 0; $j < $maxLen; $j++) {
+            $values = [];
+            foreach ($pseudoMatrix as $pseudos) {
+                if (isset($pseudos[$j])) {
+                    $values[] = $pseudos[$j];
+                }
+            }
+
+            // Check if all selectors have the same pseudo at this position
+            if (count($values) !== count($selectors) || count(array_unique($values)) !== 1) {
+                break;
+            }
+
+            $commonPseudos[] = $values[0];
+
+            // Remove this pseudo from rebuilt selectors tracking
+            foreach ($pseudoMatrix as $i => $pseudos) {
+                unset($pseudoMatrix[$i][$j]);
+            }
+        }
+
+        if (empty($commonPseudos)) {
+            return [null, $selector];
+        }
+
+        // Rebuild selectors with remaining pseudos
+        $finalSelectors = [];
+        foreach ($rebuiltSelectors as $i => $sel) {
+            $remainingPseudos = array_values(array_filter($pseudoMatrix[$i] ?? [], fn ($p) => $p !== null));
+            $finalSelectors[] = $sel . implode('', $remainingPseudos);
+        }
+
+        return [implode('', $commonPseudos), implode(', ', $finalSelectors)];
     }
 
     /**

@@ -214,6 +214,15 @@ class PluginAPI
             $modifier = trim($parts[1]);
         }
 
+        // First check config for theme overrides (e.g., theme.typography from compile options)
+        $themeConfig = $this->config['theme'] ?? [];
+        if (!empty($themeConfig)) {
+            $configValue = $this->resolvePath($themeConfig, $path, null);
+            if ($configValue !== null) {
+                return $configValue;
+            }
+        }
+
         $value = $this->resolveThemePath($path, $defaultValue);
 
         if ($modifier !== null && is_string($value)) {
@@ -241,6 +250,7 @@ class PluginAPI
     public function prefix(string $className): string
     {
         $prefix = $this->theme->getPrefix();
+
         return $prefix === null ? $className : "{$prefix}:{$className}";
     }
 
@@ -256,24 +266,34 @@ class PluginAPI
         $declarations = [];
 
         foreach ($css as $property => $value) {
+            // Skip integer keys - they're not valid CSS property names
+            if (is_int($property)) {
+                continue;
+            }
+
             if (is_array($value)) {
                 if ($this->isNestedSelector($property)) {
                     $declarations[$property] = $this->cssToDeclarations($value);
                 } else {
                     foreach ($value as $v) {
-                        $declarations[] = [$this->toKebabCase($property), $v];
+                        $declarations[] = [$this->toKebabCase($property), (string) $v];
                     }
                 }
             } else {
-                $declarations[$this->toKebabCase($property)] = $value;
+                // Ensure value is a string
+                $declarations[$this->toKebabCase($property)] = is_int($value) || is_float($value) ? (string) $value : $value;
             }
         }
 
         return $declarations;
     }
 
-    private function isNestedSelector(string $property): bool
+    private function isNestedSelector(string|int $property): bool
     {
+        if (is_int($property)) {
+            return false;
+        }
+
         return str_starts_with($property, '&') ||
                str_starts_with($property, '@') ||
                str_starts_with($property, '.') ||
@@ -282,8 +302,12 @@ class PluginAPI
                str_contains($property, '>');
     }
 
-    private function toKebabCase(string $str): string
+    private function toKebabCase(string|int $str): string
     {
+        if (is_int($str)) {
+            return (string) $str;
+        }
+
         return strtolower(preg_replace('/([A-Z])/', '-$1', $str));
     }
 
@@ -348,6 +372,7 @@ class PluginAPI
         if (str_ends_with($opacity, '%')) {
             $opacity = rtrim($opacity, '%');
         }
+
         return "color-mix(in oklab, {$value} {$opacity}%, transparent)";
     }
 }
@@ -394,6 +419,7 @@ class PluginManager
         if (isset(self::$builtInPlugins[$name])) {
             $class = self::$builtInPlugins[$name];
             $this->plugins[$name] = new $class();
+
             return $this->plugins[$name];
         }
 
@@ -409,12 +435,14 @@ class PluginManager
         }
 
         $plugin($api, $options);
+
         return true;
     }
 
     public function getThemeExtensions(string $name, array $options = []): array
     {
         $plugin = $this->get($name);
+
         return $plugin === null ? [] : $plugin->getThemeExtensions($options);
     }
 

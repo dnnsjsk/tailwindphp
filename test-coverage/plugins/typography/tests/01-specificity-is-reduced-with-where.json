@@ -3,7 +3,52 @@
     "html": "<div class=\"prose\"></div>",
     "config": {
         "content": "{ raw: html`<div class=\"prose\"></div>` }",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "color": "var(--tw-prose-body)",
+                        "maxWidth": "65ch",
+                        "[class~=\"lead\"]": {
+                            "color": "var(--tw-prose-lead)"
+                        },
+                        "strong": {
+                            "color": "var(--tw-prose-bold)",
+                            "fontWeight": "600"
+                        },
+                        "ol[type=\"A\"]": {
+                            "listStyleType": "upper-alpha"
+                        },
+                        "blockquote p:first-of-type::before": {
+                            "content": "open-quote"
+                        },
+                        "blockquote p:last-of-type::after": {
+                            "content": "close-quote"
+                        },
+                        "h4 strong": {
+                            "fontWeight": "700"
+                        },
+                        "figure > *": {
+                            "margin": 0
+                        },
+                        "ol > li::marker": {
+                            "fontWeight": "400",
+                            "color": "var(--tw-prose-counters)"
+                        },
+                        "> ul > li p": {
+                            "marginTop": "16px",
+                            "marginBottom": "16px"
+                        },
+                        "code::before": {
+                            "content": "\"&#96;\""
+                        },
+                        "code::after": {
+                            "content": "\"&#96;\""
+                        }
+                    }
+                ]
+            }
+        }
     },
     "pluginOptions": [],
     "expectedCss": [

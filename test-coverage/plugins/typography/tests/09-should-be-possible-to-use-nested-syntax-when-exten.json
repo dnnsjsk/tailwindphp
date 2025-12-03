@@ -3,7 +3,22 @@
     "html": "<div class=\"prose\"></div>",
     "config": {
         "content": "{\n        raw: html`<div class=\"prose\"></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "color": "#000",
+                        "a": {
+                            "color": "#888",
+                            "&:hover": {
+                                "color": "#ff0000"
+                            }
+                        }
+                    }
+                ]
+            },
+            "_isExtend": true
+        }
     },
     "pluginOptions": [],
     "expectedCss": [

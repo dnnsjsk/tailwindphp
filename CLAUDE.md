@@ -54,7 +54,54 @@ By including these, TailwindPHP provides a complete Tailwind development experie
 
 **Important for LLMs**: These libraries live in `src/_tailwindphp/lib/` with their own namespace (`TailwindPHP\Lib\*`) to clearly separate them from the core TailwindCSS port. The public API functions (`cn`, `clsx`, `twMerge`, `twJoin`) are exposed in `src/index.php` under the main `TailwindPHP` namespace.
 
-### 6. Performance Optimizations
+### 6. Plugin System
+
+TailwindPHP includes PHP ports of official TailwindCSS plugins:
+
+- **@tailwindcss/typography** - The prose class for beautiful typographic defaults
+- **@tailwindcss/forms** - Form element reset and styling utilities
+
+These are 1:1 ports following the exact same logic as the JavaScript originals. The plugin system architecture:
+
+```
+src/plugin.php                    # Core plugin system
+├── PluginInterface               # Contract for plugins (getName, __invoke, getThemeExtensions)
+├── PluginAPI                     # API passed to plugins (addBase, addUtilities, addComponents, etc.)
+└── PluginManager                 # Registry and execution of plugins
+
+src/plugin/plugins/
+├── typography-plugin.php         # @tailwindcss/typography port
+└── forms-plugin.php              # @tailwindcss/forms port
+
+test-coverage/plugins/
+├── typography/                   # Extracted typography tests
+│   ├── summary.json
+│   └── tests/*.json
+└── extract-typography-tests.php  # Extraction script
+```
+
+**PluginAPI Methods** (same as TailwindCSS):
+- `addBase(array $css)` - Add base styles
+- `addUtilities(array $utilities)` - Add static utilities
+- `matchUtilities(array $utilities, array $options)` - Add functional utilities with values
+- `addComponents(array $components)` - Add component classes
+- `matchComponents(array $components, array $options)` - Add functional components
+- `addVariant(string $name, string|array $variant)` - Add custom variants
+- `matchVariant(string $name, callable $callback, array $options)` - Add functional variants
+- `theme(string $path, mixed $default)` - Access theme values
+
+**Usage in CSS:**
+```css
+@plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/forms" {
+    strategy: "class";
+}
+@tailwind utilities;
+```
+
+**Important for LLMs**: The plugin implementations are PHP ports, not JavaScript execution. They follow the same logic and produce the same output, but are implemented natively in PHP. Tests are extracted from the reference JavaScript test files where available.
+
+### 7. Performance Optimizations
 
 While this is a 1:1 port focused on correctness, PHP-specific optimizations are applied where they improve performance without changing output. These are marked with `@port-deviation:performance` in file headers.
 
@@ -68,7 +115,7 @@ While this is a 1:1 port focused on correctness, PHP-specific optimizations are 
 3. Run benchmarks (`composer bench`) to verify improvement
 4. Focus on hot paths identified by profiling
 
-### 7. Code Quality Tools
+### 8. Code Quality Tools
 
 The project uses Pint (formatting) and PHPStan (static analysis):
 
@@ -220,6 +267,12 @@ tailwindphp/
 │   │           ├── lru-cache.php
 │   │           └── tailwind_merge.test.php
 │   │
+│   ├── plugin/                 # Plugin system
+│   │   └── plugins/            # Built-in plugin implementations
+│   │       ├── typography-plugin.php  # @tailwindcss/typography port
+│   │       ├── typography_plugin.test.php
+│   │       └── forms-plugin.php       # @tailwindcss/forms port
+│   │
 │   ├── utilities/              # Split from utilities.ts
 │   │   ├── accessibility.php
 │   │   ├── backgrounds.php
@@ -229,6 +282,7 @@ tailwindphp/
 │   ├── utils/                  # Helper functions
 │   │
 │   ├── index.php               # Main entry + public API (cn, clsx, twMerge, twJoin)
+│   ├── plugin.php              # Plugin system (PluginInterface, PluginAPI, PluginManager)
 │   ├── *.php                   # Core implementation
 │   └── *.test.php              # Unit test files
 │
@@ -252,6 +306,8 @@ tailwindphp/
 │
 ├── reference/
 │   ├── tailwindcss/            # Git submodule - TailwindCSS source
+│   ├── tailwindcss-typography/ # Git submodule - @tailwindcss/typography source
+│   ├── tailwindcss-forms/      # Git submodule - @tailwindcss/forms source
 │   ├── clsx/                   # Git submodule - clsx source
 │   └── tailwind-merge/         # Git submodule - tailwind-merge source
 │
@@ -275,6 +331,9 @@ tailwindphp/
 | `src/design-system.php` | Central registry |
 | `src/theme.php` | Theme value management |
 | `src/ast.php` | AST nodes and `toCss()` |
+| `src/plugin.php` | Plugin system (PluginInterface, PluginAPI, PluginManager) |
+| `src/plugin/plugins/typography-plugin.php` | @tailwindcss/typography port |
+| `src/plugin/plugins/forms-plugin.php` | @tailwindcss/forms port |
 | `src/_tailwindphp/LightningCss.php` | CSS optimizations |
 | `src/_tailwindphp/lib/clsx/clsx.php` | clsx implementation |
 | `src/_tailwindphp/lib/tailwind-merge/index.php` | tailwind-merge + cn() implementation |
@@ -463,7 +522,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,083 tests (all passing)**
+**Total: 3,107 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -474,6 +533,20 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 | `index.test.php` | ✅ | 78 (5 N/A - outside scope) |
 | `css_functions.test.php` | ✅ | 60 (7 N/A for JS tooling) |
 | `ui_spec.test.php` | ✅ | 68 |
+
+### Plugin Tests (`src/plugin/`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `plugin.test.php` | ✅ | 9 (core plugin functionality) |
+| `typography_plugin.test.php` | ✅ | 16 (13 N/A - v3-specific behavior) |
+
+**Plugin System:**
+- `plugin.php` - Core plugin system (PluginInterface, PluginAPI, PluginManager)
+- `typography-plugin.php` - @tailwindcss/typography port
+- `forms-plugin.php` - @tailwindcss/forms port
+
+Typography tests are extracted from `reference/tailwindcss-typography/src/index.test.js`. Tests marked N/A use v3-specific behavior (dark mode via `.dark` selector, responsive variants) that differs in v4.
 
 ### Library Tests (`src/_tailwindphp/lib/`)
 

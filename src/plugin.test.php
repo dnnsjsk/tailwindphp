@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace TailwindPHP;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for plugin.php
@@ -17,6 +17,7 @@ class plugin extends TestCase
     private function compileCss(string $css, array $classes): string
     {
         $compiled = compile($css, ['loadDefaultTheme' => false]);
+
         return $compiled['build']($classes);
     }
 

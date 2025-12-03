@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,083%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,107%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -24,31 +24,33 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
+- Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
 - `cn()`, `clsx()`, `twMerge()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
 **What's NOT included (for now):**
 - File system access — No `@import` file resolution, no reading CSS files
-- JavaScript runtime — No `@plugin` execution, no `tailwind.config.js`
+- Custom JS plugins — Built-in plugins work, but custom `tailwind.config.js` plugins don't
 - IDE tooling — No IntelliSense, autocomplete, or source maps
 
-If you need file-based imports or JS plugins, preprocess your CSS before passing it to this library.
+If you need file-based imports, preprocess your CSS before passing it to this library.
 
 ## Status
 
-✅ **3,083 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,107 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
 | API Coverage (utilities, modifiers, variants, directives) | 1,684 | ✅ |
+| Plugin system (typography, forms) | 25 | ✅ |
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
 
 ### Not Supported
 
 - `@import` — No file system access, preprocess imports before passing to this library
-- `@plugin` / `@config` — No JavaScript runtime
+- Custom JS plugins — Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`) work via PHP ports
 - IDE tooling — No IntelliSense, autocomplete, or source maps
 
 Everything else works.
@@ -124,7 +126,7 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 
 ---
 
-## Class Name Utilities
+## Classname Utilities
 
 TailwindPHP includes PHP ports of the two most popular class name libraries in the Tailwind ecosystem. No additional packages required.
 
@@ -237,6 +239,101 @@ These are common companion libraries in the Tailwind ecosystem. Including PHP po
 
 ---
 
+## Plugin System
+
+TailwindPHP includes PHP ports of official TailwindCSS plugins. These are 1:1 ports following the same logic as the JavaScript originals.
+
+### Built-in Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| `@tailwindcss/typography` | Beautiful typographic defaults for HTML content |
+| `@tailwindcss/forms` | Form element reset and styling utilities |
+
+### Usage
+
+Use the `@plugin` directive in your CSS:
+
+```php
+$css = Tailwind::generate([
+    'content' => '<article class="prose prose-lg"><h1>Hello</h1><p>Content here</p></article>',
+    'css' => '
+        @plugin "@tailwindcss/typography";
+        @tailwind utilities;
+    '
+]);
+```
+
+### Plugin Options
+
+Pass options using CSS block syntax:
+
+```php
+// Typography with custom class name
+$css = '
+    @plugin "@tailwindcss/typography" {
+        className: "markdown";
+    }
+    @tailwind utilities;
+';
+
+// Forms with class strategy (no base styles)
+$css = '
+    @plugin "@tailwindcss/forms" {
+        strategy: "class";
+    }
+    @tailwind utilities;
+';
+```
+
+### Typography Plugin
+
+Generates the `.prose` class with beautiful typographic defaults:
+
+```php
+// Basic usage
+$css = Tailwind::generate('<div class="prose">...</div>', '@plugin "@tailwindcss/typography"; @tailwind utilities;');
+
+// Available classes: prose, prose-sm, prose-lg, prose-xl, prose-2xl
+// Modifiers: prose-invert (dark mode), prose-slate, prose-gray, etc.
+```
+
+### Forms Plugin
+
+Provides form element utilities:
+
+```php
+// Class strategy - explicit form classes
+$css = Tailwind::generate(
+    '<input class="form-input" /><select class="form-select">...</select>',
+    '@plugin "@tailwindcss/forms" { strategy: "class"; } @tailwind utilities;'
+);
+
+// Available classes: form-input, form-textarea, form-select, form-multiselect,
+// form-checkbox, form-radio
+```
+
+### Architecture
+
+The plugin system follows the TailwindCSS plugin API pattern:
+
+```
+src/plugin.php                    # PluginInterface, PluginAPI, PluginManager
+src/plugin/plugins/
+├── typography-plugin.php         # @tailwindcss/typography port
+└── forms-plugin.php              # @tailwindcss/forms port
+```
+
+**PluginAPI** provides the same methods as TailwindCSS:
+- `addBase()` — Add base styles
+- `addUtilities()` — Add static utilities
+- `matchUtilities()` — Add functional utilities with values
+- `addComponents()` — Add component classes
+- `addVariant()` — Add custom variants
+- `theme()` — Access theme values
+
+---
+
 ## How It Works
 
 ### Architecture
@@ -252,6 +349,11 @@ src/
 │   └── lib/                     # Companion library ports
 │       ├── clsx/                # clsx port (27 tests from reference)
 │       └── tailwind-merge/      # tailwind-merge port (52 tests from reference)
+│
+├── plugin/                      # Plugin system
+│   └── plugins/                 # Built-in plugin implementations
+│       ├── typography-plugin.php  # @tailwindcss/typography port
+│       └── forms-plugin.php       # @tailwindcss/forms port
 │
 ├── utilities/                   # Utility implementations (split from utilities.ts)
 │   ├── accessibility.php        # sr-only, forced-colors
@@ -280,6 +382,7 @@ src/
 ├── css-functions.php            # theme(), --theme(), --spacing(), --alpha()
 ├── css-parser.php               # CSS parsing
 ├── design-system.php            # Central registry for utilities/variants
+├── plugin.php                   # Plugin system (PluginInterface, PluginAPI, PluginManager)
 ├── theme.php                    # Theme value resolution
 ├── utilities.php                # Utility registration and lookup
 ├── value-parser.php             # CSS value parsing

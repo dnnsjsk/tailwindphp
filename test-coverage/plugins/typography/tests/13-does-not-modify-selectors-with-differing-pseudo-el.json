@@ -3,7 +3,18 @@
     "html": "<div class=\"prose dark:prose\"></div>",
     "config": {
         "content": "{\n        raw: html`<div class=\"prose dark:prose\"></div>`,\n      },",
-        "hasTypographyTheme": true
+        "typography": {
+            "DEFAULT": {
+                "css": [
+                    {
+                        "ol li::before, ul li::after": {
+                            "color": "red"
+                        }
+                    }
+                ]
+            }
+        },
+        "darkMode": "class"
     },
     "pluginOptions": [],
     "expectedCss": [
