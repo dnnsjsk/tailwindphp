@@ -336,12 +336,14 @@ function property(string $ident, ?string $initialValue = null, ?string $syntax =
  * When the color already has an alpha channel (e.g., oklab with / .5),
  * this function computes the stacked opacity directly.
  *
+ * Returns null for invalid alpha values (silently fails like Tailwind).
+ *
  * @param string $value
  * @param string|null $alpha
  * @param bool $inline If true, compute the oklab value instead of using color-mix
- * @return string
+ * @return string|null
  */
-function withAlpha(string $value, ?string $alpha, bool $inline = false): string
+function withAlpha(string $value, ?string $alpha, bool $inline = false): ?string
 {
     if ($alpha === null || $alpha === '') {
         return $value;
@@ -359,6 +361,11 @@ function withAlpha(string $value, ?string $alpha, bool $inline = false): string
     // Convert alpha to a decimal (0-1 range)
     $alphaDecimal = parseAlphaToDecimal($alpha);
 
+    // Invalid alpha value - silently fail (return null)
+    if ($alphaDecimal === null) {
+        return null;
+    }
+
     // No need for color-mix if the alpha is 100%
     if ($alphaDecimal === 1.0) {
         return $value;
@@ -369,6 +376,11 @@ function withAlpha(string $value, ?string $alpha, bool $inline = false): string
     if (preg_match('/^oklab\(([^\/]+)\/\s*([\d.]+%?)\s*\)$/i', $value, $match)) {
         $oklabComponents = trim($match[1]);
         $existingAlpha = parseAlphaToDecimal($match[2]);
+
+        // Invalid existing alpha - return original value
+        if ($existingAlpha === null) {
+            return $value;
+        }
 
         // Compute stacked opacity
         $stackedAlpha = $existingAlpha * $alphaDecimal;
@@ -396,22 +408,35 @@ function withAlpha(string $value, ?string $alpha, bool $inline = false): string
 /**
  * Parse an alpha value to a decimal (0-1 range).
  *
+ * Returns null for invalid values (out of range, non-numeric).
+ *
  * @param string $alpha
- * @return float
+ * @return float|null
  */
-function parseAlphaToDecimal(string $alpha): float
+function parseAlphaToDecimal(string $alpha): ?float
 {
     $alpha = trim($alpha);
 
-    if (str_ends_with($alpha, '%')) {
-        return floatval(substr($alpha, 0, -1)) / 100;
+    // Skip non-numeric values (e.g., CSS variables, calc expressions)
+    // These are handled elsewhere
+    if (!is_numeric(rtrim($alpha, '%'))) {
+        return null;
     }
 
-    $val = floatval($alpha);
+    if (str_ends_with($alpha, '%')) {
+        $val = floatval(substr($alpha, 0, -1)) / 100;
+    } else {
+        $val = floatval($alpha);
 
-    // If value > 1, assume it's a percentage
-    if ($val > 1) {
-        return $val / 100;
+        // If value > 1, assume it's a percentage
+        if ($val > 1) {
+            $val = $val / 100;
+        }
+    }
+
+    // Validate range: must be 0-1
+    if ($val < 0 || $val > 1) {
+        return null;
     }
 
     return $val;

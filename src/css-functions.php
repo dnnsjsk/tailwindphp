@@ -318,10 +318,15 @@ function keyPathToCssPropertyDirect(array $path): ?string
  *
  * @param array $node Function node
  * @param object $designSystem Design system instance
+ * @param int $depth Current recursion depth for nested resolution
  * @return string|null Resolved value or null
  */
-function handleLegacyTheme(array $node, object $designSystem): ?string
+function handleLegacyTheme(array $node, object $designSystem, int $depth = 0): ?string
 {
+    // Prevent infinite recursion from circular references
+    if ($depth >= MAX_THEME_RECURSION_DEPTH) {
+        return null;
+    }
     $argsStr = toCss($node['nodes'] ?? []);
     $args = array_map('trim', segment(trim($argsStr), ','));
 
@@ -376,7 +381,7 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
 
     // Recursively resolve any nested theme() calls in the resolved value
     if ($resolvedValue !== null && str_contains($resolvedValue, 'theme(')) {
-        $resolvedValue = resolveNestedThemeCalls($resolvedValue, $designSystem);
+        $resolvedValue = resolveNestedThemeCalls($resolvedValue, $designSystem, $depth);
     }
 
     if ($resolvedValue === null) {
@@ -385,9 +390,9 @@ function handleLegacyTheme(array $node, object $designSystem): ?string
             $fallbackStr = implode(', ', $fallback);
             if (str_contains($fallbackStr, 'theme(')) {
                 $fallbackAst = parseValue($fallbackStr);
-                walk($fallbackAst, function (&$fNode) use ($designSystem) {
+                walk($fallbackAst, function (&$fNode) use ($designSystem, $depth) {
                     if ($fNode['kind'] === 'function' && $fNode['value'] === 'theme') {
-                        $result = handleLegacyTheme($fNode, $designSystem);
+                        $result = handleLegacyTheme($fNode, $designSystem, $depth + 1);
                         if ($result !== null) {
                             return WalkAction::Replace(parseValue($result));
                         }
@@ -667,27 +672,41 @@ function eventuallyUnquote(string $value): string
 }
 
 /**
+ * Maximum recursion depth for nested theme() resolution.
+ * Prevents infinite loops from circular theme references.
+ * Set high enough (50) to never limit legitimate use cases while still
+ * preventing stack overflow from circular references.
+ */
+const MAX_THEME_RECURSION_DEPTH = 50;
+
+/**
  * Recursively resolve nested theme() calls in a value.
  *
  * @param string $value Value that may contain theme() calls
  * @param object $designSystem Design system instance
+ * @param int $depth Current recursion depth
  * @return string Value with theme() calls resolved
  */
-function resolveNestedThemeCalls(string $value, object $designSystem): string
+function resolveNestedThemeCalls(string $value, object $designSystem, int $depth = 0): string
 {
+    // Prevent infinite recursion from circular references
+    if ($depth >= MAX_THEME_RECURSION_DEPTH) {
+        return $value;
+    }
+
     if (!str_contains($value, 'theme(')) {
         return $value;
     }
 
     $ast = parseValue($value);
 
-    walk($ast, function (&$node) use ($designSystem) {
+    walk($ast, function (&$node) use ($designSystem, $depth) {
         if ($node['kind'] !== 'function') {
             return WalkAction::Continue;
         }
 
         if ($node['value'] === 'theme') {
-            $result = handleLegacyTheme($node, $designSystem);
+            $result = handleLegacyTheme($node, $designSystem, $depth + 1);
             if ($result !== null) {
                 return WalkAction::Replace(parseValue($result));
             }

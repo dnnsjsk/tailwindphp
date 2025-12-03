@@ -278,7 +278,13 @@ function isValidSpacingMultiplier(mixed $value): bool
 
 function isValidOpacityValue(mixed $value): bool
 {
-    return isMultipleOf($value, 0.25);
+    if (!is_numeric($value)) {
+        return false;
+    }
+    $num = (float) $value;
+
+    // Opacity values must be 0-100 (percentage) and multiples of 0.25
+    return $num >= 0 && $num <= 100 && fmod($num, 0.25) === 0.0 && (string) $num === (string) $value;
 }
 
 function isMultipleOf(mixed $value, float $divisor): bool
