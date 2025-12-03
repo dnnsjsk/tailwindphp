@@ -68,11 +68,9 @@
             "src/design-system.php",
             "src/apply.php",
             "src/css-functions.php",
-            "src/plugin/PluginInterface.php",
-            "src/plugin/PluginAPI.php",
-            "src/plugin/PluginManager.php",
-            "src/plugin/plugins/TypographyPlugin.php",
-            "src/plugin/plugins/FormsPlugin.php",
+            "src/plugin.php",
+            "src/plugin/plugins/typography-plugin.php",
+            "src/plugin/plugins/forms-plugin.php",
             "src/index.php"
         ]
     },

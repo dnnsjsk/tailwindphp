@@ -659,6 +659,8 @@ function parseCss(array &$ast, array $options = []): array
             }
 
             // Apply theme extensions first
+            // Note: Complex nested theme extensions (like typography's styles) are skipped
+            // The actual plugin functionality comes from addComponents/addUtilities
             $themeExtensions = $pluginManager->getThemeExtensions($pluginName, $pluginOptions);
             foreach ($themeExtensions as $namespace => $values) {
                 if (!is_array($values)) {
@@ -666,6 +668,10 @@ function parseCss(array &$ast, array $options = []): array
                 }
                 $themeNamespace = '--' . strtolower(preg_replace('/([A-Z])/', '-$1', $namespace));
                 foreach ($values as $key => $value) {
+                    // Only add simple string values to theme
+                    if (!is_string($value)) {
+                        continue;
+                    }
                     if ($key === 'DEFAULT') {
                         $theme->add($themeNamespace, $value);
                     } else {
