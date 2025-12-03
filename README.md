@@ -10,6 +10,29 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
 
 **Includes PHP ports of [clsx](https://github.com/lukeed/clsx) and [tailwind-merge](https://github.com/dcastil/tailwind-merge)** — the most popular companion libraries for Tailwind CSS.
 
+## Table of Contents
+
+- [Scope](#scope)
+- [Status](#status)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Classname Utilities](#classname-utilities)
+  - [cn()](#cn)
+  - [clsx()](#clsx)
+  - [twMerge()](#twmerge)
+  - [twJoin()](#twjoin)
+- [Plugin System](#plugin-system)
+  - [Built-in Plugins](#built-in-plugins)
+  - [Plugin Options](#plugin-options)
+  - [Creating Custom Plugins](#creating-custom-plugins)
+- [How It Works](#how-it-works)
+  - [Architecture](#architecture)
+  - [Port Deviation Markers](#port-deviation-markers)
+- [Testing](#testing)
+- [Development](#development)
+- [License](#license)
+- [Credits](#credits)
+
 ## Scope
 
 This port (for now) focuses on **string-to-string CSS compilation**. Full filesystem support with `@import` resolution may come in a later version.

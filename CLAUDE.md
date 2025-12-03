@@ -2,6 +2,40 @@
 
 A **1:1 port of TailwindCSS 4.x to PHP** focused on **string-to-string CSS compilation**. See [README.md](README.md) for scope and features.
 
+## Table of Contents
+
+- [Critical Rules for LLMs](#critical-rules-for-llms)
+  - [1. Never Modify Test Files](#1-never-modify-test-files-to-make-tests-pass)
+  - [2. Always Fix at the Source](#2-always-fix-at-the-source)
+  - [3. LightningCSS Functionality](#3-lightningcss-functionality)
+  - [4. The _tailwindphp Directory](#4-the-_tailwindphp-directory)
+  - [5. Companion Libraries](#5-companion-libraries-clsx-tailwind-merge)
+  - [6. Plugin System](#6-plugin-system)
+  - [7. Performance Optimizations](#7-performance-optimizations)
+  - [8. Code Quality Tools](#8-code-quality-tools)
+- [Test System](#test-system)
+  - [Test Types](#test-types)
+  - [Test Coverage Structure](#test-coverage-structure)
+  - [Extraction Scripts](#extraction-scripts)
+  - [Commands](#commands)
+- [Development Workflow](#development-workflow)
+  - [Standard Workflow](#standard-workflow)
+  - [When Tests Fail](#when-tests-fail)
+- [Project Structure](#project-structure)
+- [Key Files](#key-files)
+- [Public API](#public-api)
+- [Common Patterns](#common-patterns)
+- [Debugging Tips](#debugging-tips)
+- [Current Status](#current-status)
+  - [Core Tests](#core-tests-extracted-from-typescript-test-suites)
+  - [Plugin Tests](#plugin-tests-srcplugin)
+  - [Library Tests](#library-tests-src_tailwindphplib)
+  - [API Coverage Tests](#api-coverage-tests-teststailwindphp)
+  - [Unit Tests](#unit-tests-ported-from-typescript)
+  - [Outside Scope](#outside-scope-0-tests---intentionally-empty)
+  - [Implemented Features](#implemented-features)
+  - [Port Deviation Markers](#port-deviation-markers)
+
 ---
 
 ## Critical Rules for LLMs
