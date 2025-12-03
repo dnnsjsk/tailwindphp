@@ -187,7 +187,7 @@ git add -A && git commit -m "message" && git push
 ## Project Structure
 
 ```
-tailwind-php/
+tailwindphp/
 ├── src/
 │   ├── _tailwindphp/           # PHP-specific (NOT part of port)
 │   │   ├── LightningCss.php    # CSS transformations
