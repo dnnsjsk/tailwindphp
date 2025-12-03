@@ -415,7 +415,7 @@ tailwindphp/
 
 | File | Purpose |
 |------|---------|
-| `src/index.php` | Main entry point, `compile()`, `cn()`, `cva()`, etc. |
+| `src/index.php` | Main entry point, `compile()`, `cn()`, `variants()`, etc. |
 | `src/utilities.php` | Utility registration and compilation |
 | `src/variants.php` | Variant handling (hover, focus, etc.) |
 | `src/compile.php` | Candidate to CSS compilation |
@@ -481,14 +481,14 @@ function Card(array $props = []): string {
 Card(['class' => 'p-6', 'children' => 'Content']);
 ```
 
-### CVA (Class Variance Authority)
+### Variants (CVA Port)
 
 ```php
-use function TailwindPHP\cva;
+use function TailwindPHP\variants;
 use function TailwindPHP\compose;
 
-// cva() - Create component variants with declarative config
-$button = cva([
+// variants() - Create component variants (CVA port)
+$button = variants([
     'base' => 'btn font-semibold border rounded',
     'variants' => [
         'intent' => [
@@ -511,10 +511,10 @@ $button();                                              // => 'btn font-semibold
 $button(['intent' => 'secondary']);                     // => 'btn font-semibold ... bg-gray-200 text-gray-800 text-base px-4 py-2'
 $button(['size' => 'sm', 'class' => 'my-class']);       // Appends custom classes
 
-// Example component using CVA + cn() for class extension
+// Example component using variants() + cn() for class extension
 function Button(array $props = []): string {
     static $styles = null;
-    $styles ??= cva([
+    $styles ??= variants([
         'base' => 'inline-flex items-center justify-center rounded-md font-medium',
         'variants' => [
             'variant' => [
@@ -531,18 +531,18 @@ function Button(array $props = []): string {
         'defaultVariants' => ['variant' => 'default', 'size' => 'default'],
     ]);
 
-    // cn() merges CVA output with custom classes, resolving conflicts
+    // cn() merges variant output with custom classes, resolving conflicts
     $class = cn($styles($props), $props['class'] ?? null);
     $text = $props['children'] ?? 'Button';
     return "<button class=\"{$class}\">{$text}</button>";
 }
 
-// Custom classes override CVA defaults via cn()
+// Custom classes override variant defaults via cn()
 Button(['variant' => 'outline', 'size' => 'sm', 'class' => 'mt-4 px-8']);
 
-// compose() - Merge multiple CVA components
-$box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
-$stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+// compose() - Merge multiple variant components
+$box = variants(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+$stack = variants(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
 $card = compose($box, $stack);
 $card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
 ```

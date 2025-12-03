@@ -23,8 +23,8 @@ A 1:1 port of TailwindCSS 4.x to PHP focused on **string-to-string CSS compilati
   - [cn()](#cn)
   - [merge()](#merge)
   - [join()](#join)
-- [CVA (Class Variance Authority)](#cva-class-variance-authority)
-  - [cva()](#cva)
+- [Variants (CVA Port)](#variants-cva-port)
+  - [variants()](#variants)
   - [compose()](#compose)
 - [Plugin System](#plugin-system)
   - [Built-in Plugins](#built-in-plugins)
@@ -54,7 +54,7 @@ $output = Tailwind::generate('<div class="bg-brand p-4">', $input);
 - All CSS compilation features (utilities, variants, directives, functions)
 - Preflight CSS reset via `@import "tailwindcss"` or `@import "tailwindcss/preflight.css"`
 - Built-in plugin system with `@tailwindcss/typography` and `@tailwindcss/forms`
-- `cn()`, `cva()`, `merge()`, `join()` — class name utilities (no separate packages needed)
+- `cn()`, `variants()`, `merge()`, `join()` — class name utilities (no separate packages needed)
 - No external dependencies beyond PHP
 
 **What's NOT included (for now):**
@@ -301,19 +301,19 @@ join('foo', 'bar', null, 'baz');
 
 ---
 
-## CVA (Class Variance Authority)
+## Variants (CVA Port)
 
-PHP port of [CVA](https://github.com/joe-bell/cva) for creating type-safe UI component variants.
+PHP port of [CVA (Class Variance Authority)](https://github.com/joe-bell/cva) for creating component style variants.
 
-### `cva()`
+### `variants()`
 
 Create component variants with declarative configuration.
 
 ```php
-use function TailwindPHP\cva;
+use function TailwindPHP\variants;
 
 // Define component styles
-$button = cva([
+$button = variants([
     'base' => 'inline-flex items-center justify-center rounded-md font-medium',
     'variants' => [
         'variant' => [
@@ -341,7 +341,7 @@ $button(['size' => 'sm', 'class' => 'mt-4']); // override + custom class
 // Use in a component function with cn() for easy class extension
 function Button(array $props = []): string {
     static $styles = null;
-    $styles ??= cva([
+    $styles ??= variants([
         'base' => 'inline-flex items-center justify-center rounded-md font-medium',
         'variants' => [
             'variant' => [
@@ -356,26 +356,26 @@ function Button(array $props = []): string {
         'defaultVariants' => ['variant' => 'default', 'size' => 'default'],
     ]);
 
-    // cn() merges CVA output with custom classes, resolving conflicts
+    // cn() merges variant output with custom classes, resolving conflicts
     $class = cn($styles($props), $props['class'] ?? null);
     $text = $props['children'] ?? 'Button';
     return "<button class=\"{$class}\">{$text}</button>";
 }
 
-// Custom classes override CVA defaults via cn()
+// Custom classes override variant defaults via cn()
 Button(['variant' => 'outline', 'size' => 'sm', 'class' => 'mt-4 px-8']);
 ```
 
 ### `compose()`
 
-Merge multiple CVA components into one.
+Merge multiple variant components into one.
 
 ```php
-use function TailwindPHP\cva;
+use function TailwindPHP\variants;
 use function TailwindPHP\compose;
 
-$box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
-$stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+$box = variants(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+$stack = variants(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
 $card = compose($box, $stack);
 
 $card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
@@ -602,7 +602,7 @@ src/
 │
 ├── utils/                       # Helper functions (ported from utils/)
 │
-├── index.php                    # Main entry point, compile(), cn(), cva(), merge(), join()
+├── index.php                    # Main entry point, compile(), cn(), variants(), merge(), join()
 ├── ast.php                      # AST nodes and toCss()
 ├── candidate.php                # Candidate parsing (class name → parts)
 ├── compile.php                  # Candidate to CSS compilation

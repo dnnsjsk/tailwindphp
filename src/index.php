@@ -1828,23 +1828,24 @@ function join(mixed ...$args): string
 }
 
 // =============================================================================
-// CVA (Class Variance Authority)
+// Variants (CVA Port)
 // =============================================================================
-// PHP port of CVA for creating type-safe UI component variants.
+// PHP port of CVA (Class Variance Authority) for creating component variants.
 // https://github.com/joe-bell/cva
 
 /**
- * Create a class variance authority component.
+ * Create component style variants.
  *
- * Provides a declarative API for managing component class variations
- * with base classes, variants, compound variants, and default variants.
+ * PHP port of CVA (Class Variance Authority). Provides a declarative API
+ * for managing component class variations with base classes, variants,
+ * compound variants, and default variants.
  *
  * @param array|null $config Configuration with base, variants, compoundVariants, defaultVariants
  * @return callable A function that accepts a single props array and returns a class string
  *
  * @example
  * // Define component styles
- * $button = cva([
+ * $button = variants([
  *     'base' => 'btn font-semibold',
  *     'variants' => [
  *         'intent' => [
@@ -1870,28 +1871,28 @@ function join(mixed ...$args): string
  * // Use in a component function with cn() for class extension
  * function Button(array $props = []): string {
  *     static $styles = null;
- *     $styles ??= cva([...config...]);
+ *     $styles ??= variants([...config...]);
  *     $class = cn($styles($props), $props['class'] ?? null);
  *     return '<button class="' . $class . '">' . ($props['children'] ?? '') . '</button>';
  * }
  */
-function cva(?array $config = null): callable
+function variants(?array $config = null): callable
 {
     return \TailwindPHP\Lib\Cva\cva($config);
 }
 
 /**
- * Compose multiple CVA components into one.
+ * Compose multiple variant components into one.
  *
  * Merges variants from multiple components, allowing you to combine
- * reusable variant definitions.
+ * reusable variant definitions. (CVA compose() port)
  *
- * @param callable ...$components CVA component functions
+ * @param callable ...$components Variant component functions
  * @return callable A function that accepts merged props and returns a class string
  *
  * @example
- * $box = cva(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
- * $stack = cva(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
+ * $box = variants(['variants' => ['shadow' => ['sm' => 'shadow-sm', 'md' => 'shadow-md']]]);
+ * $stack = variants(['variants' => ['gap' => ['1' => 'gap-1', '2' => 'gap-2']]]);
  * $card = compose($box, $stack);
  *
  * $card(['shadow' => 'md', 'gap' => '2']); // => 'shadow-md gap-2'
