@@ -1,11 +1,12 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,445%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,468%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
 [![cva](https://img.shields.io/badge/cva-v1.0.0--beta.4-blue)](https://github.com/joe-bell/cva)
+[![tw-animate-css](https://img.shields.io/badge/tw--animate--css-v1.4.0-blue)](https://github.com/Wombosvideo/tw-animate-css)
 
 A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
@@ -74,7 +75,7 @@ $css = Tailwind::generate([
 **What's included:**
 - All CSS compilation features (utilities, variants, directives, functions)
 - File-based `@import` resolution via `importPaths` option
-- Virtual modules (`tailwindcss`, `tailwindcss/preflight`, `tailwindcss/utilities`, etc.)
+- Virtual modules (`tailwindcss`, `tailwindcss/preflight`, `tailwindcss/utilities`, `tw-animate-css`, etc.)
 - Preflight CSS reset
 - Plugin system with `@tailwindcss/typography`, `@tailwindcss/forms`, and custom plugin support
 - `cn()`, `variants()`, `merge()`, `join()` — class name utilities (no separate packages needed)
@@ -85,7 +86,7 @@ $css = Tailwind::generate([
 
 ## Status
 
-✅ **3,445 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,468 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -98,6 +99,7 @@ $css = Tailwind::generate([
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
 | CVA (from reference test suite) | 50 | ✅ |
+| tw-animate-css | 23 | ✅ |
 
 ### Performance
 

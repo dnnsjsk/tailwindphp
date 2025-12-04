@@ -722,7 +722,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,445 tests (all passing)**
+**Total: 3,468 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -863,6 +863,28 @@ Tests for edge cases and complex scenarios:
 - Dark mode with variant combinations
 - Pseudo-element variants with modifiers
 
+### tw-animate-css Tests (`tests/TwAnimateCssTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `TwAnimateCssTest.php` | ✅ | 23 |
+
+Tests for tw-animate-css integration:
+- Import via `@import "tw-animate-css"`
+- animate-in/animate-out utilities
+- fade-in/fade-out with opacity values
+- zoom-in/zoom-out with scale values
+- spin-in/spin-out with rotation values
+- slide-in/slide-out directional animations
+- animation-duration, delay, repeat, direction, fill-mode utilities
+- play-state (running/paused) utilities
+- blur-in/blur-out utilities
+- accordion-down/accordion-up animations
+- collapsible-down/collapsible-up animations
+- caret-blink animation
+- RTL/LTR-aware start/end directional slides
+- Common shadcn/ui patterns (dialogs, dropdowns)
+
 ### Outside Scope (0 tests - intentionally empty)
 
 These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (JS runtime, IDE tooling):
@@ -884,7 +906,7 @@ Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.t
 - ✅ `@theme` customization with namespace clearing
 - ✅ `@utility` custom utilities
 - ✅ `@custom-variant` support
-- ✅ `@import` resolution for virtual modules (`tailwindcss`, `tailwindcss/preflight`, etc.)
+- ✅ `@import` resolution for virtual modules (`tailwindcss`, `tailwindcss/preflight`, `tw-animate-css`, etc.)
 - ✅ `@import` resolution for file paths via `importPaths` option
 - ✅ Nested `@import` resolution (files importing other files)
 - ✅ Import deduplication (virtual modules and files)

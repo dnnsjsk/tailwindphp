@@ -16,3 +16,6 @@
 [submodule "reference/cva"]
 	path = reference/cva
 	url = https://github.com/joe-bell/cva.git
+[submodule "reference/tw-animate-css"]
+	path = reference/tw-animate-css
+	url = https://github.com/Wombosvideo/tw-animate-css.git

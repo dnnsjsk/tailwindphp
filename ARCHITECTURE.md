@@ -94,7 +94,7 @@ The following aspects are direct ports that produce the same results:
 | **CSS Functions** | `theme()`, `--theme()`, `--spacing()`, `--alpha()` |
 | **Directives** | `@theme`, `@utility`, `@apply`, `@custom-variant` |
 
-**Test coverage:** 3,445 tests ensure output parity with the TypeScript implementation.
+**Test coverage:** 3,468 tests ensure output parity with the TypeScript implementation.
 
 ### Structural Differences
 

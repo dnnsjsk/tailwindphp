@@ -71,6 +71,7 @@ const VIRTUAL_MODULES = [
     'tailwindcss/preflight.css',
     'tailwindcss/utilities',
     'tailwindcss/utilities.css',
+    'tw-animate-css',
 ];
 
 /**
@@ -951,6 +952,14 @@ function parseCss(array &$ast, array $options = []): array
                     }
 
                     return WalkAction::Replace($preflightAst);
+                }
+
+                // Handle 'tw-animate-css' - animation utilities for shadcn/ui
+                if ($importPath === 'tw-animate-css') {
+                    $animateCss = readResourceFile('tw-animate.css');
+                    $animateAst = parse($animateCss);
+
+                    return WalkAction::Replace($animateAst);
                 }
 
                 // Handle file-based imports if import resolution is enabled
