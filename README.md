@@ -11,6 +11,8 @@
 
 A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
+> **Built with AI** — This entire codebase (29,000+ lines, 3,807 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
+
 ## Why This Exists
 
 TailwindCSS is written in TypeScript and requires Node.js. TailwindPHP is a complete rewrite in PHP, giving you the same functionality without the Node.js dependency.
