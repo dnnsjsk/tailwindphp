@@ -933,8 +933,49 @@ class DirectivesTest extends TestCase
     }
 
     // =========================================================================
-    // theme(static) MODIFIER
+    // theme(static) MODIFIER & CSS VARIABLE TREE-SHAKING
     // =========================================================================
+
+    public function test_tree_shaking_only_includes_used_color_variables(): void
+    {
+        // Without theme(static), only used variables should be included
+        $css = Tailwind::generate([
+            'content' => '<div class="text-red-500">',
+            'css' => '@import "tailwindcss/theme.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('--color-red-500', $css);
+        $this->assertStringNotContainsString('--color-blue-500', $css);
+        $this->assertStringNotContainsString('--color-green-500', $css);
+    }
+
+    public function test_tree_shaking_only_includes_used_spacing_variable(): void
+    {
+        // Spacing variable should only be included when spacing utilities are used
+        $css = Tailwind::generate([
+            'content' => '<div class="text-red-500">',
+            'css' => '@import "tailwindcss/theme.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringNotContainsString('--spacing', $css);
+
+        $css = Tailwind::generate([
+            'content' => '<div class="p-4">',
+            'css' => '@import "tailwindcss/theme.css"; @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('--spacing', $css);
+    }
+
+    public function test_theme_static_includes_all_variables(): void
+    {
+        // With theme(static), ALL variables should be included even if unused
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">',
+            'css' => '@import "tailwindcss/theme.css" theme(static); @import "tailwindcss/utilities.css";',
+        ]);
+        $this->assertStringContainsString('--color-red-500', $css);
+        $this->assertStringContainsString('--color-blue-500', $css);
+        $this->assertStringContainsString('--color-green-500', $css);
+        $this->assertStringContainsString('--spacing', $css);
+    }
 
     public function test_theme_static_modifier_on_import(): void
     {

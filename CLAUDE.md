@@ -750,7 +750,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,811 tests (all passing)**
+**Total: 3,814 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
