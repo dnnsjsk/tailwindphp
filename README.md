@@ -121,7 +121,7 @@ See [benchmarks/](benchmarks/) for detailed comparison.
 ## Installation
 
 ```bash
-composer require dnnsjsk/tailwindphp
+composer require tailwindphp/tailwindphp
 ```
 
 ## CLI
@@ -191,7 +191,7 @@ tailwindphp -i app.css -o dist/styles.css --cwd=/path/to/project
 Install globally to use `tailwindphp` from anywhere:
 
 ```bash
-composer global require dnnsjsk/tailwindphp
+composer global require tailwindphp/tailwindphp
 
 # Now available globally
 tailwindphp -i ./src/app.css -o ./dist/styles.css
