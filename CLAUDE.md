@@ -426,7 +426,8 @@ tailwindphp/
 | `src/plugin.php` | Plugin system (PluginInterface, PluginAPI, PluginManager) |
 | `src/plugin/plugins/typography-plugin.php` | @tailwindcss/typography port |
 | `src/plugin/plugins/forms-plugin.php` | @tailwindcss/forms port |
-| `src/_tailwindphp/LightningCss.php` | CSS optimizations |
+| `src/_tailwindphp/LightningCss.php` | CSS optimizations (for test parity) |
+| `src/_tailwindphp/CssMinifier.php` | CSS minification |
 | `src/_tailwindphp/lib/clsx/clsx.php` | clsx implementation |
 | `src/_tailwindphp/lib/tailwind-merge/index.php` | tailwind-merge + cn() implementation |
 | `src/_tailwindphp/lib/cva/cva.php` | CVA (class variance authority) implementation |
@@ -483,6 +484,16 @@ $css = Tailwind::generate([
 
 // Extract class candidates from content
 $classes = Tailwind::extractCandidates('<div class="flex p-4">');
+
+// Minify during generation
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">',
+    'minify' => true,
+]);
+
+// Or minify separately
+$css = Tailwind::generate('<div class="flex p-4">');
+$minified = Tailwind::minify($css);
 ```
 
 ### Class Name Utilities
@@ -710,7 +721,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,356 tests (all passing)**
+**Total: 3,373 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -760,6 +771,14 @@ PHP ports of utility libraries with tests extracted from their reference impleme
 - Reference: https://github.com/joe-bell/cva
 - 50 tests for core functionality (cx, cva, compose, defineConfig)
 - Declarative component variant management with base, variants, compoundVariants, defaultVariants
+
+### CSS Minifier Tests (`src/_tailwindphp/`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `CssMinifier.test.php` | ✅ | 17 |
+
+Tests cover comment removal, whitespace collapsing, hex color shortening, zero unit removal, font-weight shortening, empty rule removal, and public API integration.
 
 ### API Coverage Tests (`tests/tailwindphp/`)
 

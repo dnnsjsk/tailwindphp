@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,356%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,373%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
@@ -36,6 +36,7 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
 - [Usage](#usage)
   - [Importing CSS Files](#importing-css-files)
   - [Preflight](#preflight)
+  - [Minification](#minification)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [merge()](#merge)
@@ -84,13 +85,14 @@ $css = Tailwind::generate([
 
 ## Status
 
-✅ **3,356 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,373 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
 | API Coverage (utilities, modifiers, variants, directives, plugins) | 1,774 | ✅ |
 | Import functionality | 28 | ✅ |
+| CSS Minifier | 17 | ✅ |
 | Plugin system (typography, forms) | 25 | ✅ |
 | clsx (from reference test suite) | 27 | ✅ |
 | tailwind-merge (from reference test suite) | 52 | ✅ |
@@ -314,6 +316,24 @@ use TailwindPHP\Tailwind;
 $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
 // ['flex', 'p-4', 'bg-blue-500']
 ```
+
+### Minification
+
+Minify CSS output for production:
+
+```php
+// Option 1: Minify during generation
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'minify' => true,
+]);
+
+// Option 2: Minify separately
+$css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+$minified = Tailwind::minify($css);
+```
+
+The minifier removes comments, collapses whitespace, shortens hex colors (`#ffffff` to `#fff`), removes units from zero values (`0px` to `0`), and other optimizations.
 
 ---
 
