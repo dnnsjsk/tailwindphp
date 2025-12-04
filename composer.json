@@ -29,7 +29,8 @@
     "require-dev": {
         "phpunit/phpunit": "^10.0",
         "laravel/pint": "^1.26",
-        "phpstan/phpstan": "^2.1"
+        "phpstan/phpstan": "^2.1",
+        "brianium/paratest": "^7.4"
     },
     "autoload": {
         "psr-4": {
@@ -115,7 +116,8 @@
             "@extract-libs",
             "@extract-plugins"
         ],
-        "test": "phpunit",
+        "test": "paratest --processes 8",
+        "test-serial": "phpunit",
         "test-libs": "phpunit src/_tailwindphp/lib/",
         "test-plugins": "phpunit src/plugin/",
         "extract-and-test": [
