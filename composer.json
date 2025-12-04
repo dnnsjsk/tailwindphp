@@ -122,6 +122,16 @@
             "@extract-all",
             "phpunit"
         ],
+        "update-and-test": [
+            "@update-all",
+            "@extract-all",
+            "@test"
+        ],
+        "update-all": [
+            "@update-tailwind",
+            "@update-libs",
+            "@update-plugins"
+        ],
         "update-tailwind": "php scripts/update-tailwind.php",
         "update-libs": "php scripts/update-libs.php",
         "update-plugins": "php scripts/update-plugins.php",

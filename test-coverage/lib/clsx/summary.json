@@ -1,7 +1,7 @@
 {
     "library": "clsx",
     "reference": "https:\/\/github.com\/lukeed\/clsx",
-    "extracted_at": "2025-12-02 21:55:07",
+    "extracted_at": "2025-12-04 10:39:29",
     "files": [
         "index.js",
         "classnames.js"
