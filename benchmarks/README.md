@@ -37,6 +37,9 @@ PHP 8.4.5, Node.js v22.17.0 (Apple M1):
   Benchmark                        PHP            TypeScript      Comparison
   ───────────────────────────────────────────────────────────────────────────
 
+  Full CSS Generation
+  Tailwind::generate (50 classes)  70.53 ops/s    N/A
+
   CSS Parser
   css-parser on preflight.css      816 ops/s      15.45K ops/s    TS 19x faster
 
@@ -44,9 +47,9 @@ PHP 8.4.5, Node.js v22.17.0 (Apple M1):
   toCss                            65.85K ops/s   2.59M ops/s     TS 39x faster
 ```
 
-TypeScript is significantly faster due to V8's JIT compilation. This is expected - the PHP implementation prioritizes correctness and maintainability over raw performance.
+TypeScript is significantly faster for low-level operations due to V8's JIT compilation. This is expected - the PHP implementation prioritizes correctness and maintainability over raw performance.
 
-For build-time CSS generation (the intended use case), PHP performance is adequate.
+For build-time CSS generation (the intended use case), PHP performance is adequate (~14ms per page).
 
 ## Optimizations Applied
 

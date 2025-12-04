@@ -166,10 +166,79 @@ function printRow(string $name, ?array $php, ?array $ts): void
 use function TailwindPHP\Ast\toCss;
 use function TailwindPHP\CssParser\parse;
 
+use TailwindPHP\Tailwind;
+
 $preflightCss = file_get_contents($rootDir . '/resources/preflight.css');
 $preflightAst = parse($preflightCss);
 
+// Realistic HTML with many Tailwind classes for generate benchmark
+$sampleHtml = <<<'HTML'
+<div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <nav class="bg-white dark:bg-gray-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-gray-800 dark:text-white">Logo</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="#" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Home</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">About</a>
+                    <a href="#" class="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Contact</a>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Card Title</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="text-xs text-gray-500 dark:text-gray-500">2 hours ago</span>
+                        <button class="text-blue-500 hover:text-blue-600 text-sm font-medium">Read more →</button>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Another Card</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <span class="text-xs text-gray-500 dark:text-gray-500">5 hours ago</span>
+                        <button class="text-blue-500 hover:text-blue-600 text-sm font-medium">Read more →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <input type="text" placeholder="Enter your email" class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+            <button class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105">Subscribe</button>
+        </div>
+    </main>
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-400 text-sm">© 2024 Company. All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+HTML;
+
 $benchmarks = [
+    'generate' => [
+        'description' => 'Full CSS Generation',
+        'ts_file' => null, // No direct TS equivalent
+        'tests' => [
+            'Tailwind::generate (50 classes)' => [
+                'php' => function () use ($sampleHtml) {
+                    return runPhpBenchmark(function () use ($sampleHtml) {
+                        Tailwind::generate($sampleHtml);
+                    }, 50); // Fewer iterations due to heavier operation
+                },
+            ],
+        ],
+    ],
     'css-parser' => [
         'description' => 'CSS Parser',
         'ts_file' => 'packages/tailwindcss/src/css-parser.bench.ts',
