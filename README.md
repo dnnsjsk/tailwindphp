@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,468%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,482%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -39,6 +39,7 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
   - [Importing CSS Files](#importing-css-files)
   - [Preflight](#preflight)
   - [Minification](#minification)
+  - [Caching](#caching)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [merge()](#merge)
@@ -87,7 +88,7 @@ $css = Tailwind::generate([
 
 ## Status
 
-✅ **3,468 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,482 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -101,6 +102,7 @@ $css = Tailwind::generate([
 | tailwind-merge (from reference test suite) | 52 | ✅ |
 | CVA (from reference test suite) | 50 | ✅ |
 | tw-animate-css | 23 | ✅ |
+| Cache | 14 | ✅ |
 
 ### Performance
 
@@ -340,6 +342,51 @@ $minified = Tailwind::minify($css);
 ```
 
 The minifier removes comments, collapses whitespace, shortens hex colors (`#ffffff` to `#fff`), removes units from zero values (`0px` to `0`), and other optimizations.
+
+### Caching
+
+Enable file-based caching to avoid recompiling identical content:
+
+```php
+use TailwindPHP\Tailwind;
+
+// Cache to default directory (sys_get_temp_dir()/tailwindphp)
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'cache' => true,
+]);
+
+// Cache to custom directory
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'cache' => '/path/to/cache',
+]);
+
+// With TTL (time-to-live in seconds)
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">Hello</div>',
+    'cache' => true,
+    'cacheTtl' => 3600, // Expire after 1 hour
+]);
+```
+
+The cache key is computed from the content, CSS configuration, and minify option. Different inputs generate different cache files.
+
+**Clear the cache:**
+
+```php
+use TailwindPHP\Tailwind;
+use function TailwindPHP\clearCache;
+
+// Clear default cache
+Tailwind::clearCache();
+
+// Clear custom cache directory
+Tailwind::clearCache('/path/to/cache');
+
+// Or use the function
+clearCache('/path/to/cache');
+```
 
 ---
 

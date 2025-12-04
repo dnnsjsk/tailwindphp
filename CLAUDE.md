@@ -495,6 +495,23 @@ $css = Tailwind::generate([
 // Or minify separately
 $css = Tailwind::generate('<div class="flex p-4">');
 $minified = Tailwind::minify($css);
+
+// Enable caching (default temp directory)
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">',
+    'cache' => true,
+]);
+
+// Cache to custom directory with TTL
+$css = Tailwind::generate([
+    'content' => '<div class="flex p-4">',
+    'cache' => '/path/to/cache',
+    'cacheTtl' => 3600, // 1 hour
+]);
+
+// Clear cache
+Tailwind::clearCache(); // Default directory
+Tailwind::clearCache('/path/to/cache'); // Custom directory
 ```
 
 ### Class Name Utilities
@@ -722,7 +739,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,468 tests (all passing)**
+**Total: 3,482 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -885,6 +902,19 @@ Tests for tw-animate-css integration:
 - RTL/LTR-aware start/end directional slides
 - Common shadcn/ui patterns (dialogs, dropdowns)
 
+### Cache Tests (`tests/CacheTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `CacheTest.php` | ✅ | 14 |
+
+Tests for file-based caching:
+- Cache to default and custom directories
+- Cache key generation from content, CSS, and minify option
+- Cache TTL (time-to-live) expiration
+- clearCache() function and Tailwind::clearCache() static method
+- Cache directory auto-creation
+
 ### Outside Scope (0 tests - intentionally empty)
 
 These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (JS runtime, IDE tooling):
@@ -923,6 +953,7 @@ Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.t
 - ✅ Keyframe handling and hoisting
 - ✅ Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`)
 - ✅ Invalid `theme()` candidates filtered out
+- ✅ File-based caching with TTL support
 
 ### Port Deviation Markers
 

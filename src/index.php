@@ -1819,12 +1819,16 @@ function extractKeyframeNames(string $value): array
  *     content: string,
  *     css?: string,
  *     importPaths?: string|array<string>|callable(string|null, string|null): ?string,
- *     minify?: bool
+ *     minify?: bool,
+ *     cache?: bool|string,
+ *     cacheTtl?: int
  * } $input HTML string or array with options:
  *   - `content`: HTML string to extract class candidates from
  *   - `css`: Optional CSS with @import, @theme, @utility directives
  *   - `importPaths`: File path(s), directory, or callable resolver for imports
  *   - `minify`: Whether to minify the output (default: false)
+ *   - `cache`: Enable caching. true for default directory, or path to cache directory
+ *   - `cacheTtl`: Cache time-to-live in seconds (default: no expiration)
  * @param string $css Optional CSS with @import directives (only used if $input is string)
  * @return string Generated CSS containing only utilities used in the content
  *
@@ -1889,6 +1893,8 @@ function extractKeyframeNames(string $value): array
 function generate(string|array $input, string $css = '@import "tailwindcss";'): string
 {
     $minify = false;
+    $cache = null;
+    $cacheTtl = null;
 
     // Handle array input
     if (is_array($input)) {
@@ -1896,6 +1902,8 @@ function generate(string|array $input, string $css = '@import "tailwindcss";'): 
         $inlineCss = $input['css'] ?? '';
         $importPaths = $input['importPaths'] ?? null;
         $minify = $input['minify'] ?? false;
+        $cache = $input['cache'] ?? null;
+        $cacheTtl = $input['cacheTtl'] ?? null;
 
         // Resolve import paths to CSS content
         $resolved = resolveImportPaths($importPaths);
@@ -1920,6 +1928,55 @@ function generate(string|array $input, string $css = '@import "tailwindcss";'): 
         $compileOptions = [];
     }
 
+    // Handle caching
+    if ($cache !== null) {
+        $cacheDir = $cache === true ? sys_get_temp_dir() . '/tailwindphp' : $cache;
+
+        // Create cache directory if it doesn't exist
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0755, true);
+        }
+
+        // Create hash from inputs (content + css + minify flag)
+        $cacheKey = md5($content . $css . ($minify ? '1' : '0'));
+        $cachePath = $cacheDir . '/tailwind_' . $cacheKey . '.css';
+
+        // Check for cache hit
+        if (file_exists($cachePath)) {
+            $isValid = true;
+
+            // Check TTL if specified
+            if ($cacheTtl !== null) {
+                $fileAge = time() - (int) filemtime($cachePath);
+                $isValid = $fileAge < $cacheTtl;
+            }
+
+            if ($isValid) {
+                return file_get_contents($cachePath);
+            }
+        }
+
+        // Cache miss - compile, cache, and return
+        $result = generateWithoutCache($content, $css, $compileOptions, $minify);
+        file_put_contents($cachePath, $result);
+
+        return $result;
+    }
+
+    return generateWithoutCache($content, $css, $compileOptions, $minify);
+}
+
+/**
+ * Internal helper to generate CSS without caching.
+ *
+ * @param string $content HTML content
+ * @param string $css CSS input
+ * @param array $compileOptions Compile options
+ * @param bool $minify Whether to minify output
+ * @return string Generated CSS
+ */
+function generateWithoutCache(string $content, string $css, array $compileOptions, bool $minify): string
+{
     // Extract class names from content
     $candidates = extractCandidates($content);
 
@@ -1934,6 +1991,48 @@ function generate(string|array $input, string $css = '@import "tailwindcss";'): 
     }
 
     return $result;
+}
+
+/**
+ * Clear the TailwindPHP CSS cache.
+ *
+ * @param string|bool|null $cache Cache directory path, true for default location, or null to skip
+ * @return int Number of cache files deleted
+ *
+ * @example
+ * // Clear cache in default location
+ * clearCache();
+ * clearCache(true);
+ *
+ * // Clear cache in custom directory
+ * clearCache('/path/to/cache');
+ */
+function clearCache(string|bool|null $cache = true): int
+{
+    if ($cache === null || $cache === false) {
+        return 0;
+    }
+
+    $cacheDir = $cache === true ? sys_get_temp_dir() . '/tailwindphp' : $cache;
+
+    if (!is_dir($cacheDir)) {
+        return 0;
+    }
+
+    $deleted = 0;
+    $files = glob($cacheDir . '/tailwind_*.css');
+
+    if ($files === false) {
+        return 0;
+    }
+
+    foreach ($files as $file) {
+        if (is_file($file) && unlink($file)) {
+            $deleted++;
+        }
+    }
+
+    return $deleted;
 }
 
 /**
@@ -2396,6 +2495,21 @@ class Tailwind
     public static function minify(string $css): string
     {
         return \TailwindPHP\Minifier\CssMinifier::minify($css);
+    }
+
+    /**
+     * Clear the CSS cache.
+     *
+     * Removes cached CSS files from the specified directory or the default
+     * temp directory. Only removes files matching the TailwindPHP cache pattern
+     * (tailwind_*.css).
+     *
+     * @param string|bool|null $cache Cache directory path, true for default temp dir, or null to clear default
+     * @return int Number of cache files deleted
+     */
+    public static function clearCache(string|bool|null $cache = true): int
+    {
+        return clearCache($cache);
     }
 }
 
