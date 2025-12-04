@@ -70,6 +70,10 @@ function isIgnoredThemeKey(string $themeKey, string $namespace): bool
 
 /**
  * Theme class - manages theme values and provides resolution methods.
+ *
+ * @port-deviation:performance LRU cache added for resolveKey() lookups.
+ * The original TypeScript doesn't cache lookups, but PHP benefits from
+ * avoiding repeated array iterations during compilation.
  */
 class Theme
 {
@@ -80,6 +84,8 @@ class Theme
     public const OPTIONS_DEFAULT = THEME_OPTION_DEFAULT;
     public const OPTIONS_STATIC = THEME_OPTION_STATIC;
     public const OPTIONS_USED = THEME_OPTION_USED;
+
+    private const CACHE_MAX_SIZE = 256;
 
     public ?string $prefix = null;
 
@@ -92,6 +98,14 @@ class Theme
      * @var array<string, array{node: array, options: int}>
      */
     private array $keyframes = [];
+
+    /**
+     * Cache for resolveKey() lookups.
+     * Key format: candidateValue|namespace1|namespace2|...
+     *
+     * @var array<string, string|null>
+     */
+    private array $resolveKeyCache = [];
 
     /**
      * @param array<string, array{value: string, options: int, src: mixed}> $values
@@ -134,6 +148,9 @@ class Theme
      */
     public function add(string $key, string $value, int $options = THEME_OPTION_NONE, mixed $src = null): void
     {
+        // Clear resolve cache when values change
+        $this->resolveKeyCache = [];
+
         // Handle namespace wildcards (e.g., --color-* to clear color namespace)
         if (str_ends_with($key, '-*')) {
             if ($value !== 'initial') {
@@ -337,6 +354,16 @@ class Theme
      */
     private function resolveKey(?string $candidateValue, array $themeKeys): ?string
     {
+        // Build cache key
+        $cacheKey = ($candidateValue ?? '') . '|' . implode('|', $themeKeys);
+
+        // Check cache first
+        if (array_key_exists($cacheKey, $this->resolveKeyCache)) {
+            return $this->resolveKeyCache[$cacheKey];
+        }
+
+        // Compute result
+        $result = null;
         foreach ($themeKeys as $namespace) {
             $themeKey = $candidateValue !== null ? "{$namespace}-{$candidateValue}" : $namespace;
 
@@ -358,10 +385,17 @@ class Theme
                 continue;
             }
 
-            return $themeKey;
+            $result = $themeKey;
+            break;
         }
 
-        return null;
+        // Cache with size limit (FIFO eviction)
+        if (count($this->resolveKeyCache) >= self::CACHE_MAX_SIZE) {
+            array_shift($this->resolveKeyCache);
+        }
+        $this->resolveKeyCache[$cacheKey] = $result;
+
+        return $result;
     }
 
     /**

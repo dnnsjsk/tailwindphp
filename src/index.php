@@ -74,6 +74,73 @@ const VIRTUAL_MODULES = [
 ];
 
 /**
+ * Pre-compiled regex patterns for performance.
+ *
+ * @port-deviation:performance Regex patterns are compiled once at module load
+ * rather than on every function call. This avoids repeated regex compilation
+ * overhead in hot paths like extractCandidates() and theme value resolution.
+ */
+const REGEX_CLASS_ATTR = '/class\s*=\s*["\']([^"\']+)["\']/';
+const REGEX_CLASSNAME_ATTR = '/className\s*=\s*["\']([^"\']+)["\']/';
+const REGEX_WHITESPACE = '/\s+/';
+const REGEX_UNESCAPE = '/\\\\(.)/';
+const REGEX_THEME_CALL = '/--theme\(([^)]+)\)/';
+const REGEX_THEME_CALL_FULL = '/^--theme\(([^)]+)\)$/';
+const REGEX_VAR_EXTRACT = '/var\(\s*(--[^\s\)\'\",]+)/';
+const REGEX_VAR_SIMPLE = '/var\(\s*(--[a-zA-Z0-9_-]+)/';
+const REGEX_PREFIX_MOD = '/prefix\(([^)]+)\)/';
+const REGEX_LAYER_MOD = '/layer\(([^)]+)\)/';
+const REGEX_AT_RULE_PARAM = '/^(@[a-z-]+)\s*(.*)$/';
+const REGEX_IMPORT_PARTS = '/^["\']([^"\']+)["\']\s*(.*)$/';
+const REGEX_ANIMATE_KEY = '/^--(?:[a-z]+-)?animate/';
+const REGEX_NUMERIC_START = '/^[\d.]+/';
+const REGEX_TIME_VALUE = '/^-?[\d.]+(?:s|ms|%)$/';
+const REGEX_CAMEL_TO_KEBAB = '/([A-Z])/';
+const REGEX_COLOR_MIX_VAR = '/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+var\s*\([^)]+\)\s*,\s*transparent\s*\)/i';
+const REGEX_COLOR_MIX_OPACITY = '/color-mix\s*\(\s*in\s+oklab\s*,\s*var\s*\(\s*([^)]+)\s*\)\s+(\d+(?:\.\d+)?%?)\s*,\s*transparent\s*\)/i';
+
+/**
+ * Split a string by comma, respecting parenthesis depth.
+ *
+ * Uses array accumulation instead of string concatenation for performance.
+ *
+ * @port-deviation:performance Uses array + implode instead of string concat
+ * in the loop, which is faster in PHP for building strings character by character.
+ *
+ * @param string $str The string to split
+ * @return array<string> Array of trimmed parts
+ */
+function splitByCommaRespectingParens(string $str): array
+{
+    $parts = [];
+    $chars = [];
+    $depth = 0;
+    $len = strlen($str);
+
+    for ($i = 0; $i < $len; $i++) {
+        $char = $str[$i];
+        if ($char === '(') {
+            $depth++;
+        } elseif ($char === ')') {
+            $depth--;
+        }
+
+        if ($char === ',' && $depth === 0) {
+            $parts[] = trim(implode('', $chars));
+            $chars = [];
+        } else {
+            $chars[] = $char;
+        }
+    }
+
+    if (!empty($chars)) {
+        $parts[] = trim(implode('', $chars));
+    }
+
+    return $parts;
+}
+
+/**
  * Resolve import paths and load CSS content.
  *
  * Handles:
@@ -285,6 +352,15 @@ function createFileLoader(array $searchPaths, array &$seenFiles, ?callable $cust
 }
 
 /**
+ * Static cache for resource files.
+ *
+ * @port-deviation:performance Resource file contents are cached to avoid
+ * repeated file I/O on multiple generate() calls. The original TypeScript
+ * relies on Node.js module caching for similar behavior.
+ */
+$_resourceFileCache = [];
+
+/**
  * Read a resource file with error checking.
  *
  * @param string $filename The filename relative to resources directory
@@ -293,6 +369,12 @@ function createFileLoader(array $searchPaths, array &$seenFiles, ?callable $cust
  */
 function readResourceFile(string $filename): string
 {
+    global $_resourceFileCache;
+
+    if (isset($_resourceFileCache[$filename])) {
+        return $_resourceFileCache[$filename];
+    }
+
     $path = __DIR__ . '/../resources/' . $filename;
     if (!file_exists($path)) {
         throw new \RuntimeException("Resource file not found: {$path}");
@@ -301,6 +383,8 @@ function readResourceFile(string $filename): string
     if ($contents === false) {
         throw new \RuntimeException("Failed to read resource file: {$path}");
     }
+
+    $_resourceFileCache[$filename] = $contents;
 
     return $contents;
 }
@@ -335,7 +419,7 @@ function loadDefaultTheme(): Theme
         // Process declarations and keyframes
         foreach ($node['nodes'] ?? [] as $child) {
             if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
-                $property = preg_replace('/\\\\(.)/', '$1', $child['property']);
+                $property = preg_replace(REGEX_UNESCAPE, '$1', $child['property']);
                 $value = $child['value'] ?? '';
                 $theme->add($property, $value, $themeOptions);
             } elseif ($child['kind'] === 'at-rule' && $child['name'] === '@keyframes') {
@@ -594,7 +678,7 @@ function parseCss(array &$ast, array $options = []): array
             foreach ($node['nodes'] ?? [] as $child) {
                 if ($child['kind'] === 'declaration' && str_starts_with($child['property'], '--')) {
                     // Unescape CSS escape sequences in property names (e.g., \* -> *)
-                    $property = preg_replace('/\\\\(.)/', '$1', $child['property']);
+                    $property = preg_replace(REGEX_UNESCAPE, '$1', $child['property']);
                     $value = $child['value'] ?? '';
 
                     // Store the raw value including --theme() calls
@@ -633,7 +717,7 @@ function parseCss(array &$ast, array $options = []): array
             $params = $node['params'];
             // Parse the import path and modifiers
             // e.g., "'tailwindcss' theme(inline)" or "'tailwindcss/utilities' important"
-            preg_match('/^["\']([^"\']+)["\']\s*(.*)$/', $params, $matches);
+            preg_match(REGEX_IMPORT_PARTS, $params, $matches);
 
             if ($matches) {
                 $importPath = $matches[1];
@@ -679,7 +763,7 @@ function parseCss(array &$ast, array $options = []): array
                     $themeAst = parse($themeCss);
 
                     // Check for prefix() modifier
-                    if (preg_match('/prefix\(([^)]+)\)/', $modifiers, $prefixMatch)) {
+                    if (preg_match(REGEX_PREFIX_MOD, $modifiers, $prefixMatch)) {
                         $themeAst = [atRule('@media', 'prefix('.$prefixMatch[1].')', $themeAst)];
                     }
 
@@ -697,7 +781,7 @@ function parseCss(array &$ast, array $options = []): array
                     // It's accepted for compatibility with official Tailwind CSS syntax
 
                     // Check for layer() modifier
-                    if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
+                    if (preg_match(REGEX_LAYER_MOD, $modifiers, $layerMatch)) {
                         return WalkAction::Replace([
                             atRule('@layer', $layerMatch[1], $themeAst),
                         ]);
@@ -716,12 +800,12 @@ function parseCss(array &$ast, array $options = []): array
                     }
 
                     // If there's a prefix() modifier, wrap in @media prefix()
-                    if (preg_match('/prefix\(([^)]+)\)/', $modifiers, $prefixMatch)) {
+                    if (preg_match(REGEX_PREFIX_MOD, $modifiers, $prefixMatch)) {
                         $utilityNode = atRule('@media', 'prefix('.$prefixMatch[1].')', [$utilityNode]);
                     }
 
                     // If there's a layer() modifier, wrap in @layer
-                    if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
+                    if (preg_match(REGEX_LAYER_MOD, $modifiers, $layerMatch)) {
                         return WalkAction::Replace([
                             atRule('@layer', $layerMatch[1], [$utilityNode]),
                         ]);
@@ -774,7 +858,7 @@ function parseCss(array &$ast, array $options = []): array
                         );
 
                         // Handle layer modifier if present
-                        if (preg_match('/layer\(([^)]+)\)/', $modifiers, $layerMatch)) {
+                        if (preg_match(REGEX_LAYER_MOD, $modifiers, $layerMatch)) {
                             return WalkAction::Replace([
                                 atRule('@layer', $layerMatch[1], $importedAst),
                             ]);
@@ -1051,7 +1135,7 @@ function parseCss(array &$ast, array $options = []): array
                 if (!is_string($namespace) || !is_array($values)) {
                     continue;
                 }
-                $themeNamespace = '--' . strtolower(preg_replace('/([A-Z])/', '-$1', $namespace));
+                $themeNamespace = '--' . strtolower(preg_replace(REGEX_CAMEL_TO_KEBAB, '-$1', $namespace));
                 foreach ($values as $key => $value) {
                     // Only add simple string values to theme
                     if (!is_string($value)) {
@@ -1166,7 +1250,7 @@ function registerCustomVariant($designSystem, string $name, ?string $selector, a
             // Then wrap in at-rules
             foreach (array_reverse($atRuleParams) as $atRuleParam) {
                 // Parse at-rule name and params
-                if (preg_match('/^(@[a-z-]+)\s*(.*)$/', $atRuleParam, $m)) {
+                if (preg_match(REGEX_AT_RULE_PARAM, $atRuleParam, $m)) {
                     $r['nodes'] = [atRule($m[1], $m[2], $r['nodes'])];
                 }
             }
@@ -1265,10 +1349,10 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
             // Extract variables from var() functions
             // The regex matches CSS custom property names which can contain
             // any character except whitespace, quotes, closing parens, or commas
-            if (preg_match_all('/var\(\s*(--[^\s\)\'\",]+)/', $value, $matches)) {
+            if (preg_match_all(REGEX_VAR_EXTRACT, $value, $matches)) {
                 foreach ($matches[1] as $var) {
                     // Unescape the variable name (e.g., --width-1\/2 -> --width-1/2)
-                    $usedVariables[preg_replace('/\\\\(.)/', '$1', $var)] = true;
+                    $usedVariables[preg_replace(REGEX_UNESCAPE, '$1', $var)] = true;
                 }
             }
             // Extract keyframe names from animation property
@@ -1294,7 +1378,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
         foreach ($theme->entries() as [$key, $value]) {
             if (isset($usedVariables[$key])) {
                 // Extract variables this value depends on
-                if (preg_match_all('/var\(\s*(--[a-zA-Z0-9_-]+)/', $value['value'], $matches)) {
+                if (preg_match_all(REGEX_VAR_SIMPLE, $value['value'], $matches)) {
                     foreach ($matches[1] as $var) {
                         if (!isset($usedVariables[$var])) {
                             $usedVariables[$var] = true;
@@ -1304,7 +1388,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
                 }
                 // Extract keyframe names from animation values
                 // Handle both prefixed (--tw-animate-foo) and non-prefixed (--animate-foo)
-                if (preg_match('/^--(?:[a-z]+-)?animate/', $key)) {
+                if (preg_match(REGEX_ANIMATE_KEY, $key)) {
                     foreach (extractKeyframeNames($value['value']) as $name) {
                         if (!isset($usedKeyframeNames[$name])) {
                             $usedKeyframeNames[$name] = true;
@@ -1365,7 +1449,7 @@ function optimizeAst(array $ast, DesignSystem $designSystem, int $polyfills = PO
                 if ($child['kind'] === 'declaration') {
                     $prop = $child['property'] ?? '';
                     // Unescape the property for comparison (AST has escaped names, usedVariables has unescaped)
-                    $unescapedProp = preg_replace('/\\\\(.)/', '$1', $prop);
+                    $unescapedProp = preg_replace(REGEX_UNESCAPE, '$1', $prop);
                     // Check if this variable is used or has STATIC option
                     if (isset($usedVariables[$unescapedProp])) {
                         $filteredNodes[] = $child;
@@ -1546,7 +1630,7 @@ function extractKeyframeNames(string $value): array
 
     foreach ($animations as $animation) {
         // Split by whitespace
-        $parts = preg_split('/\s+/', trim($animation));
+        $parts = preg_split(REGEX_WHITESPACE, trim($animation));
         foreach ($parts as $part) {
             $part = trim($part);
             if (empty($part)) {
@@ -1554,10 +1638,10 @@ function extractKeyframeNames(string $value): array
             }
 
             // Skip timing values (numbers, percentages, seconds)
-            if (preg_match('/^[\d.]+/', $part)) {
+            if (preg_match(REGEX_NUMERIC_START, $part)) {
                 continue;
             }
-            if (preg_match('/^-?[\d.]+(?:s|ms|%)$/', $part)) {
+            if (preg_match(REGEX_TIME_VALUE, $part)) {
                 continue;
             }
 
@@ -1710,25 +1794,15 @@ function extractCandidates(string $html): array
 {
     $candidates = [];
 
-    // Extract from class attributes
-    if (preg_match_all('/class\s*=\s*["\']([^"\']+)["\']/', $html, $matches)) {
-        foreach ($matches[1] as $classAttr) {
-            foreach (preg_split('/\s+/', $classAttr) as $class) {
-                $class = trim($class);
-                if ($class !== '') {
-                    $candidates[] = $class;
-                }
-            }
-        }
-    }
-
-    // Also extract from className (JSX)
-    if (preg_match_all('/className\s*=\s*["\']([^"\']+)["\']/', $html, $matches)) {
-        foreach ($matches[1] as $classAttr) {
-            foreach (preg_split('/\s+/', $classAttr) as $class) {
-                $class = trim($class);
-                if ($class !== '') {
-                    $candidates[] = $class;
+    // Extract from class and className attributes
+    foreach ([REGEX_CLASS_ATTR, REGEX_CLASSNAME_ATTR] as $pattern) {
+        if (preg_match_all($pattern, $html, $matches)) {
+            foreach ($matches[1] as $classAttr) {
+                foreach (preg_split(REGEX_WHITESPACE, $classAttr) as $class) {
+                    $class = trim($class);
+                    if ($class !== '') {
+                        $candidates[] = $class;
+                    }
                 }
             }
         }
@@ -1751,34 +1825,14 @@ function extractCandidates(string $html): array
 function themeValueResolvesToInitial(string $value, Theme $theme): bool
 {
     // Simple regex to extract --theme() arguments
-    if (!preg_match('/^--theme\(([^)]+)\)$/', trim($value), $match)) {
+    if (!preg_match(REGEX_THEME_CALL_FULL, trim($value), $match)) {
         return false;
     }
 
     $args = $match[1];
 
-    // Parse the arguments
-    $parts = [];
-    $current = '';
-    $depth = 0;
-    for ($i = 0; $i < strlen($args); $i++) {
-        $char = $args[$i];
-        if ($char === '(') {
-            $depth++;
-        }
-        if ($char === ')') {
-            $depth--;
-        }
-        if ($char === ',' && $depth === 0) {
-            $parts[] = trim($current);
-            $current = '';
-        } else {
-            $current .= $char;
-        }
-    }
-    if ($current !== '') {
-        $parts[] = trim($current);
-    }
+    // Parse the arguments (uses optimized helper with array accumulation)
+    $parts = splitByCommaRespectingParens($args);
 
     $path = $parts[0];
     $fallback = count($parts) > 1 ? trim(implode(', ', array_slice($parts, 1))) : null;
@@ -1818,7 +1872,7 @@ function resolveThemeCallsInValue(string $value, Theme $theme): string
 {
     // Match --theme(path[, fallback]) patterns
     // This is a simplified regex that handles basic cases
-    if (!preg_match_all('/--theme\(([^)]+)\)/', $value, $matches, PREG_SET_ORDER)) {
+    if (!preg_match_all(REGEX_THEME_CALL, $value, $matches, PREG_SET_ORDER)) {
         return $value;
     }
 
@@ -1826,28 +1880,8 @@ function resolveThemeCallsInValue(string $value, Theme $theme): string
         $fullMatch = $match[0];
         $args = $match[1];
 
-        // Parse the arguments - split on comma, but be careful with nested parens
-        $parts = [];
-        $current = '';
-        $depth = 0;
-        for ($i = 0; $i < strlen($args); $i++) {
-            $char = $args[$i];
-            if ($char === '(') {
-                $depth++;
-            }
-            if ($char === ')') {
-                $depth--;
-            }
-            if ($char === ',' && $depth === 0) {
-                $parts[] = trim($current);
-                $current = '';
-            } else {
-                $current .= $char;
-            }
-        }
-        if ($current !== '') {
-            $parts[] = trim($current);
-        }
+        // Parse the arguments (uses optimized helper with array accumulation)
+        $parts = splitByCommaRespectingParens($args);
 
         $path = $parts[0];
         $fallback = count($parts) > 1 ? implode(', ', array_slice($parts, 1)) : null;
@@ -1927,13 +1961,13 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
                     $fallbackColor = null;
 
                     // Pattern: color-mix(in oklab, COLOR VAR_OPACITY, transparent)
-                    if (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*([^,]+)\s+var\s*\([^)]+\)\s*,\s*transparent\s*\)/i', $value, $match)) {
+                    if (preg_match(REGEX_COLOR_MIX_VAR, $value, $match)) {
                         $needsPolyfill = true;
                         $fallbackColor = trim($match[1]);
                         $fallbackColor = LightningCss::optimizeValue($fallbackColor, $decl['property']);
                     }
                     // Pattern: color-mix(in oklab, var(--var) OPACITY%, transparent)
-                    elseif (preg_match('/color-mix\s*\(\s*in\s+oklab\s*,\s*var\s*\(\s*([^)]+)\s*\)\s+(\d+(?:\.\d+)?%?)\s*,\s*transparent\s*\)/i', $value, $match)) {
+                    elseif (preg_match(REGEX_COLOR_MIX_OPACITY, $value, $match)) {
                         $needsPolyfill = true;
                         $varName = '--' . ltrim(trim($match[1]), '-');
                         $opacityStr = $match[2];

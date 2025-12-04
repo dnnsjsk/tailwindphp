@@ -471,7 +471,8 @@ function parseCandidate(string $input, DesignSystemInterface $designSystem): ite
 
             // Extract an explicit typehint if present, e.g. `bg-[color:var(--my-var)])`
             $typehint = null;
-            for ($i = 0; $i < strlen($arbitraryValue); $i++) {
+            $arbLen = strlen($arbitraryValue);
+            for ($i = 0; $i < $arbLen; $i++) {
                 $code = ord($arbitraryValue[$i]);
 
                 // If we hit a ":", we're at the end of a typehint.

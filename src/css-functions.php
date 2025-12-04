@@ -654,21 +654,22 @@ function eventuallyUnquote(string $value): string
     }
 
     $quoteChar = $first;
-    $unquoted = '';
+    $chars = [];
+    $len = strlen($value) - 1;
 
-    for ($i = 1; $i < strlen($value) - 1; $i++) {
+    for ($i = 1; $i < $len; $i++) {
         $currentChar = $value[$i];
         $nextChar = $value[$i + 1] ?? '';
 
         if ($currentChar === '\\' && ($nextChar === $quoteChar || $nextChar === '\\')) {
-            $unquoted .= $nextChar;
+            $chars[] = $nextChar;
             $i++;
         } else {
-            $unquoted .= $currentChar;
+            $chars[] = $currentChar;
         }
     }
 
-    return $unquoted;
+    return implode('', $chars);
 }
 
 /**

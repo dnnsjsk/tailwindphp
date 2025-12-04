@@ -35,6 +35,16 @@ const COMPILE_FLAG_NONE = 0;
 const COMPILE_FLAG_RESPECT_IMPORTANT = 1 << 0;
 
 /**
+ * Cache for variant order bitmasks.
+ *
+ * @port-deviation:performance Pre-computed bitmasks for variant ordering.
+ * Avoids repeated `1 << $order` calculations for the same variant roots.
+ *
+ * @var array<string, int>
+ */
+$_variantMaskCache = [];
+
+/**
  * Compile multiple candidates into AST nodes.
  *
  * @param iterable<string> $rawCandidates
@@ -101,13 +111,22 @@ function compileCandidates(
                 $node = $ruleInfo['node'];
                 $propertySort = $ruleInfo['propertySort'];
 
-                // Track the variant order
+                // Track the variant order (uses cached bitmasks)
+                global $_variantMaskCache;
                 $variantOrder = 0;
                 foreach ($candidate['variants'] as $variant) {
                     // Arbitrary variants get order 0, named variants use their root
                     $root = $variant['root'] ?? null;
-                    $order = $root !== null ? ($variantOrderMap[$root] ?? 0) : 0;
-                    $variantOrder |= 1 << $order;
+                    if ($root === null) {
+                        $variantOrder |= 1; // 1 << 0
+                    } elseif (isset($_variantMaskCache[$root])) {
+                        $variantOrder |= $_variantMaskCache[$root];
+                    } else {
+                        $order = $variantOrderMap[$root] ?? 0;
+                        $mask = 1 << $order;
+                        $_variantMaskCache[$root] = $mask;
+                        $variantOrder |= $mask;
+                    }
                 }
 
                 // Store sorting info with the node itself so it survives array operations
