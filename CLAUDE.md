@@ -750,7 +750,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,808 tests (all passing)**
+**Total: 3,807 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -868,7 +868,7 @@ Tests for PHP-specific implementations and helpers (not direct TypeScript ports)
 | `_tailwindphp/CandidateParser.test.php` | ✅ | 19 |
 | `utils/is_valid_arbitrary.test.php` | ✅ | 17 |
 | `property_order.test.php` | ✅ | 15 |
-| `design_system.test.php` | ✅ | 14 |
+| `design_system.test.php` | ✅ | 13 |
 | `_tailwindphp/CssFormatter.test.php` | ✅ | 13 |
 | `utils/dimensions.test.php` | ✅ | 10 |
 | `utils/default_map.test.php` | ✅ | 12 |

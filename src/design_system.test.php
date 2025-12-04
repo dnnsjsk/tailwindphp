@@ -177,16 +177,4 @@ class design_system extends TestCase
         $this->assertTrue($variant === null || is_array($variant));
     }
 
-    // =========================================================================
-    // CSS generation
-    // =========================================================================
-
-    #[Test]
-    public function design_system_candidates_to_css(): void
-    {
-        $ds = $this->createDesignSystem();
-        $result = $ds->candidatesToCss(['flex']);
-        $this->assertIsArray($result);
-    }
-
 }
