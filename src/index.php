@@ -1652,11 +1652,14 @@ function extractKeyframeNames(string $value): array
  */
 function generate(string|array $input, string $css = '@import "tailwindcss";'): string
 {
+    $minify = false;
+
     // Handle array input
     if (is_array($input)) {
         $content = $input['content'] ?? '';
         $inlineCss = $input['css'] ?? '';
         $importPaths = $input['importPaths'] ?? null;
+        $minify = $input['minify'] ?? false;
 
         // Resolve import paths to CSS content
         $resolved = resolveImportPaths($importPaths);
@@ -1687,7 +1690,14 @@ function generate(string|array $input, string $css = '@import "tailwindcss";'): 
     // Compile
     $compiled = compile($css, $compileOptions);
 
-    return $compiled['build']($candidates);
+    $result = $compiled['build']($candidates);
+
+    // Optionally minify output
+    if ($minify) {
+        $result = \TailwindPHP\Minifier\CssMinifier::minify($result);
+    }
+
+    return $result;
 }
 
 /**
@@ -2112,6 +2122,20 @@ class Tailwind
     public static function extractCandidates(string $html): array
     {
         return extractCandidates($html);
+    }
+
+    /**
+     * Minify CSS output.
+     *
+     * Removes comments, whitespace, shortens hex colors, removes zero units,
+     * and other optimizations to reduce file size.
+     *
+     * @param string $css The CSS to minify
+     * @return string Minified CSS
+     */
+    public static function minify(string $css): string
+    {
+        return \TailwindPHP\Minifier\CssMinifier::minify($css);
     }
 }
 
