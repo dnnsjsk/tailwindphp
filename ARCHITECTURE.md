@@ -5,6 +5,13 @@ A complete guide to how TailwindPHP compiles Tailwind CSS classes from HTML inpu
 ## Table of Contents
 
 - [Overview](#overview)
+- [Relationship to TailwindCSS TypeScript](#relationship-to-tailwindcss-typescript)
+  - [What's Identical](#whats-identical)
+  - [Structural Differences](#structural-differences)
+  - [Omitted Features](#omitted-features)
+  - [PHP-Specific Additions](#php-specific-additions)
+  - [File Mapping](#file-mapping)
+  - [Port Deviation Categories](#port-deviation-categories)
 - [Pipeline Stages](#pipeline-stages)
   - [1. Input Processing](#1-input-processing)
   - [2. CSS Parsing](#2-css-parsing)
@@ -65,6 +72,253 @@ HTML + CSS Input
 │   CSS Output    │ → Final CSS string
 └─────────────────┘
 ```
+
+---
+
+## Relationship to TailwindCSS TypeScript
+
+TailwindPHP is a **1:1 port** of TailwindCSS v4 from TypeScript to PHP. The goal is identical CSS output for identical input.
+
+### What's Identical
+
+The following aspects are direct ports that produce the same results:
+
+| Aspect | Description |
+|--------|-------------|
+| **CSS Output** | Byte-for-byte identical CSS for the same classes |
+| **Utility Classes** | All 364+ utilities with same names and behavior |
+| **Variants** | All variants (hover, focus, responsive, dark, etc.) |
+| **Theme System** | CSS custom properties, namespaces, `theme()` function |
+| **Candidate Parsing** | Same parsing rules for class names |
+| **Property Order** | Same sort order for generated CSS |
+| **CSS Functions** | `theme()`, `--theme()`, `--spacing()`, `--alpha()` |
+| **Directives** | `@theme`, `@utility`, `@apply`, `@custom-variant` |
+
+**Test coverage:** 3,373 tests ensure output parity with the TypeScript implementation.
+
+### Structural Differences
+
+These are necessary adaptations due to language differences:
+
+| TypeScript | PHP | Reason |
+|------------|-----|--------|
+| `async/await` | Synchronous | PHP lacks native async |
+| `Map<K, V>` | Associative array | PHP has no Map type |
+| `Set<T>` | `array` with keys | PHP has no Set type |
+| `BigInt` | `int` (64-bit) | Sufficient for variant bitmasks |
+| TypeScript types | PHPDoc annotations | Static typing approach |
+| `enum` | `const` flags | PHP 8.1 compatibility |
+| ES Modules | `require_once` | Module system |
+| Object references | Array copies | PHP arrays are value types |
+
+### Omitted Features
+
+These TypeScript features are intentionally not ported:
+
+| Feature | Reason |
+|---------|--------|
+| **Source Maps** | Not needed for server-side CSS generation |
+| **IDE Intellisense** | `getClassList()`, `getVariants()` - IDE tooling not primary use case |
+| **JavaScript Plugins** | Can't execute JS in PHP; plugins implemented natively |
+| **Watch Mode** | File watching is handled externally in PHP |
+| **PostCSS Integration** | PHP has its own build pipelines |
+| **Oxide Engine** | Rust-based scanner not portable to PHP |
+
+### PHP-Specific Additions
+
+Features added in the PHP implementation:
+
+| Addition | Location | Purpose |
+|----------|----------|---------|
+| **LightningCss.php** | `src/_tailwindphp/` | Pure PHP replacement for lightningcss (Rust) |
+| **CssMinifier.php** | `src/_tailwindphp/` | CSS minification |
+| **clsx port** | `src/_tailwindphp/lib/clsx/` | Conditional class names |
+| **tailwind-merge port** | `src/_tailwindphp/lib/tailwind-merge/` | Class conflict resolution |
+| **CVA port** | `src/_tailwindphp/lib/cva/` | Class variance authority |
+| **`cn()` function** | `src/index.php` | Combined clsx + merge (shadcn pattern) |
+| **`importPaths` option** | `src/index.php` | File-based CSS loading |
+| **Performance caches** | Various | LRU cache, regex constants, etc. |
+
+### File Mapping
+
+How PHP files map to TypeScript source:
+
+```
+TypeScript (reference/tailwindcss/packages/tailwindcss/src/)
+                              ↓
+PHP (src/)
+```
+
+| TypeScript File | PHP File | Notes |
+|-----------------|----------|-------|
+| `index.ts` | `index.php` | Main entry, compile pipeline |
+| `ast.ts` | `ast.php` | AST node types, toCss() |
+| `css-parser.ts` | `css-parser.php` | Character tokenizer |
+| `candidate.ts` | `candidate.php` | Class name parsing |
+| `compile.ts` | `compile.php` | Candidate → CSS |
+| `design-system.ts` | `design-system.php` | Central registry |
+| `theme.ts` | `theme.php` | CSS variable storage |
+| `utilities.ts` | `utilities.php` + `utilities/*.php` | Split into 15 files |
+| `variants.ts` | `variants.php` | Variant definitions |
+| `apply.ts` | `apply.php` | @apply directive |
+| `at-import.ts` | `at-import.php` | @import resolution |
+| `css-functions.ts` | `css-functions.php` | theme(), --theme() |
+| `plugin-api.ts` | `plugin.php` | Plugin system |
+| — | `_tailwindphp/LightningCss.php` | **PHP-only** (lightningcss replacement) |
+| — | `_tailwindphp/lib/*` | **PHP-only** (companion libraries) |
+
+### Port Deviation Categories
+
+All deviations from the TypeScript source are documented with `@port-deviation` markers. There are **89 documented deviations** across the codebase:
+
+#### `@port-deviation:none`
+Direct 1:1 port with no significant changes.
+
+```php
+// src/selector-parser.php, src/property-order.php, etc.
+```
+
+#### `@port-deviation:async`
+Synchronous PHP code replacing async/await.
+
+```php
+// TypeScript
+async function compile(css: string): Promise<string>
+
+// PHP
+function compile(string $css): string
+```
+
+#### `@port-deviation:storage`
+Different data structures for PHP's type system.
+
+```php
+// TypeScript: Map<string, ThemeValue>
+// PHP: array<string, array{value: string, options: int}>
+private array $values = [];
+```
+
+#### `@port-deviation:types`
+PHPDoc annotations instead of TypeScript types.
+
+```php
+/**
+ * @param array{kind: string, root: string, ...} $candidate
+ * @return array<array{kind: string, ...}>
+ */
+function compileAstNodes(array $candidate, ...): array
+```
+
+#### `@port-deviation:sourcemaps`
+Source map tracking omitted throughout.
+
+```php
+// TypeScript nodes have: { src: SourceLocation, dst: DestLocation }
+// PHP nodes omit these properties entirely
+```
+
+#### `@port-deviation:enum`
+PHP constants instead of TypeScript enums.
+
+```php
+// TypeScript
+enum ThemeOptions { None, Inline, Reference, Default, Static, Used }
+
+// PHP
+const THEME_OPTION_NONE = 0;
+const THEME_OPTION_INLINE = 1 << 0;
+const THEME_OPTION_REFERENCE = 1 << 1;
+// ...
+```
+
+#### `@port-deviation:bigint`
+Regular integers instead of BigInt.
+
+```php
+// TypeScript: bigint allows unlimited variant combinations
+// PHP: 64-bit int limits to 64 variants (sufficient for current use)
+$variantOrder |= 1 << $order;
+```
+
+#### `@port-deviation:performance`
+PHP-specific optimizations maintaining identical output.
+
+```php
+// Array accumulation instead of string concat
+$parts = [];
+for (...) {
+    $parts[] = $char;  // Not: $result .= $char
+}
+return implode('', $parts);
+```
+
+#### `@port-deviation:structure`
+Different code organization for PHP idioms.
+
+```php
+// TypeScript: 6000+ line utilities.ts
+// PHP: Split into src/utilities/*.php (15 files)
+```
+
+#### `@port-deviation:replacement`
+PHP implementation replacing external dependency.
+
+```php
+// TypeScript uses lightningcss (Rust library via WASM)
+// PHP uses src/_tailwindphp/LightningCss.php (pure PHP)
+```
+
+#### `@port-deviation:stub`
+Placeholder for functionality not needed in PHP.
+
+```php
+// src/canonicalize-candidates.php - IDE tooling, not ported
+```
+
+#### `@port-deviation:omitted`
+Entire module not applicable to PHP port.
+
+```php
+// src/at_import.test.php - Tests require Node.js filesystem features
+```
+
+### Deviation Density by File
+
+| File | Deviations | Primary Types |
+|------|------------|---------------|
+| `index.php` | 6 | async, sourcemaps, modules, plugins, lightningcss, performance |
+| `css-parser.php` | 4 | sourcemaps, stack, bom, performance |
+| `theme.php` | 4 | storage, sourcemaps, enum, performance |
+| `compile.php` | 4 | bigint, sorting, variant-result, performance |
+| `design-system.php` | 4 | structure, invalidCandidates, intellisense, substitution |
+| `candidate.php` | 3 | caching, node-filtering, types |
+| `ast.php` | 5 | structure, sourcemaps, types, performance, location |
+| `utilities.php` | 4 | structure, suggestions, featureFlags, types |
+| `apply.php` | 4 | tracking, sourcemaps, errors, registration |
+| `at-import.php` | 2 | async, sourcemaps |
+| `css-functions.php` | 4 | dispatch, errors, fallback-injection, namespace-fallback |
+| `plugin.php` | 2 | async, types |
+| Other files | 1-2 each | Varies |
+
+### Verifying Parity
+
+The test suite ensures output parity:
+
+```bash
+# Extract tests from TypeScript source
+composer extract
+
+# Run all 3,373 tests
+composer test
+
+# Tests compare PHP output against expected TypeScript output
+```
+
+Test sources:
+- `test-coverage/utilities/` - Extracted from `utilities.test.ts`
+- `test-coverage/variants/` - Extracted from `variants.test.ts`
+- `test-coverage/index/` - Extracted from `index.test.ts`
+- `test-coverage/css-functions/` - Extracted from `css-functions.test.ts`
 
 ---
 
