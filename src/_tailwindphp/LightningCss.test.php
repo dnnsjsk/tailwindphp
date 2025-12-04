@@ -413,6 +413,119 @@ class LightningCss extends TestCase
         $this->assertSame('.a .b .c', $result[0]['selector']);
     }
 
+    #[Test]
+    public function transform_nesting_prefixes_all_selectors_in_list(): void
+    {
+        // When nesting a selector list like "h1, h2, h3" inside ".parent",
+        // each selector should be prefixed: ".parent h1, .parent h2, .parent h3"
+        $ast = [
+            [
+                'kind' => 'rule',
+                'selector' => '.parent',
+                'nodes' => [
+                    [
+                        'kind' => 'rule',
+                        'selector' => 'h1, h2, h3',
+                        'nodes' => [
+                            ['kind' => 'declaration', 'property' => 'color', 'value' => 'red'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = LightningCssOptimizer::transformNesting($ast);
+
+        $this->assertSame('.parent h1, .parent h2, .parent h3', $result[0]['selector']);
+    }
+
+    #[Test]
+    public function transform_nesting_does_not_split_commas_inside_pseudo_classes(): void
+    {
+        // Commas inside :where(), :not(), :is() should NOT be split
+        $ast = [
+            [
+                'kind' => 'rule',
+                'selector' => '.prose',
+                'nodes' => [
+                    [
+                        'kind' => 'rule',
+                        'selector' => ':where(a, b):not(:where(c, d))',
+                        'nodes' => [
+                            ['kind' => 'declaration', 'property' => 'color', 'value' => 'blue'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = LightningCssOptimizer::transformNesting($ast);
+
+        // The entire selector should be prefixed as one unit, not split on inner commas
+        $this->assertSame('.prose :where(a, b):not(:where(c, d))', $result[0]['selector']);
+    }
+
+    #[Test]
+    public function transform_nesting_handles_complex_selector_list_with_pseudo_classes(): void
+    {
+        // Mix of top-level commas and commas inside pseudo-classes
+        $ast = [
+            [
+                'kind' => 'rule',
+                'selector' => '.scope',
+                'nodes' => [
+                    [
+                        'kind' => 'rule',
+                        'selector' => 'h1, :where(a, b), h2',
+                        'nodes' => [
+                            ['kind' => 'declaration', 'property' => 'margin', 'value' => '0'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = LightningCssOptimizer::transformNesting($ast);
+
+        // Should split on top-level commas only
+        $this->assertSame('.scope h1, .scope :where(a, b), .scope h2', $result[0]['selector']);
+    }
+
+    #[Test]
+    public function transform_nesting_scoped_preflight_import(): void
+    {
+        // This simulates scoping preflight via nested @import
+        // .editor-styles-wrapper { @import "preflight" } should scope all preflight selectors
+        $ast = [
+            [
+                'kind' => 'rule',
+                'selector' => '.editor-styles-wrapper',
+                'nodes' => [
+                    [
+                        'kind' => 'rule',
+                        'selector' => '*, ::after, ::before',
+                        'nodes' => [
+                            ['kind' => 'declaration', 'property' => 'box-sizing', 'value' => 'border-box'],
+                        ],
+                    ],
+                    [
+                        'kind' => 'rule',
+                        'selector' => 'h1, h2, h3, h4, h5, h6',
+                        'nodes' => [
+                            ['kind' => 'declaration', 'property' => 'font-size', 'value' => 'inherit'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $result = LightningCssOptimizer::transformNesting($ast);
+
+        $this->assertCount(2, $result);
+        $this->assertSame('.editor-styles-wrapper *, .editor-styles-wrapper ::after, .editor-styles-wrapper ::before', $result[0]['selector']);
+        $this->assertSame('.editor-styles-wrapper h1, .editor-styles-wrapper h2, .editor-styles-wrapper h3, .editor-styles-wrapper h4, .editor-styles-wrapper h5, .editor-styles-wrapper h6', $result[1]['selector']);
+    }
+
     // =========================================================================
     // addVendorPrefixes tests
     // =========================================================================

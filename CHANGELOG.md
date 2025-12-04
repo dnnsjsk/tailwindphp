@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-12-04
+
+### Fixed
+
+- CSS nesting now correctly prefixes all selectors in a selector list
+  - `.parent { h1, h2, h3 { ... } }` now correctly outputs `.parent h1, .parent h2, .parent h3 { ... }`
+  - Previously only the first selector was prefixed
+  - Commas inside pseudo-classes like `:where()`, `:not()`, `:is()` are preserved
+
+### Added
+
+- 4 new tests for CSS nesting selector list handling
+- `splitSelectorList()` helper for parsing comma-separated selectors
+
 ## [1.0.0] - 2025-12-04
 
 ### Added
@@ -73,4 +87,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No external runtime dependencies
 - Zero Node.js requirement
 
+[1.0.1]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.0

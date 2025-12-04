@@ -470,6 +470,43 @@ class LightningCss
     }
 
     /**
+     * Split a selector list on top-level commas only.
+     * Does not split commas inside :where(), :not(), :is(), etc.
+     *
+     * @param string $selector The selector list to split
+     * @return array Array of individual selectors
+     */
+    private static function splitSelectorList(string $selector): array
+    {
+        $selectors = [];
+        $current = '';
+        $depth = 0;
+
+        for ($i = 0; $i < strlen($selector); $i++) {
+            $char = $selector[$i];
+
+            if ($char === '(' || $char === '[') {
+                $depth++;
+                $current .= $char;
+            } elseif ($char === ')' || $char === ']') {
+                $depth--;
+                $current .= $char;
+            } elseif ($char === ',' && $depth === 0) {
+                $selectors[] = $current;
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+
+        if ($current !== '') {
+            $selectors[] = $current;
+        }
+
+        return $selectors;
+    }
+
+    /**
      * Flatten a single AST node, resolving nesting.
      *
      * @param array $node The node to flatten
@@ -508,8 +545,12 @@ class LightningCss
                 if (str_contains($selector, '&')) {
                     $selector = str_replace('&', $parentSelector, $selector);
                 } else {
-                    // Nested selector without & - prepend parent (CSS nesting behavior)
-                    $selector = $parentSelector . ' ' . $selector;
+                    // Nested selector without & - prepend parent to EACH selector in list
+                    // e.g., ".parent" + "h1, h2, h3" -> ".parent h1, .parent h2, .parent h3"
+                    // Must split on top-level commas only (not inside :where(), :not(), etc.)
+                    $selectors = self::splitSelectorList($selector);
+                    $selectors = array_map(fn($s) => $parentSelector . ' ' . trim($s), $selectors);
+                    $selector = implode(', ', $selectors);
                 }
             }
 

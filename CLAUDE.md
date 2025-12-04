@@ -750,7 +750,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,807 tests (all passing)**
+**Total: 3,811 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -860,7 +860,7 @@ Tests for PHP-specific implementations and helpers (not direct TypeScript ports)
 
 | Test File | Status | Tests |
 |-----------|--------|-------|
-| `_tailwindphp/LightningCss.test.php` | ✅ | 64 |
+| `_tailwindphp/LightningCss.test.php` | ✅ | 68 |
 | `theme_unit.test.php` | ✅ | 46 |
 | `utils/infer_data_type.test.php` | ✅ | 45 |
 | `utils/is_color.test.php` | ✅ | 33 |
