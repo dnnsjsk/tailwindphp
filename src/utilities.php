@@ -266,11 +266,21 @@ class Utilities implements UtilitiesInterface
     /**
      * Get all plugin utilities.
      *
-     * @return array
+     * @return array<string, array{declarations: array, options: array}>
      */
     public function getPluginUtilities(): array
     {
         return $this->pluginUtilities;
+    }
+
+    /**
+     * Get all functional plugin utilities.
+     *
+     * @return array<string, array{callback: callable, options: array}>
+     */
+    public function getFunctionalPluginUtilities(): array
+    {
+        return $this->functionalPluginUtilities;
     }
 
     /**

@@ -331,7 +331,8 @@ function parse(string $input): array
         // End of a block
         if ($c === C_CLOSE_CURLY && ($closingLen === 0 || $closingBracketStack[$closingLen - 1] !== ')')) {
             if ($closingLen === 0) {
-                throw new CssSyntaxError('Missing opening {');
+                $context = $bufferLen > 0 ? ' near `' . trim(substr($buffer, 0, 50)) . '`' : '';
+                throw new CssSyntaxError("Unexpected closing } - missing opening {{$context}");
             }
 
             $closingBracketStack = substr($closingBracketStack, 0, -1);
@@ -382,7 +383,8 @@ function parse(string $input): array
         // Close paren
         if ($c === C_CLOSE_PAREN) {
             if ($closingLen > 0 && $closingBracketStack[$closingLen - 1] !== ')') {
-                throw new CssSyntaxError('Missing opening (');
+                $context = $bufferLen > 0 ? ' in `' . trim(substr($buffer, 0, 50)) . '`' : '';
+                throw new CssSyntaxError("Unexpected closing ) - missing opening ({$context}");
             }
             $closingBracketStack = substr($closingBracketStack, 0, -1);
             $closingLen--;

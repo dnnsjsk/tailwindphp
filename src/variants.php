@@ -502,6 +502,16 @@ class Variants implements VariantsInterface
     }
 
     /**
+     * Get all functional plugin variants.
+     *
+     * @return array<string, array{callback: callable, options: array}>
+     */
+    public function getFunctionalPluginVariants(): array
+    {
+        return $this->functionalPluginVariants;
+    }
+
+    /**
      * Create an apply function from a selector string or array.
      *
      * @param string|array $selector

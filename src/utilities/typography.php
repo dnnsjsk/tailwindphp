@@ -136,12 +136,10 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
                     return null;
                 }
 
-                $declarations = [decl('font-size', $fontSize)];
-                if ($modifier) {
-                    $declarations[] = decl('line-height', $modifier);
-                }
-
-                return $declarations;
+                return [
+                    decl('font-size', $fontSize),
+                    decl('line-height', $modifier),
+                ];
             }
 
             if (is_string($options)) {

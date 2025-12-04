@@ -699,7 +699,7 @@ class css_parser extends TestCase
     public function errors_when_curly_brackets_are_unbalanced_opening(): void
     {
         $this->expectException(CssSyntaxError::class);
-        $this->expectExceptionMessage('Missing opening {');
+        $this->expectExceptionMessage('Unexpected closing } - missing opening {');
         parse('.foo { color: red; } .bar color: blue; }');
     }
 

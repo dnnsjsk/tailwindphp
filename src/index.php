@@ -90,6 +90,8 @@ const REGEX_VAR_EXTRACT = '/var\(\s*(--[^\s\)\'\",]+)/';
 const REGEX_VAR_SIMPLE = '/var\(\s*(--[a-zA-Z0-9_-]+)/';
 const REGEX_PREFIX_MOD = '/prefix\(([^)]+)\)/';
 const REGEX_LAYER_MOD = '/layer\(([^)]+)\)/';
+const REGEX_LAYER_BARE = '/\blayer\b(?!\()/';
+const REGEX_SUPPORTS_MOD = '/supports\(([^)]+)\)/';
 const REGEX_AT_RULE_PARAM = '/^(@[a-z-]+)\s*(.*)$/';
 const REGEX_IMPORT_PARTS = '/^["\']([^"\']+)["\']\s*(.*)$/';
 const REGEX_ANIMATE_KEY = '/^--(?:[a-z]+-)?animate/';
@@ -272,6 +274,90 @@ function resolveImportUri(string $uri, ?string $fromFile, array $searchPaths): ?
 }
 
 /**
+ * Parse @import modifiers into layer, supports, and media components.
+ *
+ * Handles the full @import syntax:
+ * - @import "file.css" layer(name);
+ * - @import "file.css" layer;  (anonymous layer)
+ * - @import "file.css" supports(condition);
+ * - @import "file.css" screen and (min-width: 768px);
+ * - @import "file.css" layer(components) supports(display: grid) screen;
+ *
+ * @param string $modifiers The modifiers string after the import path
+ * @return array{layer: string|null, supports: string|null, media: string|null}
+ */
+function parseImportModifiers(string $modifiers): array
+{
+    $layer = null;
+    $supports = null;
+    $media = null;
+
+    $remaining = trim($modifiers);
+
+    // Extract layer(name) - must come first per CSS spec
+    if (preg_match(REGEX_LAYER_MOD, $remaining, $layerMatch)) {
+        $layer = $layerMatch[1];
+        $remaining = trim(preg_replace(REGEX_LAYER_MOD, '', $remaining, 1));
+    } elseif (preg_match(REGEX_LAYER_BARE, $remaining)) {
+        // Anonymous layer (just 'layer' without parentheses)
+        $layer = '';
+        $remaining = trim(preg_replace(REGEX_LAYER_BARE, '', $remaining, 1));
+    }
+
+    // Extract supports(condition)
+    if (preg_match(REGEX_SUPPORTS_MOD, $remaining, $supportsMatch)) {
+        $supports = $supportsMatch[1];
+        $remaining = trim(preg_replace(REGEX_SUPPORTS_MOD, '', $remaining, 1));
+    }
+
+    // Everything remaining is the media query
+    if (!empty($remaining)) {
+        $media = $remaining;
+    }
+
+    return [
+        'layer' => $layer,
+        'supports' => $supports,
+        'media' => $media,
+    ];
+}
+
+/**
+ * Wrap AST nodes with layer, media, and supports at-rules.
+ *
+ * This replicates the buildImportNodes logic from at-import.php for use
+ * in the compile() import handling path.
+ *
+ * @param array $ast The AST nodes to wrap
+ * @param string|null $layer Layer name (empty string for anonymous layer)
+ * @param string|null $supports Supports condition
+ * @param string|null $media Media query
+ * @return array The wrapped AST nodes
+ */
+function wrapImportedAst(array $ast, ?string $layer, ?string $supports, ?string $media): array
+{
+    $root = $ast;
+
+    // Layer wrapping (innermost)
+    if ($layer !== null) {
+        $root = [atRule('@layer', $layer, $root)];
+    }
+
+    // Media query wrapping
+    if ($media !== null) {
+        $root = [atRule('@media', $media, $root)];
+    }
+
+    // Supports wrapping (outermost)
+    if ($supports !== null) {
+        $supportsValue = $supports[0] === '(' ? $supports : "({$supports})";
+        $root = [atRule('@supports', $supportsValue, $root)];
+    }
+
+    return $root;
+}
+
+/**
  * Create a file loader function for substituteAtImports.
  *
  * @param array $searchPaths Paths to search for imports
@@ -438,9 +524,47 @@ function loadDefaultTheme(): Theme
 /**
  * Compile CSS with Tailwind utilities.
  *
- * @param string $css Input CSS containing @tailwind directives
- * @param array $options Compilation options
- * @return array{build: callable, sources: array, root: mixed, features: int}
+ * This is the advanced compilation API that returns a reusable compiler.
+ * The returned `build` function can be called multiple times with different
+ * candidate sets, useful for watch mode or incremental compilation.
+ *
+ * @param string $css Input CSS containing @import, @theme, @utility directives
+ * @param array{
+ *     base?: string,
+ *     importSearchPaths?: array<string>,
+ *     importResolver?: callable(string, string): ?string,
+ *     onDependency?: callable(string): void
+ * } $options Compilation options:
+ *   - `base`: Base directory for resolving relative imports
+ *   - `importSearchPaths`: Additional directories to search for imports
+ *   - `importResolver`: Custom resolver for virtual file systems
+ *   - `onDependency`: Callback invoked when a file dependency is detected
+ *
+ * @return array{
+ *     build: callable(array<string>): string,
+ *     sources: array<string>,
+ *     root: array,
+ *     features: int
+ * } Compilation result:
+ *   - `build`: Function that takes candidate class names and returns CSS
+ *   - `sources`: Detected content source patterns
+ *   - `root`: Compiled AST root
+ *   - `features`: Bitmask of detected features
+ *
+ * @throws \Exception When CSS parsing fails
+ * @throws \Exception When @utility or @custom-variant directives are invalid
+ * @throws \RuntimeException When @import resolution fails or exceeds depth limit
+ *
+ * @example Basic compilation:
+ *   $compiled = compile('@import "tailwindcss";');
+ *   $css = $compiled['build'](['flex', 'p-4', 'text-red-500']);
+ *
+ * @example With custom theme:
+ *   $compiled = compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+ *   $css = $compiled['build'](['bg-brand', 'text-brand']);
+ *
+ * @example With file imports:
+ *   $compiled = compile($css, ['importSearchPaths' => ['/path/to/styles']]);
  */
 function compile(string $css, array $options = []): array
 {
@@ -857,14 +981,18 @@ function parseCss(array &$ast, array $options = []): array
                             false,
                         );
 
-                        // Handle layer modifier if present
-                        if (preg_match(REGEX_LAYER_MOD, $modifiers, $layerMatch)) {
-                            return WalkAction::Replace([
-                                atRule('@layer', $layerMatch[1], $importedAst),
-                            ]);
-                        }
+                        // Parse all import modifiers (layer, supports, media)
+                        $parsedMods = parseImportModifiers($modifiers);
 
-                        return WalkAction::Replace($importedAst);
+                        // Wrap with all applicable modifiers
+                        $wrappedAst = wrapImportedAst(
+                            $importedAst,
+                            $parsedMods['layer'],
+                            $parsedMods['supports'],
+                            $parsedMods['media'],
+                        );
+
+                        return WalkAction::Replace($wrappedAst);
                     }
                 }
             }
@@ -1671,13 +1799,28 @@ function extractKeyframeNames(string $value): array
 /**
  * Generate CSS from content containing Tailwind classes.
  *
+ * This is the primary function for generating Tailwind CSS. It extracts class
+ * candidates from HTML content and generates only the CSS needed for those classes.
+ *
  * Accepts either:
  * 1. A string (HTML content to scan for classes)
- * 2. An array with 'content', optional 'css', and optional 'importPaths' keys
+ * 2. An array with 'content', optional 'css', optional 'importPaths', and optional 'minify' keys
  *
- * @param string|array $input HTML string or array with options
+ * @param string|array{
+ *     content: string,
+ *     css?: string,
+ *     importPaths?: string|array<string>|callable(string|null, string|null): ?string,
+ *     minify?: bool
+ * } $input HTML string or array with options:
+ *   - `content`: HTML string to extract class candidates from
+ *   - `css`: Optional CSS with @import, @theme, @utility directives
+ *   - `importPaths`: File path(s), directory, or callable resolver for imports
+ *   - `minify`: Whether to minify the output (default: false)
  * @param string $css Optional CSS with @import directives (only used if $input is string)
- * @return string Generated CSS
+ * @return string Generated CSS containing only utilities used in the content
+ *
+ * @throws \Exception When CSS parsing fails or directives are invalid
+ * @throws \RuntimeException When file imports fail or exceed recursion limit
  *
  * @example String input (includes theme + preflight + utilities):
  *   generate('<div class="flex p-4">Hello</div>');
@@ -2123,19 +2266,59 @@ function parsePluginOptionValue(string $value): mixed
 }
 
 /**
- * Tailwind facade class for cleaner API.
+ * TailwindPHP - Main facade class for CSS generation.
  *
- * Usage:
- *   use TailwindPHP\Tailwind;
- *   $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+ * This is the primary entry point for using TailwindPHP. It provides static methods
+ * for generating CSS from HTML content containing Tailwind utility classes.
+ *
+ * Basic usage:
+ * ```php
+ * use TailwindPHP\Tailwind;
+ *
+ * // Simple generation from HTML
+ * $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+ *
+ * // With custom CSS/theme
+ * $css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+ *
+ * // With file-based imports
+ * $css = Tailwind::generate([
+ *     'content' => $html,
+ *     'importPaths' => '/path/to/styles.css',
+ * ]);
+ *
+ * // With custom resolver (virtual file system, database, etc.)
+ * $css = Tailwind::generate([
+ *     'content' => $html,
+ *     'importPaths' => function ($uri, $fromFile) {
+ *         return $this->loadCssFromDatabase($uri);
+ *     },
+ * ]);
+ * ```
  */
 class Tailwind
 {
     /**
      * Generate CSS from content containing Tailwind classes.
      *
-     * @param string|array $input HTML string or array with 'content' and 'css' keys
-     * @param string $css Optional CSS (only used if $input is string)
+     * This is the main method for generating Tailwind CSS. It extracts class names
+     * from the provided content, compiles the CSS, and returns the result.
+     *
+     * @param string|array{
+     *     content: string,
+     *     css?: string,
+     *     importPaths?: string|array<string>|callable(string|null, string|null): ?string,
+     *     minify?: bool
+     * } $input HTML string, or array with configuration options:
+     *   - `content`: HTML string to extract classes from
+     *   - `css`: Optional inline CSS with @import, @theme, etc.
+     *   - `importPaths`: File path(s), directory, or callable resolver for @import
+     *   - `minify`: Whether to minify the output CSS
+     * @param string $css Optional CSS input (only used when $input is a string)
+     * @return string Generated CSS containing only the utilities used in content
+     *
+     * @throws \Exception When CSS parsing fails or invalid directives are used
+     * @throws \RuntimeException When file imports fail or exceed recursion limit
      */
     public static function generate(string|array $input, string $css = '@import "tailwindcss";'): string
     {
@@ -2143,7 +2326,30 @@ class Tailwind
     }
 
     /**
-     * Compile CSS with Tailwind utilities.
+     * Compile CSS with Tailwind utilities (advanced API).
+     *
+     * Returns a compiler result with a `build()` function that can be called
+     * multiple times with different candidate sets. Useful for watch mode or
+     * incremental compilation.
+     *
+     * @param string $css CSS input with @import, @theme, @utility directives
+     * @param array{
+     *     base?: string,
+     *     importSearchPaths?: array<string>,
+     *     importResolver?: callable(string, string): ?string,
+     *     onDependency?: callable(string): void
+     * } $options Compilation options:
+     *   - `base`: Base directory for resolving imports
+     *   - `importSearchPaths`: Additional paths to search for imports
+     *   - `importResolver`: Custom resolver for virtual imports
+     *   - `onDependency`: Callback when a dependency is detected
+     * @return array{build: callable(array<string>): string, sources: array<string>, root: array, features: int}
+     *   - `build`: Function that takes candidates and returns CSS
+     *   - `sources`: Content source patterns detected from @source directives
+     *   - `root`: Compiled AST root
+     *   - `features`: Bitmask of detected features (FEATURE_* constants)
+     *
+     * @throws \Exception When CSS parsing fails or invalid directives are used
      */
     public static function compile(string $css, array $options = []): array
     {
@@ -2152,6 +2358,12 @@ class Tailwind
 
     /**
      * Extract class name candidates from HTML content.
+     *
+     * Parses HTML and extracts potential Tailwind class names from `class`
+     * and `className` attributes.
+     *
+     * @param string $html HTML content to extract classes from
+     * @return array<string> Unique class name candidates found in the content
      */
     public static function extractCandidates(string $html): array
     {
@@ -2161,8 +2373,13 @@ class Tailwind
     /**
      * Minify CSS output.
      *
-     * Removes comments, whitespace, shortens hex colors, removes zero units,
-     * and other optimizations to reduce file size.
+     * Applies various optimizations to reduce CSS file size:
+     * - Removes comments
+     * - Collapses whitespace
+     * - Shortens hex colors (#ffffff → #fff)
+     * - Removes unnecessary units (0px → 0)
+     * - Shortens font-weight values (bold → 700)
+     * - Removes empty rules
      *
      * @param string $css The CSS to minify
      * @return string Minified CSS

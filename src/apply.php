@@ -74,7 +74,10 @@ function substituteAtApply(array &$ast, DesignSystem $designSystem): int
         }
 
         if (isset($wip[$pathKey])) {
-            throw new \Exception('Circular dependency detected in @apply');
+            // Build a readable dependency chain for the error message
+            $chain = array_merge($path, [$pathKey]);
+            $chainStr = implode(' → ', $chain);
+            throw new \Exception("Circular dependency detected in @apply: {$chainStr}");
         }
 
         $wip[$pathKey] = true;

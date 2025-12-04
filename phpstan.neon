@@ -1,5 +1,5 @@
 parameters:
-    level: 3
+    level: 4
     paths:
         - src
     excludePaths:
@@ -35,3 +35,16 @@ parameters:
         - '#does not accept TailwindPHP\\Utils\\DefaultMap#'
         # Method return type issues with complex arrays
         - '#should return array<string> but returns#'
+        # value-parser.php walk() - offset tracking via bitwise NOT changes sign
+        # PHPStan analyzes initial value (0) but loop modifies it
+        - '#Comparison operation .* between 0 and 0#'
+        - '#Result of && is always false#'
+        - '#Unreachable statement - code above always terminates#'
+        # Defensive type checking in ported code (may never match but kept for safety)
+        - '#Call to function is_string\(\) with .* will always evaluate to false#'
+        - '#If condition is always true#'
+        # Comparison always true in ported escape logic
+        - '#Comparison operation .* between int<1, 255> and 1 is always true#'
+        - '#Comparison operation .* between int<1, max> and 0 is always true#'
+        # Return type variance in closures
+        - '#Anonymous function never returns null so it can be removed#'

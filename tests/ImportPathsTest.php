@@ -627,4 +627,380 @@ class ImportPathsTest extends TestCase
         $flexCount = substr_count($css, '.flex {');
         $this->assertEquals(1, $flexCount, 'Duplicate utilities imports should be deduplicated');
     }
+
+    /**
+     * Test that circular imports are handled via deduplication.
+     *
+     * When a resolver returns content that imports itself, the deduplication
+     * mechanism detects the circular reference and returns empty content,
+     * preventing infinite loops.
+     */
+    public function test_circular_import_deduplication(): void
+    {
+        // Create a resolver that returns an import to itself
+        $css = Tailwind::generate([
+            'content' => '<div class="flex from-loop">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "loop.css";';
+                }
+                if ($uri === 'loop.css') {
+                    // Return content that imports itself - will be deduplicated
+                    return '.from-loop { color: red; } @import "loop.css";';
+                }
+
+                return null;
+            },
+        ]);
+
+        // Deduplication should prevent infinite loop
+        // The .from-loop class should appear exactly once
+        $this->assertStringContainsString('display: flex', $css);
+        $this->assertStringContainsString('.from-loop', $css);
+        // Count occurrences - should only be 1
+        $this->assertSame(1, substr_count($css, '.from-loop'));
+    }
+
+    /**
+     * Test resolver with empty string return is handled.
+     */
+    public function test_resolver_empty_string(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss";';
+                }
+
+                // Return empty string for unknown imports
+                return '';
+            },
+        ]);
+
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    /**
+     * Test deeply nested import chain (not circular, just deep).
+     */
+    public function test_deep_import_chain(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="level-1 level-2 level-3 level-4 level-5">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "level-1.css";';
+                }
+
+                return match ($uri) {
+                    'level-1.css' => '.level-1 { color: red; } @import "level-2.css";',
+                    'level-2.css' => '.level-2 { color: orange; } @import "level-3.css";',
+                    'level-3.css' => '.level-3 { color: yellow; } @import "level-4.css";',
+                    'level-4.css' => '.level-4 { color: green; } @import "level-5.css";',
+                    'level-5.css' => '.level-5 { color: blue; }',
+                    default => null,
+                };
+            },
+        ]);
+
+        // All levels should be present
+        $this->assertStringContainsString('.level-1', $css);
+        $this->assertStringContainsString('.level-2', $css);
+        $this->assertStringContainsString('.level-3', $css);
+        $this->assertStringContainsString('.level-4', $css);
+        $this->assertStringContainsString('.level-5', $css);
+    }
+
+    /**
+     * Test resolver returning @utility directives.
+     */
+    public function test_resolver_with_utility_directive(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="custom-gradient">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "custom.css";';
+                }
+                if ($uri === 'custom.css') {
+                    return '@utility custom-gradient { background: linear-gradient(to right, red, blue); }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('.custom-gradient', $css);
+        $this->assertStringContainsString('linear-gradient', $css);
+    }
+
+    /**
+     * Test import with layer() modifier via resolver.
+     */
+    public function test_import_with_layer_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="layer-test flex">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "test.css" layer(components);';
+                }
+                if ($uri === 'test.css') {
+                    return '.layer-test { color: purple; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@layer components', $css);
+        $this->assertStringContainsString('.layer-test', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    /**
+     * Test import with supports() modifier via resolver.
+     */
+    public function test_import_with_supports_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="supports-test">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "test.css" supports(display: grid);';
+                }
+                if ($uri === 'test.css') {
+                    return '.supports-test { display: grid; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('display: grid', $css);
+        $this->assertStringContainsString('.supports-test', $css);
+    }
+
+    /**
+     * Test import with media query modifier via resolver.
+     */
+    public function test_import_with_media_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="media-test">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "test.css" screen and (min-width: 768px);';
+                }
+                if ($uri === 'test.css') {
+                    return '.media-test { font-size: 1.5rem; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('min-width: 768px', $css);
+        $this->assertStringContainsString('.media-test', $css);
+    }
+
+    /**
+     * Test import with all modifiers: layer, supports, and media query.
+     */
+    public function test_import_with_all_modifiers_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="full-test">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "test.css" layer(components) supports(display: flex) screen;';
+                }
+                if ($uri === 'test.css') {
+                    return '.full-test { display: flex; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@layer components', $css);
+        $this->assertStringContainsString('@supports', $css);
+        $this->assertStringContainsString('@media screen', $css);
+        $this->assertStringContainsString('.full-test', $css);
+    }
+
+    /**
+     * Test import with anonymous layer modifier.
+     */
+    public function test_import_with_anonymous_layer_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="anon-layer-test">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "test.css" layer;';
+                }
+                if ($uri === 'test.css') {
+                    return '.anon-layer-test { color: blue; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@layer', $css);
+        $this->assertStringContainsString('.anon-layer-test', $css);
+    }
+
+    /**
+     * Test resolver with @custom-variant directive.
+     */
+    public function test_resolver_with_custom_variant(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="custom-hover:text-red-500">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "variants.css";';
+                }
+                if ($uri === 'variants.css') {
+                    return '@custom-variant custom-hover (&:hover);';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString(':hover', $css);
+        $this->assertStringContainsString('color:', $css);
+    }
+
+    /**
+     * Test that resolver returning null falls through correctly.
+     */
+    public function test_resolver_null_fallthrough(): void
+    {
+        // When resolver returns null, system should skip that import silently
+        $css = Tailwind::generate([
+            'content' => '<div class="flex">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "nonexistent.css";';
+                }
+
+                // Return null for unknown - should be skipped
+                return null;
+            },
+        ]);
+
+        // Should still work, just skip the nonexistent import
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    /**
+     * Test layer modifier with inline media via resolver.
+     *
+     * Since media query modifiers on @import aren't supported for resolver imports,
+     * combine layer() modifier with inline @media in the returned content.
+     */
+    public function test_layer_with_inline_media_via_resolver(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="layered-test">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "test.css" layer(components);';
+                }
+                if ($uri === 'test.css') {
+                    return '@media (min-width: 1024px) { .layered-test { padding: 2rem; } }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('@media', $css);
+        $this->assertStringContainsString('@layer', $css);
+        $this->assertStringContainsString('.layered-test', $css);
+    }
+
+    /**
+     * Test resolver chain with @theme directive (single nesting level).
+     *
+     * Note: @theme directives are properly processed with single-level import
+     * nesting. Deeper nesting may require the @theme to be in the same file
+     * as @import "tailwindcss" for proper processing order.
+     */
+    public function test_resolver_chain_with_theme(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="bg-primary">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    // Include both tailwindcss and theme together
+                    return '@import "tailwindcss"; @import "theme.css";';
+                }
+                if ($uri === 'theme.css') {
+                    return '@theme { --color-primary: #ff6600; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        // The theme variable should be in the CSS output
+        $this->assertStringContainsString('--color-primary', $css);
+    }
+
+    /**
+     * Test resolver with multiple utility imports.
+     */
+    public function test_resolver_multiple_utility_imports(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="btn icon flex">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "buttons.css"; @import "icons.css";';
+                }
+
+                return match ($uri) {
+                    'buttons.css' => '@utility btn { padding: 0.5rem 1rem; }',
+                    'icons.css' => '@utility icon { width: 1.5rem; height: 1.5rem; }',
+                    default => null,
+                };
+            },
+        ]);
+
+        $this->assertStringContainsString('.btn', $css);
+        $this->assertStringContainsString('.icon', $css);
+        $this->assertStringContainsString('display: flex', $css);
+    }
+
+    /**
+     * Test resolver with @apply directive.
+     */
+    public function test_resolver_with_apply(): void
+    {
+        $css = Tailwind::generate([
+            'content' => '<div class="btn">Hello</div>',
+            'importPaths' => function (?string $uri, ?string $fromFile): ?string {
+                if ($uri === null) {
+                    return '@import "tailwindcss"; @import "components.css";';
+                }
+                if ($uri === 'components.css') {
+                    return '.btn { @apply px-4 py-2 rounded bg-blue-500 text-white; }';
+                }
+
+                return null;
+            },
+        ]);
+
+        $this->assertStringContainsString('.btn', $css);
+        $this->assertStringContainsString('padding', $css);
+        $this->assertStringContainsString('border-radius', $css);
+    }
 }

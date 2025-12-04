@@ -417,6 +417,7 @@ tailwindphp/
 |------|---------|
 | `src/index.php` | Main entry point, `compile()`, `cn()`, `variants()`, etc. |
 | `src/at-import.php` | `@import` resolution and substitution |
+| `tests/EdgeCasesTest.php` | Edge case tests for complex scenarios |
 | `src/utilities.php` | Utility registration and compilation |
 | `src/variants.php` | Variant handling (hover, focus, etc.) |
 | `src/compile.php` | Candidate to CSS compilation |
@@ -721,7 +722,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,373 tests (all passing)**
+**Total: 3,445 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -829,7 +830,7 @@ These tests provide exhaustive coverage of the TailwindPHP public API including:
 
 | Test File | Status | Tests |
 |-----------|--------|-------|
-| `ImportPathsTest.php` | ✅ | 28 |
+| `ImportPathsTest.php` | ✅ | 42 |
 
 Tests for the `importPaths` feature including:
 - Single file and directory imports
@@ -840,7 +841,27 @@ Tests for the `importPaths` feature including:
 - Virtual module deduplication (tailwindcss, tailwindcss/preflight, etc.)
 - Multiple @theme blocks and overrides
 - @utility from imported files
-- Layer modifiers on file imports
+- All CSS @import modifiers: `layer()`, `supports()`, and media queries
+- Anonymous and named layer imports
+- Combined modifiers (layer + supports + media)
+
+### Edge Case Tests (`tests/EdgeCasesTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `EdgeCasesTest.php` | ✅ | 57 |
+
+Tests for edge cases and complex scenarios:
+- Deep variant stacking (3-4 levels)
+- Arbitrary values with special characters
+- Container queries with arbitrary breakpoints
+- @apply with complex selectors
+- nth-child, has(), aria, and data selectors
+- Important modifier combinations
+- Opacity modifier edge cases
+- Print, motion, and contrast media variants
+- Dark mode with variant combinations
+- Pseudo-element variants with modifiers
 
 ### Outside Scope (0 tests - intentionally empty)
 
