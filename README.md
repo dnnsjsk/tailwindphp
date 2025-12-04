@@ -322,6 +322,8 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 Minify CSS output for production:
 
 ```php
+use TailwindPHP\Tailwind;
+
 // Option 1: Minify during generation
 $css = Tailwind::generate([
     'content' => '<div class="flex p-4">Hello</div>',
