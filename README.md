@@ -17,7 +17,7 @@ A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — n
 
 TailwindCSS is written in TypeScript and requires Node.js. TailwindPHP is a complete rewrite in PHP, giving you the same functionality without the Node.js dependency.
 
-- **WordPress & PHP frameworks** — Ship Tailwind-powered plugins and themes without requiring users to install Node.js or run build tools. Just `composer require` and go.
+- **WordPress & PHP frameworks** — Ship Tailwind-powered plugins and themes without requiring users to install Node.js or run build tools. Just `composer require` and go. See [TailwindWP](https://github.com/dnnsjsk/tailwindwp) for a boilerplate WordPress block editor integration.
 - **Dynamic CSS** — Generate utility CSS at runtime based on user input, database content, or template variables.
 - **Simpler deployment** — No Node.js in your production stack, no build step in CI, no npm in your Docker image.
 
