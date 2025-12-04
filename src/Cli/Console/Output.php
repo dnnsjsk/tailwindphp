@@ -19,7 +19,7 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP\_tailwindphp\Cli\Console;
+namespace TailwindPHP\Cli\Console;
 
 /**
  * Console output with color support.

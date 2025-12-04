@@ -74,7 +74,6 @@ This includes:
 - `CssFormatter.php` - CSS output formatting
 - `CssMinifier.php` - CSS minification
 - `lib/` - Companion library ports (clsx, tailwind-merge, cva)
-- `Cli/` - CLI application (1:1 port of @tailwindcss/cli)
 
 Everything else in `src/` should mirror TailwindCSS structure.
 
@@ -343,16 +342,17 @@ tailwindphp/
 │   └── tailwindphp             # CLI entry point
 │
 ├── src/
+│   ├── Cli/                    # CLI (1:1 port of @tailwindcss/cli)
+│   │   ├── Application.php     # Main CLI application
+│   │   └── Console/            # Input/Output handling
+│   │       ├── Input.php
+│   │       └── Output.php
+│   │
 │   ├── _tailwindphp/           # PHP-specific (NOT part of port)
 │   │   ├── LightningCss.php    # CSS transformations
 │   │   ├── CandidateParser.php
 │   │   ├── CssFormatter.php
 │   │   ├── CssMinifier.php     # CSS minification
-│   │   ├── Cli/                # CLI (1:1 port of @tailwindcss/cli)
-│   │   │   ├── Application.php # Main CLI application
-│   │   │   └── Console/        # Input/Output handling
-│   │   │       ├── Input.php
-│   │   │       └── Output.php
 │   │   └── lib/                # Companion library ports
 │   │       ├── clsx/           # clsx port (27 tests)
 │   │       │   ├── clsx.php

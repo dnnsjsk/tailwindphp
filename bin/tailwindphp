@@ -41,7 +41,7 @@ if (!$autoloaderFound) {
 }
 
 // Run the CLI application
-$app = new TailwindPHP\_tailwindphp\Cli\Application();
+$app = new TailwindPHP\Cli\Application();
 $exitCode = $app->run();
 
 exit($exitCode);

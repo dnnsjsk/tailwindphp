@@ -6,9 +6,9 @@ namespace TailwindPHP\Tests;
 
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use TailwindPHP\_tailwindphp\Cli\Application;
-use TailwindPHP\_tailwindphp\Cli\Console\Input;
-use TailwindPHP\_tailwindphp\Cli\Console\Output;
+use TailwindPHP\Cli\Application;
+use TailwindPHP\Cli\Console\Input;
+use TailwindPHP\Cli\Console\Output;
 
 /**
  * Tests for the CLI application.

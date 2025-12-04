@@ -22,10 +22,10 @@
 
 declare(strict_types=1);
 
-namespace TailwindPHP\_tailwindphp\Cli;
+namespace TailwindPHP\Cli;
 
-use TailwindPHP\_tailwindphp\Cli\Console\Input;
-use TailwindPHP\_tailwindphp\Cli\Console\Output;
+use TailwindPHP\Cli\Console\Input;
+use TailwindPHP\Cli\Console\Output;
 use TailwindPHP\Tailwind;
 
 /**
