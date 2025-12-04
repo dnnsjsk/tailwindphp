@@ -750,7 +750,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,507 tests (all passing)**
+**Total: 3,808 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -853,6 +853,27 @@ These tests provide exhaustive coverage of the TailwindPHP public API including:
 | `prefix.test.php` | ✅ | 9 |
 | `expand_declaration.test.php` | ✅ | 4 |
 | `important.test.php` | ✅ | 4 |
+
+### PHP-Specific Unit Tests
+
+Tests for PHP-specific implementations and helpers (not direct TypeScript ports):
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `_tailwindphp/LightningCss.test.php` | ✅ | 64 |
+| `theme_unit.test.php` | ✅ | 46 |
+| `utils/infer_data_type.test.php` | ✅ | 45 |
+| `utils/is_color.test.php` | ✅ | 33 |
+| `utils/math_operators.test.php` | ✅ | 22 |
+| `_tailwindphp/CandidateParser.test.php` | ✅ | 19 |
+| `utils/is_valid_arbitrary.test.php` | ✅ | 17 |
+| `property_order.test.php` | ✅ | 15 |
+| `design_system.test.php` | ✅ | 14 |
+| `_tailwindphp/CssFormatter.test.php` | ✅ | 13 |
+| `utils/dimensions.test.php` | ✅ | 10 |
+| `utils/default_map.test.php` | ✅ | 12 |
+| `utils/compare_breakpoints.test.php` | ✅ | 9 |
+| `utils/topological_sort.test.php` | ✅ | 9 |
 
 ### Import Path Tests (`tests/ImportPathsTest.php`)
 

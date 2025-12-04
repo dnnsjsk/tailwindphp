@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,508%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,808%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -27,7 +27,7 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
 
 - **[clsx](https://github.com/lukeed/clsx)** — Conditionally construct class strings (`cn('btn', isActive && 'btn-active')`)
 - **[tailwind-merge](https://github.com/dcastil/tailwind-merge)** — Intelligently merge classes without conflicts (`merge('p-2', 'p-4')` → `'p-4'`)
-- **[CVA](https://github.com/joe-bell/cva)** — Create component variants with type-safe props (`variants({ size: { sm, md, lg } })`)
+- **[CVA](https://github.com/joe-bell/cva)** — Create component variants declaratively (`variants(['size' => ['sm', 'md', 'lg']])`)
 
 ## Table of Contents
 
@@ -89,12 +89,13 @@ $css = Tailwind::generate([
 
 ## Status
 
-✅ **3,508 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,808 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
 | API Coverage (utilities, modifiers, variants, directives, plugins) | 1,774 | ✅ |
+| PHP-specific unit tests (theme, design-system, utils, helpers) | 301 | ✅ |
 | Import functionality | 42 | ✅ |
 | Edge cases | 57 | ✅ |
 | CSS Minifier | 17 | ✅ |
