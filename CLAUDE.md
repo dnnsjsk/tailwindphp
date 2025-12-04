@@ -739,7 +739,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,482 tests (all passing)**
+**Total: 3,508 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -915,6 +915,21 @@ Tests for file-based caching:
 - clearCache() function and Tailwind::clearCache() static method
 - Cache directory auto-creation
 
+### CLI Tests (`tests/CliTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `CliTest.php` | ✅ | 26 |
+
+Tests for command-line interface:
+- Input argument and option parsing
+- Short and long option formats
+- Build command with various options
+- Init command and config file generation
+- Watch command setup
+- Cache clear command
+- Application help and version output
+
 ### Outside Scope (0 tests - intentionally empty)
 
 These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (JS runtime, IDE tooling):
@@ -954,6 +969,7 @@ Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.t
 - ✅ Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`)
 - ✅ Invalid `theme()` candidates filtered out
 - ✅ File-based caching with TTL support
+- ✅ CLI with build, watch, init, and cache:clear commands
 
 ### Port Deviation Markers
 

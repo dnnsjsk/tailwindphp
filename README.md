@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,482%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,508%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -35,6 +35,7 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
 - [Scope](#scope)
 - [Status](#status)
 - [Installation](#installation)
+- [CLI](#cli)
 - [Usage](#usage)
   - [Importing CSS Files](#importing-css-files)
   - [Preflight](#preflight)
@@ -88,7 +89,7 @@ $css = Tailwind::generate([
 
 ## Status
 
-✅ **3,482 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,508 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -103,6 +104,7 @@ $css = Tailwind::generate([
 | CVA (from reference test suite) | 50 | ✅ |
 | tw-animate-css | 23 | ✅ |
 | Cache | 14 | ✅ |
+| CLI | 26 | ✅ |
 
 ### Performance
 
@@ -119,6 +121,110 @@ See [benchmarks/](benchmarks/) for detailed comparison.
 
 ```bash
 composer require dnnsjsk/tailwindphp
+```
+
+## CLI
+
+TailwindPHP includes a command-line interface for building CSS from template files.
+
+### Quick Start
+
+```bash
+# Initialize a config file
+./vendor/bin/tailwindphp init
+
+# Build CSS from templates
+./vendor/bin/tailwindphp build -c "./templates/**/*.php" -o "./dist/styles.css"
+
+# Watch for changes
+./vendor/bin/tailwindphp watch -c "./templates" -o "./dist/styles.css"
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `build` | Build CSS from content files |
+| `watch` | Watch for changes and rebuild |
+| `init` | Create a tailwind.config.php file |
+| `cache:clear` | Clear the CSS cache |
+
+### Build Command
+
+```bash
+tailwindphp build [options]
+
+Options:
+  -c, --content=PATH    Content files to scan (glob pattern or directory)
+  -i, --input=FILE      Input CSS file with @import directives
+  -o, --output=FILE     Output CSS file (default: stdout)
+  -m, --minify          Minify output CSS
+  --cache[=DIR]         Enable caching
+  --no-cache            Disable caching
+  --config=FILE         Config file (default: tailwind.config.php)
+```
+
+**Examples:**
+
+```bash
+# Build from PHP templates
+tailwindphp build -c "./templates/**/*.php" -o "./dist/styles.css"
+
+# Build with custom CSS input
+tailwindphp build -c "./src" -i "./css/app.css" -o "./dist/app.css"
+
+# Build minified with caching
+tailwindphp build -c "./templates" -o "./dist/styles.css" --minify --cache
+```
+
+### Watch Command
+
+```bash
+tailwindphp watch [options]
+
+Options:
+  -c, --content=PATH    Content files to watch
+  -i, --input=FILE      Input CSS file
+  -o, --output=FILE     Output CSS file (required)
+  -m, --minify          Minify output
+  --poll=MS             Polling interval in milliseconds (default: 500)
+```
+
+### Config File
+
+Run `tailwindphp init` to create a `tailwind.config.php`:
+
+```php
+<?php
+
+return [
+    'content' => [
+        './templates/**/*.php',
+        './views/**/*.blade.php',
+    ],
+    'css' => './src/app.css',    // Optional input CSS
+    'output' => './dist/styles.css',
+    'minify' => false,
+    'cache' => true,
+];
+```
+
+With a config file, just run:
+
+```bash
+tailwindphp build
+tailwindphp watch
+```
+
+### Global Installation
+
+Install globally to use `tailwindphp` from anywhere:
+
+```bash
+composer global require dnnsjsk/tailwindphp
+
+# Now available globally
+tailwindphp build -c "./templates" -o "./dist/styles.css"
 ```
 
 ## Usage

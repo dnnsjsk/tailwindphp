@@ -11,6 +11,9 @@
         "php"
     ],
     "homepage": "https://github.com/dnnsjsk/tailwindphp",
+    "bin": [
+        "bin/tailwindphp"
+    ],
     "support": {
         "issues": "https://github.com/dnnsjsk/tailwindphp/issues",
         "source": "https://github.com/dnnsjsk/tailwindphp"
