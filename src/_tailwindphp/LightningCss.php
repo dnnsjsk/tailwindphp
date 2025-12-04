@@ -549,7 +549,7 @@ class LightningCss
                     // e.g., ".parent" + "h1, h2, h3" -> ".parent h1, .parent h2, .parent h3"
                     // Must split on top-level commas only (not inside :where(), :not(), etc.)
                     $selectors = self::splitSelectorList($selector);
-                    $selectors = array_map(fn($s) => $parentSelector . ' ' . trim($s), $selectors);
+                    $selectors = array_map(fn ($s) => $parentSelector . ' ' . trim($s), $selectors);
                     $selector = implode(', ', $selectors);
                 }
             }
