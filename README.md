@@ -125,95 +125,64 @@ composer require dnnsjsk/tailwindphp
 
 ## CLI
 
-TailwindPHP includes a command-line interface for building CSS from template files.
+TailwindPHP includes a command-line interface that is a **1:1 port of [@tailwindcss/cli](https://github.com/tailwindlabs/tailwindcss/tree/next/packages/%40tailwindcss-cli)** - same options, same behavior, no Node.js required.
 
 ### Quick Start
 
 ```bash
-# Initialize a config file
-./vendor/bin/tailwindphp init
-
-# Build CSS from templates
-./vendor/bin/tailwindphp build -c "./templates/**/*.php" -o "./dist/styles.css"
+# Build CSS from an input file
+./vendor/bin/tailwindphp -i ./src/app.css -o ./dist/styles.css
 
 # Watch for changes
-./vendor/bin/tailwindphp watch -c "./templates" -o "./dist/styles.css"
+./vendor/bin/tailwindphp -i ./src/app.css -o ./dist/styles.css --watch
+
+# Build minified
+./vendor/bin/tailwindphp -i ./src/app.css -o ./dist/styles.css --minify
 ```
 
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `build` | Build CSS from content files |
-| `watch` | Watch for changes and rebuild |
-| `init` | Create a tailwind.config.php file |
-| `cache:clear` | Clear the CSS cache |
-
-### Build Command
+### Options
 
 ```bash
-tailwindphp build [options]
+tailwindphp [--input input.css] [--output output.css] [--watch] [options]
 
 Options:
-  -c, --content=PATH    Content files to scan (glob pattern or directory)
-  -i, --input=FILE      Input CSS file with @import directives
-  -o, --output=FILE     Output CSS file (default: stdout)
-  -m, --minify          Minify output CSS
-  --cache[=DIR]         Enable caching
-  --no-cache            Disable caching
-  --config=FILE         Config file (default: tailwind.config.php)
+  -i, --input     Input CSS file (default: @import "tailwindcss")
+  -o, --output    Output file (default: stdout)
+  -w, --watch     Watch for changes and rebuild as needed
+  -m, --minify    Optimize and minify the output
+      --optimize  Optimize the output without minifying
+      --cwd       The current working directory (default: .)
+  -h, --help      Display usage information
 ```
 
-**Examples:**
+### Input CSS
+
+Create an `app.css` file with your Tailwind imports and `@source` directive:
+
+```css
+@import "tailwindcss";
+@source "./templates";  /* Directory to scan for classes */
+```
+
+The `@source` directive tells TailwindPHP where to find your template files. It supports:
+- Directories: `@source "./templates";`
+- Glob patterns: `@source "./src/**/*.php";`
+- Multiple sources: Add multiple `@source` directives
+
+### Examples
 
 ```bash
-# Build from PHP templates
-tailwindphp build -c "./templates/**/*.php" -o "./dist/styles.css"
+# Build from CSS with @source directive
+tailwindphp -i ./src/app.css -o ./dist/styles.css
 
-# Build with custom CSS input
-tailwindphp build -c "./src" -i "./css/app.css" -o "./dist/app.css"
+# Build minified for production
+tailwindphp -i ./src/app.css -o ./dist/styles.css -m
 
-# Build minified with caching
-tailwindphp build -c "./templates" -o "./dist/styles.css" --minify --cache
-```
+# Watch mode with minification
+tailwindphp -i ./src/app.css -o ./dist/styles.css -w -m
 
-### Watch Command
-
-```bash
-tailwindphp watch [options]
-
-Options:
-  -c, --content=PATH    Content files to watch
-  -i, --input=FILE      Input CSS file
-  -o, --output=FILE     Output CSS file (required)
-  -m, --minify          Minify output
-  --poll=MS             Polling interval in milliseconds (default: 500)
-```
-
-### Config File
-
-Run `tailwindphp init` to create a `tailwind.config.php`:
-
-```php
-<?php
-
-return [
-    'content' => [
-        './templates/**/*.php',
-        './views/**/*.blade.php',
-    ],
-    'css' => './src/app.css',    // Optional input CSS
-    'output' => './dist/styles.css',
-    'minify' => false,
-    'cache' => true,
-];
-```
-
-With a config file, just run:
-
-```bash
-tailwindphp build
-tailwindphp watch
+# Use a different working directory
+tailwindphp -i app.css -o dist/styles.css --cwd=/path/to/project
 ```
 
 ### Global Installation
@@ -224,7 +193,7 @@ Install globally to use `tailwindphp` from anywhere:
 composer global require dnnsjsk/tailwindphp
 
 # Now available globally
-tailwindphp build -c "./templates" -o "./dist/styles.css"
+tailwindphp -i ./src/app.css -o ./dist/styles.css
 ```
 
 ## Usage

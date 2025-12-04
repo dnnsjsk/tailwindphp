@@ -1,8 +1,25 @@
 <?php
 
+/**
+ * CLI Output Handler.
+ *
+ * Port of: @tailwindcss/cli terminal output
+ *
+ * This provides terminal output with ANSI color support similar to how
+ * the original @tailwindcss/cli handles console output.
+ *
+ * Original: https://github.com/tailwindlabs/tailwindcss/tree/next/packages/%40tailwindcss-cli
+ * License: MIT (https://github.com/tailwindlabs/tailwindcss/blob/next/LICENSE)
+ *
+ * @port-deviation:replacement The original uses picocolors for terminal colors.
+ * PHP implementation provides equivalent ANSI escape sequences directly.
+ *
+ * @credits Tailwind Labs (https://tailwindcss.com)
+ */
+
 declare(strict_types=1);
 
-namespace TailwindPHP\Cli\Console;
+namespace TailwindPHP\_tailwindphp\Cli\Console;
 
 /**
  * Console output with color support.

@@ -1,8 +1,25 @@
 <?php
 
+/**
+ * CLI Input Handler.
+ *
+ * Port of: @tailwindcss/cli argument parsing
+ *
+ * This provides command-line argument parsing similar to how the
+ * original @tailwindcss/cli handles options via Commander.js.
+ *
+ * Original: https://github.com/tailwindlabs/tailwindcss/tree/next/packages/%40tailwindcss-cli
+ * License: MIT (https://github.com/tailwindlabs/tailwindcss/blob/next/LICENSE)
+ *
+ * @port-deviation:replacement The original uses Commander.js for argument parsing.
+ * PHP implementation parses argv directly with equivalent behavior.
+ *
+ * @credits Tailwind Labs (https://tailwindcss.com)
+ */
+
 declare(strict_types=1);
 
-namespace TailwindPHP\Cli\Console;
+namespace TailwindPHP\_tailwindphp\Cli\Console;
 
 /**
  * Parse and access command line arguments.

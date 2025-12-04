@@ -72,7 +72,9 @@ This includes:
 - `LightningCss.php` - CSS optimizations (lightningcss equivalent)
 - `CandidateParser.php` - Candidate parsing helpers
 - `CssFormatter.php` - CSS output formatting
-- `lib/` - Companion library ports (clsx, tailwind-merge)
+- `CssMinifier.php` - CSS minification
+- `lib/` - Companion library ports (clsx, tailwind-merge, cva)
+- `Cli/` - CLI application (1:1 port of @tailwindcss/cli)
 
 Everything else in `src/` should mirror TailwindCSS structure.
 
@@ -337,18 +339,27 @@ git add -A && git commit -m "message" && git push
 
 ```
 tailwindphp/
+├── bin/
+│   └── tailwindphp             # CLI entry point
+│
 ├── src/
 │   ├── _tailwindphp/           # PHP-specific (NOT part of port)
 │   │   ├── LightningCss.php    # CSS transformations
 │   │   ├── CandidateParser.php
 │   │   ├── CssFormatter.php
+│   │   ├── CssMinifier.php     # CSS minification
+│   │   ├── Cli/                # CLI (1:1 port of @tailwindcss/cli)
+│   │   │   ├── Application.php # Main CLI application
+│   │   │   └── Console/        # Input/Output handling
+│   │   │       ├── Input.php
+│   │   │       └── Output.php
 │   │   └── lib/                # Companion library ports
 │   │       ├── clsx/           # clsx port (27 tests)
 │   │       │   ├── clsx.php
 │   │       │   └── clsx.test.php
 │   │       ├── tailwind-merge/ # tailwind-merge port (52 tests)
 │   │       │   ├── index.php   # Main entry, cn(), twMerge(), twJoin()
-│   │       │   ├── config.php  # Default Tailwind v4 config
+│   │       │   ├── default-config.php  # tailwind-merge class group config
 │   │       │   ├── merger.php  # ClassNameMerger logic
 │   │       │   ├── lru-cache.php
 │   │       │   └── tailwind_merge.test.php
@@ -739,7 +750,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,508 tests (all passing)**
+**Total: 3,507 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -919,15 +930,16 @@ Tests for file-based caching:
 
 | Test File | Status | Tests |
 |-----------|--------|-------|
-| `CliTest.php` | ✅ | 26 |
+| `CliTest.php` | ✅ | 25 |
 
-Tests for command-line interface:
-- Input argument and option parsing
+Tests for the CLI application (1:1 port of @tailwindcss/cli):
+- Input argument and option parsing (-i, -o, -w, -m, --cwd, etc.)
 - Short and long option formats
-- Build command with various options
-- Init command and config file generation
-- Watch command setup
-- Cache clear command
+- Build with input/output files
+- @source directive for content scanning
+- Minify and optimize options
+- Output directory creation
+- Error handling (missing files, invalid paths)
 - Application help and version output
 
 ### Outside Scope (0 tests - intentionally empty)
@@ -969,7 +981,7 @@ Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.t
 - ✅ Built-in plugins (`@tailwindcss/typography`, `@tailwindcss/forms`)
 - ✅ Invalid `theme()` candidates filtered out
 - ✅ File-based caching with TTL support
-- ✅ CLI with build, watch, init, and cache:clear commands
+- ✅ CLI (1:1 port of @tailwindcss/cli with -i, -o, -w, -m, --optimize, --cwd options)
 
 ### Port Deviation Markers
 

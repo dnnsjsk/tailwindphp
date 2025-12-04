@@ -6,13 +6,13 @@
  *
  * Generate Tailwind CSS with PHP - no Node.js required.
  *
+ * A 1:1 port of @tailwindcss/cli - same options, same behavior.
+ *
  * Usage:
- *   tailwindphp build -c "./templates" -o "./dist/styles.css"
- *   tailwindphp watch -c "./templates" -o "./dist/styles.css"
- *   tailwindphp init
- *   tailwindphp cache:clear
+ *   tailwindphp [--input input.css] [--output output.css] [--watch] [options]
  *
  * @see https://github.com/dnnsjsk/tailwindphp
+ * @credits Tailwind Labs (https://tailwindcss.com) for the original @tailwindcss/cli
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ if (!$autoloaderFound) {
 }
 
 // Run the CLI application
-$app = new TailwindPHP\Cli\Application();
+$app = new TailwindPHP\_tailwindphp\Cli\Application();
 $exitCode = $app->run();
 
 exit($exitCode);
