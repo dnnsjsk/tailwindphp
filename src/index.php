@@ -2513,6 +2513,16 @@ class Tailwind
     }
 }
 
+/**
+ * Short alias for the Tailwind class.
+ *
+ * Provides a more concise API: `tw::generate()` instead of `Tailwind::generate()`.
+ * All methods are identical to the Tailwind class.
+ *
+ * @see Tailwind
+ */
+class_alias(Tailwind::class, 'TailwindPHP\\tw');
+
 // =============================================================================
 // Class Name Utilities
 // =============================================================================

@@ -180,7 +180,7 @@ class MyPlugin implements PluginInterface
 
 // Register and use
 registerPlugin(new MyPlugin());
-$css = Tailwind::generate($html, '@plugin "my-plugin"; @import "tailwindcss/utilities.css";');
+$css = tw::generate($html, '@plugin "my-plugin"; @import "tailwindcss/utilities.css";');
 ```
 
 ### 7. Performance Optimizations
@@ -454,22 +454,22 @@ tailwindphp/
 ### Core CSS Compilation
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 
 // Generate CSS from HTML
-$css = Tailwind::generate('<div class="flex p-4">');
+$css = tw::generate('<div class="flex p-4">');
 
 // With custom CSS input
-$css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+$css = tw::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // With file-based imports
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4 btn">',
     'importPaths' => '/path/to/styles.css',
 ]);
 
 // With multiple import paths (files and directories)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => $html,
     'importPaths' => [
         '/path/to/base.css',
@@ -478,14 +478,14 @@ $css = Tailwind::generate([
 ]);
 
 // Combine inline CSS with file imports
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => $html,
     'css' => '.custom { color: red; }',
     'importPaths' => '/path/to/styles.css',
 ]);
 
 // Custom resolver (for virtual file systems, databases, etc.)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => $html,
     'importPaths' => function (?string $uri, ?string $fromFile): ?string {
         if ($uri === null) return '@import "tailwindcss";';
@@ -495,34 +495,34 @@ $css = Tailwind::generate([
 ]);
 
 // Extract class candidates from content
-$classes = Tailwind::extractCandidates('<div class="flex p-4">');
+$classes = tw::extractCandidates('<div class="flex p-4">');
 
 // Minify during generation
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">',
     'minify' => true,
 ]);
 
 // Or minify separately
-$css = Tailwind::generate('<div class="flex p-4">');
-$minified = Tailwind::minify($css);
+$css = tw::generate('<div class="flex p-4">');
+$minified = tw::minify($css);
 
 // Enable caching (default temp directory)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">',
     'cache' => true,
 ]);
 
 // Cache to custom directory with TTL
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">',
     'cache' => '/path/to/cache',
     'cacheTtl' => 3600, // 1 hour
 ]);
 
 // Clear cache
-Tailwind::clearCache(); // Default directory
-Tailwind::clearCache('/path/to/cache'); // Custom directory
+tw::clearCache(); // Default directory
+tw::clearCache('/path/to/cache'); // Custom directory
 ```
 
 ### Class Name Utilities
@@ -944,7 +944,7 @@ Tests for file-based caching:
 - Cache to default and custom directories
 - Cache key generation from content, CSS, and minify option
 - Cache TTL (time-to-live) expiration
-- clearCache() function and Tailwind::clearCache() static method
+- clearCache() function and tw::clearCache() static method
 - Cache directory auto-creation
 
 ### CLI Tests (`tests/CliTest.php`)

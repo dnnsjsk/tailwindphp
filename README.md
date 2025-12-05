@@ -68,10 +68,10 @@ TailwindPHP provides full CSS compilation with support for both inline CSS and f
 
 ```php
 // Inline CSS with Tailwind directives
-$css = Tailwind::generate('<div class="bg-brand p-4">', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+$css = tw::generate('<div class="bg-brand p-4">', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // File-based imports
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="bg-brand p-4">',
     'importPaths' => '/path/to/styles.css',
 ]);
@@ -206,10 +206,10 @@ tailwindphp -i ./src/app.css -o ./dist/styles.css
 The simplest way to use TailwindPHP is with the `generate()` function:
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 
 // Generate CSS from HTML containing Tailwind classes
-$css = Tailwind::generate('<div class="flex items-center p-4 bg-blue-500">Hello</div>');
+$css = tw::generate('<div class="flex items-center p-4 bg-blue-500">Hello</div>');
 ```
 
 This parses the HTML, extracts class names, and generates only the CSS needed.
@@ -220,10 +220,10 @@ You can pass configuration as either a second parameter or an array:
 
 ```php
 // Option 1: String as second parameter
-$css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+$css = tw::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // Option 2: Array with 'content' and 'css' keys
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4 bg-brand">Hello</div>',
     'css' => '
         @import "tailwindcss";
@@ -246,19 +246,19 @@ Use `importPaths` to load CSS from the filesystem with full `@import` resolution
 
 ```php
 // Single file
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex btn">Hello</div>',
     'importPaths' => '/path/to/styles.css',
 ]);
 
 // Directory (loads all .css files alphabetically)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex btn">Hello</div>',
     'importPaths' => '/path/to/css/',
 ]);
 
 // Multiple paths
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex btn card">Hello</div>',
     'importPaths' => [
         '/path/to/base.css',
@@ -267,7 +267,7 @@ $css = Tailwind::generate([
 ]);
 
 // Combine with inline CSS
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex btn custom">Hello</div>',
     'css' => '.custom { color: red; }',
     'importPaths' => '/path/to/styles.css',
@@ -292,7 +292,7 @@ $css = Tailwind::generate([
 **Custom resolver:** For advanced use cases (virtual file systems, databases), provide a callable:
 
 ```php
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex virtual-class">Hello</div>',
     'importPaths' => function (?string $uri, ?string $fromFile): ?string {
         if ($uri === null) {
@@ -324,7 +324,7 @@ For full details on what Preflight does and why, see the [official Tailwind Pref
 
 ```php
 // Full import (includes theme + preflight + utilities)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'css' => '@import "tailwindcss";',
 ]);
@@ -335,7 +335,7 @@ $css = Tailwind::generate([
 Add your own base styles on top of Preflight using `@layer base`:
 
 ```php
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<article><h1>Title</h1><p>Content</p></article>',
     'css' => '
         @import "tailwindcss";
@@ -364,7 +364,7 @@ By default, `@import "tailwindcss"` is equivalent to:
 To skip Preflight, simply omit its import:
 
 ```php
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'css' => '
         @layer theme, base, components, utilities;
@@ -395,9 +395,9 @@ When importing Tailwind's files individually, modifiers like `prefix()`, `theme(
 If you need to extract Tailwind class names from content separately:
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 
-$classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
+$classes = tw::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
 // ['flex', 'p-4', 'bg-blue-500']
 ```
 
@@ -406,17 +406,17 @@ $classes = Tailwind::extractCandidates('<div class="flex p-4" className="bg-blue
 Minify CSS output for production:
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 
 // Option 1: Minify during generation
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'minify' => true,
 ]);
 
 // Option 2: Minify separately
-$css = Tailwind::generate('<div class="flex p-4">Hello</div>');
-$minified = Tailwind::minify($css);
+$css = tw::generate('<div class="flex p-4">Hello</div>');
+$minified = tw::minify($css);
 ```
 
 The minifier removes comments, collapses whitespace, shortens hex colors (`#ffffff` to `#fff`), removes units from zero values (`0px` to `0`), and other optimizations.
@@ -426,22 +426,22 @@ The minifier removes comments, collapses whitespace, shortens hex colors (`#ffff
 Enable file-based caching to avoid recompiling identical content:
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 
 // Cache to default directory (sys_get_temp_dir()/tailwindphp)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'cache' => true,
 ]);
 
 // Cache to custom directory
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'cache' => '/path/to/cache',
 ]);
 
 // With TTL (time-to-live in seconds)
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<div class="flex p-4">Hello</div>',
     'cache' => true,
     'cacheTtl' => 3600, // Expire after 1 hour
@@ -453,14 +453,14 @@ The cache key is computed from the content, CSS configuration, and minify option
 **Clear the cache:**
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 use function TailwindPHP\clearCache;
 
 // Clear default cache
-Tailwind::clearCache();
+tw::clearCache();
 
 // Clear custom cache directory
-Tailwind::clearCache('/path/to/cache');
+tw::clearCache('/path/to/cache');
 
 // Or use the function
 clearCache('/path/to/cache');
@@ -624,7 +624,7 @@ TailwindPHP includes PHP ports of official TailwindCSS plugins. These are 1:1 po
 Use the `@plugin` directive in your CSS:
 
 ```php
-$css = Tailwind::generate([
+$css = tw::generate([
     'content' => '<article class="prose prose-lg"><h1>Hello</h1><p>Content here</p></article>',
     'css' => '
         @plugin "@tailwindcss/typography";
@@ -661,7 +661,7 @@ Generates the `.prose` class with beautiful typographic defaults:
 
 ```php
 // Basic usage
-$css = Tailwind::generate('<div class="prose">...</div>', '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
+$css = tw::generate('<div class="prose">...</div>', '@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
 
 // Available classes: prose, prose-sm, prose-lg, prose-xl, prose-2xl
 // Modifiers: prose-invert (dark mode), prose-slate, prose-gray, etc.
@@ -673,7 +673,7 @@ Provides form element utilities:
 
 ```php
 // Class strategy - explicit form classes
-$css = Tailwind::generate(
+$css = tw::generate(
     '<input class="form-input" /><select class="form-select">...</select>',
     '@plugin "@tailwindcss/forms" { strategy: "class"; } @import "tailwindcss/utilities.css";'
 );
@@ -749,14 +749,14 @@ class MyCustomPlugin implements PluginInterface
 Register and use your plugin:
 
 ```php
-use TailwindPHP\Tailwind;
+use TailwindPHP\tw;
 use function TailwindPHP\registerPlugin;
 
 // Register the plugin
 registerPlugin(new MyCustomPlugin());
 
 // Use it in CSS
-$css = Tailwind::generate(
+$css = tw::generate(
     '<div class="btn btn-primary card tab-4">...</div>',
     '@plugin "my-custom-plugin"; @import "tailwindcss/utilities.css";'
 );
