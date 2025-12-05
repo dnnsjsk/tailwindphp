@@ -534,16 +534,13 @@ Get raw CSS properties for a class (unresolved CSS variables).
 ```php
 use TailwindPHP\tw;
 
-// Static method - single class
+// Single class
 tw::properties('p-4');
 // ['padding' => 'calc(var(--spacing) * 4)']
 
-// Static method - multiple classes
+// Multiple classes
 tw::properties('flex items-center p-4');
 // ['display' => 'flex', 'align-items' => 'center', 'padding' => 'calc(var(--spacing) * 4)']
-
-// With custom CSS
-tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // From compiler instance
 $compiler = tw::compile();

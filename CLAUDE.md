@@ -571,9 +571,6 @@ tw::computedProperties('text-blue-500');
 tw::value('p-4');           // 'calc(var(--spacing) * 4)'
 tw::computedValue('p-4');   // '1rem'
 
-// With custom CSS
-tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
-
 // From compiler instance
 $compiler = tw::compile();
 $compiler->properties('p-4');
