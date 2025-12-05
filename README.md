@@ -519,11 +519,12 @@ $compiler = tw::compile();
 // Create compiler with custom CSS
 $compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
-// Generate CSS from the compiler
-$css = $compiler->css('<div class="flex p-4 bg-brand">');
+// Extract candidates and generate CSS
+$candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
+$css = $compiler->css($candidates);
 
-// Minified output
-$minified = $compiler->css('<div class="flex p-4">', minify: true);
+// Or minify the output
+$minified = $compiler->minify($css);
 ```
 
 ### `tw::properties()`
@@ -575,43 +576,43 @@ $compiler->computedProperties('p-4');
 
 ### `tw::value()`
 
-Get raw value for a single CSS property (unresolved).
+Get raw value for a utility class (unresolved).
 
 ```php
 use TailwindPHP\tw;
 
 // Static method
-tw::value('p-4', 'padding');
+tw::value('p-4');
 // 'calc(var(--spacing) * 4)'
 
-tw::value('text-blue-500', 'color');
+tw::value('text-blue-500');
 // 'var(--color-blue-500)'
 
 // From compiler instance
 $compiler = tw::compile();
-$compiler->value('p-4', 'padding');
+$compiler->value('p-4');
 ```
 
 ### `tw::computedValue()`
 
-Get computed value for a single CSS property (resolved).
+Get computed value for a utility class (resolved).
 
 ```php
 use TailwindPHP\tw;
 
 // Static method
-tw::computedValue('p-4', 'padding');
+tw::computedValue('p-4');
 // '1rem'
 
-tw::computedValue('text-blue-500', 'color');
+tw::computedValue('text-blue-500');
 // 'oklch(.546 .245 262.881)'
 
-tw::computedValue('gap-4', 'gap');
+tw::computedValue('gap-4');
 // '1rem'
 
 // From compiler instance
 $compiler = tw::compile();
-$compiler->computedValue('p-4', 'padding');
+$compiler->computedValue('p-4');
 // '1rem'
 ```
 
@@ -677,16 +678,16 @@ When using `tw::compile()`, the returned compiler provides instance methods:
 $compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // Generate CSS
-$compiler->css('<div class="flex p-4 bg-brand">');
-$compiler->css('<div class="flex">', minify: true);
+$candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
+$css = $compiler->css($candidates);
 
 // Get properties
 $compiler->properties('p-4');           // Raw: ['padding' => 'calc(var(--spacing) * 4)']
 $compiler->computedProperties('p-4');   // Computed: ['padding' => '1rem']
 
 // Get single values
-$compiler->value('p-4', 'padding');           // Raw: 'calc(var(--spacing) * 4)'
-$compiler->computedValue('p-4', 'padding');   // Computed: '1rem'
+$compiler->value('p-4');           // Raw: 'calc(var(--spacing) * 4)'
+$compiler->computedValue('p-4');   // Computed: '1rem'
 ```
 
 ---

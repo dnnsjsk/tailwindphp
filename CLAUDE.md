@@ -538,11 +538,12 @@ $compiler = tw::compile();
 // Create compiler with custom CSS
 $compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
-// Generate CSS from the compiler
-$css = $compiler->css('<div class="flex p-4 bg-brand">');
+// Extract candidates and generate CSS
+$candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
+$css = $compiler->css($candidates);
 
-// Minified output
-$minified = $compiler->css('<div class="flex p-4">', minify: true);
+// Or minify the output
+$minified = $compiler->minify($css);
 ```
 
 ### CSS Property Inspection
@@ -567,8 +568,8 @@ tw::computedProperties('text-blue-500');
 // ['color' => 'oklch(.546 .245 262.881)']
 
 // Single value extraction
-tw::value('p-4', 'padding');           // 'calc(var(--spacing) * 4)'
-tw::computedValue('p-4', 'padding');   // '1rem'
+tw::value('p-4');           // 'calc(var(--spacing) * 4)'
+tw::computedValue('p-4');   // '1rem'
 
 // With custom CSS
 tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
@@ -577,8 +578,8 @@ tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82
 $compiler = tw::compile();
 $compiler->properties('p-4');
 $compiler->computedProperties('p-4');
-$compiler->value('p-4', 'padding');
-$compiler->computedValue('p-4', 'padding');
+$compiler->value('p-4');
+$compiler->computedValue('p-4');
 ```
 
 ### Input Formats
