@@ -523,9 +523,8 @@ $compiler = tw::compile();
 // Create compiler with custom CSS
 $compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
-// Extract candidates and generate CSS
-$candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
-$css = $compiler->css($candidates);
+// Generate CSS
+$css = $compiler->generate('<div class="flex p-4 bg-brand">');
 
 // Or minify the output
 $minified = $compiler->minify($css);
