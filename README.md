@@ -693,8 +693,10 @@ When using `tw::compile()`, the returned compiler provides instance methods:
 $compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
 
 // Generate CSS
+$css = $compiler->generate('<div class="flex p-4 bg-brand">');
+
+// Extract candidates
 $candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
-$css = $compiler->css($candidates);
 
 // Get properties
 $compiler->properties('bg-brand');           // ['background-color' => 'var(--color-brand)']
@@ -703,6 +705,14 @@ $compiler->computedProperties('bg-brand');   // ['background-color' => '#3b82f6'
 // Get single values
 $compiler->value('bg-brand');           // 'var(--color-brand)'
 $compiler->computedValue('bg-brand');   // '#3b82f6'
+
+// Minify CSS
+$minified = $compiler->minify($css);
+
+// Access internals (advanced)
+$compiler->getTheme();        // Theme object with resolved values
+$compiler->getDesignSystem(); // Design system with utilities, variants, etc.
+$compiler->getCompiled();     // Raw compiled state array
 ```
 
 ---
