@@ -45,9 +45,9 @@ class forms_plugin extends TestCase
         return $compiled['build']($classes);
     }
 
-    // ============================================
+    // ==================================================
     // Class Strategy Tests (via addComponents)
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_input_class_has_appearance_none(): void
@@ -145,9 +145,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('border-radius: 0px', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Strategy Option Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function class_strategy_outputs_form_classes(): void
@@ -169,9 +169,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('.form-textarea', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Color Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function uses_gray_500_for_borders(): void
@@ -191,9 +191,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('#2563eb', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Multiple Classes Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function multiple_form_classes_can_be_generated(): void
@@ -207,9 +207,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('.form-textarea', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Focus Ring Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function focus_states_have_ring_offset(): void
@@ -229,9 +229,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('outline: 2px solid transparent', $css);
     }
 
-    // ============================================
+    // ==================================================
     // SVG Data URI Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function svg_icons_are_data_uris(): void
@@ -242,9 +242,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('data:image/svg+xml', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Print Color Adjust Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_print_color_adjust(): void
@@ -262,9 +262,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('print-color-adjust: exact', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Sizing Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_size(): void
@@ -284,9 +284,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('width: 1rem', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Display Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_inline_block_display(): void
@@ -296,9 +296,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('display: inline-block', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Background Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_input_has_white_background(): void
@@ -316,9 +316,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('background-color: #fff', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Shadow Variable Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_input_has_shadow_variable(): void
@@ -328,9 +328,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('--tw-shadow: 0 0 #0000', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Border Origin Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_border_box_origin(): void
@@ -340,9 +340,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('background-origin: border-box', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Flex Shrink Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_flex_shrink_zero(): void
@@ -352,9 +352,9 @@ class forms_plugin extends TestCase
         $this->assertStringContainsString('flex-shrink: 0', $css);
     }
 
-    // ============================================
+    // ==================================================
     // Color Property Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function form_checkbox_has_blue_color(): void

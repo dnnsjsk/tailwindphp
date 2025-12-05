@@ -12,9 +12,9 @@ use TailwindPHP\Tailwind;
  */
 class DirectivesTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // @import "tailwindcss" - FULL IMPORT
-    // =========================================================================
+    // ==================================================
 
     public function test_full_import(): void
     {
@@ -53,9 +53,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('box-sizing: border-box', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @import "tailwindcss/utilities.css"
-    // =========================================================================
+    // ==================================================
 
     public function test_utilities_import(): void
     {
@@ -105,9 +105,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('!important', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @import "tailwindcss/theme"
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_import(): void
     {
@@ -139,9 +139,9 @@ class DirectivesTest extends TestCase
         $this->assertStringNotContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @import "tailwindcss/preflight"
-    // =========================================================================
+    // ==================================================
 
     public function test_preflight_import(): void
     {
@@ -173,9 +173,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('box-sizing: border-box', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // GRANULAR IMPORTS (without preflight)
-    // =========================================================================
+    // ==================================================
 
     public function test_granular_imports_without_preflight(): void
     {
@@ -187,9 +187,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @theme DIRECTIVE
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_custom_color(): void
     {
@@ -333,9 +333,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('--color-always-present:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @apply DIRECTIVE
-    // =========================================================================
+    // ==================================================
 
     public function test_apply_basic(): void
     {
@@ -461,9 +461,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @utility DIRECTIVE
-    // =========================================================================
+    // ==================================================
 
     public function test_utility_static(): void
     {
@@ -541,9 +541,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @custom-variant DIRECTIVE
-    // =========================================================================
+    // ==================================================
 
     public function test_custom_variant_simple_selector(): void
     {
@@ -628,9 +628,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('.sidebar-open', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @source DIRECTIVE (basic test - file system not supported)
-    // =========================================================================
+    // ==================================================
 
     public function test_source_directive_is_parsed(): void
     {
@@ -644,9 +644,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // DIRECTIVE COMBINATIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_and_utility_together(): void
     {
@@ -712,9 +712,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('.card', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @layer ORDER DECLARATIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_layer_order_declaration_passthrough(): void
     {
@@ -765,9 +765,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('padding: 1rem', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FULL TAILWIND SETUP (like docs)
-    // =========================================================================
+    // ==================================================
 
     public function test_full_tailwind_setup(): void
     {
@@ -821,9 +821,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('font-size: 2rem', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // IMPORT EDGE CASES
-    // =========================================================================
+    // ==================================================
 
     public function test_import_without_layer_modifier(): void
     {
@@ -872,9 +872,9 @@ class DirectivesTest extends TestCase
         $this->assertLessThan($utilitiesPos, $preflightPos);
     }
 
-    // =========================================================================
+    // ==================================================
     // source(none) MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_source_none_on_theme_import(): void
     {
@@ -932,9 +932,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // theme(static) MODIFIER & CSS VARIABLE TREE-SHAKING
-    // =========================================================================
+    // ==================================================
 
     public function test_tree_shaking_only_includes_used_color_variables(): void
     {
@@ -1011,9 +1011,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('--color-always-here:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // theme(inline) MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_inline_modifier_on_import(): void
     {
@@ -1048,9 +1048,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('background-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // prefix() MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_prefix_modifier_on_theme_import(): void
     {
@@ -1095,9 +1095,9 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // COMBINED MODIFIERS
-    // =========================================================================
+    // ==================================================
 
     public function test_all_modifiers_combined(): void
     {
@@ -1120,10 +1120,10 @@ class DirectivesTest extends TestCase
         $this->assertStringContainsString('--color-red-500', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PREFLIGHT - COMPREHENSIVE TESTS
     // Based on https://tailwindcss.com/docs/preflight
-    // =========================================================================
+    // ==================================================
 
     // --- Box Sizing & Margins Reset ---
 

@@ -14,9 +14,9 @@ use TailwindPHP\LightningCss\LightningCss as LightningCssOptimizer;
  */
 class LightningCss extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // normalizeWhitespace tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_whitespace_collapses_multiple_spaces(): void
@@ -48,9 +48,9 @@ class LightningCss extends TestCase
         $this->assertSame('var(--foo, )', LightningCssOptimizer::normalizeWhitespace('var(--foo, )'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeTimeValues tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_time_converts_500ms_to_half_second(): void
@@ -82,9 +82,9 @@ class LightningCss extends TestCase
         $this->assertSame('.15s', LightningCssOptimizer::normalizeTimeValues('150ms'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeOpacityPercentages tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_opacity_converts_0_percent(): void
@@ -110,9 +110,9 @@ class LightningCss extends TestCase
         $this->assertSame('50%', LightningCssOptimizer::normalizeOpacityPercentages('50%', 'width'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeColors tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_colors_converts_hex_red_to_named(): void
@@ -144,9 +144,9 @@ class LightningCss extends TestCase
         $this->assertSame('yellow', LightningCssOptimizer::normalizeColors('yellow', true));
     }
 
-    // =========================================================================
+    // ==================================================
     // simplifyCalcExpressions tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function simplify_calc_negates_angle(): void
@@ -173,9 +173,9 @@ class LightningCss extends TestCase
         $this->assertSame($expr, LightningCssOptimizer::simplifyCalcExpressions($expr));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeLeadingZeros tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_leading_zeros_removes_zero(): void
@@ -195,9 +195,9 @@ class LightningCss extends TestCase
         $this->assertSame('.5 .25 .125', LightningCssOptimizer::normalizeLeadingZeros('0.5 0.25 0.125'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeGridValues tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_grid_adds_spaces_around_slash(): void
@@ -217,9 +217,9 @@ class LightningCss extends TestCase
         $this->assertSame('123', LightningCssOptimizer::normalizeGridValues('123', 'grid-column'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeTransformFunctions tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_transform_removes_spaces_between_functions(): void
@@ -244,9 +244,9 @@ class LightningCss extends TestCase
         $this->assertSame($value, LightningCssOptimizer::normalizeTransformFunctions($value, 'other'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeAnimationValue tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_animation_moves_name_to_end(): void
@@ -273,9 +273,9 @@ class LightningCss extends TestCase
         $this->assertSame($value, LightningCssOptimizer::normalizeAnimationValue($value, 'animation'));
     }
 
-    // =========================================================================
+    // ==================================================
     // normalizeUrlQuoting tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function normalize_url_adds_quotes(): void
@@ -297,9 +297,9 @@ class LightningCss extends TestCase
         $this->assertSame($value, LightningCssOptimizer::normalizeUrlQuoting($value));
     }
 
-    // =========================================================================
+    // ==================================================
     // transformNesting tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function transform_nesting_flattens_child_selector(): void
@@ -526,9 +526,9 @@ class LightningCss extends TestCase
         $this->assertSame('.editor-styles-wrapper h1, .editor-styles-wrapper h2, .editor-styles-wrapper h3, .editor-styles-wrapper h4, .editor-styles-wrapper h5, .editor-styles-wrapper h6', $result[1]['selector']);
     }
 
-    // =========================================================================
+    // ==================================================
     // addVendorPrefixes tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function add_vendor_prefixes_for_user_select(): void
@@ -575,9 +575,9 @@ class LightningCss extends TestCase
         $this->assertContains('backdrop-filter', $properties);
     }
 
-    // =========================================================================
+    // ==================================================
     // evaluateColorMix tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function evaluate_color_mix_red_50_percent(): void
@@ -594,9 +594,9 @@ class LightningCss extends TestCase
         $this->assertSame($value, LightningCssOptimizer::evaluateColorMix($value));
     }
 
-    // =========================================================================
+    // ==================================================
     // colorToOklabWithOpacity tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function color_to_oklab_red(): void
@@ -614,9 +614,9 @@ class LightningCss extends TestCase
         $this->assertStringContainsString('/ .5', $result);
     }
 
-    // =========================================================================
+    // ==================================================
     // colorWithAlpha tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function color_with_alpha_named(): void
@@ -639,9 +639,9 @@ class LightningCss extends TestCase
         $this->assertSame('#00ff00ff', $result);
     }
 
-    // =========================================================================
+    // ==================================================
     // transformMediaQueryRange tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function transform_media_query_gte(): void
@@ -679,9 +679,9 @@ class LightningCss extends TestCase
         );
     }
 
-    // =========================================================================
+    // ==================================================
     // transformContainerQueryRange tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function transform_container_query_gte(): void
@@ -701,9 +701,9 @@ class LightningCss extends TestCase
         );
     }
 
-    // =========================================================================
+    // ==================================================
     // mergeRulesWithSameDeclarations tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function merge_rules_with_same_declarations(): void
@@ -748,9 +748,9 @@ class LightningCss extends TestCase
         $this->assertCount(2, $result);
     }
 
-    // =========================================================================
+    // ==================================================
     // optimizeValue integration tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function optimize_value_combines_all_optimizations(): void
@@ -767,9 +767,9 @@ class LightningCss extends TestCase
         $this->assertSame('.5s ease-in-out', $result);
     }
 
-    // =========================================================================
+    // ==================================================
     // minify tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function minify_removes_comments(): void

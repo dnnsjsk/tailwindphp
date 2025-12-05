@@ -35,9 +35,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
 {
     $theme = $builder->getTheme();
 
-    // =========================================================================
+    // ==================================================
     // Cursor
-    // =========================================================================
+    // ==================================================
 
     $cursorValues = [
         'auto', 'default', 'pointer', 'wait', 'text', 'move', 'help',
@@ -61,9 +61,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Touch Action
-    // =========================================================================
+    // ==================================================
 
     foreach (['auto', 'none', 'manipulation'] as $value) {
         $builder->staticUtility("touch-{$value}", [['touch-action', $value]]);
@@ -90,9 +90,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         ['touch-action', $touchActionValue],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // User Select
-    // =========================================================================
+    // ==================================================
 
     foreach (['none', 'text', 'all', 'auto'] as $value) {
         $builder->staticUtility("select-{$value}", [
@@ -101,18 +101,18 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         ]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Resize
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('resize-none', [['resize', 'none']]);
     $builder->staticUtility('resize-x', [['resize', 'horizontal']]);
     $builder->staticUtility('resize-y', [['resize', 'vertical']]);
     $builder->staticUtility('resize', [['resize', 'both']]);
 
-    // =========================================================================
+    // ==================================================
     // Scroll Snap Type
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('snap-none', [['scroll-snap-type', 'none']]);
 
@@ -125,25 +125,25 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('snap-mandatory', [['--tw-scroll-snap-strictness', 'mandatory']]);
     $builder->staticUtility('snap-proximity', [['--tw-scroll-snap-strictness', 'proximity']]);
 
-    // =========================================================================
+    // ==================================================
     // Scroll Snap Align
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('snap-align-none', [['scroll-snap-align', 'none']]);
     $builder->staticUtility('snap-start', [['scroll-snap-align', 'start']]);
     $builder->staticUtility('snap-end', [['scroll-snap-align', 'end']]);
     $builder->staticUtility('snap-center', [['scroll-snap-align', 'center']]);
 
-    // =========================================================================
+    // ==================================================
     // Scroll Snap Stop
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('snap-normal', [['scroll-snap-stop', 'normal']]);
     $builder->staticUtility('snap-always', [['scroll-snap-stop', 'always']]);
 
-    // =========================================================================
+    // ==================================================
     // Scroll Margin
-    // =========================================================================
+    // ==================================================
 
     $scrollMarginProps = [
         'scroll-m' => 'scroll-margin',
@@ -163,9 +163,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         }, ['supportsNegative' => true]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Scroll Padding
-    // =========================================================================
+    // ==================================================
 
     $scrollPaddingProps = [
         'scroll-p' => 'scroll-padding',
@@ -185,16 +185,16 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         });
     }
 
-    // =========================================================================
+    // ==================================================
     // Scroll Behavior
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('scroll-auto', [['scroll-behavior', 'auto']]);
     $builder->staticUtility('scroll-smooth', [['scroll-behavior', 'smooth']]);
 
-    // =========================================================================
+    // ==================================================
     // Overscroll Behavior
-    // =========================================================================
+    // ==================================================
 
     foreach (['auto', 'contain', 'none'] as $value) {
         $builder->staticUtility("overscroll-{$value}", [['overscroll-behavior', $value]]);
@@ -202,30 +202,30 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         $builder->staticUtility("overscroll-y-{$value}", [['overscroll-behavior-y', $value]]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Pointer Events
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('pointer-events-none', [['pointer-events', 'none']]);
     $builder->staticUtility('pointer-events-auto', [['pointer-events', 'auto']]);
 
-    // =========================================================================
+    // ==================================================
     // Appearance
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('appearance-none', [['appearance', 'none']]);
     $builder->staticUtility('appearance-auto', [['appearance', 'auto']]);
 
-    // =========================================================================
+    // ==================================================
     // Forced Color Adjust
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('forced-color-adjust-auto', [['forced-color-adjust', 'auto']]);
     $builder->staticUtility('forced-color-adjust-none', [['forced-color-adjust', 'none']]);
 
-    // =========================================================================
+    // ==================================================
     // Accent Color
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('accent-auto', [['accent-color', 'auto']]);
 
@@ -236,9 +236,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Caret Color
-    // =========================================================================
+    // ==================================================
 
     $builder->colorUtility('caret', [
         'themeKeys' => ['--caret-color', '--color'],
@@ -247,9 +247,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Will Change
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('will-change-auto', [['will-change', 'auto']]);
     $builder->staticUtility('will-change-contents', [['will-change', 'contents']]);
@@ -264,9 +264,9 @@ function registerInteractivityUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Content
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('content-none', [
         ['--tw-content', 'none'],

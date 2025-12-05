@@ -20,9 +20,9 @@ use TailwindPHP\Cli\Console\Input;
  */
 class CliInputTest extends TestCase
 {
-    // ============================================
+    // ==================================================
     // Long Option Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function parses_long_boolean_option(): void
@@ -61,9 +61,9 @@ class CliInputTest extends TestCase
         $this->assertTrue($input->getOption('minify'));
     }
 
-    // ============================================
+    // ==================================================
     // Short Option Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function parses_short_boolean_option(): void
@@ -100,9 +100,9 @@ class CliInputTest extends TestCase
         $this->assertTrue($input->hasOption('m'));
     }
 
-    // ============================================
+    // ==================================================
     // Command and Argument Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function parses_command(): void
@@ -150,9 +150,9 @@ class CliInputTest extends TestCase
         $this->assertSame('default', $input->getArgument(0, 'default'));
     }
 
-    // ============================================
+    // ==================================================
     // Option Value Access Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function gets_string_option_value(): void
@@ -217,9 +217,9 @@ class CliInputTest extends TestCase
         $this->assertArrayHasKey('m', $options);
     }
 
-    // ============================================
+    // ==================================================
     // Special Option Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function detects_help_long_option(): void
@@ -285,9 +285,9 @@ class CliInputTest extends TestCase
         $this->assertTrue($input->isQuiet());
     }
 
-    // ============================================
+    // ==================================================
     // Raw Args Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function returns_raw_args(): void
@@ -298,9 +298,9 @@ class CliInputTest extends TestCase
         $this->assertSame($argv, $input->getRawArgs());
     }
 
-    // ============================================
+    // ==================================================
     // Edge Cases
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function handles_empty_args(): void

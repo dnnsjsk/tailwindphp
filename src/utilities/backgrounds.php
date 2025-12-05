@@ -35,9 +35,9 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
 {
     $theme = $builder->getTheme();
 
-    // =========================================================================
+    // ==================================================
     // Background Color
-    // =========================================================================
+    // ==================================================
 
     $builder->colorUtility('bg', [
         'themeKeys' => ['--background-color', '--color'],
@@ -46,15 +46,15 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Background Image
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-none', [['background-image', 'none']]);
 
-    // =========================================================================
+    // ==================================================
     // Background Size
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-auto', [['background-size', 'auto']]);
     $builder->staticUtility('bg-cover', [['background-size', 'cover']]);
@@ -73,17 +73,17 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Background Attachment
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-fixed', [['background-attachment', 'fixed']]);
     $builder->staticUtility('bg-local', [['background-attachment', 'local']]);
     $builder->staticUtility('bg-scroll', [['background-attachment', 'scroll']]);
 
-    // =========================================================================
+    // ==================================================
     // Background Position
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-top', [['background-position', 'top']]);
     $builder->staticUtility('bg-bottom', [['background-position', 'bottom']]);
@@ -116,9 +116,9 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Background Repeat
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-repeat', [['background-repeat', 'repeat']]);
     $builder->staticUtility('bg-no-repeat', [['background-repeat', 'no-repeat']]);
@@ -127,17 +127,17 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('bg-repeat-round', [['background-repeat', 'round']]);
     $builder->staticUtility('bg-repeat-space', [['background-repeat', 'space']]);
 
-    // =========================================================================
+    // ==================================================
     // Background Origin
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-origin-border', [['background-origin', 'border-box']]);
     $builder->staticUtility('bg-origin-padding', [['background-origin', 'padding-box']]);
     $builder->staticUtility('bg-origin-content', [['background-origin', 'content-box']]);
 
-    // =========================================================================
+    // ==================================================
     // Background Clip
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('bg-clip-border', [['background-clip', 'border-box']]);
     $builder->staticUtility('bg-clip-padding', [['background-clip', 'padding-box']]);
@@ -147,9 +147,9 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         ['background-clip', 'text'],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Linear Gradient (bg-linear-*)
-    // =========================================================================
+    // ==================================================
 
     // Direction mappings for linear gradients
     $linearDirections = [
@@ -189,21 +189,21 @@ function registerBackgroundUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Conic Gradient (bg-conic-*)
-    // =========================================================================
+    // ==================================================
 
     registerConicGradientUtilities($builder);
 
-    // =========================================================================
+    // ==================================================
     // Radial Gradient (bg-radial-*)
-    // =========================================================================
+    // ==================================================
 
     registerRadialGradientUtilities($builder);
 
-    // =========================================================================
+    // ==================================================
     // Gradient Color Stops (from-*, via-*, to-*)
-    // =========================================================================
+    // ==================================================
 
     registerGradientColorStopUtilities($builder);
 }

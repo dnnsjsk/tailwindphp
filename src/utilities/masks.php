@@ -30,9 +30,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
 {
     $theme = $builder->getTheme();
 
-    // =========================================================================
+    // ==================================================
     // Mask Image (base utilities)
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-none', [['mask-image', 'none']]);
 
@@ -66,33 +66,33 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         }
     });
 
-    // =========================================================================
+    // ==================================================
     // Mask Composite
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-add', [['mask-composite', 'add']]);
     $builder->staticUtility('mask-subtract', [['mask-composite', 'subtract']]);
     $builder->staticUtility('mask-intersect', [['mask-composite', 'intersect']]);
     $builder->staticUtility('mask-exclude', [['mask-composite', 'exclude']]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Mode
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-alpha', [['mask-mode', 'alpha']]);
     $builder->staticUtility('mask-luminance', [['mask-mode', 'luminance']]);
     $builder->staticUtility('mask-match', [['mask-mode', 'match-source']]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Type
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-type-alpha', [['mask-type', 'alpha']]);
     $builder->staticUtility('mask-type-luminance', [['mask-type', 'luminance']]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Size
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-auto', [['mask-size', 'auto']]);
     $builder->staticUtility('mask-cover', [['mask-size', 'cover']]);
@@ -110,9 +110,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Position
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-top', [['mask-position', 'top']]);
     $builder->staticUtility('mask-top-left', [['mask-position', 'left top']]);
@@ -136,9 +136,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Repeat
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('mask-repeat', [['mask-repeat', 'repeat']]);
     $builder->staticUtility('mask-no-repeat', [['mask-repeat', 'no-repeat']]);
@@ -147,9 +147,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('mask-repeat-round', [['mask-repeat', 'round']]);
     $builder->staticUtility('mask-repeat-space', [['mask-repeat', 'space']]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Gradient Properties
-    // =========================================================================
+    // ==================================================
 
     $maskPropertiesGradient = function () {
         return atRoot([
@@ -159,9 +159,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         ]);
     };
 
-    // =========================================================================
+    // ==================================================
     // Mask Stop Utility Helper
-    // =========================================================================
+    // ==================================================
 
     $maskStopUtility = function (string $classRoot, callable $colorHandler, callable $positionHandler) use ($builder, $theme) {
         $builder->getUtilities()->functional($classRoot, function ($candidate) use ($theme, $colorHandler, $positionHandler) {
@@ -246,9 +246,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         });
     };
 
-    // =========================================================================
+    // ==================================================
     // Linear Mask Properties
-    // =========================================================================
+    // ==================================================
 
     $maskPropertiesLinear = function () {
         return atRoot([
@@ -337,9 +337,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         ],
     );
 
-    // =========================================================================
+    // ==================================================
     // Radial Mask Properties
-    // =========================================================================
+    // ==================================================
 
     $maskPropertiesRadial = function () {
         return atRoot([
@@ -445,9 +445,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         ],
     );
 
-    // =========================================================================
+    // ==================================================
     // Conic Mask Properties
-    // =========================================================================
+    // ==================================================
 
     $maskPropertiesConic = function () {
         return atRoot([
@@ -536,9 +536,9 @@ function registerMaskUtilities(UtilityBuilder $builder): void
         ],
     );
 
-    // =========================================================================
+    // ==================================================
     // Edge Mask Properties
-    // =========================================================================
+    // ==================================================
 
     $maskPropertiesEdge = function () {
         return atRoot([

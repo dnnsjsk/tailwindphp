@@ -15,9 +15,9 @@ use function TailwindPHP\Utils\hasMathFn;
  */
 class math_operators extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // hasMathFn tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function has_math_fn_calc(): void
@@ -81,9 +81,9 @@ class math_operators extends TestCase
         $this->assertFalse(hasMathFn('var(--color)'));
     }
 
-    // =========================================================================
+    // ==================================================
     // addWhitespaceAroundMathOperators tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function adds_whitespace_in_calc(): void

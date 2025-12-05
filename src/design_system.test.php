@@ -43,9 +43,9 @@ class design_system extends TestCase
         return new DesignSystem($theme, $utilities, $variants);
     }
 
-    // =========================================================================
+    // ==================================================
     // Constructor and getters
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_can_be_created(): void
@@ -75,9 +75,9 @@ class design_system extends TestCase
         $this->assertInstanceOf(Variants::class, $ds->getVariants());
     }
 
-    // =========================================================================
+    // ==================================================
     // Important flag
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_is_important_default_false(): void
@@ -94,9 +94,9 @@ class design_system extends TestCase
         $this->assertTrue($ds->isImportant());
     }
 
-    // =========================================================================
+    // ==================================================
     // Invalid candidates
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_get_invalid_candidates_default_empty(): void
@@ -106,9 +106,9 @@ class design_system extends TestCase
         $this->assertEmpty($ds->getInvalidCandidates());
     }
 
-    // =========================================================================
+    // ==================================================
     // Theme resolution
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_resolve_theme_value(): void
@@ -135,9 +135,9 @@ class design_system extends TestCase
         $this->assertSame('#ef4444', $value);
     }
 
-    // =========================================================================
+    // ==================================================
     // Candidate parsing
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_parse_candidate_static(): void
@@ -164,9 +164,9 @@ class design_system extends TestCase
         $this->assertIsArray($candidates);
     }
 
-    // =========================================================================
+    // ==================================================
     // Variant parsing
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function design_system_parse_variant(): void

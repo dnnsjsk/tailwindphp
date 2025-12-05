@@ -19,9 +19,9 @@ use TailwindPHP\Cli\Console\Output;
  */
 class CliOutputTest extends TestCase
 {
-    // ============================================
+    // ==================================================
     // Basic Output Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function can_instantiate_output(): void
@@ -31,9 +31,9 @@ class CliOutputTest extends TestCase
         $this->assertInstanceOf(Output::class, $output);
     }
 
-    // ============================================
+    // ==================================================
     // Quiet Mode Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function quiet_mode_is_off_by_default(): void
@@ -55,9 +55,9 @@ class CliOutputTest extends TestCase
         $this->assertTrue(true);
     }
 
-    // ============================================
+    // ==================================================
     // Verbose Mode Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function verbose_mode_is_off_by_default(): void
@@ -88,9 +88,9 @@ class CliOutputTest extends TestCase
         $this->assertFalse($output->isVerbose());
     }
 
-    // ============================================
+    // ==================================================
     // Color Formatting Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function color_returns_text_when_color_not_found(): void
@@ -153,9 +153,9 @@ class CliOutputTest extends TestCase
         $this->assertSame('plain text without any tags', $result);
     }
 
-    // ============================================
+    // ==================================================
     // Color Method Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function color_method_applies_color(): void
@@ -179,9 +179,9 @@ class CliOutputTest extends TestCase
         $this->assertIsString($result);
     }
 
-    // ============================================
+    // ==================================================
     // ANSI Color Constants Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function supports_basic_colors(): void
@@ -235,9 +235,9 @@ class CliOutputTest extends TestCase
         }
     }
 
-    // ============================================
+    // ==================================================
     // Format Tag Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function format_handles_case_insensitive_tags(): void
@@ -261,9 +261,9 @@ class CliOutputTest extends TestCase
         $this->assertStringContainsString('text', $result);
     }
 
-    // ============================================
+    // ==================================================
     // Method Existence Tests
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function has_all_output_methods(): void
@@ -289,9 +289,9 @@ class CliOutputTest extends TestCase
         $this->assertTrue(method_exists($output, 'table'));
     }
 
-    // ============================================
+    // ==================================================
     // Edge Cases
-    // ============================================
+    // ==================================================
 
     #[Test]
     public function format_handles_empty_string(): void

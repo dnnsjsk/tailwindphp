@@ -150,9 +150,9 @@ class CssMinifier extends TestCase
         $this->assertStringContainsString("\n", $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // Public API Tests (Tailwind::minify)
-    // =========================================================================
+    // ==================================================
 
     public function test_public_api_minify(): void
     {

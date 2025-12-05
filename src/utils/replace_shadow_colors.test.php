@@ -33,9 +33,9 @@ class replace_shadow_colors extends TestCase
         return 'var(--tw-shadow-color, ' . replaceAlpha($color, '50%') . ')';
     }
 
-    // ==========================================================================
+    // ==================================================
     // Without replacer (simple)
-    // ==========================================================================
+    // ==================================================
 
     #[Test]
     public function should_handle_var_shadow(): void
@@ -97,9 +97,9 @@ class replace_shadow_colors extends TestCase
         );
     }
 
-    // ==========================================================================
+    // ==================================================
     // With replacer (alpha modification)
-    // ==========================================================================
+    // ==================================================
 
     #[Test]
     public function should_handle_var_color_with_intensity(): void

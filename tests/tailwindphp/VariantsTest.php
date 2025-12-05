@@ -21,9 +21,9 @@ class VariantsTest extends TestCase
         }
     }
 
-    // =========================================================================
+    // ==================================================
     // PSEUDO-CLASS VARIANTS
-    // =========================================================================
+    // ==================================================
 
     // Interactive states
     public function test_hover(): void
@@ -147,9 +147,9 @@ class VariantsTest extends TestCase
         $this->assertVariantGenerates('empty:hidden', ':empty');
     }
 
-    // =========================================================================
+    // ==================================================
     // PSEUDO-ELEMENT VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_before(): void
     {
@@ -188,9 +188,9 @@ class VariantsTest extends TestCase
         $this->assertVariantGenerates('backdrop:bg-black/50', '::backdrop');
     }
 
-    // =========================================================================
+    // ==================================================
     // RESPONSIVE VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_sm(): void
     {
@@ -243,9 +243,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('not', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // DARK MODE
-    // =========================================================================
+    // ==================================================
 
     public function test_dark(): void
     {
@@ -253,9 +253,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // MOTION VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_motion_safe(): void
     {
@@ -271,9 +271,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // CONTRAST VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_contrast_more(): void
     {
@@ -289,9 +289,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('prefers-contrast: less', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PRINT VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_print(): void
     {
@@ -299,9 +299,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('@media print', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ORIENTATION VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_portrait(): void
     {
@@ -317,9 +317,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('orientation: landscape', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // LTR/RTL VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_ltr(): void
     {
@@ -330,18 +330,18 @@ class VariantsTest extends TestCase
         $this->assertVariantGenerates('rtl:mr-4', ':where(:dir(rtl)');
     }
 
-    // =========================================================================
+    // ==================================================
     // OPEN VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_open(): void
     {
         $this->assertVariantGenerates('open:bg-gray-100', ':is([open], :popover-open, :open)');
     }
 
-    // =========================================================================
+    // ==================================================
     // FORCED COLORS VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_forced_colors(): void
     {
@@ -349,9 +349,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('@media (forced-colors: active)', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // GROUP VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_group_hover(): void
     {
@@ -387,9 +387,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PEER VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_peer_hover(): void
     {
@@ -425,12 +425,12 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':invalid', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // HAS VARIANTS
     // Note: Tailwind 4 has-* variants (has-hover, has-checked, etc.) apply the
     // pseudo-class directly, NOT using CSS :has() selector
     // For :has() selector, use arbitrary variants like has-[:checked]
-    // =========================================================================
+    // ==================================================
 
     public function test_has_hover(): void
     {
@@ -470,9 +470,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('.peer', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // NOT VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_not_first(): void
     {
@@ -495,9 +495,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':disabled', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ARIA VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_aria_checked(): void
     {
@@ -530,9 +530,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('[aria-current="page"]', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // DATA VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_data_checked(): void
     {
@@ -549,9 +549,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('[data-state="open"]', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // SUPPORTS VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_supports_grid(): void
     {
@@ -567,9 +567,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('backdrop-filter:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ARBITRARY VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_variant(): void
     {
@@ -597,9 +597,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('[data-active]', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // STACKED VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_stacked_hover_focus(): void
     {
@@ -640,9 +640,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // IMPORTANT MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_important_modifier(): void
     {
@@ -658,9 +658,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // CHILD/DESCENDANT SELECTORS (*)
-    // =========================================================================
+    // ==================================================
 
     public function test_direct_children(): void
     {
@@ -675,9 +675,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('> *', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE DEEP STACKED VARIANTS (3+ deep)
-    // =========================================================================
+    // ==================================================
 
     public function test_4_deep_stacked_sm_dark_hover_focus(): void
     {
@@ -713,9 +713,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':disabled', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE RESPONSIVE VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_min_lg(): void
     {
@@ -750,9 +750,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('not', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE NTH-CHILD VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_nth_3(): void
     {
@@ -790,9 +790,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':nth-last-of-type(3)', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE GROUP/PEER VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_group_disabled(): void
     {
@@ -850,9 +850,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('.peer', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE ARIA VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_aria_readonly(): void
     {
@@ -872,9 +872,9 @@ class VariantsTest extends TestCase
         $this->assertVariantGenerates('aria-busy:cursor-wait', '[aria-busy="true"]');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE DATA VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_data_open(): void
     {
@@ -895,9 +895,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('[data-orientation="vertical"]', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE SUPPORTS VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_supports_flex(): void
     {
@@ -920,9 +920,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('position: sticky', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE ARBITRARY VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_first_child(): void
     {
@@ -984,9 +984,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('.active', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE CONTAINER QUERIES
-    // =========================================================================
+    // ==================================================
 
     public function test_container_sm(): void
     {
@@ -1012,9 +1012,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('@container', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE MOTION/PREFERENCE VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_prefers_reduced_motion(): void
     {
@@ -1030,9 +1030,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('prefers-reduced-motion: no-preference', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE INVERTED COLORS VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_inverted_colors(): void
     {
@@ -1041,9 +1041,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('inverted-colors: inverted', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE SCRIPTING VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_noscript(): void
     {
@@ -1052,9 +1052,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('scripting: none', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE POINTER VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_pointer_coarse(): void
     {
@@ -1070,9 +1070,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('pointer: fine', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE STARTING STYLE VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_starting(): void
     {
@@ -1080,9 +1080,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('@starting-style', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE IN-* VARIANTS (inside composition)
-    // =========================================================================
+    // ==================================================
 
     public function test_in_hover(): void
     {
@@ -1091,9 +1091,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE STANDALONE CHILDREN VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_children_variant(): void
     {
@@ -1108,9 +1108,9 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('> *', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE MULTIPLE CLASSES WITH VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_multiple_hover_classes(): void
     {

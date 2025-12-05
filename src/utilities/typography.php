@@ -43,9 +43,9 @@ use function TailwindPHP\Utils\replaceShadowColors;
  */
 function registerTypographyUtilities(UtilityBuilder $builder): void
 {
-    // =========================================================================
+    // ==================================================
     // Text (color and font-size)
-    // =========================================================================
+    // ==================================================
     $theme = $builder->getTheme();
     $utilities = $builder->getUtilities();
 
@@ -612,9 +612,9 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         ['-moz-osx-font-smoothing', 'auto'],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Text Shadow
-    // =========================================================================
+    // ==================================================
 
     $textShadowProperties = function () {
         return atRoot([
@@ -756,9 +756,9 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         return null;
     });
 
-    // =========================================================================
+    // ==================================================
     // Placeholder Color
-    // =========================================================================
+    // ==================================================
 
     $builder->colorUtility('placeholder', [
         'themeKeys' => ['--background-color', '--color'],

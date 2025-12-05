@@ -49,9 +49,9 @@ function msToSeconds(int $ms): string
  */
 function registerTransitionsUtilities(UtilityBuilder $builder): void
 {
-    // =========================================================================
+    // ==================================================
     // Animation
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('animate', [
         'themeKeys' => ['--animate'],
@@ -75,9 +75,9 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
     // Default transition property value
     $defaultTransitionProperty = 'color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events';
 
-    // =========================================================================
+    // ==================================================
     // Transition
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('transition', [
         'themeKeys' => ['--transition-property'],
@@ -123,9 +123,9 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('transition-discrete', [['transition-behavior', 'allow-discrete']]);
     $builder->staticUtility('transition-normal', [['transition-behavior', 'normal']]);
 
-    // =========================================================================
+    // ==================================================
     // Delay
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('delay', [
         'themeKeys' => ['--transition-delay'],
@@ -147,9 +147,9 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Duration
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('duration-initial', [['--tw-duration', 'initial']]);
 
@@ -176,9 +176,9 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Ease (Timing Function)
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('ease', [
         'themeKeys' => ['--ease'],
@@ -198,9 +198,9 @@ function registerTransitionsUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Will Change
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('will-change-auto', [['will-change', 'auto']]);
     $builder->staticUtility('will-change-scroll', [['will-change', 'scroll-position']]);

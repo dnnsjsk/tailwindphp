@@ -15,9 +15,9 @@ use TailwindPHP\Tailwind;
  */
 class EdgeCasesTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // DEEP VARIANT STACKING
-    // =========================================================================
+    // ==================================================
 
     public function test_three_level_variant_stacking(): void
     {
@@ -50,9 +50,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString(':focus', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ARBITRARY VALUES WITH SPECIAL CHARACTERS
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_value_with_spaces(): void
     {
@@ -96,9 +96,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('translate', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // COMPLEX SELECTOR SCENARIOS
-    // =========================================================================
+    // ==================================================
 
     public function test_first_and_last_child(): void
     {
@@ -142,9 +142,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('[data-state="open"]', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // IMPORTANT MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_important_modifier(): void
     {
@@ -167,9 +167,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('!important', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // OPACITY MODIFIERS
-    // =========================================================================
+    // ==================================================
 
     public function test_color_opacity_modifier(): void
     {
@@ -195,9 +195,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('border-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // CONTAINER QUERIES
-    // =========================================================================
+    // ==================================================
 
     public function test_container_query(): void
     {
@@ -215,9 +215,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('@container sidebar', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // @APPLY EDGE CASES
-    // =========================================================================
+    // ==================================================
 
     public function test_apply_with_variants(): void
     {
@@ -259,9 +259,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('!important', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // MULTIPLE CLASSES WITH SAME PROPERTY
-    // =========================================================================
+    // ==================================================
 
     public function test_conflicting_utilities(): void
     {
@@ -280,9 +280,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('margin-top:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // COMPLEX @THEME SCENARIOS
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_with_namespace_clear(): void
     {
@@ -303,9 +303,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ESCAPED CHARACTERS
-    // =========================================================================
+    // ==================================================
 
     public function test_escaped_class_name(): void
     {
@@ -328,9 +328,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('calc(', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PRINT MEDIA VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_print_variant(): void
     {
@@ -346,9 +346,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('@media not print', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // MOTION VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_motion_safe(): void
     {
@@ -362,9 +362,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('prefers-reduced-motion: reduce', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // CONTRAST VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_contrast_more(): void
     {
@@ -378,9 +378,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('prefers-contrast: less', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // DARK MODE
-    // =========================================================================
+    // ==================================================
 
     public function test_dark_mode(): void
     {
@@ -395,9 +395,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString(':hover', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PORTRAIT/LANDSCAPE
-    // =========================================================================
+    // ==================================================
 
     public function test_portrait(): void
     {
@@ -411,9 +411,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('orientation: landscape', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // SUPPORTS VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_supports_grid(): void
     {
@@ -428,9 +428,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('@supports', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EMPTY STATE
-    // =========================================================================
+    // ==================================================
 
     public function test_empty_variant(): void
     {
@@ -438,9 +438,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString(':empty', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // SIBLING SELECTORS
-    // =========================================================================
+    // ==================================================
 
     public function test_peer_checked(): void
     {
@@ -458,9 +458,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString(':focus-visible', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // MARKER VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_marker_variant(): void
     {
@@ -468,9 +468,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('::marker', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLACEHOLDER VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_placeholder_variant(): void
     {
@@ -478,9 +478,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('::placeholder', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FILE VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_file_variant(): void
     {
@@ -488,9 +488,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('::file-selector-button', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // BACKDROP VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_backdrop_variant(): void
     {
@@ -498,9 +498,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('::backdrop', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // SELECTION VARIANT
-    // =========================================================================
+    // ==================================================
 
     public function test_selection_variant(): void
     {
@@ -508,9 +508,9 @@ class EdgeCasesTest extends TestCase
         $this->assertStringContainsString('::selection', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FIRST-LINE AND FIRST-LETTER
-    // =========================================================================
+    // ==================================================
 
     public function test_first_line(): void
     {

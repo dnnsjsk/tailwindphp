@@ -35,9 +35,9 @@ const RADIUS_FULL_DEFAULT = '3.40282e38px';
  */
 function registerBorderUtilities(UtilityBuilder $builder): void
 {
-    // =========================================================================
+    // ==================================================
     // Border Radius
-    // =========================================================================
+    // ==================================================
 
     // Helper function to create radius utility
     $createRadiusUtility = function (string $name, array $properties, bool $hasDefault = false) use ($builder) {
@@ -92,9 +92,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     $createRadiusUtility('rounded-br', ['border-bottom-right-radius'], true);
     $createRadiusUtility('rounded-bl', ['border-bottom-left-radius'], true);
 
-    // =========================================================================
+    // ==================================================
     // Border Width and Color (combined utility like Tailwind 4)
-    // =========================================================================
+    // ==================================================
 
     $borderProperties = function () {
         return atRoot([property('--tw-border-style', 'solid')]);
@@ -218,9 +218,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     $createBorderSideUtility('border-b', ['border-bottom-width'], ['border-bottom-color'], 'border-bottom-style');
     $createBorderSideUtility('border-l', ['border-left-width'], ['border-left-color'], 'border-left-style');
 
-    // =========================================================================
+    // ==================================================
     // Border Style
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('border-solid', [['--tw-border-style', 'solid'], ['border-style', 'solid']]);
     $builder->staticUtility('border-dashed', [['--tw-border-style', 'dashed'], ['border-style', 'dashed']]);
@@ -229,16 +229,16 @@ function registerBorderUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('border-hidden', [['--tw-border-style', 'hidden'], ['border-style', 'hidden']]);
     $builder->staticUtility('border-none', [['--tw-border-style', 'none'], ['border-style', 'none']]);
 
-    // =========================================================================
+    // ==================================================
     // Border Collapse
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('border-collapse', [['border-collapse', 'collapse']]);
     $builder->staticUtility('border-separate', [['border-collapse', 'separate']]);
 
-    // =========================================================================
+    // ==================================================
     // Outline Style
-    // =========================================================================
+    // ==================================================
 
     // Outline style static utilities
     $builder->staticUtility('outline-none', [
@@ -366,9 +366,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Divide Width (space between children)
-    // =========================================================================
+    // ==================================================
 
     // divide-x
     $builder->functionalUtility('divide-x', [
@@ -481,9 +481,9 @@ function registerBorderUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Outline Hidden (special utility with @media query)
-    // =========================================================================
+    // ==================================================
 
     $builder->getUtilities()->static('outline-hidden', function () {
         return [

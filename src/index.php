@@ -2289,9 +2289,9 @@ function applyColorMixPolyfill(array $ast, DesignSystem $designSystem): array
     return $result;
 }
 
-// =============================================================================
+// ==================================================
 // Plugin System
-// =============================================================================
+// ==================================================
 
 use TailwindPHP\Plugin\PluginManager;
 
@@ -2932,9 +2932,9 @@ class Tailwind
  */
 class_alias(Tailwind::class, 'TailwindPHP\\tw');
 
-// =============================================================================
+// ==================================================
 // Class Name Utilities
-// =============================================================================
+// ==================================================
 // PHP ports of popular Tailwind companion libraries (clsx, tailwind-merge).
 
 require_once __DIR__ . '/_tailwindphp/lib/clsx/clsx.php';
@@ -2996,9 +2996,9 @@ function join(mixed ...$args): string
     return \TailwindPHP\Lib\TailwindMerge\twJoin(...$args);
 }
 
-// =============================================================================
+// ==================================================
 // Variants (CVA Port)
-// =============================================================================
+// ==================================================
 // PHP port of CVA (Class Variance Authority) for creating component variants.
 // https://github.com/joe-bell/cva
 

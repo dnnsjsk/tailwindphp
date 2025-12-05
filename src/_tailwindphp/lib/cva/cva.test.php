@@ -18,9 +18,9 @@ require_once __DIR__ . '/cva.php';
 
 class cva extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // cx tests
-    // =========================================================================
+    // ==================================================
 
     public static function cxTestProvider(): array
     {
@@ -52,9 +52,9 @@ class cva extends TestCase
         $this->assertSame($expected, $result);
     }
 
-    // =========================================================================
+    // ==================================================
     // compose tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function test_compose_merges_components(): void
@@ -96,9 +96,9 @@ class cva extends TestCase
         $this->assertSame('shadow-md gap-3 adhoc-class', $card(['shadow' => 'md', 'gap' => '3', 'className' => 'adhoc-class']));
     }
 
-    // =========================================================================
+    // ==================================================
     // cva tests - without anything (empty)
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function test_cva_empty(): void
@@ -112,9 +112,9 @@ class cva extends TestCase
         $this->assertSame('adhoc-class adhoc-className', $example(['class' => 'adhoc-class', 'className' => 'adhoc-className']));
     }
 
-    // =========================================================================
+    // ==================================================
     // cva tests - without base, without defaults
-    // =========================================================================
+    // ==================================================
 
     public static function cvaWithoutBaseWithoutDefaultsProvider(): array
     {
@@ -208,9 +208,9 @@ class cva extends TestCase
         $this->assertSame($expected, $button($props));
     }
 
-    // =========================================================================
+    // ==================================================
     // cva tests - with base, with defaults
-    // =========================================================================
+    // ==================================================
 
     public static function cvaWithBaseWithDefaultsProvider(): array
     {
@@ -309,9 +309,9 @@ class cva extends TestCase
         $this->assertSame($expected, $button($props));
     }
 
-    // =========================================================================
+    // ==================================================
     // cva tests - with base, without defaults
-    // =========================================================================
+    // ==================================================
 
     public static function cvaWithBaseWithoutDefaultsProvider(): array
     {
@@ -407,9 +407,9 @@ class cva extends TestCase
         $this->assertSame($expected, $button($props));
     }
 
-    // =========================================================================
+    // ==================================================
     // defineConfig tests
-    // =========================================================================
+    // ==================================================
 
     #[Test]
     public function test_defineConfig_onComplete_extends_cx(): void

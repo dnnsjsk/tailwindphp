@@ -12,9 +12,9 @@ use TailwindPHP\Tailwind;
  */
 class ModifiersTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // OPACITY MODIFIERS (/50, /[0.5], etc.)
-    // =========================================================================
+    // ==================================================
 
     public function test_bg_color_with_opacity_number(): void
     {
@@ -132,9 +132,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('--tw-gradient-to:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // THEME OPACITY MODIFIERS
-    // =========================================================================
+    // ==================================================
 
     public function test_opacity_from_theme(): void
     {
@@ -154,9 +154,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // LINE HEIGHT MODIFIERS (text-lg/7, text-base/loose)
-    // =========================================================================
+    // ==================================================
 
     public function test_text_with_line_height_number(): void
     {
@@ -200,9 +200,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('line-height: 2rem', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ARBITRARY VALUES
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_color(): void
     {
@@ -298,9 +298,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('width: var(--custom-width)', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // ARBITRARY PROPERTIES
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_property_simple(): void
     {
@@ -345,9 +345,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('clip-path:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // NEGATIVE VALUES
-    // =========================================================================
+    // ==================================================
 
     public function test_negative_margin(): void
     {
@@ -397,9 +397,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('margin-inline-start:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FRACTION VALUES
-    // =========================================================================
+    // ==================================================
 
     // Tailwind 4 uses calc() for fractions instead of computed percentages
     public function test_width_fraction(): void
@@ -445,9 +445,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('translate:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // IMPORTANT MODIFIER
-    // =========================================================================
+    // ==================================================
 
     public function test_important_basic(): void
     {
@@ -481,9 +481,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('!important', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // COMPLEX COMBINATIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_variant_with_arbitrary_and_opacity(): void
     {
@@ -527,9 +527,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('.group', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE OPACITY MODIFIERS (5, 10, 15, ... 95)
-    // =========================================================================
+    // ==================================================
 
     public function test_bg_opacity_5(): void
     {
@@ -701,9 +701,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('border-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE COLOR TESTS
-    // =========================================================================
+    // ==================================================
 
     // All color palette shades
     public function test_bg_red_50(): void
@@ -888,9 +888,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('background-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE LINE HEIGHT WITH TEXT SIZE COMBINATIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_text_xs_7(): void
     {
@@ -962,9 +962,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('line-height:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE GRADIENT STOP OPACITY
-    // =========================================================================
+    // ==================================================
 
     public function test_from_opacity_10(): void
     {
@@ -1020,9 +1020,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('--tw-gradient-to:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE RING/SHADOW OPACITY
-    // =========================================================================
+    // ==================================================
 
     public function test_ring_color_opacity_25(): void
     {
@@ -1060,9 +1060,9 @@ class ModifiersTest extends TestCase
         $this->assertStringContainsString('--tw-shadow-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE ARBITRARY VALUE TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_margin_px(): void
     {

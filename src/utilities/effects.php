@@ -91,9 +91,9 @@ function colorToHex(string $color): string
  */
 function registerEffectsUtilities(UtilityBuilder $builder): void
 {
-    // =========================================================================
+    // ==================================================
     // Opacity
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('opacity', [
         'themeKeys' => ['--opacity'],
@@ -130,9 +130,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         },
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Box Shadow
-    // =========================================================================
+    // ==================================================
 
     // Shadow/Ring stacking system - combined box-shadow value
     $cssBoxShadowValue = 'var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow)';
@@ -441,9 +441,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         return null;
     });
 
-    // =========================================================================
+    // ==================================================
     // Ring utilities
-    // =========================================================================
+    // ==================================================
 
     // ring-inset static utility
     $builder->staticUtility('ring-inset', [
@@ -678,9 +678,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
 
     // NOTE: drop-shadow utility is implemented in filters.php with full color and modifier support
 
-    // =========================================================================
+    // ==================================================
     // Mix Blend Mode
-    // =========================================================================
+    // ==================================================
 
     $blendModes = [
         'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
@@ -692,17 +692,17 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         $builder->staticUtility("mix-blend-$mode", [['mix-blend-mode', $mode]]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Background Blend Mode
-    // =========================================================================
+    // ==================================================
 
     foreach ($blendModes as $mode) {
         $builder->staticUtility("bg-blend-$mode", [['background-blend-mode', $mode]]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Mask Clip
-    // =========================================================================
+    // ==================================================
 
     $maskClipValues = [
         'border' => 'border-box',
@@ -725,9 +725,9 @@ function registerEffectsUtilities(UtilityBuilder $builder): void
         ['mask-clip', 'no-clip'],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Mask Origin
-    // =========================================================================
+    // ==================================================
 
     $maskOriginValues = [
         'border' => 'border-box',

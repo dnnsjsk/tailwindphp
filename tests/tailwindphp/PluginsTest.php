@@ -15,9 +15,9 @@ use TailwindPHP\Tailwind;
  */
 class PluginsTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // @plugin DIRECTIVE - BASIC LOADING
-    // =========================================================================
+    // ==================================================
 
     public function test_plugin_directive_loads_typography(): void
     {
@@ -78,9 +78,9 @@ class PluginsTest extends TestCase
         ]);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - BASIC CLASSES
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_prose_class(): void
     {
@@ -137,9 +137,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.prose-2xl', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - COLOR MODIFIERS
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_prose_invert(): void
     {
@@ -195,9 +195,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.prose-stone', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - CSS VARIABLES
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_generates_css_variables(): void
     {
@@ -222,9 +222,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('p', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - OPTIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_custom_classname(): void
     {
@@ -272,9 +272,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.markdown-invert', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - COMBINED MODIFIERS
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_prose_with_multiple_modifiers(): void
     {
@@ -298,9 +298,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.prose-slate', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FORMS PLUGIN - BASIC CLASSES
-    // =========================================================================
+    // ==================================================
 
     public function test_forms_input_class(): void
     {
@@ -356,9 +356,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.form-radio', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FORMS PLUGIN - ALL CLASSES TOGETHER
-    // =========================================================================
+    // ==================================================
 
     public function test_forms_all_classes(): void
     {
@@ -381,9 +381,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.form-radio', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FORMS PLUGIN - OPTIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_forms_class_strategy(): void
     {
@@ -416,9 +416,9 @@ class PluginsTest extends TestCase
         $this->assertIsString($css);
     }
 
-    // =========================================================================
+    // ==================================================
     // MULTIPLE PLUGINS
-    // =========================================================================
+    // ==================================================
 
     public function test_multiple_plugins_loaded(): void
     {
@@ -480,9 +480,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.form-input', $css2);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLUGINS WITH OTHER DIRECTIVES
-    // =========================================================================
+    // ==================================================
 
     public function test_plugin_with_theme(): void
     {
@@ -542,9 +542,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.article', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLUGINS WITH VARIANTS
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_with_hover_variant(): void
     {
@@ -592,9 +592,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString(':disabled', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLUGINS WITH ARBITRARY VALUES (if supported)
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_with_arbitrary_prose_value(): void
     {
@@ -607,9 +607,9 @@ class PluginsTest extends TestCase
         $this->assertIsString($css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLUGIN EDGE CASES
-    // =========================================================================
+    // ==================================================
 
     public function test_plugin_without_tailwind_utilities_directive(): void
     {
@@ -658,9 +658,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.prose', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY PLUGIN - ELEMENT TARGETING
-    // =========================================================================
+    // ==================================================
 
     public function test_typography_targets_headings(): void
     {
@@ -699,9 +699,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('--tw-prose-quotes', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FORMS PLUGIN - STYLING PROPERTIES
-    // =========================================================================
+    // ==================================================
 
     public function test_forms_input_has_appearance_none(): void
     {
@@ -732,9 +732,9 @@ class PluginsTest extends TestCase
         $this->assertStringContainsString('.form-select', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // PLUGIN INTEGRATION WITH COMPILE API
-    // =========================================================================
+    // ==================================================
 
     public function test_plugin_with_compile_api(): void
     {

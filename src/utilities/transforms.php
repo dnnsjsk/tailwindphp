@@ -36,9 +36,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
 {
     $theme = $builder->getTheme();
 
-    // =========================================================================
+    // ==================================================
     // Transform Origin
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('origin', [
         'themeKeys' => ['--transform-origin'],
@@ -59,9 +59,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Perspective Origin
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('perspective-origin', [
         'themeKeys' => ['--perspective-origin'],
@@ -82,9 +82,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Perspective
-    // =========================================================================
+    // ==================================================
 
     $builder->functionalUtility('perspective', [
         'themeKeys' => ['--perspective'],
@@ -97,9 +97,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Translate
-    // =========================================================================
+    // ==================================================
 
     // translate-none
     $builder->staticUtility('translate-none', [['translate', 'none']]);
@@ -158,9 +158,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ['translate', 'var(--tw-translate-x) var(--tw-translate-y) var(--tw-translate-z)'],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Scale
-    // =========================================================================
+    // ==================================================
 
     // scale-none
     $builder->staticUtility('scale-none', [['scale', 'none']]);
@@ -282,9 +282,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ['scale', 'var(--tw-scale-x) var(--tw-scale-y) var(--tw-scale-z)'],
     ]);
 
-    // =========================================================================
+    // ==================================================
     // Rotate
-    // =========================================================================
+    // ==================================================
 
     // rotate-none
     $builder->staticUtility('rotate-none', [['rotate', 'none']]);
@@ -340,9 +340,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Skew
-    // =========================================================================
+    // ==================================================
 
     // skew-* (both x and y)
     $builder->functionalUtility('skew', [
@@ -389,9 +389,9 @@ function registerTransformsUtilities(UtilityBuilder $builder): void
         ]);
     }
 
-    // =========================================================================
+    // ==================================================
     // Transform (general)
-    // =========================================================================
+    // ==================================================
 
     $builder->staticUtility('transform', [
         ['transform', $transformValue],

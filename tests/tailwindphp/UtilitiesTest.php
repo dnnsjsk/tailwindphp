@@ -22,9 +22,9 @@ class UtilitiesTest extends TestCase
         }
     }
 
-    // =========================================================================
+    // ==================================================
     // LAYOUT (layout.php)
-    // =========================================================================
+    // ==================================================
 
     // Display
     public function test_display_block(): void
@@ -340,9 +340,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('box-decoration-slice', 'box-decoration-break: slice');
     }
 
-    // =========================================================================
+    // ==================================================
     // FLEXBOX & GRID (flexbox.php)
-    // =========================================================================
+    // ==================================================
 
     // Flex Direction
     public function test_flex_row(): void
@@ -716,9 +716,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('place-self-center', 'place-self: center');
     }
 
-    // =========================================================================
+    // ==================================================
     // SPACING (spacing.php)
-    // =========================================================================
+    // ==================================================
 
     // Padding
     public function test_p_0(): void
@@ -834,9 +834,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('space-y-reverse', '--tw-space-y-reverse');
     }
 
-    // =========================================================================
+    // ==================================================
     // SIZING (sizing.php)
-    // =========================================================================
+    // ==================================================
 
     // Width
     public function test_w_0(): void
@@ -1020,9 +1020,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('size-full', 'width: 100%');
     }
 
-    // =========================================================================
+    // ==================================================
     // TYPOGRAPHY (typography.php)
-    // =========================================================================
+    // ==================================================
 
     // Font Family
     public function test_font_sans(): void
@@ -1424,9 +1424,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('list-outside', 'list-style-position: outside');
     }
 
-    // =========================================================================
+    // ==================================================
     // BACKGROUNDS (backgrounds.php)
-    // =========================================================================
+    // ==================================================
 
     // Background Attachment
     public function test_bg_fixed(): void
@@ -1634,9 +1634,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('to-100%', '--tw-gradient-to-position: 100%');
     }
 
-    // =========================================================================
+    // ==================================================
     // BORDERS (borders.php)
-    // =========================================================================
+    // ==================================================
 
     // Border Radius
     public function test_rounded(): void
@@ -1920,9 +1920,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('ring-offset-red-500', '--tw-ring-offset-color:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EFFECTS (effects.php)
-    // =========================================================================
+    // ==================================================
 
     // Box Shadow
     public function test_shadow(): void
@@ -2022,9 +2022,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('bg-blend-multiply', 'background-blend-mode: multiply');
     }
 
-    // =========================================================================
+    // ==================================================
     // FILTERS (filters.php)
-    // =========================================================================
+    // ==================================================
 
     // Blur
     public function test_blur(): void
@@ -2214,9 +2214,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('backdrop-sepia', 'backdrop-filter:');
     }
 
-    // =========================================================================
+    // ==================================================
     // TRANSFORMS (transforms.php)
-    // =========================================================================
+    // ==================================================
 
     // Scale
     public function test_scale_0(): void
@@ -2332,9 +2332,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('origin-bottom-left', 'transform-origin: 0 100%');
     }
 
-    // =========================================================================
+    // ==================================================
     // TRANSITIONS & ANIMATION (transitions.php)
-    // =========================================================================
+    // ==================================================
 
     // Transition Property
     public function test_transition(): void
@@ -2454,9 +2454,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('animate-bounce', 'animation:');
     }
 
-    // =========================================================================
+    // ==================================================
     // INTERACTIVITY (interactivity.php)
-    // =========================================================================
+    // ==================================================
 
     // Accent Color (currentcolor is lowercase per CSS spec)
     public function test_accent_auto(): void
@@ -2740,9 +2740,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('will-change-transform', 'will-change: transform');
     }
 
-    // =========================================================================
+    // ==================================================
     // SVG (svg.php)
-    // =========================================================================
+    // ==================================================
 
     // Fill (currentcolor is lowercase per CSS spec)
     public function test_fill_none(): void
@@ -2802,9 +2802,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('stroke-2', 'stroke-width: 2');
     }
 
-    // =========================================================================
+    // ==================================================
     // ACCESSIBILITY (accessibility.php)
-    // =========================================================================
+    // ==================================================
 
     public function test_sr_only(): void
     {
@@ -2823,9 +2823,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('forced-color-adjust-none', 'forced-color-adjust: none');
     }
 
-    // =========================================================================
+    // ==================================================
     // TABLES (tables.php)
-    // =========================================================================
+    // ==================================================
 
     // Border Collapse
     public function test_border_collapse(): void
@@ -2875,9 +2875,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('caption-bottom', 'caption-side: bottom');
     }
 
-    // =========================================================================
+    // ==================================================
     // ARBITRARY VALUES
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_width(): void
     {
@@ -2934,9 +2934,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('[margin:10px_20px]', 'margin: 10px 20px');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE TYPOGRAPHY TESTS
-    // =========================================================================
+    // ==================================================
 
     // All font sizes
     public function test_text_3xl(): void
@@ -3008,9 +3008,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('leading-relaxed', 'line-height: var(--leading-relaxed)');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE CURSOR TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_cursor_crosshair(): void
     {
@@ -3121,9 +3121,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('cursor-zoom-out', 'cursor: zoom-out');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE BLEND MODE TESTS
-    // =========================================================================
+    // ==================================================
 
     // Mix blend modes
     public function test_mix_blend_darken(): void
@@ -3241,9 +3241,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('bg-blend-luminosity', 'background-blend-mode: luminosity');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE TRANSFORM TESTS
-    // =========================================================================
+    // ==================================================
 
     // All scale values
     public function test_scale_75(): void
@@ -3467,9 +3467,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('origin-bottom-right', 'transform-origin: 100% 100%');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE SPACING TESTS
-    // =========================================================================
+    // ==================================================
 
     // All common spacing values for padding
     public function test_p_0_5(): void
@@ -3655,9 +3655,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('m-24', 'margin:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE WIDTH/HEIGHT TESTS
-    // =========================================================================
+    // ==================================================
 
     // All common width values
     public function test_w_0_5(): void
@@ -3997,9 +3997,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('size-1/2', 'width:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE MAX-WIDTH TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_max_w_2xl(): void
     {
@@ -4026,9 +4026,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('max-w-7xl', 'max-width:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE GAP TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_gap_0_5(): void
     {
@@ -4103,9 +4103,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('gap-px', 'gap:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE Z-INDEX TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_z_20(): void
     {
@@ -4128,9 +4128,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('-z-30', 'z-index:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE BORDER RADIUS TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_rounded_2xl(): void
     {
@@ -4237,9 +4237,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('rounded-ee', 'border-end-end-radius:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE BORDER WIDTH TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_border_x_0(): void
     {
@@ -4306,9 +4306,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('border-l-2', 'border-left-width: 2px');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE OPACITY TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_opacity_5(): void
     {
@@ -4383,9 +4383,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('opacity-95', 'opacity:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE FILTER TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_blur_2xl(): void
     {
@@ -4582,9 +4582,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('backdrop-opacity-100', 'backdrop-filter:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE RING TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_ring_4(): void
     {
@@ -4611,9 +4611,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('ring-offset-8', '--tw-ring-offset-width:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE OUTLINE TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_outline_8(): void
     {
@@ -4632,15 +4632,15 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('outline-offset-8', 'outline-offset:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE ANIMATION TESTS
-    // =========================================================================
+    // ==================================================
 
     // animate-in and animate-out are not Tailwind 4 default utilities
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE TRANSITION DURATION TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_duration_0(): void
     {
@@ -4651,9 +4651,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('duration-700', 'transition-duration:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE GRID TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_grid_cols_2(): void
     {
@@ -4828,9 +4828,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('grid-flow-col-dense', 'grid-auto-flow: column dense');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE INSET TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_inset_1(): void
     {
@@ -4985,9 +4985,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('-left-1', 'left:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE FLEX TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_grow_1(): void
     {
@@ -5078,9 +5078,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('-order-1', 'order:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE OBJECT POSITION TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_object_left(): void
     {
@@ -5107,9 +5107,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('object-right-bottom', 'object-position:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE OVERFLOW TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_overflow_x_visible(): void
     {
@@ -5140,9 +5140,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('overflow-y-clip', 'overflow-y: clip');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE SCROLL SNAP TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_scroll_mr_4(): void
     {
@@ -5169,9 +5169,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('scroll-pl-4', 'scroll-padding-left:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE TOUCH ACTION TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_touch_pan_left(): void
     {
@@ -5190,9 +5190,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('touch-pan-down', 'touch-action:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE VERTICAL ALIGN TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_align_text_top(): void
     {
@@ -5211,18 +5211,18 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('align-super', 'vertical-align: super');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE CONTENT TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_content_none(): void
     {
         $this->assertGenerates('content-none', 'content: none');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE PLACE TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_place_content_end(): void
     {
@@ -5269,9 +5269,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('place-self-stretch', 'place-self: stretch');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE JUSTIFY TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_justify_normal(): void
     {
@@ -5290,9 +5290,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('justify-self-stretch', 'justify-self: stretch');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE ALIGN TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_content_normal(): void
     {
@@ -5323,9 +5323,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('self-baseline', 'align-self: baseline');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE COLUMNS TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_columns_3(): void
     {
@@ -5420,9 +5420,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('columns-7xl', 'columns:');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE BREAK TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_break_before_avoid(): void
     {
@@ -5493,9 +5493,9 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('break-inside-avoid-column', 'break-inside: avoid-column');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE TABLE DISPLAY TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_display_inline_table(): void
     {
@@ -5534,22 +5534,22 @@ class UtilitiesTest extends TestCase
         $this->assertGenerates('list-item', 'display: list-item');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE LIST STYLE TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_list_image_none(): void
     {
         $this->assertGenerates('list-image-none', 'list-style-image: none');
     }
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE APPEARANCE TESTS
-    // =========================================================================
+    // ==================================================
 
-    // =========================================================================
+    // ==================================================
     // EXHAUSTIVE CONTAIN TESTS
-    // =========================================================================
+    // ==================================================
 
     public function test_contain_none(): void
     {

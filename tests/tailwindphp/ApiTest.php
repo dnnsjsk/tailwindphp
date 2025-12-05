@@ -24,9 +24,9 @@ use TailwindPHP\tw;
  */
 class ApiTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // Tailwind::generate()
-    // =========================================================================
+    // ==================================================
 
     public function test_generate_with_string_input(): void
     {
@@ -82,9 +82,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('margin:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // tw:: alias
-    // =========================================================================
+    // ==================================================
 
     public function test_tw_alias_works(): void
     {
@@ -92,9 +92,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('display: flex', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::extractCandidates()
-    // =========================================================================
+    // ==================================================
 
     public function test_extract_from_class_attribute(): void
     {
@@ -168,9 +168,9 @@ class ApiTest extends TestCase
         $this->assertContains('h-2/3', $candidates);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::compile() - returns TailwindCompiler instance
-    // =========================================================================
+    // ==================================================
 
     public function test_compile_returns_tailwind_compiler(): void
     {
@@ -217,9 +217,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('background-color:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::properties() - static method
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_with_string(): void
     {
@@ -277,9 +277,9 @@ class ApiTest extends TestCase
         $this->assertEmpty($props);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::computedProperties() - static method
-    // =========================================================================
+    // ==================================================
 
     public function test_computed_properties_with_string(): void
     {
@@ -317,9 +317,9 @@ class ApiTest extends TestCase
         $this->assertSame('flex', $props['display']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::value() - static method
-    // =========================================================================
+    // ==================================================
 
     public function test_value_with_string(): void
     {
@@ -359,9 +359,9 @@ class ApiTest extends TestCase
         $this->assertSame('.5', $value);
     }
 
-    // =========================================================================
+    // ==================================================
     // Tailwind::computedValue() - static method
-    // =========================================================================
+    // ==================================================
 
     public function test_computed_value_with_string(): void
     {
@@ -410,9 +410,9 @@ class ApiTest extends TestCase
         $this->assertSame('2rem', Tailwind::computedValue('p-8'));
     }
 
-    // =========================================================================
+    // ==================================================
     // TailwindCompiler instance methods
-    // =========================================================================
+    // ==================================================
 
     public function test_compiler_properties(): void
     {
@@ -521,9 +521,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('.p-4 {', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases and special values
-    // =========================================================================
+    // ==================================================
 
     public function test_arbitrary_value(): void
     {
@@ -602,9 +602,9 @@ class ApiTest extends TestCase
         $this->assertArrayHasKey('border-radius', $props);
     }
 
-    // =========================================================================
+    // ==================================================
     // tw:: static alias for all methods
-    // =========================================================================
+    // ==================================================
 
     public function test_tw_properties(): void
     {
@@ -648,9 +648,9 @@ class ApiTest extends TestCase
         $this->assertIsString($minified);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Multi-property utilities
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_shadow_excludes_at_property_declarations(): void
     {
@@ -711,9 +711,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('var(--tw-ring-shadow)', $value);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Color utilities
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_bg_color(): void
     {
@@ -770,9 +770,9 @@ class ApiTest extends TestCase
         $this->assertSame('var(--color-green-500)', $props['border-color']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Typography utilities with multiple properties
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_text_lg(): void
     {
@@ -799,9 +799,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('rem', $props['font-size']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Border utilities
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_border(): void
     {
@@ -828,9 +828,9 @@ class ApiTest extends TestCase
         $this->assertSame('var(--radius-lg)', $props['border-radius']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Display and layout utilities
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_flex_returns_single_property(): void
     {
@@ -860,9 +860,9 @@ class ApiTest extends TestCase
         $this->assertSame(['display' => 'block'], $props);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Gap and spacing
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_gap(): void
     {
@@ -880,9 +880,9 @@ class ApiTest extends TestCase
         $this->assertSame('1rem', $props['gap']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Transform utilities (multiple CSS variable properties)
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_translate_x(): void
     {
@@ -901,9 +901,9 @@ class ApiTest extends TestCase
         $this->assertStringContainsString('var(--tw-translate-x)', $value);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Width and height
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_w_full(): void
     {
@@ -934,9 +934,9 @@ class ApiTest extends TestCase
         $this->assertSame('1rem', $props['width']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Opacity
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_opacity(): void
     {
@@ -952,9 +952,9 @@ class ApiTest extends TestCase
         $this->assertSame('.75', $value);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Z-index
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_z_index(): void
     {
@@ -970,9 +970,9 @@ class ApiTest extends TestCase
         $this->assertSame(['z-index' => '50'], $props);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Inset utilities
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_inset_0(): void
     {
@@ -989,9 +989,9 @@ class ApiTest extends TestCase
         $this->assertSame('0rem', $props['inset']);
     }
 
-    // =========================================================================
+    // ==================================================
     // Edge cases: Arbitrary values
-    // =========================================================================
+    // ==================================================
 
     public function test_properties_arbitrary_padding(): void
     {

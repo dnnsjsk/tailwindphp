@@ -12,9 +12,9 @@ use TailwindPHP\Tailwind;
  */
 class FunctionsTest extends TestCase
 {
-    // =========================================================================
+    // ==================================================
     // theme() FUNCTION
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_function_color(): void
     {
@@ -115,9 +115,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('.btn', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // --theme() FUNCTION
-    // =========================================================================
+    // ==================================================
 
     public function test_double_dash_theme_function(): void
     {
@@ -181,9 +181,9 @@ class FunctionsTest extends TestCase
         // Inline modifier should return the value directly instead of var()
     }
 
-    // =========================================================================
+    // ==================================================
     // --spacing() FUNCTION
-    // =========================================================================
+    // ==================================================
 
     public function test_spacing_function_number(): void
     {
@@ -229,9 +229,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('.custom', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // --alpha() FUNCTION
-    // =========================================================================
+    // ==================================================
 
     public function test_alpha_function_percentage(): void
     {
@@ -282,9 +282,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('.custom', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FUNCTIONS IN UTILITIES
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_function_in_utility_class(): void
     {
@@ -307,9 +307,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('padding:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // FUNCTIONS IN @theme
-    // =========================================================================
+    // ==================================================
 
     public function test_theme_function_within_theme_block(): void
     {
@@ -341,9 +341,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('--spacing-custom:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // COMPLEX FUNCTION COMBINATIONS
-    // =========================================================================
+    // ==================================================
 
     public function test_nested_functions(): void
     {
@@ -398,9 +398,9 @@ class FunctionsTest extends TestCase
         $this->assertStringContainsString('margin:', $css);
     }
 
-    // =========================================================================
+    // ==================================================
     // EDGE CASES
-    // =========================================================================
+    // ==================================================
 
     public function test_function_with_empty_fallback(): void
     {
