@@ -667,7 +667,9 @@ function compileAst(array $ast, array $options = []): array
                 return toCss($compiled);
             }
 
-            $didChange = false;
+            // Track if this is the first build call with inline candidates
+            $hasInlineCandidates = !empty($allValidCandidates) && $compiled === null;
+            $didChange = $hasInlineCandidates;
 
             // Add all new candidates unless we know they are invalid
             $prevSize = count($allValidCandidates);
@@ -683,7 +685,7 @@ function compileAst(array $ast, array $options = []): array
                 }
             }
 
-            // If no new candidates were added, return cached result
+            // If no new candidates were added and no inline candidates to process, return cached result
             if (!$didChange) {
                 if ($compiled === null) {
                     $compiled = optimizeAst($ast, $designSystem, $options['polyfills'] ?? POLYFILL_ALL);
@@ -742,6 +744,7 @@ function parseCss(array &$ast, array $options = []): array
     $utilitiesNodePath = null;
     $sources = [];
     $inlineCandidates = [];
+    $ignoredCandidates = [];
     $root = null;
     $firstThemeRule = null;
     $important = false;
@@ -753,7 +756,7 @@ function parseCss(array &$ast, array $options = []): array
     $seenVirtualModules = [];
 
     // Walk AST to find @tailwind utilities, @theme, @source, @utility, @custom-variant, @plugin, @media important
-    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$firstThemeRule, &$important, &$customVariants, &$plugins, $options, &$seenFiles, &$seenVirtualModules) {
+    walk($ast, function (&$node, $ctx) use (&$features, &$theme, &$utilitiesNodePath, &$sources, &$inlineCandidates, &$ignoredCandidates, &$firstThemeRule, &$important, &$customVariants, &$plugins, $options, &$seenFiles, &$seenVirtualModules) {
         if ($node['kind'] !== 'at-rule') {
             return WalkAction::Continue;
         }
@@ -827,12 +830,64 @@ function parseCss(array &$ast, array $options = []): array
 
         // Handle @source
         if ($node['name'] === '@source') {
-            $path = trim($node['params'], "\"'");
-            $sources[] = [
-                'base' => $options['base'] ?? '',
-                'pattern' => $path,
-                'negated' => false,
-            ];
+            // Validate: @source cannot have a body
+            if (!empty($node['nodes'])) {
+                throw new \Exception('`@source` cannot have a body.');
+            }
+
+            // Validate: @source cannot be nested
+            if ($ctx->parent !== null) {
+                throw new \Exception('`@source` cannot be nested.');
+            }
+
+            $not = false;
+            $inline = false;
+            $path = $node['params'];
+
+            // Check for 'not' prefix
+            if (str_starts_with($path, 'not ')) {
+                $not = true;
+                $path = substr($path, 4);
+            }
+
+            // Check for 'inline()' wrapper
+            if (str_starts_with($path, 'inline(') && str_ends_with($path, ')')) {
+                $inline = true;
+                $path = substr($path, 7, -1);
+            }
+
+            // Validate: paths must be quoted
+            if (
+                ($path[0] === '"' && $path[strlen($path) - 1] !== '"') ||
+                ($path[0] === "'" && $path[strlen($path) - 1] !== "'") ||
+                ($path[0] !== "'" && $path[0] !== '"')
+            ) {
+                throw new \Exception('`@source` paths must be quoted.');
+            }
+
+            $source = substr($path, 1, -1);
+
+            if ($inline) {
+                // Inline candidates: expand brace patterns and add to appropriate list
+                $destination = $not ? 'ignored' : 'inline';
+                $parts = \TailwindPHP\Utils\segment($source, ' ');
+                foreach ($parts as $part) {
+                    foreach (\TailwindPHP\Utils\expand($part) as $candidate) {
+                        if ($destination === 'ignored') {
+                            $ignoredCandidates[] = $candidate;
+                        } else {
+                            $inlineCandidates[] = $candidate;
+                        }
+                    }
+                }
+            } else {
+                // File/directory source pattern
+                $sources[] = [
+                    'base' => $options['base'] ?? '',
+                    'pattern' => $source,
+                    'negated' => $not,
+                ];
+            }
 
             return WalkAction::ReplaceSkip([]);
         }
@@ -1241,6 +1296,13 @@ function parseCss(array &$ast, array $options = []): array
     // Set important flag on design system
     if ($important) {
         $designSystem->setImportant(true);
+    }
+
+    // Add ignored candidates (from @source not inline("...")) to design system
+    if (!empty($ignoredCandidates)) {
+        foreach ($ignoredCandidates as $candidate) {
+            $designSystem->addInvalidCandidate($candidate);
+        }
     }
 
     // Apply plugins

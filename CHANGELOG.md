@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-05
+
+### Added
+
+#### Full @source Directive Support
+- `@source "./path"` - File/directory patterns for content scanning
+- `@source not "./ignored"` - Negated patterns to exclude paths
+- `@source inline("flex p-4 m-2")` - Inline candidates directly in CSS
+- `@source not inline("legacy-class")` - Ignore specific candidates
+- Brace expansion support in inline patterns: `@source inline("p-{1,2,4}")`
+- Validation: @source cannot be nested or have a body
+- 24 new tests for @source directive
+
+### Changed
+
+- Test suite expanded to 4,025 tests (+24 from v1.1.0)
+- Inline candidates from `@source inline()` are now compiled on first build
+
 ## [1.1.0] - 2025-12-05
 
 ### Added
@@ -114,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No external runtime dependencies
 - Zero Node.js requirement
 
+[1.2.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.2.0
 [1.1.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.1.0
 [1.0.1]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.0

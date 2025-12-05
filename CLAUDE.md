@@ -822,7 +822,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 4,001 tests (all passing)**
+**Total: 4,025 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -1044,6 +1044,23 @@ Tests for the CLI application (1:1 port of @tailwindcss/cli):
 - CLI Input class (argument parsing, options, commands)
 - CLI Output class (colors, formatting, quiet/verbose modes)
 
+### @source Directive Tests (`tests/SourceDirectiveTest.php`)
+
+| Test File | Status | Tests |
+|-----------|--------|-------|
+| `SourceDirectiveTest.php` | ✅ | 24 |
+
+Tests for the @source directive:
+- Basic file/directory patterns (`@source "./templates"`)
+- Glob patterns (`@source "./src/**/*.html"`)
+- Negated patterns (`@source not "./ignored"`)
+- Inline candidates (`@source inline("flex p-4")`)
+- Ignored candidates (`@source not inline("legacy")`)
+- Brace expansion in inline patterns
+- Validation (no body, no nesting, quoted paths)
+- Quote styles (single and double quotes)
+- CLI integration (sources array returned)
+
 ### Outside Scope (0 tests - intentionally empty)
 
 These PHP test files exist but contain no tests because the TypeScript originals test features outside the scope of this port (JS runtime, IDE tooling):
@@ -1084,6 +1101,7 @@ Other TypeScript test files not ported: `config.test.ts`, `resolve-config.test.t
 - ✅ Invalid `theme()` candidates filtered out
 - ✅ File-based caching with TTL support
 - ✅ CLI (1:1 port of @tailwindcss/cli with -i, -o, -w, -m, --optimize, --cwd options)
+- ✅ `@source` directive with full support (`not`, `inline()`, brace expansion)
 
 ### Port Deviation Markers
 
