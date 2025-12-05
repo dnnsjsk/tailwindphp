@@ -1008,4 +1008,92 @@ class ApiTest extends TestCase
         $this->assertArrayHasKey('background-color', $props);
         $this->assertSame('#ff0000', $props['background-color']);
     }
+
+    // ==================================================
+    // Theme value accessors
+    // ==================================================
+
+    public function test_colors_static(): void
+    {
+        $colors = tw::colors();
+
+        $this->assertIsArray($colors);
+        $this->assertArrayHasKey('red-500', $colors);
+        $this->assertArrayHasKey('blue-500', $colors);
+        $this->assertArrayHasKey('white', $colors);
+        $this->assertArrayHasKey('black', $colors);
+    }
+
+    public function test_colors_compiler_instance(): void
+    {
+        $compiler = tw::compile();
+        $colors = $compiler->colors();
+
+        $this->assertIsArray($colors);
+        $this->assertArrayHasKey('red-500', $colors);
+        $this->assertArrayHasKey('blue-500', $colors);
+    }
+
+    public function test_colors_with_custom_theme(): void
+    {
+        $colors = tw::colors('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+        $this->assertArrayHasKey('brand', $colors);
+        $this->assertSame('#3b82f6', $colors['brand']);
+    }
+
+    public function test_breakpoints_static(): void
+    {
+        $breakpoints = tw::breakpoints();
+
+        $this->assertIsArray($breakpoints);
+        $this->assertArrayHasKey('sm', $breakpoints);
+        $this->assertArrayHasKey('md', $breakpoints);
+        $this->assertArrayHasKey('lg', $breakpoints);
+        $this->assertArrayHasKey('xl', $breakpoints);
+        $this->assertArrayHasKey('2xl', $breakpoints);
+    }
+
+    public function test_breakpoints_compiler_instance(): void
+    {
+        $compiler = tw::compile();
+        $breakpoints = $compiler->breakpoints();
+
+        $this->assertIsArray($breakpoints);
+        $this->assertArrayHasKey('sm', $breakpoints);
+        $this->assertSame('40rem', $breakpoints['sm']);
+    }
+
+    public function test_breakpoints_with_custom_theme(): void
+    {
+        $breakpoints = tw::breakpoints('@import "tailwindcss"; @theme { --breakpoint-xs: 20rem; }');
+
+        $this->assertArrayHasKey('xs', $breakpoints);
+        $this->assertSame('20rem', $breakpoints['xs']);
+    }
+
+    public function test_spacing_static(): void
+    {
+        $spacing = tw::spacing();
+
+        // TailwindCSS 4 uses a single --spacing base value, not --spacing-* namespace
+        // So default theme returns empty array
+        $this->assertIsArray($spacing);
+    }
+
+    public function test_spacing_compiler_instance(): void
+    {
+        $compiler = tw::compile();
+        $spacing = $compiler->spacing();
+
+        $this->assertIsArray($spacing);
+    }
+
+    public function test_spacing_with_custom_theme(): void
+    {
+        $spacing = tw::spacing('@import "tailwindcss"; @theme { --spacing-huge: 10rem; }');
+
+        $this->assertArrayHasKey('huge', $spacing);
+        $this->assertSame('10rem', $spacing['huge']);
+    }
 }

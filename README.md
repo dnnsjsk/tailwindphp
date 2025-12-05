@@ -53,6 +53,9 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
   - [tw::extractCandidates()](#twextractcandidates)
   - [tw::minify()](#twminify)
   - [tw::clearCache()](#twclearcache)
+  - [tw::colors()](#twcolors)
+  - [tw::breakpoints()](#twbreakpoints)
+  - [tw::spacing()](#twspacing)
   - [Input Formats](#input-formats)
   - [TailwindCompiler Instance Methods](#tailwindcompiler-instance-methods)
 - [Classname Utilities](#classname-utilities)
@@ -676,6 +679,67 @@ tw::clearCache();
 tw::clearCache('/path/to/cache');
 ```
 
+### `tw::colors()`
+
+Get all color values from the theme.
+
+**Returns:** `array<string, string>` - Map of color name to computed value
+
+```php
+use TailwindPHP\tw;
+
+tw::colors();
+// ['red-500' => 'oklch(63.7% 0.237 25.331)', 'blue-500' => 'oklch(62.3% 0.214 259.815)', ...]
+
+// With custom theme
+tw::colors('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+// [..., 'brand' => '#3b82f6']
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->colors();
+```
+
+### `tw::breakpoints()`
+
+Get all breakpoint values from the theme.
+
+**Returns:** `array<string, string>` - Map of breakpoint name to value
+
+```php
+use TailwindPHP\tw;
+
+tw::breakpoints();
+// ['sm' => '40rem', 'md' => '48rem', 'lg' => '64rem', 'xl' => '80rem', '2xl' => '96rem']
+
+// With custom theme
+tw::breakpoints('@import "tailwindcss"; @theme { --breakpoint-xs: 20rem; }');
+// ['xs' => '20rem', 'sm' => '40rem', ...]
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->breakpoints();
+```
+
+### `tw::spacing()`
+
+Get custom spacing values from the theme.
+
+**Returns:** `array<string, string>` - Map of spacing name to value
+
+```php
+use TailwindPHP\tw;
+
+// Note: TailwindCSS 4 uses a single --spacing base value, not --spacing-* namespace
+// This returns any custom --spacing-* values defined in the theme
+tw::spacing('@import "tailwindcss"; @theme { --spacing-huge: 10rem; }');
+// ['huge' => '10rem']
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->spacing();
+```
+
 ### Input Formats
 
 All static methods accept multiple input formats:
@@ -717,6 +781,11 @@ $compiler->computedValue('bg-brand');   // '#3b82f6'
 
 // Minify CSS
 $minified = $compiler->minify($css);
+
+// Get theme values
+$compiler->colors();          // All color values
+$compiler->breakpoints();     // All breakpoint values
+$compiler->spacing();         // Custom spacing values
 
 // Access internals (advanced)
 $compiler->getTheme();        // Theme object with resolved values

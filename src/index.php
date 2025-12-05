@@ -2656,6 +2656,63 @@ class TailwindCompiler
     }
 
     /**
+     * Get all color values from the theme.
+     *
+     * Returns a flat array of color name => computed value pairs.
+     *
+     * @return array<string, string> Map of color name to computed value
+     */
+    public function colors(): array
+    {
+        return $this->getThemeNamespace('color');
+    }
+
+    /**
+     * Get all breakpoint values from the theme.
+     *
+     * @return array<string, string> Map of breakpoint name to value
+     */
+    public function breakpoints(): array
+    {
+        return $this->getThemeNamespace('breakpoint');
+    }
+
+    /**
+     * Get all spacing values from the theme.
+     *
+     * Note: TailwindCSS 4 uses a single --spacing base value, not --spacing-* namespace.
+     * This returns any custom --spacing-* values defined in the theme.
+     *
+     * @return array<string, string> Map of spacing name to computed value
+     */
+    public function spacing(): array
+    {
+        return $this->getThemeNamespace('spacing');
+    }
+
+    /**
+     * Get all values from a theme namespace.
+     *
+     * @param string $namespace The namespace (e.g., 'color', 'breakpoint', 'spacing')
+     * @return array<string, string> Map of name to computed value
+     */
+    private function getThemeNamespace(string $namespace): array
+    {
+        $prefix = "--{$namespace}-";
+        $result = [];
+
+        foreach ($this->theme->entries() as [$key, $entry]) {
+            if (str_starts_with($key, $prefix)) {
+                $name = substr($key, strlen($prefix));
+                $value = $this->resolveValue($entry['value']);
+                $result[$name] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Get CSS declarations for a utility class.
      *
      * @param string $utility
@@ -2956,6 +3013,45 @@ class Tailwind
     public static function clearCache(string|bool|null $cache = true): int
     {
         return clearCache($cache);
+    }
+
+    /**
+     * Get all color values from the theme.
+     *
+     * @param string $css Optional CSS configuration
+     * @return array<string, string> Map of color name to computed value
+     */
+    public static function colors(string $css = '@import "tailwindcss";'): array
+    {
+        $compiler = new TailwindCompiler($css);
+
+        return $compiler->colors();
+    }
+
+    /**
+     * Get all breakpoint values from the theme.
+     *
+     * @param string $css Optional CSS configuration
+     * @return array<string, string> Map of breakpoint name to value
+     */
+    public static function breakpoints(string $css = '@import "tailwindcss";'): array
+    {
+        $compiler = new TailwindCompiler($css);
+
+        return $compiler->breakpoints();
+    }
+
+    /**
+     * Get all spacing values from the theme.
+     *
+     * @param string $css Optional CSS configuration
+     * @return array<string, string> Map of spacing name to computed value
+     */
+    public static function spacing(string $css = '@import "tailwindcss";'): array
+    {
+        $compiler = new TailwindCompiler($css);
+
+        return $compiler->spacing();
     }
 
     /**
