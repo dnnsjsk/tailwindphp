@@ -11,7 +11,7 @@
 
 A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
-> **Built with AI** — This entire codebase (57,000+ lines, 4,025 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
+> **Built with AI** — This entire codebase (57,000+ lines, 4,034 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
 
 ## Why This Exists
 
@@ -106,7 +106,7 @@ $css = tw::generate([
 
 ## Status
 
-✅ **4,025 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **4,034 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
