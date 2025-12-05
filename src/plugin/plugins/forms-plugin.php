@@ -91,14 +91,41 @@ class FormsPlugin implements PluginInterface
             // Handle multiple selectors
             if (is_array($selectors)) {
                 foreach ($selectors as $selector) {
-                    $result[$selector] = $styles;
+                    // Merge styles with existing if selector already exists
+                    if (isset($result[$selector])) {
+                        $result[$selector] = $this->mergeStyles($result[$selector], $styles);
+                    } else {
+                        $result[$selector] = $styles;
+                    }
                 }
             } else {
-                $result[$selectors] = $styles;
+                // Merge styles with existing if selector already exists
+                if (isset($result[$selectors])) {
+                    $result[$selectors] = $this->mergeStyles($result[$selectors], $styles);
+                } else {
+                    $result[$selectors] = $styles;
+                }
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Merge two style arrays, with later styles taking precedence.
+     */
+    private function mergeStyles(array $existing, array $new): array
+    {
+        foreach ($new as $property => $value) {
+            if (is_array($value) && isset($existing[$property]) && is_array($existing[$property])) {
+                // Recursively merge nested rules (like &:focus, @media, etc.)
+                $existing[$property] = $this->mergeStyles($existing[$property], $value);
+            } else {
+                $existing[$property] = $value;
+            }
+        }
+
+        return $existing;
     }
 
     /**

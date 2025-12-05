@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,913%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-4,001%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -11,7 +11,7 @@
 
 A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
-> **Built with AI** — This entire codebase (41,000+ lines, 3,913 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
+> **Built with AI** — This entire codebase (57,000+ lines, 4,001 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
 
 ## Why This Exists
 
@@ -103,7 +103,7 @@ $css = tw::generate([
 
 ## Status
 
-✅ **3,913 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **4,001 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -489,6 +489,8 @@ TailwindPHP provides a comprehensive API for CSS generation and inspection.
 
 Generate CSS from HTML content containing Tailwind classes.
 
+**Returns:** `string` - The generated CSS
+
 ```php
 use TailwindPHP\tw;
 
@@ -509,6 +511,8 @@ $css = tw::generate([
 ### `tw::compile()`
 
 Create a reusable `TailwindCompiler` instance for multiple operations.
+
+**Returns:** `TailwindCompiler` - A reusable compiler instance
 
 ```php
 use TailwindPHP\tw;
@@ -531,6 +535,8 @@ $minified = $compiler->minify($css);
 
 Get raw CSS properties for a class (unresolved CSS variables).
 
+**Returns:** `array<string, string>` - Property name to value mapping
+
 ```php
 use TailwindPHP\tw;
 
@@ -550,6 +556,8 @@ $compiler->properties('p-4');
 ### `tw::computedProperties()`
 
 Get computed CSS properties with all variables resolved.
+
+**Returns:** `array<string, string>` - Property name to resolved value mapping
 
 ```php
 use TailwindPHP\tw;
@@ -575,6 +583,8 @@ $compiler->computedProperties('p-4');
 
 Get raw value for a utility class (unresolved).
 
+**Returns:** `?string` - The raw CSS value, or null if utility not found
+
 ```php
 use TailwindPHP\tw;
 
@@ -593,6 +603,8 @@ $compiler->value('p-4');
 ### `tw::computedValue()`
 
 Get computed value for a utility class (resolved).
+
+**Returns:** `?string` - The resolved CSS value, or null if utility not found
 
 ```php
 use TailwindPHP\tw;
@@ -617,6 +629,8 @@ $compiler->computedValue('p-4');
 
 Extract Tailwind class names from content.
 
+**Returns:** `array<string>` - Array of extracted class names
+
 ```php
 use TailwindPHP\tw;
 
@@ -628,6 +642,8 @@ tw::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
 
 Minify CSS output.
 
+**Returns:** `string` - The minified CSS
+
 ```php
 use TailwindPHP\tw;
 
@@ -638,6 +654,8 @@ $minified = tw::minify($css);
 ### `tw::clearCache()`
 
 Clear the CSS cache.
+
+**Returns:** `int` - Number of files deleted
 
 ```php
 use TailwindPHP\tw;

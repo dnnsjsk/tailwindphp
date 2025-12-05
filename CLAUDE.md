@@ -822,7 +822,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,913 tests (all passing)**
+**Total: 4,001 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -840,6 +840,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 |-----------|--------|-------|
 | `plugin.test.php` | ✅ | 9 (core plugin functionality) |
 | `typography_plugin.test.php` | ✅ | 16 (13 N/A - v3-specific behavior) |
+| `forms_plugin.test.php` | ✅ | 29 |
 
 **Plugin System:**
 - `plugin.php` - Core plugin system (PluginInterface, PluginAPI, PluginManager)
@@ -1023,11 +1024,13 @@ Tests for file-based caching:
 - clearCache() function and tw::clearCache() static method
 - Cache directory auto-creation
 
-### CLI Tests (`tests/CliTest.php`)
+### CLI Tests (`tests/`)
 
 | Test File | Status | Tests |
 |-----------|--------|-------|
 | `CliTest.php` | ✅ | 25 |
+| `CliInputTest.php` | ✅ | 35 |
+| `CliOutputTest.php` | ✅ | 24 |
 
 Tests for the CLI application (1:1 port of @tailwindcss/cli):
 - Input argument and option parsing (-i, -o, -w, -m, --cwd, etc.)
@@ -1038,6 +1041,8 @@ Tests for the CLI application (1:1 port of @tailwindcss/cli):
 - Output directory creation
 - Error handling (missing files, invalid paths)
 - Application help and version output
+- CLI Input class (argument parsing, options, commands)
+- CLI Output class (colors, formatting, quiet/verbose modes)
 
 ### Outside Scope (0 tests - intentionally empty)
 

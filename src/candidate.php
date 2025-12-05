@@ -1030,6 +1030,11 @@ function printVariant(array $variant): string
 }
 
 /**
+ * Maximum cache size for candidate caches (FIFO eviction when exceeded).
+ */
+const CACHE_MAX_SIZE = 256;
+
+/**
  * Cache for printArbitraryValue results.
  * @var array<string, string>
  */
@@ -1106,6 +1111,11 @@ function printArbitraryValue(string $input): string
     recursivelyEscapeUnderscores($ast);
 
     $result = valueToCss($ast);
+
+    // Cache with size limit (FIFO eviction)
+    if (count($printArbitraryValueCache) >= CACHE_MAX_SIZE) {
+        array_shift($printArbitraryValueCache);
+    }
     $printArbitraryValueCache[$input] = $result;
 
     return $result;
@@ -1171,11 +1181,20 @@ function simplifyArbitraryVariant(string $input): string
         $ast[2]['value'] === 'is'
     ) {
         $result = valueToCss($ast[2]['nodes']);
+
+        // Cache with size limit (FIFO eviction)
+        if (count($simplifyArbitraryVariantCache) >= CACHE_MAX_SIZE) {
+            array_shift($simplifyArbitraryVariantCache);
+        }
         $simplifyArbitraryVariantCache[$input] = $result;
 
         return $result;
     }
 
+    // Cache with size limit (FIFO eviction)
+    if (count($simplifyArbitraryVariantCache) >= CACHE_MAX_SIZE) {
+        array_shift($simplifyArbitraryVariantCache);
+    }
     $simplifyArbitraryVariantCache[$input] = $input;
 
     return $input;
@@ -1256,6 +1275,11 @@ function isVar(string $value): bool
 
     $ast = valueParse($value);
     $result = count($ast) === 1 && $ast[0]['kind'] === 'function' && $ast[0]['value'] === 'var';
+
+    // Cache with size limit (FIFO eviction)
+    if (count($isVarCache) >= CACHE_MAX_SIZE) {
+        array_shift($isVarCache);
+    }
     $isVarCache[$value] = $result;
 
     return $result;
