@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-3,814%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-3,913%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -43,6 +43,18 @@ Building TailwindPHP created an opportunity to unify the Tailwind ecosystem's be
   - [Preflight](#preflight)
   - [Minification](#minification)
   - [Caching](#caching)
+- [API](#api)
+  - [tw::generate()](#twgenerate)
+  - [tw::compile()](#twcompile)
+  - [tw::properties()](#twproperties)
+  - [tw::computedProperties()](#twcomputedproperties)
+  - [tw::value()](#twvalue)
+  - [tw::computedValue()](#twcomputedvalue)
+  - [tw::extractCandidates()](#twextractcandidates)
+  - [tw::minify()](#twminify)
+  - [tw::clearCache()](#twclearcache)
+  - [Input Formats](#input-formats)
+  - [TailwindCompiler Instance Methods](#tailwindcompiler-instance-methods)
 - [Classname Utilities](#classname-utilities)
   - [cn()](#cn)
   - [merge()](#merge)
@@ -91,12 +103,13 @@ $css = tw::generate([
 
 ## Status
 
-✅ **3,814 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **3,913 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
 | API Coverage (utilities, modifiers, variants, directives, plugins) | 1,774 | ✅ |
+| API (tw::generate, tw::compile, tw::properties, tw::computedProperties, etc.) | 120 | ✅ |
 | PHP-specific unit tests (theme, design-system, utils, helpers) | 300 | ✅ |
 | Import functionality | 42 | ✅ |
 | Edge cases | 57 | ✅ |
@@ -464,6 +477,216 @@ tw::clearCache('/path/to/cache');
 
 // Or use the function
 clearCache('/path/to/cache');
+```
+
+---
+
+## API
+
+TailwindPHP provides a comprehensive API for CSS generation and inspection.
+
+### `tw::generate()`
+
+Generate CSS from HTML content containing Tailwind classes.
+
+```php
+use TailwindPHP\tw;
+
+// String input
+$css = tw::generate('<div class="flex p-4">');
+
+// String with custom CSS
+$css = tw::generate('<div class="flex bg-brand">', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Array input
+$css = tw::generate([
+    'content' => '<div class="flex p-4">',
+    'css' => '@import "tailwindcss";',
+    'minify' => true,
+]);
+```
+
+### `tw::compile()`
+
+Create a reusable `TailwindCompiler` instance for multiple operations.
+
+```php
+use TailwindPHP\tw;
+
+// Create compiler with default Tailwind
+$compiler = tw::compile();
+
+// Create compiler with custom CSS
+$compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Generate CSS from the compiler
+$css = $compiler->css('<div class="flex p-4 bg-brand">');
+
+// Minified output
+$minified = $compiler->css('<div class="flex p-4">', minify: true);
+```
+
+### `tw::properties()`
+
+Get raw CSS properties for a class (unresolved CSS variables).
+
+```php
+use TailwindPHP\tw;
+
+// Static method - single class
+tw::properties('p-4');
+// ['padding' => 'calc(var(--spacing) * 4)']
+
+// Static method - multiple classes
+tw::properties('flex items-center p-4');
+// ['display' => 'flex', 'align-items' => 'center', 'padding' => 'calc(var(--spacing) * 4)']
+
+// With custom CSS
+tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->properties('p-4');
+```
+
+### `tw::computedProperties()`
+
+Get computed CSS properties with all variables resolved.
+
+```php
+use TailwindPHP\tw;
+
+// Static method
+tw::computedProperties('p-4');
+// ['padding' => '1rem']
+
+tw::computedProperties('text-blue-500');
+// ['color' => 'oklch(.546 .245 262.881)']
+
+// Multiple classes
+tw::computedProperties('flex items-center gap-4');
+// ['display' => 'flex', 'align-items' => 'center', 'gap' => '1rem']
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->computedProperties('p-4');
+// ['padding' => '1rem']
+```
+
+### `tw::value()`
+
+Get raw value for a single CSS property (unresolved).
+
+```php
+use TailwindPHP\tw;
+
+// Static method
+tw::value('p-4', 'padding');
+// 'calc(var(--spacing) * 4)'
+
+tw::value('text-blue-500', 'color');
+// 'var(--color-blue-500)'
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->value('p-4', 'padding');
+```
+
+### `tw::computedValue()`
+
+Get computed value for a single CSS property (resolved).
+
+```php
+use TailwindPHP\tw;
+
+// Static method
+tw::computedValue('p-4', 'padding');
+// '1rem'
+
+tw::computedValue('text-blue-500', 'color');
+// 'oklch(.546 .245 262.881)'
+
+tw::computedValue('gap-4', 'gap');
+// '1rem'
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->computedValue('p-4', 'padding');
+// '1rem'
+```
+
+### `tw::extractCandidates()`
+
+Extract Tailwind class names from content.
+
+```php
+use TailwindPHP\tw;
+
+tw::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
+// ['flex', 'p-4', 'bg-blue-500']
+```
+
+### `tw::minify()`
+
+Minify CSS output.
+
+```php
+use TailwindPHP\tw;
+
+$css = tw::generate('<div class="flex p-4">');
+$minified = tw::minify($css);
+```
+
+### `tw::clearCache()`
+
+Clear the CSS cache.
+
+```php
+use TailwindPHP\tw;
+
+// Clear default cache
+tw::clearCache();
+
+// Clear custom cache directory
+tw::clearCache('/path/to/cache');
+```
+
+### Input Formats
+
+All static methods accept multiple input formats:
+
+```php
+// Format 1: String only
+tw::generate('<div class="flex">');
+tw::properties('p-4');
+
+// Format 2: String + CSS string
+tw::generate('<div class="flex">', '@import "tailwindcss"; @theme { ... }');
+tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Format 3: Array with 'content' and optional 'css'
+tw::generate(['content' => '<div class="flex">', 'css' => '@import "tailwindcss";']);
+tw::properties(['content' => 'p-4', 'css' => '@import "tailwindcss";']);
+```
+
+### TailwindCompiler Instance Methods
+
+When using `tw::compile()`, the returned compiler provides instance methods:
+
+```php
+$compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Generate CSS
+$compiler->css('<div class="flex p-4 bg-brand">');
+$compiler->css('<div class="flex">', minify: true);
+
+// Get properties
+$compiler->properties('p-4');           // Raw: ['padding' => 'calc(var(--spacing) * 4)']
+$compiler->computedProperties('p-4');   // Computed: ['padding' => '1rem']
+
+// Get single values
+$compiler->value('p-4', 'padding');           // Raw: 'calc(var(--spacing) * 4)'
+$compiler->computedValue('p-4', 'padding');   // Computed: '1rem'
 ```
 
 ---

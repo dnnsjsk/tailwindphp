@@ -738,35 +738,35 @@ class PluginsTest extends TestCase
 
     public function test_plugin_with_compile_api(): void
     {
-        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
-        $css = $result['build'](['prose', 'prose-lg']);
+        $compiler = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
+        $css = $compiler->css(['prose', 'prose-lg']);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('.prose-lg', $css);
     }
 
     public function test_plugin_incremental_build(): void
     {
-        $result = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
+        $compiler = Tailwind::compile('@plugin "@tailwindcss/typography"; @import "tailwindcss/utilities.css";');
 
         // First build
-        $css1 = $result['build'](['prose']);
+        $css1 = $compiler->css(['prose']);
         $this->assertStringContainsString('.prose', $css1);
         $this->assertStringNotContainsString('.prose-lg', $css1);
 
         // Second build with additional classes
-        $css2 = $result['build'](['prose', 'prose-lg']);
+        $css2 = $compiler->css(['prose', 'prose-lg']);
         $this->assertStringContainsString('.prose', $css2);
         $this->assertStringContainsString('.prose-lg', $css2);
     }
 
     public function test_multiple_plugins_with_compile_api(): void
     {
-        $result = Tailwind::compile('
+        $compiler = Tailwind::compile('
             @plugin "@tailwindcss/typography";
             @plugin "@tailwindcss/forms";
             @import "tailwindcss/utilities.css";
         ');
-        $css = $result['build'](['prose', 'form-input']);
+        $css = $compiler->css(['prose', 'form-input']);
         $this->assertStringContainsString('.prose', $css);
         $this->assertStringContainsString('.form-input', $css);
     }

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-05
+
+### Added
+
+#### TailwindCompiler Class
+- `tw::compile()` - Create a reusable `TailwindCompiler` instance for multiple operations
+- `$compiler->css()` - Generate CSS from HTML content using the compiled design system
+- Supports minification via `minify: true` parameter
+
+#### CSS Property Inspection API
+- `tw::properties()` - Get raw CSS properties for class(es) with unresolved CSS variables
+- `tw::computedProperties()` - Get computed CSS properties with all variables resolved
+- `tw::value()` - Get raw value for a single CSS property
+- `tw::computedValue()` - Get computed value for a single CSS property (resolved)
+- All methods available as both static methods and compiler instance methods
+
+#### Flexible Input Formats
+- All static methods now accept three input formats:
+  - String only: `tw::properties('p-4')`
+  - String + CSS: `tw::properties('bg-brand', '@import "tailwindcss"; @theme { ... }')`
+  - Array: `tw::properties(['content' => 'p-4', 'css' => '@import "tailwindcss";'])`
+
+### Changed
+
+- Expanded test suite to 3,913 tests (+99 from v1.0.1)
+- Updated documentation with comprehensive API section
+
 ## [1.0.1] - 2025-12-04
 
 ### Fixed
@@ -87,5 +114,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No external runtime dependencies
 - Zero Node.js requirement
 
+[1.1.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.1.0
 [1.0.1]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.1
 [1.0.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.0

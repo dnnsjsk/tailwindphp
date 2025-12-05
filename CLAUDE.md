@@ -525,6 +525,80 @@ tw::clearCache(); // Default directory
 tw::clearCache('/path/to/cache'); // Custom directory
 ```
 
+### TailwindCompiler Instance
+
+Create a reusable compiler instance for multiple operations:
+
+```php
+use TailwindPHP\tw;
+
+// Create compiler with default Tailwind
+$compiler = tw::compile();
+
+// Create compiler with custom CSS
+$compiler = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Generate CSS from the compiler
+$css = $compiler->css('<div class="flex p-4 bg-brand">');
+
+// Minified output
+$minified = $compiler->css('<div class="flex p-4">', minify: true);
+```
+
+### CSS Property Inspection
+
+Get raw or computed CSS properties for classes:
+
+```php
+use TailwindPHP\tw;
+
+// Raw properties (unresolved CSS variables)
+tw::properties('p-4');
+// ['padding' => 'calc(var(--spacing) * 4)']
+
+tw::properties('flex items-center p-4');
+// ['display' => 'flex', 'align-items' => 'center', 'padding' => 'calc(var(--spacing) * 4)']
+
+// Computed properties (resolved values)
+tw::computedProperties('p-4');
+// ['padding' => '1rem']
+
+tw::computedProperties('text-blue-500');
+// ['color' => 'oklch(.546 .245 262.881)']
+
+// Single value extraction
+tw::value('p-4', 'padding');           // 'calc(var(--spacing) * 4)'
+tw::computedValue('p-4', 'padding');   // '1rem'
+
+// With custom CSS
+tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->properties('p-4');
+$compiler->computedProperties('p-4');
+$compiler->value('p-4', 'padding');
+$compiler->computedValue('p-4', 'padding');
+```
+
+### Input Formats
+
+All static methods accept multiple input formats:
+
+```php
+// Format 1: String only
+tw::generate('<div class="flex">');
+tw::properties('p-4');
+
+// Format 2: String + CSS string
+tw::generate('<div class="flex">', '@import "tailwindcss"; @theme { ... }');
+tw::properties('bg-brand', '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+
+// Format 3: Array with 'content' and optional 'css'
+tw::generate(['content' => '<div class="flex">', 'css' => '@import "tailwindcss";']);
+tw::properties(['content' => 'p-4', 'css' => '@import "tailwindcss";']);
+```
+
 ### Class Name Utilities
 
 ```php
@@ -750,7 +824,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 3,814 tests (all passing)**
+**Total: 3,913 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -818,6 +892,7 @@ Tests cover comment removal, whitespace collapsing, hex color shortening, zero u
 | `VariantsTest.php` | ✅ | 282 |
 | `DirectivesTest.php` | ✅ | 189 |
 | `PluginsTest.php` | ✅ | 61 |
+| `ApiTest.php` | ✅ | 120 |
 
 These tests provide exhaustive coverage of the TailwindPHP public API including:
 - All utility classes with various values and modifiers
@@ -831,6 +906,9 @@ These tests provide exhaustive coverage of the TailwindPHP public API including:
 - @layer order declarations and layer() modifiers
 - preflight option for easy CSS reset inclusion
 - @plugin directive and plugin system (typography, forms)
+- tw::generate(), tw::compile(), tw::properties(), tw::computedProperties(), tw::value(), tw::computedValue()
+- TailwindCompiler instance methods for reusable compilation
+- All input formats (string, string+css, array with content/css keys)
 
 ### Unit Tests (ported from TypeScript)
 

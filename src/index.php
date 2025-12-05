@@ -2374,6 +2374,370 @@ function parsePluginOptionValue(string $value): mixed
 }
 
 /**
+ * TailwindCompiler - Compiled Tailwind instance for reuse.
+ *
+ * This class provides a compiled Tailwind instance that can be reused
+ * for multiple operations without re-parsing the CSS configuration.
+ *
+ * Usage:
+ * ```php
+ * use TailwindPHP\tw;
+ *
+ * // Compile once
+ * $tw = tw::compile('@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+ *
+ * // Reuse for multiple operations
+ * $css = $tw->generate('<div class="flex p-4">');
+ * $props = $tw->properties('p-4');
+ * $value = $tw->value('p-4');
+ * ```
+ */
+class TailwindCompiler
+{
+    private array $compiled;
+    private object $designSystem;
+    private Theme $theme;
+
+    /**
+     * Create a new TailwindCompiler instance.
+     *
+     * @param string $css CSS input with @import, @theme, @utility directives
+     * @param array $options Compilation options
+     */
+    public function __construct(string $css = '@import "tailwindcss";', array $options = [])
+    {
+        $ast = parse($css);
+
+        // compileAst internally calls parseCss and returns the compiled result with build()
+        $this->compiled = compileAst($ast, $options);
+
+        // Get design system from a fresh parse (compileAst already processed it)
+        // We need to re-parse to get the design system for properties() etc.
+        $ast2 = parse($css);
+        $result = parseCss($ast2, $options);
+        $this->designSystem = $result['designSystem'];
+        $this->theme = $this->designSystem->getTheme();
+    }
+
+    /**
+     * Generate CSS from content containing Tailwind classes.
+     *
+     * @param string $content HTML string to extract classes from
+     * @return string Generated CSS
+     */
+    public function generate(string $content): string
+    {
+        $candidates = extractCandidates($content);
+
+        return $this->compiled['build']($candidates);
+    }
+
+    /**
+     * Generate CSS from an array of class candidates.
+     *
+     * @param array<string> $candidates Array of class names
+     * @return string Generated CSS
+     */
+    public function css(array $candidates): string
+    {
+        return $this->compiled['build']($candidates);
+    }
+
+    /**
+     * Get raw CSS properties for a utility class.
+     *
+     * Returns the CSS properties as they would be output, including CSS variables.
+     *
+     * @param string|array<string> $utilities Single utility or array of utilities
+     * @return array<string, string> Map of property => value
+     */
+    public function properties(string|array $utilities): array
+    {
+        if (is_string($utilities)) {
+            $utilities = [$utilities];
+        }
+
+        $result = [];
+        foreach ($utilities as $utility) {
+            $declarations = $this->getDeclarations($utility);
+            foreach ($declarations as $decl) {
+                $result[$decl['property']] = $decl['value'];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get computed CSS properties for a utility class.
+     *
+     * Returns the CSS properties with CSS variables resolved to their actual values.
+     *
+     * @param string|array<string> $utilities Single utility or array of utilities
+     * @return array<string, string> Map of property => resolved value
+     */
+    public function computedProperties(string|array $utilities): array
+    {
+        if (is_string($utilities)) {
+            $utilities = [$utilities];
+        }
+
+        $result = [];
+        foreach ($utilities as $utility) {
+            $declarations = $this->getDeclarations($utility);
+            foreach ($declarations as $decl) {
+                $result[$decl['property']] = $this->resolveValue($decl['value']);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get raw value for a utility class.
+     *
+     * Returns a CSS value as it would be output, including CSS variables.
+     * If the first property is a CSS variable (--), returns the first non-variable property
+     * value to give more useful results for utilities like colors.
+     *
+     * @param string $utility Single utility class
+     * @return string|null The raw value or null if not found
+     */
+    public function value(string $utility): ?string
+    {
+        $declarations = $this->getDeclarations($utility);
+        if (empty($declarations)) {
+            return null;
+        }
+
+        // If the first property is a CSS variable, find the first non-variable property
+        $first = $declarations[0];
+        if (str_starts_with($first['property'], '--')) {
+            foreach ($declarations as $decl) {
+                if (!str_starts_with($decl['property'], '--')) {
+                    return $decl['value'];
+                }
+            }
+        }
+
+        return $first['value'];
+    }
+
+    /**
+     * Get computed value for a utility class.
+     *
+     * Returns the first CSS value with CSS variables resolved.
+     *
+     * @param string $utility Single utility class
+     * @return string|null The resolved value or null if not found
+     */
+    public function computedValue(string $utility): ?string
+    {
+        $value = $this->value($utility);
+        if ($value === null) {
+            return null;
+        }
+
+        return $this->resolveValue($value);
+    }
+
+    /**
+     * Extract class name candidates from HTML content.
+     *
+     * @param string $html HTML content to extract classes from
+     * @return array<string> Unique class name candidates
+     */
+    public function extractCandidates(string $html): array
+    {
+        return extractCandidates($html);
+    }
+
+    /**
+     * Minify CSS output.
+     *
+     * @param string $css The CSS to minify
+     * @return string Minified CSS
+     */
+    public function minify(string $css): string
+    {
+        return \TailwindPHP\Minifier\CssMinifier::minify($css);
+    }
+
+    /**
+     * Get the compiled build function result.
+     *
+     * @return array{build: callable, sources: array, root: array, features: int}
+     */
+    public function getCompiled(): array
+    {
+        return $this->compiled;
+    }
+
+    /**
+     * Get the design system instance.
+     *
+     * @return object
+     */
+    public function getDesignSystem(): object
+    {
+        return $this->designSystem;
+    }
+
+    /**
+     * Get the theme instance.
+     *
+     * @return Theme
+     */
+    public function getTheme(): Theme
+    {
+        return $this->theme;
+    }
+
+    /**
+     * Get CSS declarations for a utility class.
+     *
+     * @param string $utility
+     * @return array<array{property: string, value: string}>
+     */
+    private function getDeclarations(string $utility): array
+    {
+        $candidates = $this->designSystem->parseCandidate($utility);
+        if (empty($candidates)) {
+            return [];
+        }
+
+        $declarations = [];
+        foreach ($candidates as $candidate) {
+            $rules = $this->designSystem->compileAstNodes($candidate, \TailwindPHP\Compile\COMPILE_FLAG_NONE);
+            if (empty($rules)) {
+                continue;
+            }
+
+            foreach ($rules as $ruleInfo) {
+                if (!isset($ruleInfo['node'])) {
+                    continue;
+                }
+
+                $node = $ruleInfo['node'];
+                $this->extractDeclarations($node, $declarations);
+            }
+
+            // Only use first valid candidate
+            if (!empty($declarations)) {
+                break;
+            }
+        }
+
+        return $declarations;
+    }
+
+    /**
+     * Recursively extract declarations from AST node.
+     *
+     * Filters out @property declarations (syntax, inherits, initial-value) as these
+     * are internal implementation details, not the actual CSS properties.
+     *
+     * @param array $node
+     * @param array &$declarations
+     */
+    private function extractDeclarations(array $node, array &$declarations): void
+    {
+        // Skip @property at-rules entirely
+        if ($node['kind'] === 'at-rule' && ($node['name'] ?? '') === '@property') {
+            return;
+        }
+
+        if ($node['kind'] === 'declaration' && isset($node['property'], $node['value'])) {
+            // Skip @property internal properties
+            $prop = $node['property'];
+            if ($prop === 'syntax' || $prop === 'inherits' || $prop === 'initial-value') {
+                return;
+            }
+
+            $declarations[] = [
+                'property' => $prop,
+                'value' => $node['value'],
+            ];
+
+            return;
+        }
+
+        if (isset($node['nodes']) && is_array($node['nodes'])) {
+            foreach ($node['nodes'] as $child) {
+                $this->extractDeclarations($child, $declarations);
+            }
+        }
+    }
+
+    /**
+     * Resolve CSS variables in a value.
+     *
+     * @param string $value
+     * @return string Resolved value
+     */
+    private function resolveValue(string $value): string
+    {
+        // Handle calc(var(--spacing) * N) pattern
+        if (preg_match('/^calc\(var\(--spacing\)\s*\*\s*(\d+(?:\.\d+)?)\)$/', $value, $matches)) {
+            $multiplier = (float) $matches[1];
+            $spacing = $this->theme->get(['--spacing']);
+            if ($spacing !== null) {
+                // Parse the spacing value (e.g., "0.25rem")
+                if (preg_match('/^([\d.]+)(.*)$/', $spacing, $spacingMatches)) {
+                    $baseValue = (float) $spacingMatches[1];
+                    $unit = $spacingMatches[2];
+                    $computed = $baseValue * $multiplier;
+                    // Format nicely - remove trailing zeros
+                    $formatted = rtrim(rtrim(number_format($computed, 4, '.', ''), '0'), '.');
+
+                    return $formatted . $unit;
+                }
+            }
+        }
+
+        // Handle simple var(--name) pattern
+        if (preg_match('/^var\(--([^)]+)\)$/', $value, $matches)) {
+            $varName = '--' . $matches[1];
+            $resolved = $this->theme->get([$varName]);
+            if ($resolved !== null) {
+                return $this->resolveValue($resolved); // Recursively resolve
+            }
+        }
+
+        // Handle var(--name, fallback) pattern
+        if (preg_match('/^var\(--([^,)]+),\s*([^)]+)\)$/', $value, $matches)) {
+            $varName = '--' . $matches[1];
+            $fallback = trim($matches[2]);
+            $resolved = $this->theme->get([$varName]);
+            if ($resolved !== null) {
+                return $this->resolveValue($resolved);
+            }
+
+            return $this->resolveValue($fallback);
+        }
+
+        // Handle calc() with var() inside
+        if (str_contains($value, 'var(')) {
+            return preg_replace_callback('/var\(--([^,)]+)(?:,\s*([^)]+))?\)/', function ($m) {
+                $varName = '--' . $m[1];
+                $fallback = $m[2] ?? null;
+                $resolved = $this->theme->get([$varName]);
+                if ($resolved !== null) {
+                    return $this->resolveValue($resolved);
+                }
+                if ($fallback !== null) {
+                    return $this->resolveValue(trim($fallback));
+                }
+
+                return $m[0]; // Keep original if can't resolve
+            }, $value) ?? $value;
+        }
+
+        return $value;
+    }
+}
+
+/**
  * TailwindPHP - Main facade class for CSS generation.
  *
  * This is the primary entry point for using TailwindPHP. It provides static methods
@@ -2381,27 +2745,26 @@ function parsePluginOptionValue(string $value): mixed
  *
  * Basic usage:
  * ```php
- * use TailwindPHP\Tailwind;
+ * use TailwindPHP\tw;
  *
  * // Simple generation from HTML
- * $css = Tailwind::generate('<div class="flex p-4">Hello</div>');
+ * $css = tw::generate('<div class="flex p-4">Hello</div>');
  *
  * // With custom CSS/theme
- * $css = Tailwind::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
+ * $css = tw::generate($html, '@import "tailwindcss"; @theme { --color-brand: #3b82f6; }');
  *
- * // With file-based imports
- * $css = Tailwind::generate([
- *     'content' => $html,
- *     'importPaths' => '/path/to/styles.css',
- * ]);
+ * // Get properties
+ * $props = tw::properties('p-4'); // ['padding' => 'calc(var(--spacing) * 4)']
+ * $props = tw::computedProperties('p-4'); // ['padding' => '1rem']
  *
- * // With custom resolver (virtual file system, database, etc.)
- * $css = Tailwind::generate([
- *     'content' => $html,
- *     'importPaths' => function ($uri, $fromFile) {
- *         return $this->loadCssFromDatabase($uri);
- *     },
- * ]);
+ * // Get single value
+ * $value = tw::value('p-4'); // 'calc(var(--spacing) * 4)'
+ * $value = tw::computedValue('p-4'); // '1rem'
+ *
+ * // Compiled instance (reuse for efficiency)
+ * $tw = tw::compile('@import "tailwindcss";');
+ * $css = $tw->generate('<div class="flex">');
+ * $props = $tw->properties('p-4');
  * ```
  */
 class Tailwind
@@ -2409,24 +2772,14 @@ class Tailwind
     /**
      * Generate CSS from content containing Tailwind classes.
      *
-     * This is the main method for generating Tailwind CSS. It extracts class names
-     * from the provided content, compiles the CSS, and returns the result.
-     *
      * @param string|array{
      *     content: string,
      *     css?: string,
      *     importPaths?: string|array<string>|callable(string|null, string|null): ?string,
      *     minify?: bool
-     * } $input HTML string, or array with configuration options:
-     *   - `content`: HTML string to extract classes from
-     *   - `css`: Optional inline CSS with @import, @theme, etc.
-     *   - `importPaths`: File path(s), directory, or callable resolver for @import
-     *   - `minify`: Whether to minify the output CSS
+     * } $input HTML string, or array with configuration options
      * @param string $css Optional CSS input (only used when $input is a string)
-     * @return string Generated CSS containing only the utilities used in content
-     *
-     * @throws \Exception When CSS parsing fails or invalid directives are used
-     * @throws \RuntimeException When file imports fail or exceed recursion limit
+     * @return string Generated CSS
      */
     public static function generate(string|array $input, string $css = '@import "tailwindcss";'): string
     {
@@ -2434,44 +2787,87 @@ class Tailwind
     }
 
     /**
-     * Compile CSS with Tailwind utilities (advanced API).
-     *
-     * Returns a compiler result with a `build()` function that can be called
-     * multiple times with different candidate sets. Useful for watch mode or
-     * incremental compilation.
+     * Compile CSS and return a TailwindCompiler instance for reuse.
      *
      * @param string $css CSS input with @import, @theme, @utility directives
-     * @param array{
-     *     base?: string,
-     *     importSearchPaths?: array<string>,
-     *     importResolver?: callable(string, string): ?string,
-     *     onDependency?: callable(string): void
-     * } $options Compilation options:
-     *   - `base`: Base directory for resolving imports
-     *   - `importSearchPaths`: Additional paths to search for imports
-     *   - `importResolver`: Custom resolver for virtual imports
-     *   - `onDependency`: Callback when a dependency is detected
-     * @return array{build: callable(array<string>): string, sources: array<string>, root: array, features: int}
-     *   - `build`: Function that takes candidates and returns CSS
-     *   - `sources`: Content source patterns detected from @source directives
-     *   - `root`: Compiled AST root
-     *   - `features`: Bitmask of detected features (FEATURE_* constants)
-     *
-     * @throws \Exception When CSS parsing fails or invalid directives are used
+     * @param array $options Compilation options
+     * @return TailwindCompiler Compiled instance with generate(), properties(), value() methods
      */
-    public static function compile(string $css, array $options = []): array
+    public static function compile(string $css = '@import "tailwindcss";', array $options = []): TailwindCompiler
     {
-        return compile($css, $options);
+        return new TailwindCompiler($css, $options);
+    }
+
+    /**
+     * Get raw CSS properties for utility class(es).
+     *
+     * @param string|array{content: string|array<string>, css?: string}|array<string> $input
+     *   - String: single utility class
+     *   - Array with 'content': utility class(es) with optional 'css' config
+     *   - Array of strings: multiple utility classes
+     * @param string $css Optional CSS configuration
+     * @return array<string, string> Map of property => raw value (with CSS variables)
+     */
+    public static function properties(string|array $input, string $css = '@import "tailwindcss";'): array
+    {
+        [$utilities, $cssConfig] = self::parseInput($input, $css);
+        $compiler = new TailwindCompiler($cssConfig);
+
+        return $compiler->properties($utilities);
+    }
+
+    /**
+     * Get computed CSS properties for utility class(es).
+     *
+     * @param string|array{content: string|array<string>, css?: string}|array<string> $input
+     * @param string $css Optional CSS configuration
+     * @return array<string, string> Map of property => resolved value (CSS variables resolved)
+     */
+    public static function computedProperties(string|array $input, string $css = '@import "tailwindcss";'): array
+    {
+        [$utilities, $cssConfig] = self::parseInput($input, $css);
+        $compiler = new TailwindCompiler($cssConfig);
+
+        return $compiler->computedProperties($utilities);
+    }
+
+    /**
+     * Get raw value for a single utility class.
+     *
+     * @param string|array{content: string, css?: string} $input
+     * @param string $css Optional CSS configuration
+     * @return string|null Raw value (with CSS variables) or null if not found
+     */
+    public static function value(string|array $input, string $css = '@import "tailwindcss";'): ?string
+    {
+        [$utilities, $cssConfig] = self::parseInput($input, $css);
+        $compiler = new TailwindCompiler($cssConfig);
+        $utility = is_array($utilities) ? $utilities[0] : $utilities;
+
+        return $compiler->value($utility);
+    }
+
+    /**
+     * Get computed value for a single utility class.
+     *
+     * @param string|array{content: string, css?: string} $input
+     * @param string $css Optional CSS configuration
+     * @return string|null Resolved value (CSS variables resolved) or null if not found
+     */
+    public static function computedValue(string|array $input, string $css = '@import "tailwindcss";'): ?string
+    {
+        [$utilities, $cssConfig] = self::parseInput($input, $css);
+        $compiler = new TailwindCompiler($cssConfig);
+        $utility = is_array($utilities) ? $utilities[0] : $utilities;
+
+        return $compiler->computedValue($utility);
     }
 
     /**
      * Extract class name candidates from HTML content.
      *
-     * Parses HTML and extracts potential Tailwind class names from `class`
-     * and `className` attributes.
-     *
      * @param string $html HTML content to extract classes from
-     * @return array<string> Unique class name candidates found in the content
+     * @return array<string> Unique class name candidates
      */
     public static function extractCandidates(string $html): array
     {
@@ -2480,14 +2876,6 @@ class Tailwind
 
     /**
      * Minify CSS output.
-     *
-     * Applies various optimizations to reduce CSS file size:
-     * - Removes comments
-     * - Collapses whitespace
-     * - Shortens hex colors (#ffffff → #fff)
-     * - Removes unnecessary units (0px → 0)
-     * - Shortens font-weight values (bold → 700)
-     * - Removes empty rules
      *
      * @param string $css The CSS to minify
      * @return string Minified CSS
@@ -2500,16 +2888,37 @@ class Tailwind
     /**
      * Clear the CSS cache.
      *
-     * Removes cached CSS files from the specified directory or the default
-     * temp directory. Only removes files matching the TailwindPHP cache pattern
-     * (tailwind_*.css).
-     *
-     * @param string|bool|null $cache Cache directory path, true for default temp dir, or null to clear default
+     * @param string|bool|null $cache Cache directory path, true for default, or null
      * @return int Number of cache files deleted
      */
     public static function clearCache(string|bool|null $cache = true): int
     {
         return clearCache($cache);
+    }
+
+    /**
+     * Parse input into utilities and CSS config.
+     *
+     * @param string|array $input
+     * @param string $css
+     * @return array{0: string|array<string>, 1: string}
+     */
+    private static function parseInput(string|array $input, string $css): array
+    {
+        if (is_string($input)) {
+            return [$input, $css];
+        }
+
+        // Array with 'content' key
+        if (isset($input['content'])) {
+            $utilities = $input['content'];
+            $cssConfig = $input['css'] ?? $css;
+
+            return [$utilities, $cssConfig];
+        }
+
+        // Plain array of utilities
+        return [$input, $css];
     }
 }
 
