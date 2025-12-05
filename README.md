@@ -635,6 +635,11 @@ use TailwindPHP\tw;
 
 tw::extractCandidates('<div class="flex p-4" className="bg-blue-500">');
 // ['flex', 'p-4', 'bg-blue-500']
+
+// From compiler instance
+$compiler = tw::compile();
+$compiler->extractCandidates('<div class="flex p-4">');
+// ['flex', 'p-4']
 ```
 
 ### `tw::minify()`
@@ -648,6 +653,11 @@ use TailwindPHP\tw;
 
 $css = tw::generate('<div class="flex p-4">');
 $minified = tw::minify($css);
+
+// From compiler instance
+$compiler = tw::compile();
+$css = $compiler->generate('<div class="flex p-4">');
+$minified = $compiler->minify($css);
 ```
 
 ### `tw::clearCache()`
