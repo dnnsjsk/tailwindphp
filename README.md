@@ -679,12 +679,12 @@ $candidates = $compiler->extractCandidates('<div class="flex p-4 bg-brand">');
 $css = $compiler->css($candidates);
 
 // Get properties
-$compiler->properties('p-4');           // Raw: ['padding' => 'calc(var(--spacing) * 4)']
-$compiler->computedProperties('p-4');   // Computed: ['padding' => '1rem']
+$compiler->properties('bg-brand');           // ['background-color' => 'var(--color-brand)']
+$compiler->computedProperties('bg-brand');   // ['background-color' => '#3b82f6']
 
 // Get single values
-$compiler->value('p-4');           // Raw: 'calc(var(--spacing) * 4)'
-$compiler->computedValue('p-4');   // Computed: '1rem'
+$compiler->value('bg-brand');           // 'var(--color-brand)'
+$compiler->computedValue('bg-brand');   // '#3b82f6'
 ```
 
 ---
