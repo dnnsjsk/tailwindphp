@@ -1,7 +1,6 @@
 <div align="center">
 
 # 🐘 TailwindPHP
-
 **A 1:1 port of TailwindCSS 4.x to PHP**
 
 Generate Tailwind CSS using pure PHP — no Node.js required.
