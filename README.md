@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>🐘 TailwindPHP</h1>
+# 🐘 TailwindPHP
 
 **A 1:1 port of TailwindCSS 4.x to PHP**
 
