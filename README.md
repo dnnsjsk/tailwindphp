@@ -7,8 +7,9 @@
 Generate Tailwind CSS using pure PHP — no Node.js required.
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
+[![Tests](https://github.com/dnnsjsk/tailwindphp/actions/workflows/tests.yml/badge.svg)](https://github.com/dnnsjsk/tailwindphp/actions/workflows/tests.yml)
+[![Code Quality](https://github.com/dnnsjsk/tailwindphp/actions/workflows/code-quality.yml/badge.svg)](https://github.com/dnnsjsk/tailwindphp/actions/workflows/code-quality.yml)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
 [![tailwind-merge](https://img.shields.io/badge/tailwind--merge-v3.4.0-blue)](https://github.com/dcastil/tailwind-merge)
