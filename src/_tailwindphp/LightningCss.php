@@ -971,18 +971,36 @@ class LightningCss
     ];
 
     /**
-     * Evaluate color-mix() expressions to oklab format.
+     * Evaluate color-mix() expressions to oklch/oklab format with alpha.
      *
      * LightningCSS evaluates color-mix() when all values are static.
      * e.g., color-mix(in oklab, red 50%, transparent) -> oklab(62.7955% .224 .125 / .5)
+     * e.g., color-mix(in oklab, oklch(63.7% .237 25.331) 50%, transparent) -> oklch(63.7% .237 25.331 / .5)
      *
      * @param string $value The CSS value
      * @return string Evaluated value
      */
     public static function evaluateColorMix(string $value): string
     {
-        // Match color-mix(in oklab, COLOR PERCENTAGE%, transparent)
-        // This is the pattern used by withAlpha()
+        // First try oklch() colors: color-mix(in oklab, oklch(...) PERCENTAGE%, transparent)
+        if (preg_match('/color-mix\(in oklab,\s*(oklch\([^)]+\))\s+(\d+(?:\.\d+)?)%?,\s*transparent\)/i', $value, $match)) {
+            $oklchColor = $match[1];
+            $percentage = floatval($match[2]);
+            $alpha = $percentage / 100;
+
+            // Format alpha
+            $alphaStr = rtrim(rtrim(number_format($alpha, 2, '.', ''), '0'), '.') ?: '0';
+            if (strpos($alphaStr, '0.') === 0) {
+                $alphaStr = substr($alphaStr, 1);
+            }
+
+            // Insert alpha into oklch: oklch(L C H) -> oklch(L C H / alpha)
+            $oklchWithAlpha = preg_replace('/\)$/', " / {$alphaStr})", $oklchColor);
+
+            return str_replace($match[0], $oklchWithAlpha, $value);
+        }
+
+        // Then try named colors: color-mix(in oklab, COLOR PERCENTAGE%, transparent)
         if (!preg_match('/color-mix\(in oklab,\s*([a-z]+)\s+(\d+(?:\.\d+)?)%?,\s*transparent\)/i', $value, $match)) {
             return $value;
         }

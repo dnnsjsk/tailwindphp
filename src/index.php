@@ -2837,7 +2837,7 @@ class TailwindCompiler
 
         // Handle calc() with var() inside
         if (str_contains($value, 'var(')) {
-            return preg_replace_callback('/var\(--([^,)]+)(?:,\s*([^)]+))?\)/', function ($m) {
+            $value = preg_replace_callback('/var\(--([^,)]+)(?:,\s*([^)]+))?\)/', function ($m) {
                 $varName = '--' . $m[1];
                 $fallback = $m[2] ?? null;
                 $resolved = $this->theme->get([$varName]);
@@ -2852,7 +2852,8 @@ class TailwindCompiler
             }, $value) ?? $value;
         }
 
-        return $value;
+        // Run through LightningCSS optimizations for consistent output with compiled CSS
+        return \TailwindPHP\LightningCss\LightningCss::optimizeValue($value);
     }
 }
 
