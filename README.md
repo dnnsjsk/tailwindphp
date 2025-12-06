@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-4,002%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-4,013%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -112,7 +112,7 @@ $css = tw::generate([
 |------------|-------|--------|
 | Core (utilities, variants, integration) | 1,322 | ✅ |
 | API Coverage (utilities, modifiers, variants, directives, plugins) | 1,774 | ✅ |
-| API (tw::generate, tw::compile, tw::properties, tw::computedProperties, etc.) | 120 | ✅ |
+| API (tw::generate, tw::compile, tw::properties, tw::computedProperties, etc.) | 140 | ✅ |
 | PHP-specific unit tests (theme, design-system, utils, helpers) | 300 | ✅ |
 | Import functionality | 42 | ✅ |
 | Edge cases | 57 | ✅ |
@@ -546,8 +546,8 @@ use TailwindPHP\tw;
 tw::properties('p-4');
 // ['padding' => 'calc(var(--spacing) * 4)']
 
-// Multiple classes
-tw::properties('flex items-center p-4');
+// Multiple classes (pass as array)
+tw::properties(['flex', 'items-center', 'p-4']);
 // ['display' => 'flex', 'align-items' => 'center', 'padding' => 'calc(var(--spacing) * 4)']
 
 // From compiler instance
@@ -571,8 +571,8 @@ tw::computedProperties('p-4');
 tw::computedProperties('text-blue-500');
 // ['color' => 'oklch(.546 .245 262.881)']
 
-// Multiple classes
-tw::computedProperties('flex items-center gap-4');
+// Multiple classes (pass as array)
+tw::computedProperties(['flex', 'items-center', 'gap-4']);
 // ['display' => 'flex', 'align-items' => 'center', 'gap' => '1rem']
 
 // From compiler instance

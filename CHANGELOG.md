@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2025-12-06
+
+### Fixed
+
+- `computedProperties()` and `computedValue()` now run through LightningCSS optimization pipeline for consistent output
+  - Color values with opacity now return `oklch()` format instead of `color-mix()`
+  - Durations normalized (e.g., `500ms` → `.5s`)
+  - Leading zeros removed (e.g., `0.5` → `.5`)
+- Fixed documentation showing incorrect syntax for multiple classes (use array, not space-separated string)
+
+### Added
+
+- 11 new tests for LightningCSS optimization in computed values
+
+### Changed
+
+- Test suite expanded to 4,013 tests (+11 from v1.2.1)
+
+## [1.2.1] - 2025-12-06
+
+### Added
+
+#### Theme Accessor Methods
+- `tw::colors()` - Get all color values from the design system
+- `tw::breakpoints()` - Get all breakpoint values from the design system
+- `tw::spacing()` - Get all spacing values from the design system
+- All methods available as both static methods and compiler instance methods
+
+### Changed
+
+- Removed unused `CandidateParser.php` and `CssFormatter.php` (dead code)
+- Test suite expanded to 4,002 tests (-32 from v1.2.0 due to dead code removal, +9 for new methods)
+- Updated compiler documentation (`->generate()` instead of deprecated `->css()`)
+
 ## [1.2.0] - 2025-12-05
 
 ### Added
@@ -132,6 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No external runtime dependencies
 - Zero Node.js requirement
 
+[1.2.2]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.2.2
+[1.2.1]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.2.1
 [1.2.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.2.0
 [1.1.0]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.1.0
 [1.0.1]: https://github.com/dnnsjsk/tailwindphp/releases/tag/v1.0.1

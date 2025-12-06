@@ -553,7 +553,7 @@ use TailwindPHP\tw;
 tw::properties('p-4');
 // ['padding' => 'calc(var(--spacing) * 4)']
 
-tw::properties('flex items-center p-4');
+tw::properties(['flex', 'items-center', 'p-4']);
 // ['display' => 'flex', 'align-items' => 'center', 'padding' => 'calc(var(--spacing) * 4)']
 
 // Computed properties (resolved values)
@@ -818,7 +818,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 4,002 tests (all passing)**
+**Total: 4,013 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -887,7 +887,7 @@ Tests cover comment removal, whitespace collapsing, hex color shortening, zero u
 | `VariantsTest.php` | ✅ | 282 |
 | `DirectivesTest.php` | ✅ | 189 |
 | `PluginsTest.php` | ✅ | 61 |
-| `ApiTest.php` | ✅ | 120 |
+| `ApiTest.php` | ✅ | 140 |
 
 These tests provide exhaustive coverage of the TailwindPHP public API including:
 - All utility classes with various values and modifiers

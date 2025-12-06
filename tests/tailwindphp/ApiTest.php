@@ -1096,4 +1096,83 @@ class ApiTest extends TestCase
         $this->assertArrayHasKey('huge', $spacing);
         $this->assertSame('10rem', $spacing['huge']);
     }
+
+    // ==================================================
+    // LightningCSS optimization in computed values
+    // ==================================================
+
+    public function test_computed_value_color_with_opacity(): void
+    {
+        // color-mix should be evaluated to oklch with alpha
+        $value = tw::computedValue('bg-red-500/50');
+        $this->assertSame('oklch(63.7% .237 25.331 / .5)', $value);
+    }
+
+    public function test_computed_value_color_without_opacity(): void
+    {
+        $value = tw::computedValue('bg-blue-500');
+        $this->assertSame('oklch(62.3% .214 259.815)', $value);
+    }
+
+    public function test_computed_value_duration_normalized(): void
+    {
+        // 500ms should become .5s
+        $value = tw::computedValue('duration-500');
+        $this->assertSame('.5s', $value);
+    }
+
+    public function test_computed_value_leading_zero_removed(): void
+    {
+        // 0.5 should become .5
+        $value = tw::computedValue('opacity-50');
+        $this->assertSame('.5', $value);
+    }
+
+    public function test_computed_value_text_size(): void
+    {
+        // 0.875rem should become .875rem
+        $value = tw::computedValue('text-sm');
+        $this->assertSame('.875rem', $value);
+    }
+
+    public function test_computed_properties_color_with_opacity(): void
+    {
+        $props = tw::computedProperties('bg-red-500/50');
+        $this->assertSame('oklch(63.7% .237 25.331 / .5)', $props['background-color']);
+    }
+
+    public function test_computed_properties_multiple_optimized(): void
+    {
+        $props = tw::computedProperties(['text-sm', 'opacity-75']);
+        $this->assertSame('.875rem', $props['font-size']);
+        $this->assertSame('.75', $props['opacity']);
+    }
+
+    public function test_properties_raw_not_optimized(): void
+    {
+        // Raw properties should NOT be optimized (they contain CSS variables)
+        $props = tw::properties('p-4');
+        $this->assertSame('calc(var(--spacing) * 4)', $props['padding']);
+    }
+
+    public function test_value_raw_not_optimized(): void
+    {
+        // Raw value should NOT be optimized
+        $value = tw::value('p-4');
+        $this->assertSame('calc(var(--spacing) * 4)', $value);
+    }
+
+    public function test_computed_value_spacing_resolved(): void
+    {
+        // calc(var(--spacing) * 4) should resolve to 1rem
+        $value = tw::computedValue('p-4');
+        $this->assertSame('1rem', $value);
+    }
+
+    public function test_compiler_computed_value_optimized(): void
+    {
+        $compiler = tw::compile();
+        $value = $compiler->computedValue('bg-green-500/25');
+        $this->assertSame('oklch(72.3% .219 149.579 / .25)', $value);
+    }
 }
