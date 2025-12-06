@@ -1,7 +1,7 @@
 # TailwindPHP
 
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.1.17-38bdf8?logo=tailwindcss&logoColor=white)](https://github.com/tailwindlabs/tailwindcss)
-[![Tests](https://img.shields.io/badge/Tests-4,025%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
+[![Tests](https://img.shields.io/badge/Tests-4,002%20passing-brightgreen)](https://github.com/dnnsjsk/tailwindphp)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)](https://php.net)
 
 [![clsx](https://img.shields.io/badge/clsx-v2.1.1-blue)](https://github.com/lukeed/clsx)
@@ -11,7 +11,7 @@
 
 A 1:1 port of TailwindCSS 4.x to PHP. Generate Tailwind CSS using pure PHP — no Node.js required.
 
-> **Built with AI** — This entire codebase (57,000+ lines, 4,034 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
+> **Built with AI** — This entire codebase (57,000+ lines, 4,002 tests) was generated using [Claude Code](https://claude.ai/code). No manual coding was done.
 
 ## Why This Exists
 
@@ -106,7 +106,7 @@ $css = tw::generate([
 
 ## Status
 
-✅ **4,034 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
+✅ **4,002 tests passing** — Feature complete for core TailwindCSS functionality plus utility libraries.
 
 | Test Suite | Tests | Status |
 |------------|-------|--------|
@@ -1122,8 +1122,7 @@ The codebase mirrors TailwindCSS's structure — same file names, same organizat
 src/
 ├── _tailwindphp/                # PHP-specific helpers (NOT part of the TailwindCSS port)
 │   ├── LightningCss.php         # CSS optimizations (lightningcss Rust library equivalent)
-│   ├── CandidateParser.php      # Candidate parsing for compilation
-│   ├── CssFormatter.php         # CSS output formatting
+│   ├── CssMinifier.php          # CSS minification
 │   └── lib/                     # Companion library ports
 │       ├── clsx/                # clsx port (27 tests from reference)
 │       ├── tailwind-merge/      # tailwind-merge port (52 tests from reference)

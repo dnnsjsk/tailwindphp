@@ -39,8 +39,6 @@
         "files": [
             "src/_tailwindphp/LightningCss.php",
             "src/_tailwindphp/CssMinifier.php",
-            "src/_tailwindphp/CandidateParser.php",
-            "src/_tailwindphp/CssFormatter.php",
             "src/attribute-selector-parser.php",
             "src/utils/segment.php",
             "src/utils/escape.php",

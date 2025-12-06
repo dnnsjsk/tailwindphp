@@ -70,8 +70,6 @@ This includes:
 
 `src/_tailwindphp/` contains PHP-specific helpers that are **NOT** part of the TailwindCSS port:
 - `LightningCss.php` - CSS optimizations (lightningcss equivalent)
-- `CandidateParser.php` - Candidate parsing helpers
-- `CssFormatter.php` - CSS output formatting
 - `CssMinifier.php` - CSS minification
 - `lib/` - Companion library ports (clsx, tailwind-merge, cva)
 
@@ -350,8 +348,6 @@ tailwindphp/
 │   │
 │   ├── _tailwindphp/           # PHP-specific (NOT part of port)
 │   │   ├── LightningCss.php    # CSS transformations
-│   │   ├── CandidateParser.php
-│   │   ├── CssFormatter.php
 │   │   ├── CssMinifier.php     # CSS minification
 │   │   └── lib/                # Companion library ports
 │   │       ├── clsx/           # clsx port (27 tests)
@@ -822,7 +818,7 @@ fwrite(STDERR, "Debug: " . print_r($value, true) . "\n");
 
 ## Current Status
 
-**Total: 4,034 tests (all passing)**
+**Total: 4,002 tests (all passing)**
 
 ### Core Tests (extracted from TypeScript test suites)
 
@@ -942,11 +938,9 @@ Tests for PHP-specific implementations and helpers (not direct TypeScript ports)
 | `utils/infer_data_type.test.php` | ✅ | 45 |
 | `utils/is_color.test.php` | ✅ | 33 |
 | `utils/math_operators.test.php` | ✅ | 22 |
-| `_tailwindphp/CandidateParser.test.php` | ✅ | 19 |
 | `utils/is_valid_arbitrary.test.php` | ✅ | 17 |
 | `property_order.test.php` | ✅ | 15 |
 | `design_system.test.php` | ✅ | 13 |
-| `_tailwindphp/CssFormatter.test.php` | ✅ | 13 |
 | `utils/dimensions.test.php` | ✅ | 10 |
 | `utils/default_map.test.php` | ✅ | 12 |
 | `utils/compare_breakpoints.test.php` | ✅ | 9 |
