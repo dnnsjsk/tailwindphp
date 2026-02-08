@@ -82,6 +82,7 @@ const VIRTUAL_MODULES = [
  * overhead in hot paths like extractCandidates() and theme value resolution.
  */
 const REGEX_CLASS_ATTR = '/class\s*=\s*["\']([^"\']+)["\']/';
+const REGEX_CLASS_ATTR_PARENS = '/->class\s*\(\s*["\']([^"\']+)["\']\s*\)/';
 const REGEX_CLASSNAME_ATTR = '/className\s*=\s*["\']([^"\']+)["\']/';
 const REGEX_WHITESPACE = '/\s+/';
 const REGEX_UNESCAPE = '/\\\\(.)/';
@@ -2108,7 +2109,7 @@ function extractCandidates(string $html): array
     $candidates = [];
 
     // Extract from class and className attributes
-    foreach ([REGEX_CLASS_ATTR, REGEX_CLASSNAME_ATTR] as $pattern) {
+    foreach ([REGEX_CLASS_ATTR, REGEX_CLASS_ATTR_PARENS ,REGEX_CLASSNAME_ATTR] as $pattern) {
         if (preg_match_all($pattern, $html, $matches)) {
             foreach ($matches[1] as $classAttr) {
                 foreach (preg_split(REGEX_WHITESPACE, $classAttr) as $class) {
