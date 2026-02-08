@@ -60,6 +60,9 @@ const FEATURE_AT_THEME = 1 << 6;
 /** @var Theme|null Cached default theme instance */
 $_defaultThemeCache = null;
 
+/* variable to store new patterns */
+$_customsPatterns = [];
+
 /**
  * Virtual modules that should not be resolved from the filesystem.
  */
@@ -888,6 +891,39 @@ function parseCss(array &$ast, array $options = []): array
                     'negated' => $not,
                 ];
             }
+
+            return WalkAction::ReplaceSkip([]);
+        }
+
+        // Handle @patterns
+        if ($node['name'] === '@patterns') {
+            if (!empty($node['nodes'])) {
+                throw new \Exception('`@patterns` cannot have a body.');
+            }
+
+            $patternsParam = $node['params'];
+
+            // Permitir sin comillas envolventes  
+            if (
+                ($patternsParam[0] === '"' && $patternsParam[strlen($patternsParam) - 1] === '"') ||
+                ($patternsParam[0] === "'" && $patternsParam[strlen($patternsParam) - 1] === "'")
+            ) {
+                $patternsParam = substr($patternsParam, 1, -1);
+            }
+
+            // Dividir por comas y limpiar  
+            $newPatterns = array_map('trim', explode(',', $patternsParam));
+            $newPatterns = array_filter($newPatterns, 'strlen');
+
+            if (empty($newPatterns)) {
+                throw new \Exception('At least one pattern is required in @patterns directive.');
+            }
+
+            global $_customsPatterns;
+            $_customsPatterns = array_merge($_customsPatterns ?? [], $newPatterns);
+            
+            // Log para debugging
+           // fwrite(STDERR, 'customPatterns encontrados y guardados: ' . json_encode($_customsPatterns) . PHP_EOL);
 
             return WalkAction::ReplaceSkip([]);
         }
@@ -2107,8 +2143,13 @@ function extractCandidates(string $html): array
 {
     $candidates = [];
 
+    global $_customsPatterns;
+    $customPatterns = $_customsPatterns ?? [];
+
+    $patterns = array_merge([REGEX_CLASS_ATTR, REGEX_CLASS_ATTR_PARENS, REGEX_CLASSNAME_ATTR], $customPatterns);
+
     // Extract from class and className attributes
-    foreach ([REGEX_CLASS_ATTR, REGEX_CLASSNAME_ATTR] as $pattern) {
+    foreach ($patterns as $pattern) {
         if (preg_match_all($pattern, $html, $matches)) {
             foreach ($matches[1] as $classAttr) {
                 foreach (preg_split(REGEX_WHITESPACE, $classAttr) as $class) {

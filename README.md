@@ -188,12 +188,16 @@ Create an `app.css` file with your Tailwind imports and `@source` directive:
 ```css
 @import "tailwindcss";
 @source "./templates";  /* Directory to scan for classes */
+
+@patterns "/->class\s*\(\s*[\"']([^\"']+)[\"']\s*\)/";/* New pattern declared */
+
 ```
 
 The `@source` directive tells TailwindPHP where to find your template files. It supports:
 - Directories: `@source "./templates";`
 - Glob patterns: `@source "./src/**/*.php";`
 - Multiple sources: Add multiple `@source` directives
+- Extended patterns: Add multiple `@patterns` directives with "new regex";
 
 ### Examples
 
