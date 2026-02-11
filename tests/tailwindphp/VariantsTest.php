@@ -1140,4 +1140,26 @@ class VariantsTest extends TestCase
         $this->assertStringContainsString('flex-direction: row', $css);
         $this->assertStringContainsString('@media (prefers-color-scheme: dark)', $css);
     }
+
+    public function test_responsive_breakpoints_sorted_mobile_first(): void
+    {
+        $css = Tailwind::generate('<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">');
+
+        $smPos = strpos($css, '@media (min-width: 40rem)');
+        $mdPos = strpos($css, '@media (min-width: 48rem)');
+        $lgPos = strpos($css, '@media (min-width: 64rem)');
+        $xlPos = strpos($css, '@media (min-width: 80rem)');
+        $xxlPos = strpos($css, '@media (min-width: 96rem)');
+
+        $this->assertNotFalse($smPos, 'sm breakpoint should be present');
+        $this->assertNotFalse($mdPos, 'md breakpoint should be present');
+        $this->assertNotFalse($lgPos, 'lg breakpoint should be present');
+        $this->assertNotFalse($xlPos, 'xl breakpoint should be present');
+        $this->assertNotFalse($xxlPos, '2xl breakpoint should be present');
+
+        $this->assertLessThan($mdPos, $smPos, 'sm should appear before md');
+        $this->assertLessThan($lgPos, $mdPos, 'md should appear before lg');
+        $this->assertLessThan($xlPos, $lgPos, 'lg should appear before xl');
+        $this->assertLessThan($xxlPos, $xlPos, 'xl should appear before 2xl');
+    }
 }
