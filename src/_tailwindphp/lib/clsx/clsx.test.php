@@ -267,7 +267,8 @@ class clsx extends TestCase
 
         // Function reference - return a closure (ignored in PHP clsx)
         if (preg_match('/^(?:fn|foo|\(\)\s*=>\s*\{\}|Object\.\w+\.\w+)$/', $value)) {
-            return function () {};
+            return function () {
+            };
         }
 
         return $value;
