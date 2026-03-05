@@ -1,7 +1,7 @@
 {
     "sourceFile": "tailwindcss\/packages\/tailwindcss\/src\/utilities.test.ts",
-    "sourceLines": 28711,
-    "totalTests": 267,
+    "sourceLines": 29976,
+    "totalTests": 284,
     "categories": {
         "accessibility": {
             "tests": 2,
@@ -45,15 +45,17 @@
             ]
         },
         "inset": {
-            "tests": 11,
-            "lines": 1746,
+            "tests": 13,
+            "lines": 1918,
             "files": 2,
             "testNames": [
                 "inset",
                 "inset-x",
                 "inset-y",
-                "start",
-                "end",
+                "inset-s",
+                "inset-e",
+                "inset-bs",
+                "inset-be",
                 "top",
                 "right",
                 "bottom",
@@ -122,8 +124,8 @@
             ]
         },
         "margin": {
-            "tests": 42,
-            "lines": 7115,
+            "tests": 48,
+            "lines": 7626,
             "files": 9,
             "testNames": [
                 "margin",
@@ -132,6 +134,8 @@
                 "mt",
                 "ms",
                 "me",
+                "mbs",
+                "mbe",
                 "mr",
                 "mb",
                 "ml",
@@ -140,6 +144,10 @@
                 "max-width",
                 "min-height",
                 "max-height",
+                "min-inline-size",
+                "max-inline-size",
+                "min-block-size",
+                "max-block-size",
                 "mask",
                 "mask-position",
                 "mask-size",
@@ -179,8 +187,8 @@
             ]
         },
         "text": {
-            "tests": 17,
-            "lines": 1483,
+            "tests": 18,
+            "lines": 1518,
             "files": 2,
             "testNames": [
                 "line-clamp",
@@ -190,6 +198,7 @@
                 "text-overflow",
                 "text-align",
                 "font",
+                "font-features",
                 "text-transform",
                 "font-style",
                 "font-stretch",
@@ -203,16 +212,18 @@
             ]
         },
         "display": {
-            "tests": 1,
-            "lines": 157,
+            "tests": 3,
+            "lines": 373,
             "files": 1,
             "testNames": [
-                "display"
+                "display",
+                "inline-size",
+                "block-size"
             ]
         },
         "aspect-ratio": {
             "tests": 1,
-            "lines": 44,
+            "lines": 49,
             "files": 1,
             "testNames": [
                 "aspect-ratio"
@@ -306,8 +317,8 @@
             ]
         },
         "padding": {
-            "tests": 12,
-            "lines": 690,
+            "tests": 14,
+            "lines": 770,
             "files": 1,
             "testNames": [
                 "perspective-origin",
@@ -318,6 +329,8 @@
                 "pt",
                 "ps",
                 "pe",
+                "pbs",
+                "pbe",
                 "pr",
                 "pb",
                 "pl",
@@ -359,8 +372,8 @@
             ]
         },
         "scroll": {
-            "tests": 22,
-            "lines": 789,
+            "tests": 26,
+            "lines": 941,
             "files": 1,
             "testNames": [
                 "scroll-snap-type",
@@ -371,6 +384,8 @@
                 "scroll-my",
                 "scroll-ms",
                 "scroll-me",
+                "scroll-mbs",
+                "scroll-mbe",
                 "scroll-mt",
                 "scroll-mr",
                 "scroll-mb",
@@ -380,6 +395,8 @@
                 "scroll-py",
                 "scroll-ps",
                 "scroll-pe",
+                "scroll-pbs",
+                "scroll-pbe",
                 "scroll-pt",
                 "scroll-pr",
                 "scroll-pb",

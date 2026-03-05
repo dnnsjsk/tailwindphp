@@ -422,6 +422,88 @@ test('pe', async () => {
   expect(await run(['pe', '-pe-4', '-pe-[4px]', 'pe-4/foo', 'pe-[4px]/foo'])).toEqual('')
 })
 
+test('pbs', async () => {
+  expect(
+    await compileCss(
+      css`
+        @theme {
+          --spacing: 0.25rem;
+          --spacing-big: 100rem;
+        }
+        @tailwind utilities;
+      `,
+      ['pbs-1', 'pbs-4', 'pbs-99', 'pbs-big', 'pbs-[4px]'],
+    ),
+  ).toMatchInlineSnapshot(`
+    ":root, :host {
+      --spacing: .25rem;
+      --spacing-big: 100rem;
+    }
+
+    .pbs-1 {
+      padding-block-start: calc(var(--spacing) * 1);
+    }
+
+    .pbs-4 {
+      padding-block-start: calc(var(--spacing) * 4);
+    }
+
+    .pbs-99 {
+      padding-block-start: calc(var(--spacing) * 99);
+    }
+
+    .pbs-\\[4px\\] {
+      padding-block-start: 4px;
+    }
+
+    .pbs-big {
+      padding-block-start: var(--spacing-big);
+    }"
+  `)
+  expect(await run(['pbs', '-pbs-4', '-pbs-[4px]', 'pbs-4/foo', 'pbs-[4px]/foo'])).toEqual('')
+})
+
+test('pbe', async () => {
+  expect(
+    await compileCss(
+      css`
+        @theme {
+          --spacing: 0.25rem;
+          --spacing-big: 100rem;
+        }
+        @tailwind utilities;
+      `,
+      ['pbe-1', 'pbe-4', 'pbe-99', 'pbe-big', 'pbe-[4px]'],
+    ),
+  ).toMatchInlineSnapshot(`
+    ":root, :host {
+      --spacing: .25rem;
+      --spacing-big: 100rem;
+    }
+
+    .pbe-1 {
+      padding-block-end: calc(var(--spacing) * 1);
+    }
+
+    .pbe-4 {
+      padding-block-end: calc(var(--spacing) * 4);
+    }
+
+    .pbe-99 {
+      padding-block-end: calc(var(--spacing) * 99);
+    }
+
+    .pbe-\\[4px\\] {
+      padding-block-end: 4px;
+    }
+
+    .pbe-big {
+      padding-block-end: var(--spacing-big);
+    }"
+  `)
+  expect(await run(['pbe', '-pbe-4', '-pbe-[4px]', 'pbe-4/foo', 'pbe-[4px]/foo'])).toEqual('')
+})
+
 test('pr', async () => {
   expect(
     await compileCss(

@@ -6,7 +6,7 @@ Tests extracted from `tailwindcss/packages/tailwindcss/src/css-functions.test.ts
 
 | Metric | Value |
 |--------|-------|
-| Source File Lines | 1379 |
+| Source File Lines | 1380 |
 | Original Tests | 63 |
 | Extracted Cases | 63 |
 | Output tests | 55 |

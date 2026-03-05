@@ -131,13 +131,13 @@ class UtilitiesTest extends TestCase
     {
         $this->assertGenerates('left-0', 'left:');
     }
-    public function test_start_0(): void
+    public function test_inset_s_0(): void
     {
-        $this->assertGenerates('start-0', 'inset-inline-start:');
+        $this->assertGenerates('inset-s-0', 'inset-inline-start:');
     }
-    public function test_end_0(): void
+    public function test_inset_e_0(): void
     {
-        $this->assertGenerates('end-0', 'inset-inline-end:');
+        $this->assertGenerates('inset-e-0', 'inset-inline-end:');
     }
 
     // Z-index
@@ -4944,21 +4944,21 @@ class UtilitiesTest extends TestCase
     {
         $this->assertGenerates('left-full', 'left: 100%');
     }
-    public function test_start_1(): void
+    public function test_inset_s_1(): void
     {
-        $this->assertGenerates('start-1', 'inset-inline-start:');
+        $this->assertGenerates('inset-s-1', 'inset-inline-start:');
     }
-    public function test_start_auto(): void
+    public function test_inset_s_auto(): void
     {
-        $this->assertGenerates('start-auto', 'inset-inline-start: auto');
+        $this->assertGenerates('inset-s-auto', 'inset-inline-start: auto');
     }
-    public function test_end_1(): void
+    public function test_inset_e_1(): void
     {
-        $this->assertGenerates('end-1', 'inset-inline-end:');
+        $this->assertGenerates('inset-e-1', 'inset-inline-end:');
     }
-    public function test_end_auto(): void
+    public function test_inset_e_auto(): void
     {
-        $this->assertGenerates('end-auto', 'inset-inline-end: auto');
+        $this->assertGenerates('inset-e-auto', 'inset-inline-end: auto');
     }
     public function test_negative_inset_1(): void
     {

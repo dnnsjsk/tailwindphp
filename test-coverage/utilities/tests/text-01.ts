@@ -286,7 +286,8 @@ test('font', async () => {
     }
 
     :root, :host {
-      --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+                "Segoe UI Symbol", "Noto Color Emoji";
       --font-weight-bold: 650;
     }
 
@@ -362,6 +363,41 @@ test('font', async () => {
         'font-[number:var(--my-weight)]/foo',
       ],
     ),
+  ).toEqual('')
+})
+
+test('font-features', async () => {
+  expect(
+    await run([
+      'font-features-["smcp"]',
+      'font-features-["c2sc","smcp"]',
+      'font-features-[var(--my-features)]',
+      'font-features-(--my-features)',
+    ]),
+  ).toMatchInlineSnapshot(`
+    ".font-features-\\(--my-features\\) {
+      font-feature-settings: var(--my-features);
+    }
+
+    .font-features-\\[\\"c2sc\\"\\,\\"smcp\\"\\] {
+      font-feature-settings: "c2sc","smcp";
+    }
+
+    .font-features-\\[\\"smcp\\"\\] {
+      font-feature-settings: "smcp";
+    }
+
+    .font-features-\\[var\\(--my-features\\)\\] {
+      font-feature-settings: var(--my-features);
+    }"
+  `)
+  expect(
+    await run([
+      'font-features',
+      '-font-features-["smcp"]',
+      'font-features-smcp',
+      'font-features-["smcp"]/foo',
+    ]),
   ).toEqual('')
 })
 
@@ -678,42 +714,42 @@ test('font-variant-numeric', async () => {
 
     .diagonal-fractions {
       --tw-numeric-fraction: diagonal-fractions;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .lining-nums {
       --tw-numeric-figure: lining-nums;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .oldstyle-nums {
       --tw-numeric-figure: oldstyle-nums;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .ordinal {
       --tw-ordinal: ordinal;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .proportional-nums {
       --tw-numeric-spacing: proportional-nums;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .slashed-zero {
       --tw-slashed-zero: slashed-zero;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .stacked-fractions {
       --tw-numeric-fraction: stacked-fractions;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .tabular-nums {
       --tw-numeric-spacing: tabular-nums;
-      font-variant-numeric: var(--tw-ordinal, ) var(--tw-slashed-zero, ) var(--tw-numeric-figure, ) var(--tw-numeric-spacing, ) var(--tw-numeric-fraction, );
+      font-variant-numeric: var(--tw-ordinal,  ) var(--tw-slashed-zero,  ) var(--tw-numeric-figure,  ) var(--tw-numeric-spacing,  ) var(--tw-numeric-fraction,  );
     }
 
     .normal-nums {

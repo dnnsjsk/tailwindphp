@@ -276,6 +276,39 @@
         "expected": "\".hocus\\\\:flex:hover:focus {\n        display: flex;\n      }\""
     },
     {
+        "name": "@custom-variant can use a @variant that eventually uses another @custom-variant",
+        "type": "compileCss",
+        "classes": [
+            "a:flex",
+            "b:flex",
+            "a:b:flex",
+            "b:a:flex"
+        ],
+        "css": "@custom-variant a {\n            @slot;\n          }\n\n          @custom-variant b {\n            @variant a {\n              @slot;\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\".a\\\\:flex, .b\\\\:flex, .a\\\\:b\\\\:flex, .b\\\\:a\\\\:flex {\n        display: flex;\n      }\""
+    },
+    {
+        "name": "@custom-variant can use a @variant that eventually uses another @custom-variant (2)",
+        "type": "compileCss",
+        "classes": [
+            "a:flex",
+            "b:flex",
+            "a:b:flex",
+            "b:a:flex"
+        ],
+        "css": "@custom-variant a {\n            .a {\n              @slot;\n            }\n          }\n\n          @custom-variant b {\n            .b {\n              @variant a {\n                .a-inside-b {\n                  @slot;\n                }\n              }\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\".a\\\\:flex .a, .b\\\\:flex .b .a .a-inside-b, .a\\\\:b\\\\:flex .a .b .a .a-inside-b, .b\\\\:a\\\\:flex .b .a .a-inside-b .a {\n        display: flex;\n      }\""
+    },
+    {
+        "name": "@custom-variant can use existing @slot @variants",
+        "type": "compileCss",
+        "classes": [
+            "hocus:flex"
+        ],
+        "css": "@custom-variant hocus {\n            @variant hover {\n              @variant focus {\n                @slot;\n              }\n            }\n          }\n\n          @custom-variant hover {\n            &:hover {\n              @slot;\n            }\n\n            &[data-hover] {\n              @slot;\n            }\n          }\n\n          @tailwind utilities;",
+        "expected": "\".hocus\\\\:flex:hover:focus, .hocus\\\\:flex[data-hover]:focus {\n        display: flex;\n      }\""
+    },
+    {
         "name": "@custom-variant setup that results in a circular dependency error can be solved",
         "type": "compileCss",
         "classes": [

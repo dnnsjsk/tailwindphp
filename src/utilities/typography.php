@@ -602,6 +602,14 @@ function registerTypographyUtilities(UtilityBuilder $builder): void
         ['font-variant-numeric', $numericVar],
     ]);
 
+    // Font Feature Settings
+    $builder->functionalUtility('font-features', [
+        'themeKeys' => [],
+        'handle' => function ($value) {
+            return [decl('font-feature-settings', $value)];
+        },
+    ]);
+
     // Font Smoothing
     $builder->staticUtility('antialiased', [
         ['-webkit-font-smoothing', 'antialiased'],

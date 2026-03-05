@@ -9,7 +9,7 @@
         "expectations": [
             {
                 "property": "outline",
-                "value": "rgb(255, 255, 255) solid 2px"
+                "value": "2px solid rgb(255, 255, 255)"
             }
         ]
     },
@@ -25,11 +25,11 @@
         "expectations": [
             {
                 "property": "outline",
-                "value": "rgb(255, 255, 255) dotted 2px"
+                "value": "2px dotted rgb(255, 255, 255)"
             },
             {
                 "property": "outline",
-                "value": "rgb(255, 255, 255) dotted 4px"
+                "value": "4px dotted rgb(255, 255, 255)"
             }
         ]
     },

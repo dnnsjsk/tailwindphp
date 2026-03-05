@@ -54,7 +54,7 @@
             "animate-very-long-animation-name"
         ],
         "css": "@theme {\n            --animate-very-long-animation-name: very-long-animation-name\n              var(\n                --very-long-animation-name-configuration,\n                2.5s ease-in-out 0s infinite normal none running\n              );\n\n            @keyframes very-long-animation-name {\n              to {\n                opacity: 1;\n              }\n            }\n          }\n\n          @tailwind utilities;",
-        "expected": "\":root, :host {\n        --animate-very-long-animation-name: very-long-animation-name var(--very-long-animation-name-configuration, 2.5s ease-in-out 0s infinite normal none running);\n      }\n\n      .animate-very-long-animation-name {\n        animation: var(--animate-very-long-animation-name);\n      }\n\n      @keyframes very-long-animation-name {\n        to {\n          opacity: 1;\n        }\n      }\""
+        "expected": "\":root, :host {\n        --animate-very-long-animation-name: very-long-animation-name\n                    var(--very-long-animation-name-configuration, 2.5s ease-in-out 0s infinite normal none running);\n      }\n\n      .animate-very-long-animation-name {\n        animation: var(--animate-very-long-animation-name);\n      }\n\n      @keyframes very-long-animation-name {\n        to {\n          opacity: 1;\n        }\n      }\""
     },
     {
         "name": "`@theme` values can be unset",

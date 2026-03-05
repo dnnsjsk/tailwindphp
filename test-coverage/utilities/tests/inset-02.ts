@@ -8,6 +8,93 @@
 import { expect, test } from 'vitest'
 import { compileCss, run } from './test-utils/run'
 
+test('left', async () => {
+  expect(
+    await compileCss(
+      css`
+        @theme {
+          --spacing-4: 1rem;
+          --inset-shadowned: 1940px;
+        }
+        @tailwind utilities;
+      `,
+      [
+        'left-shadowned',
+        'left-auto',
+        '-left-full',
+        'left-full',
+        'left-3/4',
+        'left-4',
+        '-left-4',
+        'left-[4px]',
+      ],
+    ),
+  ).toMatchInlineSnapshot(`
+    ":root, :host {
+      --spacing-4: 1rem;
+      --inset-shadowned: 1940px;
+    }
+
+    .-left-4 {
+      left: calc(var(--spacing-4) * -1);
+    }
+
+    .-left-full {
+      left: -100%;
+    }
+
+    .left-3\\/4 {
+      left: 75%;
+    }
+
+    .left-4 {
+      left: var(--spacing-4);
+    }
+
+    .left-\\[4px\\] {
+      left: 4px;
+    }
+
+    .left-auto {
+      left: auto;
+    }
+
+    .left-full {
+      left: 100%;
+    }
+
+    .left-shadowned {
+      left: var(--inset-shadowned);
+    }"
+  `)
+  expect(
+    await compileCss(
+      css`
+        @theme reference {
+          --spacing-4: 1rem;
+          --inset-shadow-sm: inset 0 1px 1px rgb(0 0 0 / 0.05);
+        }
+        @tailwind utilities;
+      `,
+      [
+        'left-shadow-sm',
+        'left',
+        'left--1',
+        'left--1/2',
+        'left--1/-2',
+        'left-1/-2',
+        'left-auto/foo',
+        '-left-full/foo',
+        'left-full/foo',
+        'left-3/4/foo',
+        'left-4/foo',
+        '-left-4/foo',
+        'left-[4px]/foo',
+      ],
+    ),
+  ).toEqual('')
+})
+
 test('inset-shadow', async () => {
   expect(
     await compileCss(

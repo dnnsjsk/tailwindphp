@@ -84,7 +84,6 @@ class css_functions extends TestCase
      * Test names that require JS features beyond just @plugin/@config.
      */
     private const JS_TOOLING_TEST_NAMES = [
-        'upgrades to a full JS compat theme lookup if a value can not be mapped to a CSS variable',
     ];
 
     /**
@@ -151,9 +150,11 @@ class css_functions extends TestCase
         }
 
         // Compile the CSS
-        // Spec tests provide their own @theme in CSS, so don't load default theme
+        // Most tests provide their own @theme in CSS, so don't load default theme.
+        // Tests without @theme need the default theme for lookups like fontWeight.semibold.
+        $needsDefaultTheme = !str_contains($inputCss, '@theme');
         try {
-            $compiled = compile($fullCss, ['loadDefaultTheme' => false]);
+            $compiled = compile($fullCss, ['loadDefaultTheme' => $needsDefaultTheme]);
             $actual = $compiled['build']($classes);
         } catch (\Exception $e) {
             if ($type === 'error') {

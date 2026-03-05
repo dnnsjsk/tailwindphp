@@ -293,7 +293,7 @@
         "expected": "\".foo {\n      margin: .25rem;\n    }\""
     },
     {
-        "name": "upgrades to a full JS compat theme lookup if a value can not be mapped to a CSS variable",
+        "name": "upgrades to a full JS compat theme lookup if a value cannot be mapped to a CSS variable",
         "type": "output",
         "inputCss": ".semi {\n          font-weight: theme(fontWeight.semibold);\n        }",
         "classes": [],

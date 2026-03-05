@@ -62,7 +62,7 @@
         "classes": [
             "tw:font-sans"
         ],
-        "expected": "\":root, :host {\n        --tw-font-sans: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\";\n        --tw-default-font-family: var(--tw-font-sans);\n      }\n\n      @layer base {\n        html {\n          font-family: var(--tw-default-font-family, sans-serif);\n        }\n      }\n\n      .tw\\\\:font-sans {\n        font-family: var(--tw-font-sans);\n      }\""
+        "expected": "\":root, :host {\n        --tw-font-sans: ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\",\n                    \"Segoe UI Symbol\", \"Noto Color Emoji\";\n        --tw-default-font-family: var(--tw-font-sans);\n      }\n\n      @layer base {\n        html {\n          font-family: var(--tw-default-font-family, sans-serif);\n        }\n      }\n\n      .tw\\\\:font-sans {\n        font-family: var(--tw-font-sans);\n      }\""
     },
     {
         "name": "--theme(\u2026) forces the value to be retrieved as inline when used inside an at-rule",

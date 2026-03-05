@@ -56,13 +56,15 @@ function registerLayoutUtilities(UtilityBuilder $builder): void
     $builder->staticUtility('relative', [['position', 'relative']]);
     $builder->staticUtility('sticky', [['position', 'sticky']]);
 
-    // Inset utilities (top, right, bottom, left, inset, inset-x, inset-y, start, end)
+    // Inset utilities (top, right, bottom, left, inset, inset-x, inset-y, inset-s, inset-e, inset-bs, inset-be)
     $insetProperties = [
         ['inset', 'inset'],
         ['inset-x', 'inset-inline'],
         ['inset-y', 'inset-block'],
-        ['start', 'inset-inline-start'],
-        ['end', 'inset-inline-end'],
+        ['inset-s', 'inset-inline-start'],
+        ['inset-e', 'inset-inline-end'],
+        ['inset-bs', 'inset-block-start'],
+        ['inset-be', 'inset-block-end'],
         ['top', 'top'],
         ['right', 'right'],
         ['bottom', 'bottom'],
